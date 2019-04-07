@@ -42,7 +42,7 @@ class DocTable:
             
         
         self.isblob = {name:dtype=='blob' for name,dtype in self.schema}
-        self.columns = [s[1] for s in self.schema]
+        self.columns = [s[0] for s in self.schema]
         
     
     def get_schema(self):
