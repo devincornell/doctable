@@ -20,14 +20,39 @@ class DocTable:
         
         self.colschema = colschema
         self.tabname = tabname
+        self.verbose = verbose
+        
         #self.doccol = columns.split(',')[-1].strip().split(' ')[0].strip()
         self.conn = sqlite3.connect(fname) if conn is None else conn
         self.c = self.conn.cursor()
-        self.c.execute("create table if not exists "+self.tabname+"("+self.colschema+")")
-        self.schema = list(self.c.execute('PRAGMA table_Info("{}")'.format(self.tabname,)))
-        self.isblob = {col[1]:col[2]=='blob' for col in self.schema}
+        self.schema = self.get_schema()
+        
+        # make new table if needed, ensure schema is same
+        res = self.query("SELECT name FROM sqlite_master WHERE type='table'")
+        existcols = [col[0] for col in res]
+        if tabname not in existcols:
+            self.c.execute("create table "+self.tabname+"("+self.colschema+")")
+        else:
+            spec_schema = [col.strip().split() for col in colschema.split(',')]
+            spec_schema = [(col[0],col[1]) for col in spec_schema if not '(' in ''.join(col)]
+            
+            if spec_schema != self.schema:
+                s_str = 'old: {}, new: {}'.format(spec_schema, self.get_schema())
+                raise Exception('The specified schema does not match existing table!', s_str)
+            
+        
+        self.isblob = {name:dtype=='blob' for name,dtype in self.schema}
         self.columns = [s[1] for s in self.schema]
-        self.verbose = verbose
+        
+    
+    def get_schema(self):
+        qstr = 'PRAGMA table_Info("{}")'.format(self.tabname,)
+        result = self.c.execute(qstr)
+        
+        # cn[1] is column name and cn[2] is column data type
+        # this can be compared with a parsing of the originally offerend colschema
+        schema = [(cn[1],cn[2]) for cn in result]
+        return schema
     
     def __del__(self):
         self.conn.commit()
