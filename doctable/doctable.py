@@ -23,15 +23,13 @@ class DocTable:
         self.verbose = verbose
         
         #self.doccol = columns.split(',')[-1].strip().split(' ')[0].strip()
-        self.conn = sqlite3.connect(fname) if conn is None else conn
-        self.c = self.conn.cursor()
-        
+        self.conn = sqlite3.connect(fname) if conn is None else conn        
         
         # make new table if needed, ensure schema is same
         res = self.query("SELECT name FROM sqlite_master WHERE type='table'")
         existcols = [col[0] for col in res]
         if tabname not in existcols:
-            self.c.execute("create table "+self.tabname+"("+self.colschema+")")
+            self.query("create table "+self.tabname+"("+self.colschema+")")
         else:
             spec_schema = [col.strip().split() for col in colschema.split(',')]
             spec_schema = [(col[0],col[1]) for col in spec_schema if not '(' in ''.join(col)]
@@ -71,7 +69,7 @@ class DocTable:
         '''
         info = ''
         
-        ct = self.c.execute('SELECT Count(*) FROM '+self.tabname).__next__()[0]
+        ct = self.query('SELECT Count(*) FROM '+self.tabname).__next__()[0]
         info += '<Documents ct: ' + str(ct) + '>'
         
         return info
@@ -83,20 +81,55 @@ class DocTable:
         return self.conn.commit()
     
     
-    def query(self, qstr, payload=None, verbose=False):
+    def query(self, qstr, payload=None, many=False, verbose=False):
         '''
             Executes raw query using database connection.
             
             Output: sqlite query conn.execute() output.
         '''
         if self.verbose or verbose: print(qstr)
+            
+        cursor = self.conn.cursor()
+        
         if payload is None:
-            return self.c.execute(qstr)
+            return cursor.execute(qstr)
         else:
-            return self.c.execute(qstr,payload)
+            if not many:
+                return cursor.execute(qstr,payload)
+            else:
+                return cursor.executemany(qstr,payload)
     
         
-    # ifnotunique = 
+    def pickle_values(self, cols, values, serialize=True):
+        '''
+            Converts blob type columns into pickled blobs. 
+                Also error-checks submitted columns.
+            
+            Inputs:
+                cols: list of columns associated with each value
+                values: list or tuple of values to potentially convert
+            
+            Output:
+                list of values with python objects pickled into blobs
+        '''
+        if not all([c in self.columns for c in cols]):
+            raise Exception('Not all submitted columns are in database.')
+        
+        out_values = list()
+        for colname,val in zip(cols,values):
+            if self.isblob[colname]:
+                if serialize:
+                    out_values.append( pickle.dumps(val) )
+                else:
+                    if val is not None:
+                        out_values.append( pickle.loads(val) )
+                    else:
+                        out_values.append( None )
+            else:
+                out_values.append(val)
+        return out_values
+    
+    
     def add(self, datadict, ifnotunique=None):
         '''
             Adds a single entry where each column is identified by a key-value pair. 
@@ -110,8 +143,11 @@ class DocTable:
             Output:
                 query response
         '''
-        cols = list(datadict.keys())
-        payload = [datadict[c] if not (c in self.isblob.keys() and self.isblob[c]) else pickle.dumps(datadict[c]) for c in cols]
+        data = list(datadict.items())
+        cols = [c for c,v in data]
+        values = [v for c,v in data]
+        #payload = [datadict[c] if not (c in self.isblob.keys() and self.isblob[c]) else pickle.dumps(datadict[c]) for c in cols]
+        payload = self.pickle_values(cols, values, serialize=True)
         n = len(cols)
         replacecode = ' OR ' + ifnotunique if ifnotunique is not None else ''
         
@@ -140,14 +176,15 @@ class DocTable:
         
         if sum(self.isblob.values()) > 0:
             # need to convert some python objects to blobs for storage
-            payload = ([d[i] if not self.isblob[c] else pickle.dumps(d[i]) for i,c in enumerate(cols)] for d in data)
+            #payload = ([d[i] if not self.isblob[c] else pickle.dumps(d[i]) for i,c in enumerate(cols)] for d in data)
+            payload = [self.pickle_values(cols, values, serialize=True) for values in data]
         else:
             payload = data
         
         replacecode = ' OR ' + ifnotunique if ifnotunique is not None else ''
         qstr = 'INSERT'+replacecode+' INTO ' + self.tabname + '('+','.join(cols)+') VALUES ('+','.join(['?']*n)+')'
         
-        return self.c.executemany(qstr, payload)
+        return self.query(qstr, payload, many=True)
     
     def delete(self, where):
         '''
@@ -181,32 +218,16 @@ class DocTable:
                 query response
         '''
         valuelist = list(values.items())
+        vals = [v for k,v in valuelist]
+        cols = [k for k,v in valuelist]
         # UPDATE tasks SET priority = ?, begin_date = ?, end_date = ? WHERE id = ?
-        qstr =  'UPDATE '+self.tabname+' SET ' + ', '.join([k+' = ?' for k,v in valuelist])
+        qstr =  'UPDATE '+self.tabname+' SET ' + ', '.join([c+' = ?' for c in cols])
         if where != '*':
             qstr += ' WHERE ' + where
-        
-        return self.query(qstr,[v for k,v in valuelist])
-        
-        
-        
-    def pickle_values(self, cols, values,serialize=True):
-        out_values = list()
-        for colname,val in zip(cols,values):
-            if self.isblob[colname]:
-                if serialize:
-                    #if val is not None:
-                    out_values.append( pickle.dumps(val) )
-                    #else:
-                    #    out_values.append( pickle.dumps('') )
-                else:
-                    if val is not None:
-                        out_values.append( pickle.loads(val) )
-                    else:
-                        out_values.append( None )
-            else:
-                out_values.append(val)
-        return out_values
+
+        pickled_values = self.pickle_values(cols, vals, serialize=True)
+        return self.query(qstr,pickled_values)
+    
             
     def get(self, sel=None, where=None, orderby=None, limit=None, table=None, verbose=False, asdict=True):
         '''
@@ -225,6 +246,7 @@ class DocTable:
                 asdict: True/False flag indicating whether rows should be returned as 
                     lists (False) or as dicts with field names (True & default).
         '''
+                
         tabname = table if table is not None else self.tabname
         whereclause = ' WHERE '+where if where is not None else ''
         orderbyclause = (' ORDER BY '+orderby) if orderby is not None else ''
@@ -241,21 +263,12 @@ class DocTable:
         if verbose: print(qstr)
         
         if asdict:
-            for result in self.c.execute(qstr):
-                #yield {
-                #    sel[i]:
-                #        result[i] if not (sel[i] in self.columns and self.isblob[sel[i]]) else pickle.loads(result[i]) 
-                #        for i in range(n)
-                #    }
+            for result in self.query(qstr):
                 yield {
                     col:val for col,val in zip(usecols,self.pickle_values(usecols,result,serialize=False))
                 }
         else:
-            for result in self.c.execute(qstr):
-                #yield [
-                #        result[i] if not (sel[i] in self.columns and self.isblob[sel[i]]) else pickle.loads(result[i]) 
-                #        for i in range(n)
-                #    ]
+            for result in self.query(qstr):
                 yield self.pickle_values(usecols,result,serialize=False)
         
     def getdf(self, *args, **kwargs):
