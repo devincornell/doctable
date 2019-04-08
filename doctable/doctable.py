@@ -137,10 +137,10 @@ class DocTable:
         cols = list(keys) if keys is not None else self.columns
         n = len(cols)
         
+        
         if sum(self.isblob.values()) > 0:
             # need to convert some python objects to blobs for storage
-            payload = ([d[c] if not self.isblob[c] else pickle.dumps(d[c]) for c in cols] for d in data)
-            print('checking all')
+            payload = ([d[i] if not self.isblob[c] else pickle.dumps(d[i]) for i,c in enumerate(cols)] for d in data)
         else:
             payload = data
         
@@ -188,6 +188,26 @@ class DocTable:
         
         return self.query(qstr,[v for k,v in valuelist])
         
+        
+        
+    def pickle_values(self, cols, values,serialize=True):
+        out_values = list()
+        for colname,val in zip(cols,values):
+            if self.isblob[colname]:
+                if serialize:
+                    #if val is not None:
+                    out_values.append( pickle.dumps(val) )
+                    #else:
+                    #    out_values.append( pickle.dumps('') )
+                else:
+                    if val is not None:
+                        out_values.append( pickle.loads(val) )
+                    else:
+                        out_values.append( None )
+            else:
+                out_values.append(val)
+        return out_values
+            
     def get(self, sel=None, where=None, orderby=None, limit=None, table=None, verbose=False, asdict=True):
         '''
             Query rows from database as generator.
@@ -211,28 +231,32 @@ class DocTable:
         limitclause = ' LIMIT ' + str(limit) if limit is not None else ''
         
         if sel is None:
-            sel = self.columns
+            usecols = self.columns
+        else:
+            usecols = sel
         
-        n = len(sel)
+        n = len(usecols)
         
-        qstr = 'select '+','.join(sel)+' from '+tabname+whereclause+orderbyclause+limitclause
+        qstr = 'select '+','.join(usecols)+' from '+tabname+whereclause+orderbyclause+limitclause
         if verbose: print(qstr)
         
         if asdict:
             for result in self.c.execute(qstr):
-                
-                    yield {
-                        sel[i]:
-                            result[i] if not (sel[i] in self.columns and self.isblob[sel[i]]) else pickle.loads(result[i]) 
-                            for i in range(n)
-                        }
+                #yield {
+                #    sel[i]:
+                #        result[i] if not (sel[i] in self.columns and self.isblob[sel[i]]) else pickle.loads(result[i]) 
+                #        for i in range(n)
+                #    }
+                yield {
+                    col:val for col,val in zip(usecols,self.pickle_values(usecols,result,serialize=False))
+                }
         else:
             for result in self.c.execute(qstr):
-                
-                    yield [
-                            result[i] if not (sel[i] in self.columns and self.isblob[sel[i]]) else pickle.loads(result[i]) 
-                            for i in range(n)
-                        ]
+                #yield [
+                #        result[i] if not (sel[i] in self.columns and self.isblob[sel[i]]) else pickle.loads(result[i]) 
+                #        for i in range(n)
+                #    ]
+                yield self.pickle_values(usecols,result,serialize=False)
         
     def getdf(self, *args, **kwargs):
         '''
