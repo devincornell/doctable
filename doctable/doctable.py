@@ -190,7 +190,7 @@ class DocTable:
         
     def get(self, sel=None, where=None, orderby=None, limit=None, table=None, verbose=False, asdict=True):
         '''
-            Query rows from database.
+            Query rows from database as generator.
                 
             Inputs:
                 sel: list of fields to retrieve with the query
@@ -202,8 +202,8 @@ class DocTable:
                 table: table name to retrieve for. Default is object table name, but can query from 
                     others here.
                 verbose: True/False flag indicating whether or not output should appear.
-                asdict: True/False flag indicating 
-                    
+                asdict: True/False flag indicating whether rows should be returned as 
+                    lists (False) or as dicts with field names (True & default).
         '''
         tabname = table if table is not None else self.tabname
         whereclause = ' WHERE '+where if where is not None else ''
@@ -235,6 +235,12 @@ class DocTable:
                         ]
         
     def getdf(self, *args, **kwargs):
+        '''
+            Query rows from database, return as Pandas DataFrame.
+                
+            Inputs:
+                See inputs for self.get().
+        '''
         results = list(self.get(*args, **kwargs))
         if len(results) > 0:
             sel = list(results[0].keys())
