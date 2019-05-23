@@ -12,18 +12,21 @@ class DocTable:
     
     def __init__(self,
                  fname='documents.db', 
-                 conn=None,
                  tabname='documents', 
                  colschema='num integer, doc blob',
                  verbose=False,
+                 persistent_conn=True,
                 ):
         
+        self.fname = fname
         self.colschema = colschema
         self.tabname = tabname
         self.verbose = verbose
         
-        #self.doccol = columns.split(',')[-1].strip().split(' ')[0].strip()
-        self.conn = sqlite3.connect(fname) if conn is None else conn        
+        if persistent_conn:
+            self.conn = sqlite3.connect(fname)
+        else:
+            self.conn = None
         
         # make new table if needed, ensure schema is same
         res = self.query("SELECT name FROM sqlite_master WHERE type='table'")
@@ -59,7 +62,8 @@ class DocTable:
         '''
             Closes connection upon deletion.
         '''
-        self.conn.commit()
+        if self.conn is not None:
+            self.conn.commit()
         
     def __str__(self):
         '''
@@ -78,19 +82,33 @@ class DocTable:
         '''
             Commits database changes to file.
         '''
-        return self.conn.commit()
+        if self.conn is not None:
+            return self.conn.commit()
+        # do nothing otherwise; change to exception later?
     
     
-    def query(self, qstr, payload=None, many=False, verbose=False):
+    def query(self, qstr, payload=None, many=False, verbose=False, new_conn=False):
         '''
             Executes raw query using database connection.
             
             Output: sqlite query conn.execute() output.
         '''
         if self.verbose or verbose: print(qstr)
-            
-        cursor = self.conn.cursor()
         
+        # make a new connection and cursor
+        #if self.conn is not None and not new_conn:
+        if new_conn or self.conn is None:
+            with sqlite3.connect(self.fname) as conn:
+                cursor = conn.cursor()
+                return self._query_exec(cursor, qstr, payload, many)
+        
+        # use instance connection and make new cursor
+        else:
+            cursor = self.conn.cursor()
+            return self._query_exec(cursor, qstr, payload, many)
+        
+    @staticmethod
+    def _query_exec(cursor, qstr, payload, many):
         if payload is None:
             return cursor.execute(qstr)
         else:
@@ -130,7 +148,7 @@ class DocTable:
         return out_values
     
     
-    def add(self, datadict, ifnotunique=None):
+    def add(self, datadict, ifnotunique=None, **queryargs):
         '''
             Adds a single entry where each column is identified by a key-value pair. 
                 Will automatically convert python types to sqlite storage blobs using pickle.
@@ -152,9 +170,9 @@ class DocTable:
         replacecode = ' OR ' + ifnotunique if ifnotunique is not None else ''
         
         qstr = 'INSERT'+replacecode+' INTO ' + self.tabname + '('+','.join(cols)+') VALUES ('+','.join(['?']*n)+')'
-        return self.query(qstr, payload)
+        return self.query(qstr, payload, **queryargs)
         
-    def addmany(self, data, keys=None, ifnotunique=None):
+    def addmany(self, data, keys=None, ifnotunique=None, **queryargs):
         '''
             Adds multiple entries to the database, where column names are specified by "keys".
                 If "keys" is not specified, will use all columns (including autoincrement columns).
@@ -184,9 +202,9 @@ class DocTable:
         replacecode = ' OR ' + ifnotunique if ifnotunique is not None else ''
         qstr = 'INSERT'+replacecode+' INTO ' + self.tabname + '('+','.join(cols)+') VALUES ('+','.join(['?']*n)+')'
         
-        return self.query(qstr, payload, many=True)
+        return self.query(qstr, payload, many=True, **queryargs)
     
-    def delete(self, where):
+    def delete(self, where, **queryargs):
         '''
             Deletes all rows matching the where criteria.
                 
@@ -201,10 +219,10 @@ class DocTable:
         if where == '*':
             qstr += ' WHERE ' + where
             
-        return self.query(qstr)
+        return self.query(qstr, **queryargs)
         
     
-    def update(self, values, where):
+    def update(self, values, where, **queryargs):
         '''
             Updates rows matching the "where" string with specified values.
                 
@@ -226,10 +244,10 @@ class DocTable:
             qstr += ' WHERE ' + where
 
         pickled_values = self.pickle_values(cols, vals, serialize=True)
-        return self.query(qstr,pickled_values)
+        return self.query(qstr,pickled_values, **queryargs)
     
             
-    def get(self, sel=None, where=None, orderby=None, limit=None, table=None, verbose=False, asdict=True):
+    def get(self, sel=None, where=None, orderby=None, limit=None, table=None, verbose=False, asdict=True, **queryargs):
         '''
             Query rows from database as generator.
                 
@@ -245,6 +263,7 @@ class DocTable:
                 verbose: True/False flag indicating whether or not output should appear.
                 asdict: True/False flag indicating whether rows should be returned as 
                     lists (False) or as dicts with field names (True & default).
+                kwargs: to be sent to self.query().
         '''
                 
         tabname = table if table is not None else self.tabname
@@ -263,12 +282,12 @@ class DocTable:
         if verbose: print(qstr)
         
         if asdict:
-            for result in self.query(qstr):
+            for result in self.query(qstr, **queryargs):
                 yield {
                     col:val for col,val in zip(usecols,self.pickle_values(usecols,result,serialize=False))
                 }
         else:
-            for result in self.query(qstr):
+            for result in self.query(qstr, **queryargs):
                 yield self.pickle_values(usecols,result,serialize=False)
         
     def getdf(self, *args, **kwargs):
