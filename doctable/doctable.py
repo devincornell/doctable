@@ -13,50 +13,84 @@ class DocTable:
     def __init__(self,
                  fname='documents.db', 
                  tabname='documents', 
-                 colschema='num integer, doc blob',
+                 colschema=('num integer', 'doc blob'),
+                 constraints=tuple(),
                  verbose=False,
-                 persistent_conn=True,
+                 persistent_conn=False,
                 ):
         
         self.fname = fname
-        self.colschema = colschema
         self.tabname = tabname
+        self.colschema = colschema
+        self.constraints = constraints
         self.verbose = verbose
+        self.conn = None
+        
+        self._try_create_table()
+        
+        self.schema = self._get_schema()
+        self.columns = list(self.schema['name'])
+        
+        self._check_schema()
         
         if persistent_conn:
             self.conn = sqlite3.connect(fname)
-        else:
-            self.conn = None
         
-        # make new table if needed, ensure schema is same
-        res = self.query("SELECT name FROM sqlite_master WHERE type='table'")
-        existcols = [col[0] for col in res]
-        if tabname not in existcols:
-            self.query("create table "+self.tabname+"("+self.colschema+")")
-        else:
-            spec_schema = [col.strip().split() for col in colschema.split(',')]
-            spec_schema = [(col[0],col[1]) for col in spec_schema if not '(' in ''.join(col)]
-            
-            if spec_schema != self.get_schema():
-                s_str = 'old: {}, new: {}'.format(spec_schema, self.get_schema())
-                raise Exception('The specified schema does not match existing table!', s_str)
-            
-        self.schema = self.get_schema()
-        self.isblob = {name:dtype=='blob' for name,dtype in self.schema}
-        self.columns = [s[0] for s in self.schema]
+        self.isblob = {name:d['type'].lower()=='blob' for name,d in self.schema.iterrows()}
+        
         
     
-    def get_schema(self):
+    def _try_create_table(self,):
+        
+        args = (self.tabname, ', '.join(self.colschema + self.constraints))
+        return self.query('CREATE TABLE IF NOT EXISTS {} ({})'.format(*args))
+        
+    def _check_schema(self,):
         '''
-            Gets schema for table, parses out variable names and types.
+            Compares actual table schema to user-provided schema.
+        '''
+        for colinfo in self.colschema:
+            colinfo = colinfo.split()
+            cname, ctype = colinfo[0], colinfo[1]
+            if cname not in self.columns:
+                estr = ('colschema entry "{}" is not found in '
+                        'existing table cols: {}')
+                raise Exception(estr.format(cname, self.columns))
+                
+            elif ctype != self.schema.loc[cname,'type']:
+                exist_type = self.schema.loc[cname,'type']
+                estr = ('provided "{}" column type "{}" does not match '
+                        'existing data schema type "{}".')
+                raise Exception(estr.format(cname, ctype, exist_type))
+            else:
+                pass
+    
+    def _get_schema(self):
+        '''
+            Sets schema from table, parsing out variable names and types.
         '''
         qstr = 'PRAGMA table_Info("{}")'.format(self.tabname,)
-        result = self.query(qstr)
+        result = tuple(self.query(qstr))
         
-        # cn[1] is column name and cn[2] is column data type
-        # this can be compared with a parsing of the originally offerend colschema
-        schema = [(cn[1],cn[2]) for cn in result]
-        return schema
+        cols = ['cid', 'name', 'type', 'notnull', 'dflt_value','pk']
+        schema_df = pd.DataFrame(index=range(len(result)), columns=cols)
+        
+        for i,row in enumerate(result):
+            schema_df.iloc[i] = row
+            
+        schema_df = schema_df.set_index('name',drop=False)
+            
+        return schema_df
+
+    
+    def _get_existing_tables(self):
+        '''
+            Gets list of existing tables in the db.
+        '''
+        res = self.query("SELECT name FROM sqlite_master WHERE type='table'")
+        existcols = [col[0] for col in res]
+        return existcols
+    
     
     def __del__(self):
         '''
@@ -118,7 +152,7 @@ class DocTable:
                 return cursor.executemany(qstr,payload)
     
         
-    def pickle_values(self, cols, values, serialize=True):
+    def _pickle_values(self, cols, values, serialize=True):
         '''
             Converts blob type columns into pickled blobs. 
                 Also error-checks submitted columns.
@@ -165,7 +199,7 @@ class DocTable:
         cols = [c for c,v in data]
         values = [v for c,v in data]
         #payload = [datadict[c] if not (c in self.isblob.keys() and self.isblob[c]) else pickle.dumps(datadict[c]) for c in cols]
-        payload = self.pickle_values(cols, values, serialize=True)
+        payload = self._pickle_values(cols, values, serialize=True)
         n = len(cols)
         replacecode = ' OR ' + ifnotunique if ifnotunique is not None else ''
         
@@ -195,7 +229,7 @@ class DocTable:
         if sum(self.isblob.values()) > 0:
             # need to convert some python objects to blobs for storage
             #payload = ([d[i] if not self.isblob[c] else pickle.dumps(d[i]) for i,c in enumerate(cols)] for d in data)
-            payload = [self.pickle_values(cols, values, serialize=True) for values in data]
+            payload = [self._pickle_values(cols, values, serialize=True) for values in data]
         else:
             payload = data
         
@@ -243,7 +277,7 @@ class DocTable:
         if where != '*':
             qstr += ' WHERE ' + where
 
-        pickled_values = self.pickle_values(cols, vals, serialize=True)
+        pickled_values = self._pickle_values(cols, vals, serialize=True)
         return self.query(qstr,pickled_values, **queryargs)
     
             
@@ -284,11 +318,11 @@ class DocTable:
         if asdict:
             for result in self.query(qstr, **queryargs):
                 yield {
-                    col:val for col,val in zip(usecols,self.pickle_values(usecols,result,serialize=False))
+                    col:val for col,val in zip(usecols,self._pickle_values(usecols,result,serialize=False))
                 }
         else:
             for result in self.query(qstr, **queryargs):
-                yield self.pickle_values(usecols,result,serialize=False)
+                yield self._pickle_values(usecols,result,serialize=False)
         
     def getdf(self, *args, **kwargs):
         '''
