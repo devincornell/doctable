@@ -11,7 +11,7 @@ setup(name='doctable',
     packages=['doctable'],
     requires=['sqlite3', 'pickle', 'pandas'],
     zip_safe=False,
-    download_url='https://github.com/devincornell/doctable/archive/v0.2.tar.gz'
+    download_url='https://github.com/devincornell/doctable/archive/v0.3.tar.gz'
      )
 
 
