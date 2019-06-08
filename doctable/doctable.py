@@ -16,7 +16,7 @@ class DocTable:
                  colschema=('num integer', 'doc blob'),
                  constraints=tuple(),
                  verbose=False,
-                 persistent_conn=False,
+                 persistent_conn=True,
                 ):
         
         self.fname = fname
@@ -121,7 +121,7 @@ class DocTable:
         # do nothing otherwise; change to exception later?
     
     
-    def query(self, qstr, payload=None, many=False, verbose=False, new_conn=False):
+    def query(self, qstr, payload=None, many=False, verbose=False):
         '''
             Executes raw query using database connection.
             
@@ -130,8 +130,7 @@ class DocTable:
         if self.verbose or verbose: print(qstr)
         
         # make a new connection and cursor
-        #if self.conn is not None and not new_conn:
-        if new_conn or self.conn is None:
+        if self.conn is None:
             with sqlite3.connect(self.fname) as conn:
                 cursor = conn.cursor()
                 return self._query_exec(cursor, qstr, payload, many)
