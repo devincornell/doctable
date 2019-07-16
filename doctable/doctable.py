@@ -12,9 +12,9 @@ class DocTable:
     '''
     
     def __init__(self,
+                 colschema,
                  fname=':memory:', 
                  tabname='_documents_', 
-                 colschema=('num integer', 'doc blob'),
                  constraints=tuple(),
                  verbose=False,
                  persistent_conn=True,
@@ -41,10 +41,10 @@ class DocTable:
         
         self._check_schema()
         
-        self.isblob = {name:d['type'].lower()=='blob' for name,d in self.schema.iterrows()}
-        
-        
-    
+        # keep track of cols with custom data types
+        self.types = self.schema['type'].map(lambda t: t.split()[0].lower())
+
+            
     def _try_create_table(self,):
         
         args = (self.tabname, ', '.join(self.colschema + self.constraints))
@@ -57,11 +57,12 @@ class DocTable:
         for colinfo in self.colschema:
             colinfo = colinfo.split()
             cname, ctype = colinfo[0], colinfo[1]
+            
             if cname not in self.columns:
                 estr = ('Column schema entry "{}" is not found in '
                         'existing table col list: {}')
                 raise Exception(estr.format(cname, self.columns))
-                
+            
             elif ctype != self.schema.loc[cname,'type']:
                 exist_type = self.schema.loc[cname,'type']
                 estr = ('Provided column "{}" of type "{}" does not match '
@@ -74,7 +75,7 @@ class DocTable:
         '''
             Sets schema from table, parsing out variable names and types.
         '''
-        qstr = 'PRAGMA table_info("{}")'.format(self.tabname,)
+        qstr = 'PRAGMA table_Info("{}")'.format(self.tabname,)
         result = tuple(self.query(qstr))
         
         cols = ['cid', 'name', 'type', 'notnull', 'dflt_value','pk']
@@ -84,7 +85,7 @@ class DocTable:
             schema_df.iloc[i] = row
             
         schema_df = schema_df.set_index('name',drop=False)
-            
+        
         return schema_df
 
     
@@ -126,7 +127,7 @@ class DocTable:
         # do nothing otherwise; change to exception later?
     
     
-    def query(self, qstr, payload=None, many=False, verbose=False):
+    def query(self, qstr, payload=None, many=False, verbose=False, lastrowid=False):
         '''
             Executes raw query using database connection.
             
@@ -138,12 +139,20 @@ class DocTable:
         if self.conn is None:
             with sqlite3.connect(self.fname) as conn:
                 cursor = conn.cursor()
-                return self._query_exec(cursor, qstr, payload, many)
+                e = self._query_exec(cursor, qstr, payload, many)
+                if lastrowid:
+                    return e, cursor.lastrowid
+                else:
+                    return e
         
         # use instance connection and make new cursor
         else:
             cursor = self.conn.cursor()
-            return self._query_exec(cursor, qstr, payload, many)
+            e = self._query_exec(cursor, qstr, payload, many)
+            if lastrowid:
+                return e, cursor.lastrowid
+            else:
+                return e
         
     @staticmethod
     def _query_exec(cursor, qstr, payload, many):
@@ -156,37 +165,35 @@ class DocTable:
                 return cursor.executemany(qstr,payload)
     
         
-    def _pickle_values(self, cols, values, serialize=True):
+    def _pack_data(self, rowdict, unpack=False):
         '''
-            Converts blob type columns into pickled blobs. 
-                Also error-checks submitted columns.
-            
-            Inputs:
-                cols: list of columns associated with each value
-                values: list or tuple of values to potentially convert
-            
-            Output:
-                list of values with python objects pickled into blobs
+            Converts user-supplied data to compacted data to be stored
+                in the database. If unpack=True, does the opposite.
         '''
-        if not all([c in self.columns for c in cols]):
-            raise Exception('Not all submitted columns are in database.')
-        
-        out_values = list()
-        for colname,val in zip(cols,values):
-            if self.isblob[colname]:
-                if serialize:
-                    out_values.append( pickle.dumps(val) )
+        cols = tuple(rowdict.keys())
+        for col in rowdict.items():
+            if self.types[col] == 'blob':
+                if unpack:
+                    rowdict[col]  = pickle.loads(val)
                 else:
-                    if val is not None:
-                        out_values.append( pickle.loads(val) )
-                    else:
-                        out_values.append( None )
-            else:
-                out_values.append(val)
-        return out_values
+                    rowdict[col]  = pickle.dumps(val)
+            
+            if self.types[col] == 'sentences':
+                if unpack:
+                    rowdict[col] = [d.split('\t') for d in rowdict[col].split('\n')]
+                else:
+                    rowdict[col] = '\n'.join([s.join('\t') for s in rowdict[col]])
+                    
+            if self.types[col] == 'tokens':
+                if unpack:
+                    rowdict[col] = rowdict[col].split('\n')
+                else:
+                    rowdict[col] = '\n'.join(rowdict[col])
+        
+        return rowdict
     
     
-    def add(self, datadict, ifnotunique=None, **queryargs):
+    def add(self, datadict, ifnotunique=None, lastrowid=False, **queryargs):
         '''
             Adds a single entry where each column is identified by a key-value pair. 
                 Will automatically convert python types to sqlite storage blobs using pickle.
@@ -202,15 +209,17 @@ class DocTable:
         data = list(datadict.items())
         cols = [c for c,v in data]
         values = [v for c,v in data]
-        #payload = [datadict[c] if not (c in self.isblob.keys() and self.isblob[c]) else pickle.dumps(datadict[c]) for c in cols]
+        
         payload = self._pickle_values(cols, values, serialize=True)
         n = len(cols)
         replacecode = ' OR ' + ifnotunique if ifnotunique is not None else ''
         
-        qstr = 'INSERT'+replacecode+' INTO ' + self.tabname + '('+','.join(cols)+') VALUES ('+','.join(['?']*n)+')'
+        args = (replacecode, self.tabname, ','.join(cols), ','.join(['?']*n))
+        qstr = 'INSERT {} INTO {} ({}) VALUES ({})'.format(*args)
+        #qstr = 'INSERT'+replacecode+' INTO ' + self.tabname + '('+','.join(cols)+') VALUES ('+','.join(['?']*n)+')'
         return self.query(qstr, payload, **queryargs)
         
-    def addmany(self, data, keys=None, ifnotunique=None, **queryargs):
+    def addmany(self, rowdats, ifnotunique=None, **queryargs):
         '''
             Adds multiple entries to the database, where column names are specified by "keys".
                 If "keys" is not specified, will use all columns (including autoincrement columns).
@@ -230,7 +239,7 @@ class DocTable:
         n = len(cols)
         
         
-        if sum(self.isblob.values()) > 0:
+        if len(self.blob_cols) + len(self.sent_cols) + len(self.token_cols) > 0:
             # need to convert some python objects to blobs for storage
             #payload = ([d[i] if not self.isblob[c] else pickle.dumps(d[i]) for i,c in enumerate(cols)] for d in data)
             payload = [self._pickle_values(cols, values, serialize=True) for values in data]
@@ -253,12 +262,15 @@ class DocTable:
             Output:
                 query response
         '''
-        qstr = 'DELETE FROM '+ self.tabname
+        qstr = 'DELETE FROM {}'.format(self.tabname)
         if where == '*':
             qstr += ' WHERE ' + where
             
         return self.query(qstr, **queryargs)
-        
+    
+    def delete_all(self, **queryargs):
+        qstr = 'DELETE FROM {} *'.format(self.tabname)
+        return self.query(qstr, **queryargs)
     
     def update(self, values, where, **queryargs):
         '''
@@ -303,20 +315,44 @@ class DocTable:
                     lists (False) or as dicts with field names (True & default).
                 kwargs: to be sent to self.query().
         '''
-                
+        
+        # use default table if not provided
         tabname = table if table is not None else self.tabname
         
-        qstr, single_col = self._build_where_str(tabname, sel, where, orderby, groupby, limit)
+        # choose columns to retrieve
+        is_single_col = False
+        if sel is None:
+            cols = self.columns
+        elif isinstance(sel,str):
+            cols = [sel,]
+            self._check_cols(cols, self.columns)
+            is_single_col = True
+        elif isinstance(val, Iterable):
+            cols = sel
+            self._check_cols(cols, self.columns)
+        else:
+            raise ValueError('Column selection must be string '
+                'for single column or list/tuple of multiple columns.')
+                
+        clauses = (
+            self._parse_where(self, where),
+            'ORDER BY '+orderby if orderby is not None else '',
+            'LIMIT ' + str(limit) if limit is not None else '',
+            'GROUP BY ' + str(groupby) if groupby is not None else '',
+        )
+
+        clause = ' '.join(clauses)
+        qstr = 'SELECT {} FROM {} {}'.format(','.join(cols),tabname,clause)
         if verbose: print(qstr)
         
         if asdict:
             for result in self.query(qstr, **queryargs):
                 yield {
-                    col:val for col,val in zip(usecols,self._pickle_values(usecols,result,serialize=False))
+                    col:val for col,val in zip(cols,self._pickle_values(cols,result,serialize=False))
                 }
         else:
             for result in self.query(qstr, **queryargs):
-                yield self._pickle_values(usecols,result,serialize=False)
+                yield self._pickle_values(cols,result,serialize=False)
         
     def getdf(self, *args, **kwargs):
         '''
@@ -335,52 +371,25 @@ class DocTable:
                 sel = list()
         return pd.DataFrame(results, columns=sel)
     
-    def _build_where_str(self, tabname, sel, where, orderby, groupby, limit):
-
-        single_col = False
-        if sel is None:
-            selcols = self.columns
-        elif isinstance(sel,str):
-            selcols = [sel,]
-            self._check_cols(selcols, self.columns)
-            single_col = True
-        elif isinstance(val, Iterable):
-            selcols = sel
-            self._check_cols(selcols, self.columns)
-        else:
-            raise ValueError('Column selection must be string '
-                'for single column or list/tuple of multiple columns.')
+    def _parse_where(self, where, orderby, groupby, limit):
         
         if where is None:
             whereclause = ''
         elif isinstance(where, str):
-            whereclause = ' WHERE ' + where
+            whereclause = ' WHERE {}'.format(where)
         elif isinstance(where, dict):
             whereclause = ' WHERE ' + self._parse_where_struct(where,self.columns)
     
-        clauses = (
-            whereclause,
-            'ORDER BY '+orderby if orderby is not None else '',
-            'LIMIT ' + str(limit) if limit is not None else '',
-            'GROUP BY ' + str(groupby) if groupby is not None else '',
-        )
-
-        clause = ' '.join(clauses)
-        qstr = 'SELECT {} FROM {} {}'.format(','.join(selcols),tabname,clause)
-        
-        return qstr, single_col
+        return whereclause
             
     
-    @classmethod
-    def _parse_where_struct(cls, where_dict, columns):
+    def _parse_where_struct(self, where_dict):
         '''
             Converts a dictionary of where string criteria into a 
                 sqlite "where" string.
             Inputs:
                 where_dict: dictionary of colname->values to build query from.
         '''
-        
-        cls._check_cols(where_dict.keys(), columns)
         
         conditions = list()
         for col, val in where_dict.items():
@@ -389,7 +398,7 @@ class DocTable:
                 conditions.append('{} in ("{}")'.format(col,itstr))
             
             elif isinstance(val, dict):
-                conditions.append(cls._parse_operator(col, val))
+                conditions.append(self._parse_operator(col, val))
             
             else:
                 conditions.append('{} == "{}"'.format(col, str(val)))
@@ -428,7 +437,7 @@ class DocTable:
         '''
         for cn in testcols:
             if cn not in columns:
-                print(cn, columns)
+                print(self.colschema)
                 raise ValueError('Provided column "{}" '
                     'is not in the database table.'.format(cn))
         
