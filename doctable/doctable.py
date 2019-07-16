@@ -1,6 +1,7 @@
 import sqlite3
 import pickle
 import pandas as pd
+from collections.abc import Iterable
 
 ##### DOCUMENT INTERFACE FOR WORKING WITH TEXT DATA #####
 
@@ -11,8 +12,8 @@ class DocTable:
     '''
     
     def __init__(self,
-                 fname='documents.db', 
-                 tabname='documents', 
+                 fname=':memory:', 
+                 tabname='_documents_', 
                  colschema=('num integer', 'doc blob'),
                  constraints=tuple(),
                  verbose=False,
@@ -24,7 +25,14 @@ class DocTable:
         self.colschema = colschema
         self.constraints = constraints
         self.verbose = verbose
-        self.conn = None
+        
+        if fname == ':memory:' and not persistent_conn:
+            raise ValueError('Must use persistent_conn=True for in-memory databases.')
+        
+        if persistent_conn:
+            self.conn = sqlite3.connect(fname)
+        else:
+            self.conn = None
         
         self._try_create_table()
         
@@ -32,9 +40,6 @@ class DocTable:
         self.columns = list(self.schema['name'])
         
         self._check_schema()
-        
-        if persistent_conn:
-            self.conn = sqlite3.connect(fname)
         
         self.isblob = {name:d['type'].lower()=='blob' for name,d in self.schema.iterrows()}
         
@@ -53,13 +58,13 @@ class DocTable:
             colinfo = colinfo.split()
             cname, ctype = colinfo[0], colinfo[1]
             if cname not in self.columns:
-                estr = ('colschema entry "{}" is not found in '
-                        'existing table cols: {}')
+                estr = ('Column schema entry "{}" is not found in '
+                        'existing table col list: {}')
                 raise Exception(estr.format(cname, self.columns))
                 
             elif ctype != self.schema.loc[cname,'type']:
                 exist_type = self.schema.loc[cname,'type']
-                estr = ('provided "{}" column type "{}" does not match '
+                estr = ('Provided column "{}" of type "{}" does not match '
                         'existing data schema type "{}".')
                 raise Exception(estr.format(cname, ctype, exist_type))
             else:
@@ -69,7 +74,7 @@ class DocTable:
         '''
             Sets schema from table, parsing out variable names and types.
         '''
-        qstr = 'PRAGMA table_Info("{}")'.format(self.tabname,)
+        qstr = 'PRAGMA table_info("{}")'.format(self.tabname,)
         result = tuple(self.query(qstr))
         
         cols = ['cid', 'name', 'type', 'notnull', 'dflt_value','pk']
@@ -280,7 +285,7 @@ class DocTable:
         return self.query(qstr,pickled_values, **queryargs)
     
             
-    def get(self, sel=None, where=None, orderby=None, limit=None, table=None, verbose=False, asdict=True, **queryargs):
+    def get(self, sel=None, where=None, orderby=None, groupby=None, limit=None, table=None, verbose=False, asdict=True, **queryargs):
         '''
             Query rows from database as generator.
                 
@@ -300,18 +305,8 @@ class DocTable:
         '''
                 
         tabname = table if table is not None else self.tabname
-        whereclause = ' WHERE '+where if where is not None else ''
-        orderbyclause = (' ORDER BY '+orderby) if orderby is not None else ''
-        limitclause = ' LIMIT ' + str(limit) if limit is not None else ''
         
-        if sel is None:
-            usecols = self.columns
-        else:
-            usecols = sel
-        
-        n = len(usecols)
-        
-        qstr = 'select '+','.join(usecols)+' from '+tabname+whereclause+orderbyclause+limitclause
+        qstr, single_col = self._build_where_str(tabname, sel, where, orderby, groupby, limit)
         if verbose: print(qstr)
         
         if asdict:
@@ -339,9 +334,103 @@ class DocTable:
             except NameError:
                 sel = list()
         return pd.DataFrame(results, columns=sel)
+    
+    def _build_where_str(self, tabname, sel, where, orderby, groupby, limit):
 
+        if sel is None:
+            selcols = self.columns
+        elif isinstance(sel,str):
+            selcols = [sel,]
+            self._check_cols(selcols, self.columns)
+        elif isinstance(val, Iterable):
+            selcols = sel
+            self._check_cols(selcols, self.columns)
+        else:
+            raise ValueError('Column selection must be string '
+                'for single column or list/tuple for multiple columns.')
+        single_col = len(selcols) == 1
+    
+        if where is None:
+            whereclause = ''
+        elif isinstance(where, str):
+            whereclause = ' WHERE ' + where
+        elif isinstance(where, dict):
+            whereclause = ' WHERE ' + self._parse_where_struct(where,self.columns)
+    
+        clauses = (
+            whereclause,
+            'ORDER BY '+orderby if orderby is not None else '',
+            'LIMIT ' + str(limit) if limit is not None else '',
+            'GROUP BY ' + str(groupby) if groupby is not None else '',
+        )
 
+        clause = ' '.join(clauses)
+        qstr = 'SELECT {} FROM {} {}'.format(','.join(selcols),tabname,clause)
+        
+        return qstr, single_col
+            
+    
+    @classmethod
+    def _parse_where_struct(cls, where_dict, columns):
+        '''
+            Converts a dictionary of where string criteria into a 
+                sqlite "where" string.
+            Inputs:
+                where_dict: dictionary of colname->values to build query from.
+        '''
+        
+        cls._check_cols(where_dict.keys(), columns)
+        
+        conditions = list()
+        for col, val in where_dict.items():
+            if is_iter(val):
+                itstr = '", "'.join(map(str,val))
+                conditions.append('{} in ("{}")'.format(col,itstr))
+            
+            elif isinstance(val, dict):
+                conditions.append(cls._parse_operator(col, val))
+            
+            else:
+                conditions.append('{} == "{}"'.format(col, str(val)))
+                
+        return ' AND '.join(conditions)
 
+    @classmethod
+    def _parse_operator(cls, col, conditions):
 
+        cond_list = list()
+        for condition,val in conditions.items():
+            cond = condition.lower()
+
+            if cond == 'or':
+                cond_list.append('(' + ' OR '.join([cls._parse_operator(col,v) for v in val]) + ')')
+
+            elif cond == 'between':
+                if not is_iter(val) or len(val[between_val_key]) is not 2:
+                    raise ValueError('The "between" condition of a structured '
+                        'query should include value range as a 2-tuple.')
+                cond_list.append('{} BETWEEN "{}" AND "{}"'.format(col, *values))
+
+            elif cond in ('in','not in'):
+                itstr = '", "'.join(map(str,val))
+                cond_list.append('{} {} ("{}")'.format(col,cond.upper(),itstr))
+
+            else:
+                cond_list.append('{} {} "{}"'.format(col, cond.upper(), val))
+            
+        return '(' + ' AND '.join(cond_list) + ')'
+            
+    @staticmethod
+    def _check_cols(testcols, columns):
+        '''
+            Make sure all provided testcols are in the columns.
+        '''
+        for cn in testcols:
+            if cn not in columns:
+                print(cn, columns)
+                raise ValueError('Provided column "{}" '
+                    'is not in the database table.'.format(cn))
         
         
+def is_iter(val):
+    return isinstance(val, list) or isinstance(val, tuple)
