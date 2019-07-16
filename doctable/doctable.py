@@ -164,36 +164,8 @@ class DocTable:
             else:
                 return cursor.executemany(qstr,payload)
     
-        
-    def _pack_data(self, rowdict, unpack=False):
-        '''
-            Converts user-supplied data to compacted data to be stored
-                in the database. If unpack=True, does the opposite.
-        '''
-        cols = tuple(rowdict.keys())
-        for col in rowdict.items():
-            if self.types[col] == 'blob':
-                if unpack:
-                    rowdict[col]  = pickle.loads(val)
-                else:
-                    rowdict[col]  = pickle.dumps(val)
-            
-            if self.types[col] == 'sentences':
-                if unpack:
-                    rowdict[col] = [d.split('\t') for d in rowdict[col].split('\n')]
-                else:
-                    rowdict[col] = '\n'.join([s.join('\t') for s in rowdict[col]])
-                    
-            if self.types[col] == 'tokens':
-                if unpack:
-                    rowdict[col] = rowdict[col].split('\n')
-                else:
-                    rowdict[col] = '\n'.join(rowdict[col])
-        
-        return rowdict
-    
-    
-    def add(self, datadict, ifnotunique=None, lastrowid=False, **queryargs):
+                
+    def add(self, rowdat, ifnotunique=None, lastrowid=False, table=None, **queryargs):
         '''
             Adds a single entry where each column is identified by a key-value pair. 
                 Will automatically convert python types to sqlite storage blobs using pickle.
@@ -206,18 +178,23 @@ class DocTable:
             Output:
                 query response
         '''
-        data = list(datadict.items())
-        cols = [c for c,v in data]
-        values = [v for c,v in data]
+        if table is None:
+            table = self.tabname
         
-        payload = self._pickle_values(cols, values, serialize=True)
+        rowdat = self._pack(rowdat)
+        cols = list(rowdat.keys())
+        value_iter = list(rowdat[c] for c in cols)
         n = len(cols)
-        replacecode = ' OR ' + ifnotunique if ifnotunique is not None else ''
         
-        args = (replacecode, self.tabname, ','.join(cols), ','.join(['?']*n))
+        if ifnotunique is not None:
+            replacecode = ' OR {}'.format(ifnotunique.upper())
+        else:
+            replacecode = ''
+        
+        args = (replacecode, table, ','.join(cols), ','.join(['?']*n))
         qstr = 'INSERT {} INTO {} ({}) VALUES ({})'.format(*args)
         #qstr = 'INSERT'+replacecode+' INTO ' + self.tabname + '('+','.join(cols)+') VALUES ('+','.join(['?']*n)+')'
-        return self.query(qstr, payload, **queryargs)
+        return self.query(qstr, value_iter, **queryargs)
         
     def addmany(self, rowdats, ifnotunique=None, **queryargs):
         '''
@@ -285,16 +262,33 @@ class DocTable:
             Output:
                 query response
         '''
-        valuelist = list(values.items())
-        vals = [v for k,v in valuelist]
-        cols = [k for k,v in valuelist]
+        dat = self._pack(values)
+        cols = list(dat.keys())
+        dat_iter = (v for k,v in dat.items())
+        
         # UPDATE tasks SET priority = ?, begin_date = ?, end_date = ? WHERE id = ?
-        qstr =  'UPDATE '+self.tabname+' SET ' + ', '.join([c+' = ?' for c in cols])
-        if where != '*':
-            qstr += ' WHERE ' + where
-
-        pickled_values = self._pickle_values(cols, vals, serialize=True)
-        return self.query(qstr,pickled_values, **queryargs)
+        
+        colstr = ', '.join(['{} = ?'.format(c) for c in cols])
+        qstr = 'UPDATE {} SET {} {}'.format(colstr, self._parse_where(where))
+        return self.query(qstr, dat_iter, **queryargs)
+    
+    
+    def getdf(self, *args, **kwargs):
+        '''
+            Query rows from database, return as Pandas DataFrame.
+                
+            Inputs:
+                See inputs for self.get().
+        '''
+        results = list(self.get(*args, **kwargs))
+        if len(results) > 0:
+            sel = list(results[0].keys())
+        else:
+            try:
+                sel
+            except NameError:
+                sel = list()
+        return pd.DataFrame(results, columns=sel)
     
             
     def get(self, sel=None, where=None, orderby=None, groupby=None, limit=None, table=None, verbose=False, asdict=True, **queryargs):
@@ -325,88 +319,99 @@ class DocTable:
             cols = self.columns
         elif isinstance(sel,str):
             cols = [sel,]
-            self._check_cols(cols, self.columns)
+            self._check_cols(cols)
             is_single_col = True
         elif isinstance(val, Iterable):
             cols = sel
-            self._check_cols(cols, self.columns)
+            self._check_cols(cols)
         else:
             raise ValueError('Column selection must be string '
                 'for single column or list/tuple of multiple columns.')
-                
-        clauses = (
-            self._parse_where(self, where),
+        
+        # prepare clauses
+        clause_list = (
+            self._parse_where(where),
             'ORDER BY '+orderby if orderby is not None else '',
             'LIMIT ' + str(limit) if limit is not None else '',
             'GROUP BY ' + str(groupby) if groupby is not None else '',
         )
 
-        clause = ' '.join(clauses)
-        qstr = 'SELECT {} FROM {} {}'.format(','.join(cols),tabname,clause)
+        clauses = ' '.join(clause_list)
+        qstr = 'SELECT {} FROM {} {}'.format(','.join(cols),tabname,clauses)
         if verbose: print(qstr)
         
         if asdict:
-            for result in self.query(qstr, **queryargs):
+            for dat in self.query(qstr, **queryargs):
                 yield {
-                    col:val for col,val in zip(cols,self._pickle_values(cols,result,serialize=False))
+                    col:val for col,val in zip(cols,self._unpack(cols,dat))
                 }
         else:
             for result in self.query(qstr, **queryargs):
-                yield self._pickle_values(cols,result,serialize=False)
+                yield self._pack(cols,result)
         
-    def getdf(self, *args, **kwargs):
+    def _pack(self, rowdict):
         '''
-            Query rows from database, return as Pandas DataFrame.
-                
-            Inputs:
-                See inputs for self.get().
+            Converts user-supplied data to compacted data to be stored
+                in the database. Edits rowdict in-place, returning reference.
         '''
-        results = list(self.get(*args, **kwargs))
-        if len(results) > 0:
-            sel = list(results[0].keys())
-        else:
-            try:
-                sel
-            except NameError:
-                sel = list()
-        return pd.DataFrame(results, columns=sel)
+        cols = tuple(rowdict.keys())
+        for col in cols:
+            if self.types[col] == 'blob':
+                rowdict[col]  = pickle.dumps(rowdict[col])
+            elif self.types[col] == 'sentences':
+                rowdict[col] = '\n'.join([s.join('\t') for s in rowdict[col]])
+            elif self.types[col] == 'tokens':
+                rowdict[col] = '\n'.join(rowdict[col])
+        
+        return rowdict
     
-    def _parse_where(self, where, orderby, groupby, limit):
+    def _unpack(self, colnames, rowdat):
+        '''
+            Converts database format data to the user-desired format for custom
+                data types.
+        '''
+        for col,dat in zip(colnames, rowdat):
+            if self.types[col] == 'blob':
+                yield pickle.loads(dat)
+            elif self.types[col] == 'sentences':
+                yield [d.split('\t') for d in dat.split('\n')]
+            elif self.types[col] == 'tokens':
+                dat.split('\n')
+            else:
+                yield dat
+    
+    def _parse_where(self, where):
         
-        if where is None:
+        if where is None or \
+            (isinstance(where, str) and where is '') or \
+            (isinstance(where, dict) and len(where) > 0):
             whereclause = ''
+        
         elif isinstance(where, str):
             whereclause = ' WHERE {}'.format(where)
+        
         elif isinstance(where, dict):
-            whereclause = ' WHERE ' + self._parse_where_struct(where,self.columns)
+            conditions = list()
+            for col, val in where_dict.items():
+                if is_iter(val):
+                    itstr = '", "'.join(map(str,val))
+                    conditions.append('({} IN ("{}"))'.format(col,itstr))
+
+                elif isinstance(val, dict):
+                    conditions.append(self._parse_where_operator(col, val))
+
+                else:
+                    conditions.append('({} == "{}")'.format(col, str(val)))
+
+            ' AND '.join(conditions)
+            
+            whereclause = ' WHERE {}'
     
         return whereclause
             
-    
-    def _parse_where_struct(self, where_dict):
-        '''
-            Converts a dictionary of where string criteria into a 
-                sqlite "where" string.
-            Inputs:
-                where_dict: dictionary of colname->values to build query from.
-        '''
-        
-        conditions = list()
-        for col, val in where_dict.items():
-            if is_iter(val):
-                itstr = '", "'.join(map(str,val))
-                conditions.append('{} in ("{}")'.format(col,itstr))
-            
-            elif isinstance(val, dict):
-                conditions.append(self._parse_operator(col, val))
-            
-            else:
-                conditions.append('{} == "{}"'.format(col, str(val)))
-                
-        return ' AND '.join(conditions)
 
     @classmethod
-    def _parse_operator(cls, col, conditions):
+    def _parse_where_operator(cls, col, conditions):
 
         cond_list = list()
         for condition,val in conditions.items():
@@ -429,14 +434,14 @@ class DocTable:
                 cond_list.append('{} {} "{}"'.format(col, cond.upper(), val))
             
         return '(' + ' AND '.join(cond_list) + ')'
-            
-    @staticmethod
-    def _check_cols(testcols, columns):
+        
+        
+    def _check_cols(self,testcols):
         '''
             Make sure all provided testcols are in the columns.
         '''
         for cn in testcols:
-            if cn not in columns:
+            if cn not in self.columns:
                 print(self.colschema)
                 raise ValueError('Provided column "{}" '
                     'is not in the database table.'.format(cn))
