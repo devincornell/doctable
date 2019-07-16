@@ -61,13 +61,13 @@ class DocTable:
             if cname not in self.columns:
                 estr = ('Column schema entry "{}" is not found in '
                         'existing table col list: {}')
-                raise Exception(estr.format(cname, self.columns))
+                raise ValueError(estr.format(cname, self.columns))
             
-            elif ctype != self.schema.loc[cname,'type']:
+            elif ctype.lower() != self.schema.loc[cname,'type'].lower():
                 exist_type = self.schema.loc[cname,'type']
                 estr = ('Provided column "{}" of type "{}" does not match '
                         'existing data schema type "{}".')
-                raise Exception(estr.format(cname, ctype, exist_type))
+                raise ValueError(estr.format(cname, ctype, exist_type))
             else:
                 pass
     
@@ -359,7 +359,7 @@ class DocTable:
             if self.types[col] == 'blob':
                 rowdict[col]  = pickle.dumps(rowdict[col])
             elif self.types[col] == 'sentences':
-                rowdict[col] = '\n'.join([s.join('\t') for s in rowdict[col]])
+                rowdict[col] = '\n'.join(['\t'.join(s) for s in rowdict[col]])
             elif self.types[col] == 'tokens':
                 rowdict[col] = '\n'.join(rowdict[col])
         
@@ -376,7 +376,7 @@ class DocTable:
             elif self.types[col] == 'sentences':
                 yield [d.split('\t') for d in dat.split('\n')]
             elif self.types[col] == 'tokens':
-                dat.split('\n')
+                yield dat.split('\n')
             else:
                 yield dat
     
