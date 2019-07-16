@@ -337,19 +337,20 @@ class DocTable:
     
     def _build_where_str(self, tabname, sel, where, orderby, groupby, limit):
 
+        single_col = False
         if sel is None:
             selcols = self.columns
         elif isinstance(sel,str):
             selcols = [sel,]
             self._check_cols(selcols, self.columns)
+            single_col = True
         elif isinstance(val, Iterable):
             selcols = sel
             self._check_cols(selcols, self.columns)
         else:
             raise ValueError('Column selection must be string '
-                'for single column or list/tuple for multiple columns.')
-        single_col = len(selcols) == 1
-    
+                'for single column or list/tuple of multiple columns.')
+        
         if where is None:
             whereclause = ''
         elif isinstance(where, str):
