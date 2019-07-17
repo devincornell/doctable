@@ -1,7 +1,6 @@
 import sqlite3
 import pickle
 import pandas as pd
-from collections.abc import Iterable
 
 ##### DOCUMENT INTERFACE FOR WORKING WITH TEXT DATA #####
 
@@ -113,10 +112,14 @@ class DocTable:
         '''
         info = ''
         
-        ct = self.query('SELECT Count(*) FROM '+self.tabname).__next__()[0]
-        info += '<Documents ct: ' + str(ct) + '>'
+        
+        info += '<Documents ct: {}>'.format(self.num_rows())
         
         return info
+    
+    def num_rows(self):
+        ct = self.query('SELECT Count(*) FROM '+self.tabname).__next__()[0]
+        return ct
     
     def commit(self):
         '''
@@ -150,7 +153,7 @@ class DocTable:
             cursor = self.conn.cursor()
             e = self._query_exec(cursor, qstr, payload, many)
             if lastrowid:
-                return e, cursor.lastrowid
+                return cursor.lastrowid
             else:
                 return e
         
@@ -165,7 +168,7 @@ class DocTable:
                 return cursor.executemany(qstr,payload)
     
                 
-    def add(self, rowdat, ifnotunique=None, lastrowid=False, table=None, **queryargs):
+    def add(self, rowdat, ifnotunique=None, table=None, **queryargs):
         '''
             Adds a single entry where each column is identified by a key-value pair. 
                 Will automatically convert python types to sqlite storage blobs using pickle.
@@ -194,16 +197,16 @@ class DocTable:
         args = (replacecode, table, ','.join(cols), ','.join(['?']*n))
         qstr = 'INSERT {} INTO {} ({}) VALUES ({})'.format(*args)
         #qstr = 'INSERT'+replacecode+' INTO ' + self.tabname + '('+','.join(cols)+') VALUES ('+','.join(['?']*n)+')'
-        return self.query(qstr, value_iter, **queryargs)
+        return self.query(qstr, value_iter, lastrowid=True, **queryargs)
         
-    def addmany(self, rowdats, ifnotunique=None, **queryargs):
+    def addmany(self, rowdats, cols=None, ifnotunique=None, **queryargs):
         '''
             Adds multiple entries to the database, where column names are specified by "keys".
                 If "keys" is not specified, will use all columns (including autoincrement columns).
                 Will automatically convert python types to sqlite storage blobs using pickle.
                 
             Inputs:
-                data: lists of tuples representing data for each row
+                data: list of lists representing data for each row
                 keys: column names corresponding to each tuple entry
                 ifnotunique: choose what happens when an existing entry matches
                     any UNIQUE criteria specified in the schema.
@@ -211,22 +214,25 @@ class DocTable:
             Output:
                 sqlite executemany query response
         '''
-        # use all columns if keys is not specified
-        cols = list(keys) if keys is not None else self.columns
+        if not (isinstance(rowdats,list) and len(rowdats) > 0):
+            raise ValueError('The "rowdats" argument must be a list for in-place data'
+                'conversion used in this method.')
+        
+        cols = cols if cols is not None else self.columns
+        self._check_cols(cols)
         n = len(cols)
         
+        for i,row in enumerate(rowdats):
+            if not (is_iter(row) and len(row) == len(cols)):
+                raise ValueError('Row {} does not contain {} entries as the {} '
+                    'provided column names suggest'.format(i,len(row),len(cols)))
+            rowdats[i] = [self._pack_single(c,rowdats[i][j]) for j,c in enumerate(cols)]
         
-        if len(self.blob_cols) + len(self.sent_cols) + len(self.token_cols) > 0:
-            # need to convert some python objects to blobs for storage
-            #payload = ([d[i] if not self.isblob[c] else pickle.dumps(d[i]) for i,c in enumerate(cols)] for d in data)
-            payload = [self._pickle_values(cols, values, serialize=True) for values in data]
-        else:
-            payload = data
+        replacecode = 'OR ' + ifnotunique if ifnotunique is not None else ''
+        qstr = 'INSERT {} INTO {} ({}) VALUES ({})'.format(replacecode, self.tabname, 
+            ','.join(cols), ','.join(['?']*n))
         
-        replacecode = ' OR ' + ifnotunique if ifnotunique is not None else ''
-        qstr = 'INSERT'+replacecode+' INTO ' + self.tabname + '('+','.join(cols)+') VALUES ('+','.join(['?']*n)+')'
-        
-        return self.query(qstr, payload, many=True, **queryargs)
+        return self.query(qstr, rowdats, many=True, **queryargs)
     
     def delete(self, where, **queryargs):
         '''
@@ -239,37 +245,35 @@ class DocTable:
             Output:
                 query response
         '''
-        qstr = 'DELETE FROM {}'.format(self.tabname)
-        if where == '*':
-            qstr += ' WHERE ' + where
+        qstr = 'DELETE FROM {} {}'.format(self.tabname, self._parse_where(where))
             
         return self.query(qstr, **queryargs)
     
     def delete_all(self, **queryargs):
-        qstr = 'DELETE FROM {} *'.format(self.tabname)
+        qstr = 'DELETE FROM {}'.format(self.tabname)
         return self.query(qstr, **queryargs)
     
-    def update(self, values, where, **queryargs):
+    def update(self, rowdat, where, **queryargs):
         '''
-            Updates rows matching the "where" string with specified values.
+            Updates rows matching the "where" string with specified rowdat.
                 
             Inputs:
-                values: dictionary of field->values. all rows which meet the where criteria 
-                    will have these values assigned
+                rowdat: dictionary of field->values. all rows which meet the where criteria 
+                    will have these rowdat assigned
                 where: literal SQLite "where" string corresponding to column criteria for 
                     value replacement.
                     The value "*" will match all rows by omitting WHERE statement.
             Output:
                 query response
         '''
-        dat = self._pack(values)
-        cols = list(dat.keys())
-        dat_iter = (v for k,v in dat.items())
+        rowdat = self._pack(rowdat)
+        cols = list(rowdat.keys())
+        dat_iter = [rowdat[c] for c in cols]
         
         # UPDATE tasks SET priority = ?, begin_date = ?, end_date = ? WHERE id = ?
         
         colstr = ', '.join(['{} = ?'.format(c) for c in cols])
-        qstr = 'UPDATE {} SET {} {}'.format(colstr, self._parse_where(where))
+        qstr = 'UPDATE {} SET {} {}'.format(self.tabname, colstr, self._parse_where(where))
         return self.query(qstr, dat_iter, **queryargs)
     
     
@@ -321,7 +325,7 @@ class DocTable:
             cols = [sel,]
             self._check_cols(cols)
             is_single_col = True
-        elif isinstance(val, Iterable):
+        elif is_iter(sel):
             cols = sel
             self._check_cols(cols)
         else:
@@ -342,12 +346,16 @@ class DocTable:
         
         if asdict:
             for dat in self.query(qstr, **queryargs):
-                yield {
-                    col:val for col,val in zip(cols,self._unpack(cols,dat))
-                }
+                out = {col:val for col,val in zip(cols,self._unpack(cols,dat))}
+                if is_single_col:
+                    out = out[cols[0]]
+                yield out
         else:
-            for result in self.query(qstr, **queryargs):
-                yield self._pack(cols,result)
+            for dat in self.query(qstr, **queryargs):
+                out = self._unpack(cols,dat)
+                if is_single_col:
+                    out = out[0]
+                yield out
         
     def _pack(self, rowdict):
         '''
@@ -356,14 +364,19 @@ class DocTable:
         '''
         cols = tuple(rowdict.keys())
         for col in cols:
-            if self.types[col] == 'blob':
-                rowdict[col]  = pickle.dumps(rowdict[col])
-            elif self.types[col] == 'sentences':
-                rowdict[col] = '\n'.join(['\t'.join(s) for s in rowdict[col]])
-            elif self.types[col] == 'tokens':
-                rowdict[col] = '\n'.join(rowdict[col])
+            rowdict[col] = self._pack_single(col,rowdict[col])
         
         return rowdict
+    
+    def _pack_single(self, col, dat):
+        if self.types[col] == 'blob':
+            return pickle.dumps(dat)
+        elif self.types[col] == 'sentences':
+            return '\n'.join(['\t'.join(s) for s in dat])
+        elif self.types[col] == 'tokens':
+            return '\n'.join(dat)
+        else:
+            return dat
     
     def _unpack(self, colnames, rowdat):
         '''
@@ -384,7 +397,7 @@ class DocTable:
         
         if where is None or \
             (isinstance(where, str) and where is '') or \
-            (isinstance(where, dict) and len(where) > 0):
+            (isinstance(where, dict) and len(where) == 0):
             whereclause = ''
         
         elif isinstance(where, str):
@@ -392,7 +405,7 @@ class DocTable:
         
         elif isinstance(where, dict):
             conditions = list()
-            for col, val in where_dict.items():
+            for col, val in where.items():
                 if is_iter(val):
                     itstr = '", "'.join(map(str,val))
                     conditions.append('({} IN ("{}"))'.format(col,itstr))
@@ -402,10 +415,8 @@ class DocTable:
 
                 else:
                     conditions.append('({} == "{}")'.format(col, str(val)))
-
-            ' AND '.join(conditions)
             
-            whereclause = ' WHERE {}'
+            whereclause = ' WHERE {}'.format(' AND '.join(conditions))
     
         return whereclause
             
@@ -418,9 +429,9 @@ class DocTable:
             cond = condition.lower()
 
             if cond == 'or':
-                cond_list.append('(' + ' OR '.join([cls._parse_operator(col,v) for v in val]) + ')')
+                cond_list.append('(' + ' OR '.join([cls._parse_where_operator(col,v) for v in val]) + ')')
 
-            elif cond == 'between':
+            if cond == 'between':
                 if not is_iter(val) or len(val[between_val_key]) is not 2:
                     raise ValueError('The "between" condition of a structured '
                         'query should include value range as a 2-tuple.')
@@ -448,4 +459,4 @@ class DocTable:
         
         
 def is_iter(val):
-    return isinstance(val, list) or isinstance(val, tuple)
+    return isinstance(val, list) or isinstance(val, tuple) or isinstance(val,set)
