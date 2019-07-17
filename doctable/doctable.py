@@ -3,7 +3,11 @@ import pickle
 import os
 import pandas as pd
 
+#from .datatables import BlobTable
+
 ##### DOCUMENT INTERFACE FOR WORKING WITH TEXT DATA #####
+
+
 
 class DocTable:
     '''
@@ -18,8 +22,10 @@ class DocTable:
                  constraints=tuple(),
                  verbose=False,
                  persistent_conn=True,
+                 separate_data=True,
+                 connection=None,
                 ):
-        
+
         self.fname = fname
         self.tabname = tabname
         self.colschema = colschema
@@ -29,11 +35,12 @@ class DocTable:
         if fname == ':memory:' and not persistent_conn:
             raise ValueError('Must use persistent_conn=True for in-memory databases.')
         
-        if persistent_conn:
+        elif persistent_conn:
             self.conn = sqlite3.connect(fname)
         else:
-            self.conn = None
+            self.conn = connection
         
+        self.separate_data = separate_data
         self._try_create_table()
         
         self.schema = self._get_schema()
@@ -46,20 +53,49 @@ class DocTable:
 
             
     def _try_create_table(self,):
-        tablestr = 'CREATE TABLE IF NOT EXISTS {} ({})'
-        #FOREIGN KEY(trackartist) REFERENCES artist(artistid)
         
-        #foreign_keys = list()
-        #for col in self.columns:
-        #    if self.types[col] == 'blob':
-        #        self.query(tablestr.format(self.tabname, 'id integer PRIMARY KEY AUTOINCREMENT, fid integer, dat blob'))
-        #        foreign_keys.append('FOREIGN KEY(fid) REFERENCES {}({})')
+        # FOREIGN KEY(trackartist) REFERENCES artist(artistid)
+        fkey_str = 'FOREIGN KEY({}) REFERENCES {}({})'
         
+        self.data_cols = dict()
+        fkeys = list()
+        newschema = list()
+        if self.separate_data:
+            for colinfo in self.colschema:
+                col, typ, other = self._parse_colschema(colinfo)
+                newtabname = '_{}_{}_{}'.format(self.tabname,typ,col)
+                fk_col = '_fk_'+col
+                
+                isdata = False
+                if typ == 'blob':
+                    data_tab = BlobTable(self.fname, newtabname, self.conn)
+                    isdata = True
+                
+                if isdata:
+                    self.data_cols[col] = {'tab':data_tab,'col':fk_col}
+                    fkeys.append(fkey_str.format(col,newtabname,'id'))
+                    newschema.append(self._rename_colschema(colinfo,fk_col,'integer'))
+                else:
+                    newschema.append(colinfo)
+            self.colschema = newschema
+            
+        table_str = 'CREATE TABLE IF NOT EXISTS {} ({})'
+        args = (self.tabname, ', '.join(tuple(self.colschema) + tuple(self.constraints) + tuple(fkeys)))
+        q = self.query(table_str.format(*args))
+
+        return q
+    
+    @staticmethod
+    def _parse_colschema(colschema):
+        parts = colschema.split()
+        name, typ = parts[:2]
+        constraints = ' '.join(parts[2:])
+        return name, typ.lower(), constraints.lower()
+    
+    @classmethod
+    def _rename_colschema(cls,old,col,typ):
+        return '{} {} {}'.format(*cls._parse_colschema(old))
         
-        args = (self.tabname, ', '.join(self.colschema + self.constraints + foreign_keys))
-        self.query(tablestr.format(*args))
-        
-        return 
         
     def _check_schema(self,):
         '''
@@ -468,6 +504,20 @@ class DocTable:
                 print(self.colschema)
                 raise ValueError('Provided column "{}" '
                     'is not in the database table.'.format(cn))
+        
+        
+class BlobTable(DocTable):
+    def __init__(self, fname, tabname, conn):
+        super().__init__(
+            (
+                'id integer',
+                'data blob', 
+            ),
+            fname=fname, 
+            tabname=tabname, 
+            separate_data=False,
+            constraints=('UNIQUE(id)',),
+        )
         
         
 def is_iter(val):
