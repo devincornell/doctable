@@ -1,5 +1,6 @@
 import sqlite3
 import pickle
+import os
 import pandas as pd
 
 ##### DOCUMENT INTERFACE FOR WORKING WITH TEXT DATA #####
@@ -45,9 +46,20 @@ class DocTable:
 
             
     def _try_create_table(self,):
+        tablestr = 'CREATE TABLE IF NOT EXISTS {} ({})'
+        #FOREIGN KEY(trackartist) REFERENCES artist(artistid)
         
-        args = (self.tabname, ', '.join(self.colschema + self.constraints))
-        return self.query('CREATE TABLE IF NOT EXISTS {} ({})'.format(*args))
+        #foreign_keys = list()
+        #for col in self.columns:
+        #    if self.types[col] == 'blob':
+        #        self.query(tablestr.format(self.tabname, 'id integer PRIMARY KEY AUTOINCREMENT, fid integer, dat blob'))
+        #        foreign_keys.append('FOREIGN KEY(fid) REFERENCES {}({})')
+        
+        
+        args = (self.tabname, ', '.join(self.colschema + self.constraints + foreign_keys))
+        self.query(tablestr.format(*args))
+        
+        return 
         
     def _check_schema(self,):
         '''
