@@ -286,17 +286,6 @@ class DocTable2:
             del mr[self.fkid_colname]
         
         return main_rows
-        #if data_queries, query data as iterate through main table results
-        #if iter_data:
-        #    for row in result:
-        #        
-        #        if self.fkid_colname in row:
-        #            doc_id = row[self.fkid_colname]
-        #            spec_results = self._select_special(spec_colnames, (doc_id,))
-        #            out_row = self._parse_row_output(colnames, row, asdict, spec_results[doc_id])
-        #        else:
-        #            out_row = self._parse_row_output(colnames, row, asdict)
-        #        yield out_row
     
     def select_first(self, *args, **kwargs):
         return next(self.select_iter(*args, limit=1, **kwargs))
@@ -397,37 +386,6 @@ class DocTable2:
         return result
     
 
-    
-    def _parse_row_output(self, colnames, main_row, asdict, spec_col_row={}):
-        '''
-        
-        '''
-        if len(spec_col_row) == 0:
-            if asdict:
-                return {cn:d for cn,d in zip(colnames, main_row)}
-            else:
-                return main_row
-        else:
-            if asdict:
-                rowdict = dict()
-                i = 0
-                for cn in colnames:
-                    if cn in spec_col_row:
-                        rowdict[cn] = spec_col_row[cn]
-                    elif cn != self.fkid_colname:
-                        rowdict[cn] = main_row[i]
-                        i += 1
-                return rowdict
-            else:
-                row = list()
-                i = 0
-                for cn in colnames:
-                    if cn in spec_col_row:
-                        row.append(spec_col_row[cn])
-                    else:
-                        row.append(main_row[i])
-                        i += 1
-                return row
 
             
     def _select_special(self, colnames, doc_ids):
@@ -452,85 +410,7 @@ class DocTable2:
                 docid_dict[docid][cname] = v
             
         return docid_dict
-        
 
-        
-
-    
-    
-    
-        
-    def _select_format_row(self, row, asdict, spec_cols=[]):
-        '''
-            Parse a single output row. If spec_cols is empty, don't
-            query any special column tables. If it is a list of 
-            special column names, query for the individual rows.
-        '''
-        colnames = list(row.keys())
-        
-        for col in spec_cols:
-            if col in self.sent_cols:
-                row[col] = self._get_sents(col, [row[self.fk_col]])
-            elif col in self.bigblob_cols:
-                row[col] = self._get_bigblobs(col, [row[self.fk_col]])
-            else:
-                raise ValueError
-        
-        if len(row) == 1:
-            return self._parse_select(colnames[0], row[0])
-            
-        elif asdict:
-            colvals = zip(row.keys(), row)
-            return {c:self._parse_select(c,v) for c,v in colvals}
-        else:
-            return row
-    
-    def _get_sents(self, colname, doc_ids):
-        if col not in self.sent_cols:
-            raise KeyError('col is not of "sentences" type.')
-            
-        q = sa.sql.select(self._sent['tokens'])
-        q = q.where(self._sent['doc_id'].in_(doc_ids))
-        q = q.where(self._sent['col_name'] == colname)
-        q = q.order_by(self._sent['order'])
-        sentrows = self.execute(q)
-        return [r['tokens'] for r in sentrows]
-    
-    def _get_bigblobs(self, colname, doc_ids):
-        if col not in self.bigblob_cols:
-            raise KeyError('col is not of "bigblob" type.')
-            
-        q = sa.sql.select(self._bigblob['bigblob'])
-        q = q.where(self._sent['doc_id'].in_(doc_ids))
-        q = q.where(self._sent['col_name'] == colname)
-        bigblobrow = self.execute(q).fetchone()
-        return bigblobrow['bigblob']
-        
-    def _parse_select(self, col, val):
-        '''
-            If needs parsing, passes to specific custom column parser.
-        '''
-        if col in self.sent_cols:
-            return self._parse_select_sents(col, val)
-        else:
-            return val
-        
-    def _parse_select_sents(self, col, doc_ids):
-        '''
-            Gets tokens from sentences with doc_ids sorted by order.
-        '''
-        if not is_sequence(doc_ids):
-            doc_ids = (doc_ids,)
-        
-        iscolname = self._sent('col_name') == col
-        inids = self._sent('doc_id').in_(doc_ids)
-        
-        sel = sa.sql.select([self._sent('tokens')])
-        sel = sel.where(sa.and_(iscolname,inids))
-        sel = sel.order_by(self._sent('doc_id'),self._sent('order'))
-        res = self.execute(sel)
-        return (r[0] for r in res)
-    
     
     #################### Accessor Methods ###################
     
@@ -574,12 +454,5 @@ def is_iter(obj):
 
 def is_sequence(obj):
     return isinstance(obj, list) or isinstance(obj,set) or isinstance(obj,tuple)
-    
-'''
-For bootstrapping sentences. First create an entry
-for each sentence to be bootstrapped (after identifying
-docs that meet a "where" criteria), then assign them each
-a unique id (bs_id) which can be selected using the 
-SQL random() function for random sampling with replacement.
-'''
+
 
