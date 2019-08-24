@@ -244,7 +244,6 @@ class DocTable2:
             raise ValueError
         
         return r
-           
                 
     def _next_fk_id(self):
         q = sa.sql.select([func.max(self.fkid_col)])
@@ -263,24 +262,41 @@ class DocTable2:
             cols: list of columns
         
         '''
+        if cols is None:
+            cols = list(self.doc_table.columns) + list(self.special_cols.keys())
+        else:
+            if not is_sequence(cols):
+                cols = [cols]
         
         # split special cols from main_cols
         colnames, main_cols, spec_colnames = self._identify_cols(cols)
         
-        rows = list(self.select_iter(main_cols, **kwargs))
+        # extract data from regular columns
+        main_rows = list(self.select_iter(main_cols, **kwargs))
+        docids = [r[self.fkid_colname] for r in main_rows]
         
-        return rows
+        spcol_dat = dict()#{cn:dict() for cn in spec_colnames}
+        for cn in spec_colnames:
+            sp_tab = self.special_cols[cn]
+            sp_result = sp_tab.select(cn, docids, self)
+            for mr in main_rows:
+                mr[cn] = sp_result[mr[self.fkid_colname]]
+        
+        for mr in main_rows:
+            del mr[self.fkid_colname]
+        
+        return main_rows
         #if data_queries, query data as iterate through main table results
-        if iter_data:
-            for row in result:
-                
-                if self.fkid_colname in row:
-                    doc_id = row[self.fkid_colname]
-                    spec_results = self._select_special(spec_colnames, (doc_id,))
-                    out_row = self._parse_row_output(colnames, row, asdict, spec_results[doc_id])
-                else:
-                    out_row = self._parse_row_output(colnames, row, asdict)
-                yield out_row
+        #if iter_data:
+        #    for row in result:
+        #        
+        #        if self.fkid_colname in row:
+        #            doc_id = row[self.fkid_colname]
+        #            spec_results = self._select_special(spec_colnames, (doc_id,))
+        #            out_row = self._parse_row_output(colnames, row, asdict, spec_results[doc_id])
+        #        else:
+        #            out_row = self._parse_row_output(colnames, row, asdict)
+        #        yield out_row
     
     def select_first(self, *args, **kwargs):
         return next(self.select_iter(*args, limit=1, **kwargs))

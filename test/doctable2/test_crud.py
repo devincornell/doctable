@@ -1,14 +1,10 @@
 import random
+from time import time
+
 
 import sys
 sys.path.append('../..')
-#from os.path import split
-#print('__file__={0:<35} | __name__={1:<20} | __package__={2:<20}'.format(split(__file__)[1],__name__,str(__package__)))
 from doctable import DocTable2, func, op
-#print(sys.path)
-#import doctable
-#print(dir(doctable))
-#print(doctable.__file__)
 
 
 def make_dt(schema, fname):
@@ -67,7 +63,7 @@ def generate_data_many(n=20):
     return datarows, dictrows
 
 
-def test_insert_iter_basic():
+def test_select_iter_basic():
     datarows, dictrows = generate_data_many(n=20)
     #dt = dt_basic(fname='db/tb3.db')
     dt = dt_basic()
@@ -131,9 +127,13 @@ def test_insert_iter_basic():
     s = dt.select_first(func.count(), where=~(dt['id'] < maxid))
     assert(s == 1)
     
+    print('selecting specific rows')
+    s = dt.select_first(func.count(), where=dt['id'].in_([1,2]))
+    assert(s == 2)
+    
 
-def test_insert_iter_special():
-    datarows, dictrows = generate_data_many(n=20)
+def test_select_iter_special(n=20):
+    datarows, dictrows = generate_data_many(n=n)
     #dt = dt_basic(fname='db/tb4.db')
     dt = dt_special()#fname='db/tb5.db')
     print(dt)
@@ -143,13 +143,15 @@ def test_insert_iter_special():
         dt.insert(dr)
     
     print('verifying stored results')
+    st = time()
     for dr,row in zip(dictrows,dt.select_iter(orderby=dt['id'].asc())):
         for cn in dr.keys():
             assert(dr[cn] == row[cn])
+    print('took {} min to check {} rows using select_iter()'
+         ''.format((time()-st)/60,n))
     
-def test_select():
-    
-    datarows, dictrows = generate_data_many(n=20)
+def test_select_special(n=20):
+    datarows, dictrows = generate_data_many(n=n)
     #dt = dt_basic(fname='db/tb4.db')
     dt = dt_special()#fname='db/tb5.db')
     print(dt)
@@ -158,8 +160,13 @@ def test_select():
     for dr in dictrows:
         dt.insert(dr)
     
-    print(dt.select())
-    
+    print('checking data consistency')
+    st = time()
+    for dr,row in zip(dictrows,dt.select(orderby=dt['id'].asc())):
+        for cn in dr.keys():
+            assert(dr[cn] == row[cn])
+    print('took {} min to check {} rows using select()'
+         ''.format((time()-st)/60,n))
     
     
     
@@ -167,7 +174,16 @@ def test_select():
     
     
 if __name__ == '__main__':
-    test_insert_special()
     
+    # basic select using different query types
+    test_select_iter_basic()
+    
+    # compare time select() should be faster than select_iter()
+    # because select_iter queries data columns one-per-query.
+    # On the other hand, select_iter should have smaller memory
+    # overhead.
+    n = 20
+    test_select_iter_special(n)
+    test_select_special(n)
     
     
