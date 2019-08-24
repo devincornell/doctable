@@ -28,8 +28,8 @@ def dt_special(fname=None):
         ('title','string', dict(unique=True)),
         ('age','float'),
         ('model','bigblob'),
-        ('sents','sentences'),
-        ('paragraphs','sentences'),
+        ('sents','subdoc'),
+        ('paragraphs','subdoc'),
     )
     return make_dt(schema,fname)
     

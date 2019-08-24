@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from sqlalchemy.sql import and_, or_, not_
 
 from .coltypes import TokensType
-from . import specialcols as sdtypes
+from . import specialtabs as sdtypes
 
 class DocTable2:
     type_map = {
@@ -35,7 +35,7 @@ class DocTable2:
     }
     custom_types = (
         #'tokens',
-        'sentences',
+        'subdoc',
         'bigblob',
     )
     fkid_colname = '_fk_special_'
@@ -44,7 +44,7 @@ class DocTable2:
         
         # separate tables for custom data types and main table
         self.tabname = tabname
-        self.tabname_sents = '_' + tabname + '_sents'
+        self.tabname_subdocs = '_' + tabname + '_subdocs'
         self.tabname_bigblobs = '_' + tabname + '_bigblobs'
         self.tabname_tokens = '_' + tabname + '_tokens'
         
@@ -110,11 +110,11 @@ class DocTable2:
             self.fkid_col
         )
         
-        sent_colnames = self.colnames_of_type(sdtypes.SentTable)
-        self.sent_table = sdtypes.SentTable(
-            self.tabname_sents, 
+        subdoc_colnames = self.colnames_of_type(sdtypes.SubdocTable)
+        self.subdoc_table = sdtypes.SubdocTable(
+            self.tabname_subdocs, 
             self.metadata, 
-            sent_colnames, 
+            subdoc_colnames, 
             self.fkid_col
         )
         
@@ -125,8 +125,8 @@ class DocTable2:
         for cn in self.colnames:
             if cn in bigblob_colnames:
                 self.special_cols[cn] = self.bigblob_table
-            if cn in sent_colnames:
-                self.special_cols[cn] = self.sent_table
+            if cn in subdoc_colnames:
+                self.special_cols[cn] = self.subdoc_table
             
         
         
@@ -425,8 +425,8 @@ class DocTable2:
             # throws error if not in table columns
             return self.doc_table.c[colname]
     
-    def _sent(self, colname):
-        ref = self.sent_table.c[colname]
+    def _subdoc(self, colname):
+        ref = self.subdoc_table.c[colname]
         return ref
     
     def _bigblob(self, colname):
@@ -436,10 +436,7 @@ class DocTable2:
     def table(self):
         return self.doc_table
     
-    
 
-
-    
 coltype_error_str = ('Provided column schema must '
                     'be a two-tuple (colname, coltype), three-tuple '
                     '(colname,coltype,{sqlalchemy type data}), or '
