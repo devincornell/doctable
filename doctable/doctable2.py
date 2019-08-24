@@ -13,7 +13,7 @@ import sys
 #from special_tables import dtype_objects as 
 import special_dtypes as sdtypes
 
-class NewDocTable:
+class DocTable2:
     type_map = {
         'biginteger':sa.BigInteger,
         'boolean':sa.Boolean,
