@@ -1,17 +1,17 @@
 import collections
-#from sqlalchemy import create_engine
-#from sqlalchemy.ext.declarative import declarative_base
-#from sqlalchemy import Table, MetaData, Column, Integer, String, Boolean, ForeignKey, func
-from sqlalchemy.orm import sessionmaker
 from time import time
-from sqlalchemy.sql import select
-from coltypes import TokensType
-import sqlalchemy as sa
-from coltypes import TokensType
-import sys
 
-#from special_tables import dtype_objects as 
-import special_dtypes as sdtypes
+# operators like and_, or_, and not_, functions like sum, min, max, etc
+import sqlalchemy.sql as op
+from sqlalchemy.sql import func
+
+from sqlalchemy.sql import select
+import sqlalchemy as sa
+
+from sqlalchemy.sql import and_, or_, not_
+
+from .coltypes import TokensType
+from . import specialcols as sdtypes
 
 class DocTable2:
     type_map = {
@@ -247,7 +247,7 @@ class DocTable2:
            
                 
     def _next_fk_id(self):
-        q = sa.sql.select([self.max(self.fkid_col)])
+        q = sa.sql.select([func.max(self.fkid_col)])
         maxi = self.execute(q).fetchone()[0]
         if maxi is None:
             return 1
@@ -257,14 +257,20 @@ class DocTable2:
     
     ################# SELECT METHODS ##################
     
-    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, asdict=True, iter_data=True):
+    def select(self, cols=None, **kwargs):
+        '''Perform select query on database, 1 + 1 query per special table.
+        Args:
+            cols: list of columns
         
+        '''
+        
+        # split special cols from main_cols
         colnames, main_cols, spec_colnames = self._identify_cols(cols)
         
-        # query colunmns in main table
-        result = self._select_query(main_cols,where,orderby,groupby,limit)
+        rows = list(self.select_iter(main_cols, **kwargs))
         
-        # if data_queries, query data as iterate through main table results
+        return rows
+        #if data_queries, query data as iterate through main table results
         if iter_data:
             for row in result:
                 
@@ -275,6 +281,106 @@ class DocTable2:
                 else:
                     out_row = self._parse_row_output(colnames, row, asdict)
                 yield out_row
+    
+    def select_first(self, *args, **kwargs):
+        return next(self.select_iter(*args, limit=1, **kwargs))
+    
+    
+    def select_iter(self, cols=None, where=None, orderby=None, groupby=None, limit=None):
+        '''Perform select query, yield result for each row.
+        
+        Description: Because output must be iterable, returns special column results 
+            by performing one query per row. Can be inefficient for many smaller 
+            special data information.
+        
+        Args:
+            cols: list of sqlalchemy datatypes created from calling .col() method.
+            where: sqlalchemy where object to parse
+            orderby: sqlalchemy orderby directive
+            groupby: sqlalchemy gropuby directive
+            limit (int): number of entries to return before stopping
+        Yields:
+            dictionary: row data
+        '''
+        
+        if cols is None:
+            cols = list(self.doc_table.columns) + list(self.special_cols.keys())
+        else:
+            if not is_sequence(cols):
+                cols = [cols]
+        
+        # split special cols from main_cols
+        colnames, main_cols, spec_colnames = self._identify_cols(cols)
+        
+        # query colunmns in main table
+        result = self._exec_select_query(main_cols,where,orderby,groupby,limit)
+        
+        # return results one at a time
+        if len(spec_colnames) > 0: # special columns were selected
+            for row in result:
+                rdict = dict(row)
+                docid = rdict[self.fkid_colname]
+                for cn in spec_colnames:
+                    sp_tab = self.special_cols[cn]
+                    sp_result = sp_tab.select(cn, [docid],self)
+                    rdict[cn] = sp_result[docid]
+                del rdict[self.fkid_colname]
+                yield rdict
+        
+        else: # special columns were not selected
+            for row in result:
+                if len(main_cols) == 1:
+                    yield row[main_cols[0]]
+                else:
+                    yield dict(row)
+                
+
+    def _identify_cols(self, cols):
+        '''Separate special cols from main table columns.
+        Needed so that the correct data can be sent to the correct column.
+        
+        Args:
+            cols (list[sqlalchemy.Column] or str)
+        
+        '''
+        colnames = list()
+        spec_colnames = list()
+        main_cols = list()
+        already_added_fk_col = False
+        for col in cols:
+            
+            if isinstance(col,str):
+                colnames.append(col)
+                spec_colnames.append(col)
+                
+                if not already_added_fk_col:
+                    main_cols.append(self.fkid_col)
+                    already_added_fk_col = True
+                
+            else:
+                colnames.append(col.name)
+                main_cols.append(col)
+        
+        return colnames, main_cols, spec_colnames
+                
+    def _exec_select_query(self, cols, where, orderby, groupby, limit):
+        
+        q = sa.sql.select(cols)
+        
+        if where is not None:
+            q = q.where(where)
+        if orderby is not None:
+            q = q.order_by(orderby)
+        if groupby is not None:
+            q = q.groupby(orderby)
+        if limit is not None:
+            q = q.limit(limit)
+        
+        result = self.execute(q)
+        
+        return result
+    
+
     
     def _parse_row_output(self, colnames, main_row, asdict, spec_col_row={}):
         '''
@@ -331,49 +437,9 @@ class DocTable2:
             
         return docid_dict
         
-    def _identify_cols(self, cols):
-        if cols is None:
-            cols = list(self.doc_table.columns) + list(self.special_cols.keys())
-        else:
-            if not is_sequence(cols):
-                cols = [cols]
+
         
-        colnames = list()
-        spec_colnames = list()
-        main_cols = list()
-        already_added_fk_col = False
-        for col in cols:
-            
-            if isinstance(col,str):
-                colnames.append(col)
-                spec_colnames.append(col)
-                
-                if not already_added_fk_col:
-                    main_cols.append(self.fkid_col)
-                    already_added_fk_col = True
-                
-            else:
-                colnames.append(col.name)
-                main_cols.append(col)
-        
-        return colnames, main_cols, spec_colnames
-        
-    def _select_query(self, cols, where, orderby, groupby, limit):
-        
-        q = sa.sql.select(cols)
-        
-        if where is not None:
-            q = q.where(where)
-        if orderby is not None:
-            q = q.order_by(orderby)
-        if groupby is not None:
-            q = q.groupby(orderby)
-        if limit is not None:
-            q = q.limit(limit)
-        
-        result = self.execute(q)
-        
-        return result
+
     
     
     
@@ -460,6 +526,7 @@ class DocTable2:
         if colname in self.special_cols:
             return colname
         else:
+            # throws error if not in table columns
             return self.doc_table.c[colname]
     
     def _sent(self, colname):
@@ -474,23 +541,7 @@ class DocTable2:
         return self.doc_table
     
     
-    #################### SQLAlchemy Static-Access Methods ###################
-    
-    @staticmethod
-    def or_(arg):
-        return sa.or_(arg)
-    
-    @staticmethod
-    def and_(arg):
-        return sa.and_(arg)
-    
-    @staticmethod
-    def max(arg):
-        return sa.sql.expression.func.max(arg)
-    
-    @staticmethod
-    def min(arg):
-        return sa.sql.expression.func.min(arg)
+
 
     
 coltype_error_str = ('Provided column schema must '
