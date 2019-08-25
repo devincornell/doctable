@@ -22,6 +22,8 @@ The additional advantage of DocTable2 over the original DocTable is the transpar
 
 
 
+
+
 ## DocTable (Original) Class
 
 This package provides a thin layer over the sqlite package specifically for working with single tables of data, as is often the case with many basic text analysis applications. Somewhere between a spreadsheet and full-fledged database server, this package allows for a very simple interface for storing, updating, and retrieving data. It transparently handles picklable python objects that can be stored as sqlite blob types, so you can treat python objects like any other retrievable database type.
