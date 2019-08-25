@@ -5,7 +5,7 @@ Because DocTable2 was built on SQLAlchemy, this reference provides a guide to so
 
 
 
-## Data Types
+## SQLAlchemy Data Type Mappings
 
 As a thin interface over the SQLAlchemy core engine, I map each SQLAlchemy data type to a string which is to be used in the DocTable schema definition. You can see the full mapping list below.
 
@@ -30,8 +30,13 @@ type_map = {
     'unicode':sa.Unicode,
     'unicodetext':sa.UnicodeText,
 }
+
+
+## Custom Data Types
+
+The two custom data types, subdoc and bigblob are also based on SQLAlchemy data types. The subdoc table is built on 
+
 custom_types = (
-    #'tokens',
     'subdoc',
     'bigblob',
 )
