@@ -6,6 +6,24 @@ Object-based database access for text analysis.
 
 This package provides a thin layer over the sqlite package specifically for working with single tables of data, as is often the case with many basic text analysis applications. Somewhere between a spreadsheet and full-fledged database server, this package allows for a very simple interface for storing, updating, and retrieving data. It transparently handles picklable python objects that can be stored as sqlite blob types, so you can treat python objects like any other retrievable database type.
 
+## Robust Data Access Interface
+
+The DocTable package provides several different ways of
+
+* SELECT
+    * one row at a time (more overhead, memory efficient)
+    * entire dataset at once (low overhead, memory intensive)
+* INSERT
+    * single item
+    * insert many from stream/iterable
+    * insert many from memory
+* UPDATE
+* DELETE
+
+
+
+## Example
+
 The package consists of a single class called DocTable, a base class with useful read/write/update interface methods. This example (found in example_advanced.ipynb) shows the NewsGroups DocTable, where I have created columns file_id, category, raw_text, subject, author, and tokenized_text. Notice that tokenized_text has been assigned the "blob" type, which DocTable will automatically convert to and from Python objects automatically.
 
 
