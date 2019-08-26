@@ -32,13 +32,19 @@ class DocTable2:
         'time':sa.Time,
         'unicode':sa.Unicode,
         'unicodetext':sa.UnicodeText,
+        'tokens':TokensType, # custom datatype
     }
     custom_types = (
-        #'tokens',
         'subdoc',
         'bigblob',
     )
     fkid_colname = '_fk_special_'
+    
+    constraint_map = {
+        'unique_constraint': sa.UniqueConstraint,
+        'check_constraint': sa.CheckConstraint,
+        'primarykey_constraint': sa.PrimaryKeyConstraint,
+    }
     
     def __init__(self, schema, tabname='_documents_', fname=':memory:', engine='sqlite', verbose=False):
         
@@ -80,9 +86,22 @@ class DocTable2:
                 self.special_col_types[colname] = spcol_obj
                 
             else:
-                typ = self._get_sqlalchemy_type(coltype)
-                col = sa.Column(colname, typ(**coltypeargs), **colargs)
-                columns.append(col)
+                if coltype in self.constraint_map: # if coltype is constraint
+                    if coltype in ('check_constraint',):
+                        # in this case, colname should be a constraint string (i.e. "age > 0")
+                        const = self.constraint_map[coltype](colname, **colargs)
+                    else:
+                        if not is_sequence(colname):
+                            raise ValueError('First column argument on {} should '
+                                'be a sequence of columns.'.format(coltype))
+                        const = self.constraint_map[coltype](*colname, **colargs)
+                    columns.append(const)
+                
+                else: # regular column type
+                    typ = self._get_sqlalchemy_type(coltype)
+                    col = sa.Column(colname, typ(**coltypeargs), **colargs)
+                    columns.append(col)
+                
                 
         self._make_tables(columns, self.special_col_types)
         
@@ -123,17 +142,18 @@ class DocTable2:
         # record table instances for each special column
         self.special_cols = dict()
         for cn in self.colnames:
-            if cn in bigblob_colnames:
-                self.special_cols[cn] = self.bigblob_table
-            if cn in subdoc_colnames:
-                self.special_cols[cn] = self.subdoc_table
+            if isinstance(cn,str):
+                if cn in bigblob_colnames:
+                    self.special_cols[cn] = self.bigblob_table
+                if cn in subdoc_colnames:
+                    self.special_cols[cn] = self.subdoc_table
             
         
         
     def colnames_of_type(self, dtype):
         type_colnames = list()
         for cn in self.colnames:
-            if cn in self.special_col_types:
+            if isinstance(cn,str) and cn in self.special_col_types:
                 if self.special_col_types[cn] == dtype:
                     type_colnames.append(cn)
         return type_colnames
@@ -337,8 +357,7 @@ class DocTable2:
                 if len(main_cols) == 1:
                     yield row[main_cols[0]]
                 else:
-                    yield dict(row)
-                
+                    yield dict(row)   
 
     def _identify_cols(self, cols):
         '''Separate special cols from main table columns.
