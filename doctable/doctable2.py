@@ -60,7 +60,11 @@ class DocTable2:
     
     def __delete__(self):
         if self.conn is not None:
-            self.conn.close()     
+            self.conn.close()
+            
+    def __str__(self):
+        ct = self.select_first(func.count())
+        return '<DocTable2::{} ct: {}>'.format(self.tabname, ct)
         
         
     ################# INITIALIZATION METHODS ##################
@@ -149,7 +153,7 @@ class DocTable2:
                     self.special_cols[cn] = self.subdoc_table
             
         
-        
+    
     def colnames_of_type(self, dtype):
         type_colnames = list()
         for cn in self.colnames:
@@ -289,7 +293,7 @@ class DocTable2:
                 cols = [cols]
         
         # split special cols from main_cols
-        colnames, main_cols, spec_colnames = self._identify_cols(cols)
+        colnames, main_cols, spec_colnames = self._identify_cols(cols + [self.fkid_col])
         
         # extract data from regular columns
         main_rows = list(self.select_iter(main_cols, **kwargs))
@@ -327,15 +331,16 @@ class DocTable2:
         Yields:
             dictionary: row data
         '''
-        
+        return_single = False
         if cols is None:
             cols = list(self.doc_table.columns) + list(self.special_cols.keys())
         else:
             if not is_sequence(cols):
+                return_single = True
                 cols = [cols]
         
         # split special cols from main_cols
-        colnames, main_cols, spec_colnames = self._identify_cols(cols)
+        colnames, main_cols, spec_colnames = self._identify_cols(cols + [self.fkid_col])
         
         # query colunmns in main table
         result = self._exec_select_query(main_cols,where,orderby,groupby,limit)
@@ -354,10 +359,10 @@ class DocTable2:
         
         else: # special columns were not selected
             for row in result:
-                if len(main_cols) == 1:
+                if return_single:
                     yield row[main_cols[0]]
                 else:
-                    yield dict(row)   
+                    yield dict(row)
 
     def _identify_cols(self, cols):
         '''Separate special cols from main table columns.
