@@ -2,23 +2,34 @@
 
 # DocTable Package for Python
 
-Object-based database access specifically intended for text analysis applications. The package makes it easy to create a new sqlite data table with simple schemas; a common task in many text analysis projects. The package consists primarily of two classes: the original DocTable, built directly as a thin interface to the sqlite3 package, and DocTable2, the successor which is implemented using SQLAlchemy.
+Object-based database access specifically intended for text analysis applications.
 
-The typical way to use this package is to create new classes which inherit from DocTable2 or DocTable. These classes can manage schema info and allow users to add application-specific member functions for convenient access to the underlying database. Custom member interfaces benefit from useful features in DocTable.
+The package makes it easy to create a new sqlite data table with simple schemas; a common task in many text analysis projects. The package consists primarily of two classes: the original **DocTable**, built directly as a thin interface to the sqlite3 package, and **DocTable2**, the successor which is implemented using SQLAlchemy.
 
-Generally these interfaces are intended to provide an object-oriented interface to a database which is designed to be in-synch with databases. If the schema of the object changes, it can be more difficult to access data in a database which was created using a different schema. As such, it can be helpful to version database interfaces with different schemas.
+The typical way to use this package is to create new classes which inherit from DocTable2 or DocTable. These classes can manage schema info and allow users to add application-specific member functions for convenient access to the underlying database which benefit from useful methods built into DocTable.
+
+These classes are intended to provide an object-oriented interface to single-table database schemas which are designed to be in-synch with databases. If the schema of the class object changes, it can be more difficult to access data in a database which was created using a different schema. As such, it can be helpful to version database interfaces with different schemas.
 
 ## DocTable2 Class
 
-This class is built on SQLAlchemy, a flexible object-oriented interface to many mainstream DB engines. This class is inspired by the object-based interface of SQLAlchemy but makes it easier to access SQLAlchemy features without importing a large number of database objects. The interface requires much less user code compared to SQLAlchemy, taking cues from the original Doctable class.
+**DocTable2** is built on SQLAlchemy, a flexible object-oriented interface to many mainstream DB engines. The class is inspired by the object-based interface of SQLAlchemy but makes it easier to access SQLAlchemy features without importing a large number of database objects. The interface requires much less user code compared to SQLAlchemy, taking cues from the original Doctable class.
 
-The additional advantage of DocTable2 over the original DocTable is the transparent access to a multi-table schema based on DocTable's built-in custom data types. This additional feature makes it easy to store data of large size, specifically large Python objects, which would normally slow down queries to non-data columns.
+The advantage of DocTable2 is that it manages separate tables which store custom datatypes, but interfaces with these separate tables as if they were regular columns in the primary table. Managing this data in separate tables can provide several performance advantages over single-table schemas. Currently there are two implemented custom datatypes which take advantage of the multi-table schema feature:
 
 * **bigblob column type**: This column type stores large pickled Python objects in a separate table from the primary table automatically created by DocTable. The .select_iter() method of DocTable2 will will perform a separate query for each row yield to minimize memory overhead and ensure the database does not queue the select query from that column. In contrast, the .select() method will perform one query to the bigblob table, collecting all python objects with a single query and automatically merge them with results from the primary document table.
 
 * **subdoc column type**: This column type is for storing separate sub-document level token lists with one (document)-to-many (subdocs) relationships. This is primarily useful because of the frequent requirement to bootstrap text corpora at the sentence or paragraph (any sub-document) level - a useful feature for analyzing the sensitivity of a particular text analysis project to sub-document samples.
 
+These custom columns are a feature advantage over the original DocTable interface, but many of the DocTable2 features are still useful outside of these custom types - namely, the object-based interface and ability to access multiple database engines provided by SQLAlchemy.
+
 ### Interface to SQLAlchemy
+
+As DocTable2 is built on SQLAlchemy, many of the SQLAlchemy features are abstracted in a straightforward manner. For details on the conversion interface, see the [SQLAlchemy interface page](https://github.com/devincornell/doctable/blob/doctable2/sqlalchemy_interface.md).
+
+### Quick Example
+
+from doctable import DocTable2
+class Documents(DocTable2):
 
 
 
