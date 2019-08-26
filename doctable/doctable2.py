@@ -286,10 +286,12 @@ class DocTable2:
             cols: list of columns
         
         '''
+        return_single = False
         if cols is None:
             cols = list(self.doc_table.columns) + list(self.special_cols.keys())
         else:
             if not is_sequence(cols):
+                return_single = True
                 cols = [cols]
         
         # split special cols from main_cols
@@ -309,7 +311,14 @@ class DocTable2:
         for mr in main_rows:
             del mr[self.fkid_colname]
         
-        return main_rows
+        if not return_single:
+            return main_rows
+        else:
+            if len(main_rows) == 0:
+                return []
+            else:
+                k = list(main_rows[0].keys())[0]
+                return [r[k] for r in main_rows]
     
     def select_first(self, *args, **kwargs):
         return next(self.select_iter(*args, limit=1, **kwargs))
