@@ -183,52 +183,27 @@ class DocTable2:
     
     ################# INSERT METHODS ##################
     
-    def insert(self, rowdat):
+    #FAIL, IGNORE, REPLACE
+    def insert(self, rowdat, ifnotunique='fail'):
         
         first_id = self._next_fk_id()
         
         # if single element, just insert it
         if isinstance(rowdat,dict):
-            r = self._insert_rows(rowdat, first_id, insert=True)
+            r = self._insert_row(rowdat, first_id, True, ifnotunique)
             return r
             
         # if iterator, insert one at a time with multiple inserts
         elif is_iter(rowdat):
-            return self._insert_iter(rowdat, first_id)
+            return self._insert_iter(rowdat, first_id, ifnotunique=ifnotunique)
         
         # if all is in memory already (list or dict), insert all at once
         else:
-            return self._insert_many(rowdat, first_id)
+            return self._insert_many(rowdat, first_id, ifnotunique=ifnotunique)
         
-    def _insert_iter(self, rowdat, first_id):
-        results = list()
-        for i,row in enumerate(rowdat):
-            r = self._insert_rows(row, first_id+i, insert=True)
-            results.append(r)
-        return results
-            
-    def _insert_many(self, rowdat, first_id):
-        main_dat_l = list()
-        spec_dat_cols = dict()
-        for i,row in enumerate(rowdat):
-            main_dat, spec_dat = self._insert_rows(row, first_id+i, insert=False)
-            main_dat_l.append(main_dat)
-
-            for col in spec_dat.keys():
-                if col not in spec_dat_cols:
-                    spec_dat_cols[col] = list()
-                spec_dat_cols[col].append(spec_dat[col])
-
-        for col, spec_dat in spec_dat_cols.items():
-            self._insert_special(col, spec_dat, first_id)
-
-        q = sa.sql.insert(self.doc_table, main_dat_l)
-        r = self.execute(q)
-        return r
-        
-    def _insert_rows(self, row, first_id, insert=True):
+    def _insert_row(self, row, first_id, insert, ifnotunique):
         '''
-            Parses through rows, separating main data cols
+            Parses through a single, separating main data cols
             from special data cols to be inserted in other
             tables.
             
@@ -241,19 +216,56 @@ class DocTable2:
         main_dat[self.fkid_colname] = first_id
         for colname,dat in row.items():
             if colname in self.special_cols:
-                if insert:
-                    self._insert_special(colname, (dat,), first_id)
-                else:
-                    special_dat[colname] = dat
+                #if insert:
+                #    self._insert_special(colname, (dat,), first_id)
+                #else:
+                special_dat[colname] = dat
             else:
                 main_dat[colname] = dat
             
         if insert:
             q = sa.sql.insert(self.doc_table, main_dat)
+            q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
+                
+            
             r = self._execute(q)
+            
+            for cn,dat in special_dat.items():
+                self._insert_special(cn, (dat,), first_id)
+            
             return r
         else:
             return main_dat, special_dat
+        
+    def _insert_iter(self, rowdat, first_id, ifnotunique):
+        results = list()
+        for i,row in enumerate(rowdat):
+            r = self._insert_row(row, first_id+i, True, ifnotunique)
+            results.append(r)
+        return results
+            
+    def _insert_many(self, rowdat, first_id, ifnotunique):
+        main_dat_l = list()
+        spec_dat_cols = dict()
+        for i,row in enumerate(rowdat):
+            main_dat, spec_dat = self._insert_row(row, first_id+i, False, ifnotunique)
+            main_dat_l.append(main_dat)
+
+            for col in spec_dat.keys():
+                if col not in spec_dat_cols:
+                    spec_dat_cols[col] = list()
+                spec_dat_cols[col].append(spec_dat[col])
+        
+        # execute query
+        q = sa.sql.insert(self.doc_table, main_dat_l)
+        q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
+        r = self.execute(q)
+        
+        # insert special column data
+        for col, spec_dat in spec_dat_cols.items():
+            self._insert_special(col, spec_dat, first_id)
+
+        return r
     
     def _insert_special(self, colname, col_data, first_id):
         '''

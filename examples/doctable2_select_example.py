@@ -80,4 +80,10 @@ if __name__ == '__main__':
     print(s) # [{'name': 'user_0', 'id': 1}, {'name': 'user_1', 'id': 2}]
     
     
+    # select with a relabel
+    s = md.select_first([md['age'].label('myage')])
+    print(s) # {'myage': 0.003745668183779638, '_fk_special_': 1}
     
+    
+    s = md.select_first([func.count().label('ct')])
+    print(s) # {'ct': 5, '_fk_special_': 5}
