@@ -1,14 +1,11 @@
 import collections
 from time import time
+import pprint
 
 # operators like and_, or_, and not_, functions like sum, min, max, etc
 import sqlalchemy.sql as op
 from sqlalchemy.sql import func
-
-from sqlalchemy.sql import select
 import sqlalchemy as sa
-
-from sqlalchemy.sql import and_, or_, not_
 
 from .coltypes import TokensType
 from . import specialtabs as sdtypes
@@ -55,6 +52,7 @@ class DocTable2:
         self.tabname_tokens = '_' + tabname + '_tokens'
         
         self.engine = sa.create_engine('{}:///{}'.format(engine,fname), echo=verbose)
+        self.schema = schema
         self._parse_schema_input(schema)
         self.conn = self.engine.connect()
     
@@ -63,8 +61,7 @@ class DocTable2:
             self.conn.close()
             
     def __str__(self):
-        ct = self.select_first(func.count())
-        return '<DocTable2::{} ct: {}>'.format(self.tabname, ct)
+        return '<DocTable2::{} ct: {}>'.format(self.tabname, self.num_rows)
         
         
     ################# INITIALIZATION METHODS ##################
@@ -105,7 +102,6 @@ class DocTable2:
                     typ = self._get_sqlalchemy_type(coltype)
                     col = sa.Column(colname, typ(**coltypeargs), **colargs)
                     columns.append(col)
-                
                 
         self._make_tables(columns, self.special_col_types)
         
@@ -456,6 +452,17 @@ class DocTable2:
             
         return docid_dict
 
+    #################### Delete Methods ###################
+    
+    def delete(self,where=None):
+        
+        q = sa.sql.delete(self.doc_table)
+        if where is not None:
+            q = q.where(where)
+        r = self.execute(q)
+        return r
+    
+    
     
     #################### Accessor Methods ###################
     
@@ -478,8 +485,17 @@ class DocTable2:
         ref = self.bigblob_table.c[colname]
         return ref
         
+    @property
     def table(self):
         return self.doc_table
+    
+    @property
+    def num_rows(self):
+        return self.select_first(func.count())
+    
+    @property
+    def schema_str(self):
+        return pprint.pformat(self.schema)
     
 
 coltype_error_str = ('Provided column schema must '
