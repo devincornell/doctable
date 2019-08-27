@@ -22,6 +22,13 @@ The advantage of DocTable2 is that it manages separate tables which store custom
 
 These custom columns are a feature advantage over the original DocTable interface, but many of the DocTable2 features are still useful outside of these custom types - namely, the object-based interface and ability to access multiple database engines provided by SQLAlchemy.
 
+### DocTable2 Insert
+
+There are three ways to insert data into a DocTable2 depending 
+
+
+
+
 ### Interface to SQLAlchemy
 
 As DocTable2 is built on SQLAlchemy, many of the SQLAlchemy features are abstracted in a straightforward manner. For details on the conversion interface, see the [SQLAlchemy interface page](https://github.com/devincornell/doctable/blob/doctable2/sqlalchemy_interface.md).
