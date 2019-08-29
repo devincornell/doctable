@@ -33,7 +33,7 @@ class DocTable2:
     }
     custom_types = (
         'subdoc',
-        'bigblob',
+        'bigpickle',
     )
     fkid_colname = '_fk_special_'
     
@@ -43,18 +43,20 @@ class DocTable2:
         'primarykey_constraint': sa.PrimaryKeyConstraint,
     }
     
-    def __init__(self, schema, tabname='_documents_', fname=':memory:', engine='sqlite', verbose=False):
+    def __init__(self, schema, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False):
         
         # separate tables for custom data types and main table
         self.tabname = tabname
         self.tabname_subdocs = '_' + tabname + '_subdocs'
-        self.tabname_bigblobs = '_' + tabname + '_bigblobs'
+        self.tabname_bigpickles = '_' + tabname + '_bigpickles'
         self.tabname_tokens = '_' + tabname + '_tokens'
+        self.persistent_conn = persistent_conn
         
         self.engine = sa.create_engine('{}:///{}'.format(engine,fname), echo=verbose)
         self.schema = schema
         self._parse_schema_input(schema)
         self.conn = self.engine.connect()
+        self.next_fkid = None
     
     def __delete__(self):
         if self.conn is not None:
@@ -121,11 +123,11 @@ class DocTable2:
             *columns,
         )
         
-        bigblob_colnames = self.colnames_of_type(sdtypes.BigBlobTable)
-        self.bigblob_table = sdtypes.BigBlobTable(
-            self.tabname_bigblobs, 
+        bigpickle_colnames = self.colnames_of_type(sdtypes.BigPickleTable)
+        self.bigpickle_table = sdtypes.BigPickleTable(
+            self.tabname_bigpickles, 
             self.metadata, 
-            bigblob_colnames,
+            bigpickle_colnames,
             self.fkid_col
         )
         
@@ -143,8 +145,8 @@ class DocTable2:
         self.special_cols = dict()
         for cn in self.colnames:
             if isinstance(cn,str):
-                if cn in bigblob_colnames:
-                    self.special_cols[cn] = self.bigblob_table
+                if cn in bigpickle_colnames:
+                    self.special_cols[cn] = self.bigpickle_table
                 if cn in subdoc_colnames:
                     self.special_cols[cn] = self.subdoc_table
             
@@ -221,10 +223,9 @@ class DocTable2:
             
         if insert:
             q = sa.sql.insert(self.doc_table, main_dat)
-            q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
+            #q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
+            r = self.execute(q)
                 
-            
-            r = self._execute(q)
             
             for cn,dat in special_dat.items():
                 self._insert_special(cn, (dat,), first_id)
@@ -254,7 +255,7 @@ class DocTable2:
         
         # execute query
         q = sa.sql.insert(self.doc_table, main_dat_l)
-        q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
+        #q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         r = self.execute(q)
         
         # insert special column data
@@ -278,12 +279,18 @@ class DocTable2:
         return r
                 
     def _next_fk_id(self):
-        q = sa.sql.select([func.max(self.fkid_col)])
-        maxi = self.execute(q).fetchone()[0]
-        if maxi is None:
-            return 1
+        if (not self.persistent_conn) or (self.next_fkid is None):
+            q = sa.sql.select([func.max(self.fkid_col)])
+            maxi = self.execute(q).fetchone()[0]
+            if maxi is None:
+                fkid = 1
+            else:
+                fkid = maxi + 1
+            self.next_fkid = fkid
+            return fkid
         else:
-            return maxi + 1
+            self.next_fkid += 1
+            return self.next_fkid
     
     
     ################# SELECT METHODS ##################
@@ -518,8 +525,8 @@ class DocTable2:
         ref = self.subdoc_table.c[colname]
         return ref
     
-    def _bigblob(self, colname):
-        ref = self.bigblob_table.c[colname]
+    def _bigpickle(self, colname):
+        ref = self.bigpickle_table.c[colname]
         return ref
         
     @property

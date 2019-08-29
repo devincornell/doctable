@@ -27,7 +27,7 @@ if __name__ == '__main__':
     md = MyDocuments()
     
     # insert random docs
-    N = 5
+    N = 50
     for i in range(N):
         md.insert({'name':'user_'+str(i), 'age':random.random()})
     print(md)

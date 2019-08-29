@@ -32,6 +32,7 @@ if __name__ == '__main__':
     
     # insert one at a time
     md = MyDocuments()
+    print(md.schema_str)
     for i in range(N):
         md.insert({'name':'user_'+str(i), 'age':random.random()})
     print(md) # <DocTable2::mydocuments ct: 10>

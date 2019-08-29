@@ -8,6 +8,11 @@ class TableBase:
         return self.doc_table.c[colname]
     
     def insert(self, colname, coldata, start_id, parentref):
+        '''Generic code for inserting data into special column table.
+            Relies on self._rows_from_coldata() to convert the input
+            into special column table rows. Alternatively can be 
+            overloaded.
+        '''
         rows = self._rows_from_coldata(colname, coldata, start_id)
         q = sa.sql.insert(self.table, list(rows))
         r = parentref.execute(q)
@@ -19,7 +24,11 @@ class TableBase:
     def select(self, colname, doc_ids, parentref):
         raise NotImplementedError()
         
-class BigBlobTable(TableBase):
+    def update(self, colname, doc_ids, value, parentref):
+        raise NotImplementedError()
+        
+        
+class BigPickleTable(TableBase):
 
     def __init__(self, tabname, metaref, cols, foreignkey_col):
         
@@ -29,8 +38,8 @@ class BigBlobTable(TableBase):
             sa.Column('col_name', sa.String, sa.CheckConstraint(colname_constraint)),
             sa.Column('doc_id', sa.ForeignKey(foreignkey_col, onupdate="CASCADE", ondelete="CASCADE")),
             sa.Column('num_bytes', sa.Integer),
-            sa.Column('bigblob', sa.PickleType),
-            sa.Index('idx_bigblobs0', 'col_name', 'doc_id', unique=True),
+            sa.Column('bigpickle', sa.PickleType),
+            sa.Index('idx_bigpickles0', 'col_name', 'doc_id', unique=True),
         )
     
     @staticmethod
@@ -41,23 +50,26 @@ class BigBlobTable(TableBase):
                 'col_name': colname,
                 'doc_id': doc_id,
                 'num_bytes': None,
-                'bigblob': blob,
+                'bigpickle': blob,
             }
             yield row
             
     def select(self, colname, doc_ids, parentref):
-        q = sa.sql.select([self.table.c['bigblob'], self.table.c['doc_id']])
+        q = sa.sql.select([self.table.c['bigpickle'], self.table.c['doc_id']])
         q = q.where(self.table.c['doc_id'].in_(doc_ids))
         q = q.where(self.table.c['col_name'] == colname)
-        bigblobrows = parentref.execute(q)
-        return {r['doc_id']:r['bigblob'] for r in bigblobrows}
-        
+        bigpicklerows = parentref.execute(q)
+        return {r['doc_id']:r['bigpickle'] for r in bigpicklerows}
+    
+    def update(self, colname, doc_ids, value, parentref):
+        q = sa.sql.update(self.table)
+        q = q.where(self.table.c['doc_id'].in_(doc_ids) & (self.table.c['col_name']==colname))
+        q = q.values({'bigpickle':value,'num_bytes':None})
+        r = parentref.execute(q)
+        return r
             
             
-            
-            
-            
-class SentTable(TableBase):
+class SubdocTable(TableBase):
 
     def __init__(self, tabname, metaref, colnames, foreignkey_col):
         
@@ -69,23 +81,23 @@ class SentTable(TableBase):
             sa.Column('order', sa.Integer),
             sa.Column('num_tokens', sa.Integer),
             sa.Column('tokens', TokensType),
-            sa.Index('idx_sents0', 'col_name', 'doc_id', 'order', unique=True),
-            sa.Index('idx_sents1', 'col_name', 'doc_id', unique=False),
+            sa.Index('idx_subdocs0', 'col_name', 'doc_id', 'order', unique=True),
+            sa.Index('idx_subdocs1', 'col_name', 'doc_id', unique=False),
         )
     
     @staticmethod
     def _rows_from_coldata(colname, coldata, start_id):
-        for i,sents in enumerate(coldata):
+        for i,subdocs in enumerate(coldata):
             doc_id = start_id + i
-            for j,sent in enumerate(sents):
-                sentrow = {
+            for j,subdoc in enumerate(subdocs):
+                subdocrow = {
                     'col_name': colname,
                     'doc_id': doc_id,
                     'order': j,
-                    'num_tokens': len(sent),
-                    'tokens': sent,
+                    'num_tokens': len(subdoc),
+                    'tokens': subdoc,
                 }
-                yield sentrow
+                yield subdocrow
             
             
     def select(self, colname, doc_ids, parentref):
@@ -96,17 +108,29 @@ class SentTable(TableBase):
         ]).where(
             (self.table.c['doc_id'].in_(doc_ids)) &
             (self.table.c['col_name'] == colname)
-        )
+        ).order_by(self.table.c['order'].asc())
         res = list(parentref.execute(q))
         
-        # format sentences
-        sents = {did:list() for did in doc_ids}
+        # format subdocs
+        subdocs = {did:list() for did in doc_ids}
         for did,tok in res:
-            sents[did].append(tok)
-        return sents
+            subdocs[did].append(tok)
+        return subdocs
+    
+    def update(self, colname, doc_ids, value, parentref):
+        # delete all sents assigned to those ids
+        q = sa.sql.delete(self.table)
+        q = q.where(self.table.c['doc_id'].in_(doc_ids) & (self.table.c['col_name']==colname))
+        rd = parentref.execute(q)
+        
+        # insert sents for each of the ids
+        cd = (value for _ in range(len(doc_ids)))
+        r = self.insert(self, colname, coldata, doc_ids, parentref)
+        
+        return r
         
 
 dtypes = {
-    'bigblob':BigBlobTable,
-    'sentences': SentTable,
+    'bigpickle':BigPickleTable,
+    'subdocs': SubdocTable,
 }

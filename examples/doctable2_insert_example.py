@@ -1,6 +1,8 @@
 
 import random
 import sqlalchemy
+from time import time
+
 
 import sys
 sys.path.append('..')
@@ -31,9 +33,10 @@ if __name__ == '__main__':
     
     # insert one at a time
     md = MyDocuments()
+    st = time()
     for i in range(N):
         md.insert({'name':'user_'+str(i), 'age':random.random()})
-    print(md) # <DocTable2::mydocuments ct: 5>
+    print('took {} sec to load one at a time'.format(time()-st),md) # <DocTable2::mydocuments ct: 5>
     
     # create generator function, which is an iterator
     def get_ages(N):
@@ -43,14 +46,16 @@ if __name__ == '__main__':
     # insert row elements as an iterator
     md = MyDocuments()
     age_iter = get_ages(N)
+    st = time()
     md.insert(age_iter)
-    print(md) # <DocTable2::mydocuments ct: 5>
+    print('took {} sec to load from iterator'.format(time()-st),md) # <DocTable2::mydocuments ct: 5>
             
     # insert large list of items
     md = MyDocuments()
     rows = [{'name':'user_'+str(i), 'age':random.random()} for i in range(N)]
+    st = time()
     md.insert(rows)
-    print(md) # <DocTable2::mydocuments ct: 5>
+    print('took {} sec to load from list'.format(time()-st),md) # <DocTable2::mydocuments ct: 5>
     
     #now insert somethign which goes against uniqueness constraint
     try:
@@ -61,23 +66,21 @@ if __name__ == '__main__':
         raise KeyError('Insert against uniqueness constraint did '
             'not throw exception.')
     
-    # now insert ignoring since the new entry violates uniqueness constraings
-    md.insert({'name':'user_0', 'age':-15}, ifnotunique='ignore')
-    s = md.select_first(where=md['name']=='user_0')
-    print(s['age']) # not -15 (whatever value was previously assigned)
-    print(md) # <DocTable2::mydocuments ct: 5>
-    
-    # now insert by replacing
-    md.insert({'name':'user_0', 'age':-15}, ifnotunique='replace')
-    s = md.select_first(where=md['name']=='user_0')
-    print(s['age']) # should be -15
-    print(md) # <DocTable2::mydocuments ct: 5>
-    
+    # CAN'T SOLVE "IF NOT UNIQUE" YET. NEED TO FIGURE OUT A GOOD WAY
+    if False:
+        # now insert ignoring since the new entry violates uniqueness constraings
+        ins = md.insert({'name':'user_0', 'age':-15}, ifnotunique='ignore')
+        s = md.select_first(where=md['name']=='user_0')
+        print(s['age'], md) # not -15 (whatever value was previously assigned)
 
-    # now insert by replacing
-    md.insert([{'name':'user_0', 'age':17}], ifnotunique='replace')
-    s = md.select_first(where=md['name']=='user_0')
-    print(s['age']) # should be 17
-    print(md) # <DocTable2::mydocuments ct: 5>
+        # now insert by replacing
+        md.insert({'name':'user_0', 'age':-15}, ifnotunique='replace')
+        s = md.select_first(where=md['name']=='user_0')
+        print(s['age'], md) # should be -15
+
+        # now insert by replacing
+        md.insert([{'name':'user_0', 'age':17}], ifnotunique='replace')
+        s = md.select_first(where=md['name']=='user_0')
+        print(s['age'], md) # should be 17
     
     

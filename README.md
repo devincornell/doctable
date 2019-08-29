@@ -95,21 +95,42 @@ There are three ways to insert data into a DocTable2 depending on the data provi
 .
 
 
+### DocTable2 Select Methods
 
+There are three select methods that can be used to access the database in different ways, depending on memory and performance needs.
 
+1. Regular Select `.select()`
 
+    This method is used to select data when it is desirable to load all results into memory at once. The result is always a list of row dictionaries. The example below will 
+    
+    ```python
+    rows = md.select()
+    print(rows[0]) # each element is dict of colname->value mappings
+    ```
+    
+2. Select First `.select_first()`
 
+    Will simply get the first result that meets the desired criteria (where arg).
 
+    ```python
+    row = md.select_first()
+    print(row) # row is dict of colname->value mappings
+    ```
+
+3. Select Iterator `.select_iter()`
+
+    Will iterate through results one-at-a-time, calling a separate "SELECT" statement for the special columns.
+    
+    ```python
+    rows = md.select_iter()
+    for row in rows:
+        print(row) # row is dict of colname->value mappings
+    ```
+    
 
 ### Interface to SQLAlchemy
 
 As DocTable2 is built on SQLAlchemy, many of the SQLAlchemy features are abstracted in a straightforward manner. For details on the conversion interface, see the [SQLAlchemy interface page](https://github.com/devincornell/doctable/blob/doctable2/sqlalchemy_interface.md).
-
-### Quick Example
-
-from doctable import DocTable2
-class Documents(DocTable2):
-
 
 
 
