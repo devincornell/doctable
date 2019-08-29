@@ -288,6 +288,10 @@ class DocTable2:
     
     ################# SELECT METHODS ##################
     
+    #NOTE: REMOVED SO PANDAS IS NOT PREREQUISITE
+    #def seldf(self, *args, **kwargs):
+    #    return pd.DataFrame(self.select(*args, **kwargs))
+    
     def select(self, cols=None, **kwargs):
         '''Perform select query on database, 1 + 1 query per special table.
         Args:
@@ -452,6 +456,39 @@ class DocTable2:
             
         return docid_dict
 
+    
+    #################### Update Methods ###################
+    
+    def update(self,values,where=None):
+        '''Update row(s) assigning the provided values.
+        '''
+        
+        # split and remove special columns
+        spcols = list()
+        colnames = list(values.keys())
+        for cn in colnames:
+            if cn in self.special_cols:
+                spcols.append(values[cn])
+                del values[cn]
+            
+        # update the main column values
+        q = sa.sql.update(self.doc_table).values(values)
+        if where is not None:
+            q = q.where(where)
+        r = self.execute(q)
+            
+        # update special columns
+        if len(spcols) > 0:
+            q = self.select(self.fkid_col,where=where)
+            ids = self.execute(q)
+            
+            for cn in spcols:
+                sp_tab = self.special_cols[cn]
+                sp_result = sp_tab.update(cn, docids, self)
+            
+        return r
+    
+    
     #################### Delete Methods ###################
     
     def delete(self,where=None):
