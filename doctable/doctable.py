@@ -1,6 +1,7 @@
 import sqlite3
 import pickle
 import pandas as pd
+import os.path
 
 ##### DOCUMENT INTERFACE FOR WORKING WITH TEXT DATA #####
 
@@ -11,29 +12,85 @@ class DocTable:
     '''
     
     def __init__(self,
-                 colschema,
+                 colschema=None,
                  fname=':memory:', 
                  tabname='_documents_', 
                  constraints=tuple(),
                  verbose=False,
                  persistent_conn=True,
+                 check_schema=True,
                 ):
         
         self.fname = fname
         self.tabname = tabname
-        self.colschema = colschema
         self.constraints = constraints
         self.verbose = verbose
         
         if fname == ':memory:' and not persistent_conn:
             raise ValueError('Must use persistent_conn=True for in-memory databases.')
         
-        if persistent_conn:
-            self.conn = sqlite3.connect(fname)
-        else:
-            self.conn = None
+        #check_schema, colschema, persistent_conn
         
-        self._try_create_table()
+        self.colschema = None
+        if colschema is None and check_schema:
+            raise ValueError('if check_schema=True, need to provide colschema.')
+        
+        elif colschema is None and not check_schema:
+            if not os.path.exists(fname):
+                raise FileNotFoundError('File {} not found.'.format(fname))
+            
+            # file already exists
+            if persistent_conn:
+                self.conn = sqlite3.connect(fname)
+            else:
+                self.conn = None
+                
+        else:
+            if persistent_conn:
+                self.conn = sqlite3.connect(fname)
+            else:
+                self.conn = None
+            
+                
+        elif check_schema: # colschema is defined by here
+            
+            # make connection (creates file if doesn't exist)
+
+                
+            self.colschema = colschema
+            self._try_create_table()
+            
+        else:
+            # colschema was provided but not checking schema
+            
+            
+                
+        if check_schema:
+            if persistent_conn:
+                self.conn = sqlite3.connect(fname)
+            else:
+                self.conn = None
+            # try create table
+            # get schema
+            # check schema
+        else: # db must exist already
+
+            
+            if persistent_conn:
+                self.conn = sqlite3.connect(fname)
+            else:
+                self.conn = None
+                
+            # get schema
+        
+        
+
+            
+        if check_schema:
+            self.colschema = colschema
+            self._try_create_table()
+        else:
+            
         
         self.schema = self._get_schema()
         self.columns = list(self.schema['name'])
