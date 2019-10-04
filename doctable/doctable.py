@@ -52,7 +52,7 @@ class DocTable:
                 self.conn = None
             
                 
-        elif check_schema: # colschema is defined by here
+        if check_schema: # colschema is defined by here
             
             # make connection (creates file if doesn't exist)
 
@@ -60,7 +60,7 @@ class DocTable:
             self.colschema = colschema
             self._try_create_table()
             
-        else:
+        #else:
             # colschema was provided but not checking schema
             
             
@@ -89,7 +89,7 @@ class DocTable:
         if check_schema:
             self.colschema = colschema
             self._try_create_table()
-        else:
+        #else:
             
         
         self.schema = self._get_schema()
