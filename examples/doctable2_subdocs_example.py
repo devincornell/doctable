@@ -32,7 +32,7 @@ if __name__ == '__main__':
     
     # insert one at a time
     md = MyDocuments()
-    Nsent,sentlen = 50000,10
+    Nsent,sentlen = 10,10
     for i in range(N):
         sents = [[str(i) for i in range(sentlen)] for _ in range(Nsent)]
         md.insert({'name':'user_'+str(i), 'age':random.random(),'description':sents})
