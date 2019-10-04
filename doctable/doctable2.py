@@ -9,7 +9,6 @@ from sqlalchemy.sql import func
 import sqlalchemy as sa
 
 from .coltypes import TokensType
-from . import specialtabs as sdtypes
 
 class DocTable2:
     type_map = {
@@ -44,8 +43,9 @@ class DocTable2:
         # separate tables for custom data types and main table
         self.tabname = tabname
         self.persistent_conn = persistent_conn
+        self.verbose = verbose
         
-        self.engine = sa.create_engine('{}:///{}'.format(engine,fname), echo=verbose)
+        self.engine = sa.create_engine('{}:///{}'.format(engine,fname))
         self.schema = schema
         self._parse_schema_input(schema)
         self.conn = self.engine.connect()
@@ -82,7 +82,7 @@ class DocTable2:
                 columns.append(col)
 
             else: # column is actually a constraint (not regular column)
-                if coltype in constraint_map:
+                if coltype in ('check_constraint',):
                     # in this case, colname should be a constraint string (i.e. "age > 0")
                     const = self.constraint_map[coltype](colname, **colargs)
                 else:
@@ -163,28 +163,6 @@ class DocTable2:
         else:
             return [dict(r) for r in result]
     
-            
-    def old_select(self, cols=None, **kwargs):
-        '''Perform select query on database, 1 + 1 query per special table.
-        Args:
-            cols: list of columns
-        '''
-        return_single = False
-        if cols is None:
-            cols = list(self.table.columns) + list(self.special_cols.keys())
-        else:
-            if not is_sequence(cols):
-                return_single = True
-                cols = [cols]
-        
-        # extract data from regular columns
-        main_rows = list(self.select_iter(main_cols, **kwargs))
-        
-        for row in result:
-            if return_single:
-                yield row[main_cols[0]]
-            else:
-                yield dict(row)
                 
     def _exec_select_query(self, cols, where, orderby, groupby, limit):
         
@@ -243,6 +221,9 @@ class DocTable2:
     ################# CRITICAL SQL METHODS ##################
     
     def execute(self, query):
+        if self.verbose: print('DocTable2 Query: {}'
+                               ''.format(query))
+        
         # try to parse
         result = self._execute(query)
         return result
