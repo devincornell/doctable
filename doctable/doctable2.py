@@ -109,6 +109,7 @@ class DocTable2:
         self._make_tables(columns, self.special_col_types)
         
     def _get_sqlalchemy_type(self,typstr):
+        valid_types = tuple(self.type_map.keys()) + self.custom_types
         if typstr not in self.type_map:
             raise ValueError('Provided column type must match '
                 'one of {}.'.format(self.type_map.keys()))
