@@ -38,18 +38,30 @@ class DocTable2:
         'primarykey_constraint': sa.PrimaryKeyConstraint,
     }
     
-    def __init__(self, schema, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False):
+    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False):
         
         # separate tables for custom data types and main table
         self.tabname = tabname
-        self.persistent_conn = persistent_conn
         self.verbose = verbose
         
         self.engine = sa.create_engine('{}:///{}'.format(engine,fname))
         self.schema = schema
-        self._parse_schema_input(schema)
-        self.conn = self.engine.connect()
-        self.next_fkid = None
+            
+        # actually create table
+        self.metadata = sa.MetaData()
+        
+        if self.schema is not None:
+            columns = self._parse_column_schema(schema)
+            self._table = sa.Table(self.tabname, self.metadata, *columns)
+            self.metadata.create_all(self.engine)
+        else:
+            self._table = sa.Table(self.tabname, self.metadata, autoload=True, autoload_with=self.engine)
+            
+        # connect with database engine
+        if persistent_conn:
+            self.conn = self.engine.connect()
+        else:
+            self.conn = None
     
     def __delete__(self):
         if self.conn is not None:
@@ -61,7 +73,7 @@ class DocTable2:
         
     ################# INITIALIZATION METHODS ##################
     
-    def _parse_schema_input(self,schema):
+    def _parse_column_schema(self,schema):
         self.colnames = [c[0] for c in schema]
         columns = list()
         for colinfo in schema:
@@ -91,11 +103,9 @@ class DocTable2:
                             'be a sequence of columns.'.format(coltype))
                     const = self.constraint_map[coltype](*colname, **colargs)
                 columns.append(const)
+        return columns
 
-        # actually create table
-        self.metadata = sa.MetaData()
-        self.table = sa.Table(self.tabname, self.metadata, *columns)
-        self.metadata.create_all(self.engine)
+
                 
     def _get_sqlalchemy_type(self,typstr):
         '''Maps typstr with an sqlalchemy data type (or doctable custom type).
@@ -119,7 +129,7 @@ class DocTable2:
         Returns:
             sqlalchemy query result object
         '''
-        q = sa.sql.insert(self.table, rowdat)
+        q = sa.sql.insert(self._table, rowdat)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         r = self.execute(q)
     
@@ -148,7 +158,7 @@ class DocTable2:
         '''
         return_single = False
         if cols is None:
-            cols = list(self.table.columns)
+            cols = list(self._table.columns)
         else:
             if not is_sequence(cols):
                 return_single = True
@@ -191,7 +201,7 @@ class DocTable2:
         '''
             
         # update the main column values
-        q = sa.sql.update(self.table).values(values)
+        q = sa.sql.update(self._table).values(values)
         if where is not None:
             q = q.where(where)
         r = self.execute(q)
@@ -212,7 +222,7 @@ class DocTable2:
     
     def delete(self,where=None):
         
-        q = sa.sql.delete(self.table)
+        q = sa.sql.delete(self._table)
         if where is not None:
             q = q.where(where)
         r = self.execute(q)
@@ -245,12 +255,15 @@ class DocTable2:
         return ref
     
     def __getitem__(self, colname):
-
-        return self.table.c[colname]
+        return self._table.c[colname]
+        
+    @property
+    def table(self):
+        return self._table
         
     @property
     def num_rows(self):
-        return self.select_first(func.count())
+        return self.select_first(func.count(self._table))
     
     @property
     def schema_str(self):
