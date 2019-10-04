@@ -94,71 +94,41 @@ class DocTable2:
 
         # actually create table
         self.metadata = sa.MetaData()
-        self.fkid_col = sa.Column(self.fkid_colname, sa.Integer,unique=True)
-        self.table = sa.Table(self.tabname, self.metadata, 
-            self.fkid_col,
-            *columns,
-        )
+        self.table = sa.Table(self.tabname, self.metadata, *columns)
         self.metadata.create_all(self.engine)
                 
     def _get_sqlalchemy_type(self,typstr):
+        '''Maps typstr with an sqlalchemy data type (or doctable custom type).
+        '''
         if typstr not in self.type_map:
             raise ValueError('Provided column type must match '
                 'one of {}.'.format(self.type_map.keys()))
         else:
             return self.type_map[typstr]
-        
-    
-    ################# CRITICAL SQL METHODS ##################
-    
-    def execute(self, query):
-        # try to parse
-        result = self._execute(query)
-        return result
-        
-    def _execute(self, query):
-        # takes raw query object
-        if self.conn is not None:
-            r = self.conn.execute(query)
-        else:
-            with self.engine.connect() as conn:
-                r = conn.execute(query)
-        return r
-    
     
     
     ################# INSERT METHODS ##################
     
-    #FAIL, IGNORE, REPLACE
+    #
     def insert(self, rowdat, ifnotunique='fail'):
-        
-        first_id = self._next_fk_id()
-        
-        q = sa.sql.insert(self.table, main_dat)
-        #q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
+        '''Insert a row.
+        Args:
+            rowdat (list<dict> or dict): row data to insert.
+            ifnotunique: way to handle inserted data if it breaks
+                a table constraint. Choose from FAIL, IGNORE, REPLACE.
+        Returns:
+            sqlalchemy query result object
+        '''
+        q = sa.sql.insert(self.table, rowdat)
+        q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         r = self.execute(q)
-        
-
-                
-    def _next_fk_id(self):
-        if (not self.persistent_conn) or (self.next_fkid is None):
-            q = sa.sql.select([func.max(self.fkid_col)])
-            maxi = self.execute(q).fetchone()[0]
-            if maxi is None:
-                fkid = 1
-            else:
-                fkid = maxi + 1
-            self.next_fkid = fkid
-            return fkid
-        else:
-            self.next_fkid += 1
-            return self.next_fkid
     
     
     ################# SELECT METHODS ##################
     
     def select_first(self, *args, **kwargs):
-        return next(self.select(*args, limit=1, **kwargs))
+        '''Perform regular select query returning only the first result.'''
+        return self.select(*args, limit=1, **kwargs)[0]
     
     def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None):
         '''Perform select query, yield result for each row.
@@ -178,7 +148,7 @@ class DocTable2:
         '''
         return_single = False
         if cols is None:
-            cols = list(self.table.columns) + list(self.special_cols.keys())
+            cols = list(self.table.columns)
         else:
             if not is_sequence(cols):
                 return_single = True
@@ -187,12 +157,11 @@ class DocTable2:
         # query colunmns in main table
         result = self._exec_select_query(cols,where,orderby,groupby,limit)
         
-        for row in result:
-            print(row)
-            if return_single:
-                yield row[main_cols[0]]
-            else:
-                yield dict(row)
+        # return output as list
+        if return_single:
+            return [r[0] for r in result]
+        else:
+            return [dict(r) for r in result]
     
             
     def old_select(self, cols=None, **kwargs):
@@ -271,6 +240,21 @@ class DocTable2:
         r = self.execute(q)
         return r
     
+    ################# CRITICAL SQL METHODS ##################
+    
+    def execute(self, query):
+        # try to parse
+        result = self._execute(query)
+        return result
+        
+    def _execute(self, query):
+        # takes raw query object
+        if self.conn is not None:
+            r = self.conn.execute(query)
+        else:
+            with self.engine.connect() as conn:
+                r = conn.execute(query)
+        return r
     
     
     #################### Accessor Methods ###################
@@ -280,16 +264,9 @@ class DocTable2:
         return ref
     
     def __getitem__(self, colname):
-        if colname in self.special_cols:
-            return colname
-        else:
-            # throws error if not in table columns
-            return self.table.c[colname]
+
+        return self.table.c[colname]
         
-    @property
-    def table(self):
-        return self.table
-    
     @property
     def num_rows(self):
         return self.select_first(func.count())
