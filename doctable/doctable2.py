@@ -30,6 +30,7 @@ class DocTable2:
         'unicode':sa.Unicode,
         'unicodetext':sa.UnicodeText,
         'tokens':TokensType, # custom datatype
+        'paragraphs':TokensType, # custom datatype
     }
     
     constraint_map = {
@@ -205,16 +206,7 @@ class DocTable2:
         if where is not None:
             q = q.where(where)
         r = self.execute(q)
-            
-        # update special columns
-        if len(spcols) > 0:
-            q = self.select(self.fkid_col,where=where)
-            ids = self.execute(q)
-            
-            for cn in spcols:
-                sp_tab = self.special_cols[cn]
-                sp_result = sp_tab.update(cn, docids, self)
-            
+        
         return r
     
     

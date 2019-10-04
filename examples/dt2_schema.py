@@ -48,6 +48,10 @@ class MyDocuments(DocTable2):
         # make a string column with max of 500 characters
         #SQLAlchemy: Column('abstract', String, default='')
         ('text','string',dict(),dict(length=500)),
+        
+        # try out custom data types
+        ('sentencized','paragraphs'),
+        ('tokenized','tokens'),
 
     )
     
@@ -65,7 +69,7 @@ class MyDocuments(DocTable2):
     
     
 if __name__ == '__main__':
-    md = MyDocuments('mydb.db',verbose=True)
+    md = MyDocuments(verbose=True)
     print(md)
     
     
