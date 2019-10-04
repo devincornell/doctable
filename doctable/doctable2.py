@@ -32,11 +32,6 @@ class DocTable2:
         'unicodetext':sa.UnicodeText,
         'tokens':TokensType, # custom datatype
     }
-    custom_types = (
-        'subdoc',
-        'bigpickle',
-    )
-    fkid_colname = '_fk_special_'
     
     constraint_map = {
         'unique_constraint': sa.UniqueConstraint,
@@ -48,9 +43,6 @@ class DocTable2:
         
         # separate tables for custom data types and main table
         self.tabname = tabname
-        self.tabname_subdocs = '_' + tabname + '_subdocs'
-        self.tabname_bigpickles = '_' + tabname + '_bigpickles'
-        self.tabname_tokens = '_' + tabname + '_tokens'
         self.persistent_conn = persistent_conn
         
         self.engine = sa.create_engine('{}:///{}'.format(engine,fname), echo=verbose)
@@ -72,7 +64,6 @@ class DocTable2:
     def _parse_schema_input(self,schema):
         self.colnames = [c[0] for c in schema]
         columns = list()
-        self.special_col_types = dict()
         for colinfo in schema:
             if len(colinfo) == 2:
                 colname, coltype = colinfo
@@ -85,82 +76,38 @@ class DocTable2:
             else:
                 raise ValueError(coltype_error_str)
             
-            if coltype in sdtypes.dtypes:
-                spcol_obj = sdtypes.dtypes[coltype]
-                self.special_col_types[colname] = spcol_obj
+            if not coltype in self.constraint_map: # if coltype is regular column
+                typ = self._get_sqlalchemy_type(coltype)
+                col = sa.Column(colname, typ(**coltypeargs), **colargs)
+                columns.append(col)
+
+            else: # column is actually a constraint (not regular column)
+                if coltype in constraint_map:
+                    # in this case, colname should be a constraint string (i.e. "age > 0")
+                    const = self.constraint_map[coltype](colname, **colargs)
+                else:
+                    if not is_sequence(colname):
+                        raise ValueError('First column argument on {} should '
+                            'be a sequence of columns.'.format(coltype))
+                    const = self.constraint_map[coltype](*colname, **colargs)
+                columns.append(const)
+
+        # actually create table
+        self.metadata = sa.MetaData()
+        self.fkid_col = sa.Column(self.fkid_colname, sa.Integer,unique=True)
+        self.table = sa.Table(self.tabname, self.metadata, 
+            self.fkid_col,
+            *columns,
+        )
+        self.metadata.create_all(self.engine)
                 
-            else:
-                if coltype in self.constraint_map: # if coltype is constraint
-                    if coltype in ('check_constraint',):
-                        # in this case, colname should be a constraint string (i.e. "age > 0")
-                        const = self.constraint_map[coltype](colname, **colargs)
-                    else:
-                        if not is_sequence(colname):
-                            raise ValueError('First column argument on {} should '
-                                'be a sequence of columns.'.format(coltype))
-                        const = self.constraint_map[coltype](*colname, **colargs)
-                    columns.append(const)
-                
-                else: # regular column type
-                    typ = self._get_sqlalchemy_type(coltype)
-                    col = sa.Column(colname, typ(**coltypeargs), **colargs)
-                    columns.append(col)
-                
-        self._make_tables(columns, self.special_col_types)
-        
     def _get_sqlalchemy_type(self,typstr):
         if typstr not in self.type_map:
             raise ValueError('Provided column type must match '
                 'one of {}.'.format(self.type_map.keys()))
         else:
             return self.type_map[typstr]
-    
-    def _make_tables(self, columns, special_col_types):
-        self.metadata = sa.MetaData()
         
-        self.fkid_col = sa.Column(self.fkid_colname, sa.Integer,unique=True)
-        self.doc_table = sa.Table(self.tabname, self.metadata, 
-            self.fkid_col,
-            *columns,
-        )
-        
-        bigpickle_colnames = self.colnames_of_type(sdtypes.BigPickleTable)
-        self.bigpickle_table = sdtypes.BigPickleTable(
-            self.tabname_bigpickles, 
-            self.metadata, 
-            bigpickle_colnames,
-            self.fkid_col
-        )
-        
-        subdoc_colnames = self.colnames_of_type(sdtypes.SubdocTable)
-        self.subdoc_table = sdtypes.SubdocTable(
-            self.tabname_subdocs, 
-            self.metadata, 
-            subdoc_colnames, 
-            self.fkid_col
-        )
-        
-        self.metadata.create_all(self.engine)
-        
-        # record table instances for each special column
-        self.special_cols = dict()
-        for cn in self.colnames:
-            if isinstance(cn,str):
-                if cn in bigpickle_colnames:
-                    self.special_cols[cn] = self.bigpickle_table
-                if cn in subdoc_colnames:
-                    self.special_cols[cn] = self.subdoc_table
-            
-        
-    
-    def colnames_of_type(self, dtype):
-        type_colnames = list()
-        for cn in self.colnames:
-            if isinstance(cn,str) and cn in self.special_col_types:
-                if self.special_col_types[cn] == dtype:
-                    type_colnames.append(cn)
-        return type_colnames
-
     
     ################# CRITICAL SQL METHODS ##################
     
@@ -187,97 +134,11 @@ class DocTable2:
         
         first_id = self._next_fk_id()
         
-        # if single element, just insert it
-        if isinstance(rowdat,dict):
-            r = self._insert_row(rowdat, first_id, True, ifnotunique)
-            return r
-            
-        # if iterator, insert one at a time with multiple inserts
-        elif is_iter(rowdat):
-            return self._insert_iter(rowdat, first_id, ifnotunique=ifnotunique)
-        
-        # if all is in memory already (list or dict), insert all at once
-        else:
-            return self._insert_many(rowdat, first_id, ifnotunique=ifnotunique)
-        
-    def _insert_row(self, row, first_id, insert, ifnotunique):
-        '''
-            Parses through a single, separating main data cols
-            from special data cols to be inserted in other
-            tables.
-            
-            if insert == True, will insert while looping through
-                each row, and execute insert statement at the end.
-        '''
-        
-        main_dat = dict()
-        special_dat = dict()
-        main_dat[self.fkid_colname] = first_id
-        for colname,dat in row.items():
-            if colname in self.special_cols:
-                #if insert:
-                #    self._insert_special(colname, (dat,), first_id)
-                #else:
-                special_dat[colname] = dat
-            else:
-                main_dat[colname] = dat
-            
-        if insert:
-            q = sa.sql.insert(self.doc_table, main_dat)
-            #q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
-            r = self.execute(q)
-                
-            
-            for cn,dat in special_dat.items():
-                self._insert_special(cn, (dat,), first_id)
-            
-            return r
-        else:
-            return main_dat, special_dat
-        
-    def _insert_iter(self, rowdat, first_id, ifnotunique):
-        results = list()
-        for i,row in enumerate(rowdat):
-            r = self._insert_row(row, first_id+i, True, ifnotunique)
-            results.append(r)
-        return results
-            
-    def _insert_many(self, rowdat, first_id, ifnotunique):
-        main_dat_l = list()
-        spec_dat_cols = dict()
-        for i,row in enumerate(rowdat):
-            main_dat, spec_dat = self._insert_row(row, first_id+i, False, ifnotunique)
-            main_dat_l.append(main_dat)
-
-            for col in spec_dat.keys():
-                if col not in spec_dat_cols:
-                    spec_dat_cols[col] = list()
-                spec_dat_cols[col].append(spec_dat[col])
-        
-        # execute query
-        q = sa.sql.insert(self.doc_table, main_dat_l)
+        q = sa.sql.insert(self.table, main_dat)
         #q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         r = self.execute(q)
         
-        # insert special column data
-        for col, spec_dat in spec_dat_cols.items():
-            self._insert_special(col, spec_dat, first_id)
 
-        return r
-    
-    def _insert_special(self, colname, col_data, first_id):
-        '''
-            Inserts list of col_data into appropriate table
-                as per the special column yield functions.
-        '''
-        
-        if colname in self.special_cols:
-            tab = self.special_cols[colname]
-            r = tab.insert(colname, col_data, first_id, self)
-        else:
-            raise ValueError
-        
-        return r
                 
     def _next_fk_id(self):
         if (not self.persistent_conn) or (self.next_fkid is None):
@@ -296,9 +157,150 @@ class DocTable2:
     
     ################# SELECT METHODS ##################
     
-    #NOTE: REMOVED SO PANDAS IS NOT PREREQUISITE
-    #def seldf(self, *args, **kwargs):
-    #    return pd.DataFrame(self.select(*args, **kwargs))
+    def select_first(self, *args, **kwargs):
+        return next(self.select(*args, limit=1, **kwargs))
+    
+    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None):
+        '''Perform select query, yield result for each row.
+        
+        Description: Because output must be iterable, returns special column results 
+            by performing one query per row. Can be inefficient for many smaller 
+            special data information.
+        
+        Args:
+            cols: list of sqlalchemy datatypes created from calling .col() method.
+            where: sqlalchemy where object to parse
+            orderby: sqlalchemy orderby directive
+            groupby: sqlalchemy gropuby directive
+            limit (int): number of entries to return before stopping
+        Yields:
+            dictionary: row data
+        '''
+        return_single = False
+        if cols is None:
+            cols = list(self.table.columns) + list(self.special_cols.keys())
+        else:
+            if not is_sequence(cols):
+                return_single = True
+                cols = [cols]
+                
+        # query colunmns in main table
+        result = self._exec_select_query(cols,where,orderby,groupby,limit)
+        
+        for row in result:
+            print(row)
+            if return_single:
+                yield row[main_cols[0]]
+            else:
+                yield dict(row)
+    
+            
+    def old_select(self, cols=None, **kwargs):
+        '''Perform select query on database, 1 + 1 query per special table.
+        Args:
+            cols: list of columns
+        '''
+        return_single = False
+        if cols is None:
+            cols = list(self.table.columns) + list(self.special_cols.keys())
+        else:
+            if not is_sequence(cols):
+                return_single = True
+                cols = [cols]
+        
+        # extract data from regular columns
+        main_rows = list(self.select_iter(main_cols, **kwargs))
+        
+        for row in result:
+            if return_single:
+                yield row[main_cols[0]]
+            else:
+                yield dict(row)
+                
+    def _exec_select_query(self, cols, where, orderby, groupby, limit):
+        
+        q = sa.sql.select(cols)
+        
+        if where is not None:
+            q = q.where(where)
+        if orderby is not None:
+            q = q.order_by(orderby)
+        if groupby is not None:
+            q = q.groupby(orderby)
+        if limit is not None:
+            q = q.limit(limit)
+        
+        result = self.execute(q)
+        
+        return result
+    
+
+
+    
+    #################### Update Methods ###################
+    
+    def update(self,values,where=None):
+        '''Update row(s) assigning the provided values.
+        '''
+            
+        # update the main column values
+        q = sa.sql.update(self.table).values(values)
+        if where is not None:
+            q = q.where(where)
+        r = self.execute(q)
+            
+        # update special columns
+        if len(spcols) > 0:
+            q = self.select(self.fkid_col,where=where)
+            ids = self.execute(q)
+            
+            for cn in spcols:
+                sp_tab = self.special_cols[cn]
+                sp_result = sp_tab.update(cn, docids, self)
+            
+        return r
+    
+    
+    #################### Delete Methods ###################
+    
+    def delete(self,where=None):
+        
+        q = sa.sql.delete(self.table)
+        if where is not None:
+            q = q.where(where)
+        r = self.execute(q)
+        return r
+    
+    
+    
+    #################### Accessor Methods ###################
+    
+    def col(self,name):
+        ref = self[name]
+        return ref
+    
+    def __getitem__(self, colname):
+        if colname in self.special_cols:
+            return colname
+        else:
+            # throws error if not in table columns
+            return self.table.c[colname]
+        
+    @property
+    def table(self):
+        return self.table
+    
+    @property
+    def num_rows(self):
+        return self.select_first(func.count())
+    
+    @property
+    def schema_str(self):
+        return pprint.pformat(self.schema)
+    
+    
+    #################### Bootstrapping Methods ###################
+    
     
     def select_bootstrap(self, cols=None, nsamp=None, where=None):
         idwaves = self._bs_sampids(nsamp, where=where)
@@ -329,248 +331,7 @@ class DocTable2:
             ids = [idx for idx,ct in cts.items() if ct > i]
             idwaves.append(ids)
         return idwaves
-            
-    def select(self, cols=None, **kwargs):
-        '''Perform select query on database, 1 + 1 query per special table.
-        Args:
-            cols: list of columns
-        
-        '''
-        return_single = False
-        if cols is None:
-            cols = list(self.doc_table.columns) + list(self.special_cols.keys())
-        else:
-            if not is_sequence(cols):
-                return_single = True
-                cols = [cols]
-        
-        # split special cols from main_cols
-        colnames, main_cols, spec_colnames = self._identify_cols(cols + [self.fkid_col])
-        
-        # extract data from regular columns
-        main_rows = list(self.select_iter(main_cols, **kwargs))
-        docids = [r[self.fkid_colname] for r in main_rows]
-        
-        spcol_dat = dict()#{cn:dict() for cn in spec_colnames}
-        for cn in spec_colnames:
-            sp_tab = self.special_cols[cn]
-            sp_result = sp_tab.select(cn, docids, self)
-            for mr in main_rows:
-                mr[cn] = sp_result[mr[self.fkid_colname]]
-        
-        for mr in main_rows:
-            del mr[self.fkid_colname]
-        
-        if not return_single:
-            return main_rows
-        else:
-            if len(main_rows) == 0:
-                return []
-            else:
-                k = list(main_rows[0].keys())[0]
-                return [r[k] for r in main_rows]
     
-    def select_first(self, *args, **kwargs):
-        return next(self.select_iter(*args, limit=1, **kwargs))
-    
-    
-    def select_iter(self, cols=None, where=None, orderby=None, groupby=None, limit=None):
-        '''Perform select query, yield result for each row.
-        
-        Description: Because output must be iterable, returns special column results 
-            by performing one query per row. Can be inefficient for many smaller 
-            special data information.
-        
-        Args:
-            cols: list of sqlalchemy datatypes created from calling .col() method.
-            where: sqlalchemy where object to parse
-            orderby: sqlalchemy orderby directive
-            groupby: sqlalchemy gropuby directive
-            limit (int): number of entries to return before stopping
-        Yields:
-            dictionary: row data
-        '''
-        return_single = False
-        if cols is None:
-            cols = list(self.doc_table.columns) + list(self.special_cols.keys())
-        else:
-            if not is_sequence(cols):
-                return_single = True
-                cols = [cols]
-        
-        # split special cols from main_cols
-        colnames, main_cols, spec_colnames = self._identify_cols(cols + [self.fkid_col])
-        
-        # query colunmns in main table
-        result = self._exec_select_query(main_cols,where,orderby,groupby,limit)
-        
-        # return results one at a time
-        if len(spec_colnames) > 0: # special columns were selected
-            for row in result:
-                rdict = dict(row)
-                docid = rdict[self.fkid_colname]
-                for cn in spec_colnames:
-                    sp_tab = self.special_cols[cn]
-                    sp_result = sp_tab.select(cn, [docid],self)
-                    rdict[cn] = sp_result[docid]
-                del rdict[self.fkid_colname]
-                yield rdict
-        
-        else: # special columns were not selected
-            for row in result:
-                if return_single:
-                    yield row[main_cols[0]]
-                else:
-                    yield dict(row)
-
-    def _identify_cols(self, cols):
-        '''Separate special cols from main table columns.
-        Needed so that the correct data can be sent to the correct column.
-        
-        Args:
-            cols (list[sqlalchemy.Column] or str)
-        
-        '''
-        colnames = list()
-        spec_colnames = list()
-        main_cols = list()
-        already_added_fk_col = False
-        for col in cols:
-            
-            if isinstance(col,str):
-                colnames.append(col)
-                spec_colnames.append(col)
-                
-                if not already_added_fk_col:
-                    main_cols.append(self.fkid_col)
-                    already_added_fk_col = True
-                
-            else:
-                colnames.append(col.name)
-                main_cols.append(col)
-        
-        return colnames, main_cols, spec_colnames
-                
-    def _exec_select_query(self, cols, where, orderby, groupby, limit):
-        
-        q = sa.sql.select(cols)
-        
-        if where is not None:
-            q = q.where(where)
-        if orderby is not None:
-            q = q.order_by(orderby)
-        if groupby is not None:
-            q = q.groupby(orderby)
-        if limit is not None:
-            q = q.limit(limit)
-        
-        result = self.execute(q)
-        
-        return result
-    
-
-
-            
-    def _select_special(self, colnames, doc_ids):
-        '''
-            Returns: Map of maps; for each document,
-                maintain a map of data corresponding
-                to each column.
-                doc_id->col_name->col_data
-        '''
-        res = dict()
-        for cname in colnames:
-            # map: cname->data_table object
-            spcol = self.special_cols[cname]
-            res[cname] = spcol.select(cname, doc_ids, self)
-        
-        # flip from colname->docid->val to docid->colname->val.
-        docid_dict = dict()
-        for cname,u in res.items():
-            for docid,v in u.items():
-                if docid not in docid_dict:
-                    docid_dict[docid] = dict()
-                docid_dict[docid][cname] = v
-            
-        return docid_dict
-
-    
-    #################### Update Methods ###################
-    
-    def update(self,values,where=None):
-        '''Update row(s) assigning the provided values.
-        '''
-        
-        # split and remove special columns
-        spcols = list()
-        colnames = list(values.keys())
-        for cn in colnames:
-            if cn in self.special_cols:
-                spcols.append(values[cn])
-                del values[cn]
-            
-        # update the main column values
-        q = sa.sql.update(self.doc_table).values(values)
-        if where is not None:
-            q = q.where(where)
-        r = self.execute(q)
-            
-        # update special columns
-        if len(spcols) > 0:
-            q = self.select(self.fkid_col,where=where)
-            ids = self.execute(q)
-            
-            for cn in spcols:
-                sp_tab = self.special_cols[cn]
-                sp_result = sp_tab.update(cn, docids, self)
-            
-        return r
-    
-    
-    #################### Delete Methods ###################
-    
-    def delete(self,where=None):
-        
-        q = sa.sql.delete(self.doc_table)
-        if where is not None:
-            q = q.where(where)
-        r = self.execute(q)
-        return r
-    
-    
-    
-    #################### Accessor Methods ###################
-    
-    def col(self,name):
-        ref = self[name]
-        return ref
-    
-    def __getitem__(self, colname):
-        if colname in self.special_cols:
-            return colname
-        else:
-            # throws error if not in table columns
-            return self.doc_table.c[colname]
-    
-    def _subdoc(self, colname):
-        ref = self.subdoc_table.c[colname]
-        return ref
-    
-    def _bigpickle(self, colname):
-        ref = self.bigpickle_table.c[colname]
-        return ref
-        
-    @property
-    def table(self):
-        return self.doc_table
-    
-    @property
-    def num_rows(self):
-        return self.select_first(func.count())
-    
-    @property
-    def schema_str(self):
-        return pprint.pformat(self.schema)
     
 
 coltype_error_str = ('Provided column schema must '
@@ -579,11 +340,6 @@ coltype_error_str = ('Provided column schema must '
                     'four-tuple (colname, coltype, sqlalchemy type data, '
                     '{sqlalchemy column arguments}).')
     
-
-def is_iter(obj):
-    isiter = isinstance(obj, collections.Iterable)
-    isinmemory = isinstance(obj,list) or isinstance(obj,set) or isinstance(obj,tuple)
-    return isiter and not isinmemory
 
 def is_sequence(obj):
     return isinstance(obj, list) or isinstance(obj,set) or isinstance(obj,tuple)
