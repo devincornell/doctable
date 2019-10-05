@@ -1,5 +1,6 @@
 
 from datetime import datetime
+import random
 
 import sys
 sys.path.append('..')
@@ -53,6 +54,10 @@ class MyDocuments(DocTable2):
         # SQLAlchemy: Index('ind0', 'category', 'title', unique=True)
         ('ind0', 'index', ('category','title'),dict(unique=True)),
         
+        # make this id a foreign key to another table column (CAN'T SHOW HERE)
+        # SQLAlchemy: ForeignKeyConstraint(['id'], ['invoice.invoice_id',], onupdate="CASCADE", ondelete="CASCADE")
+        #((['id'],['othertablerefid']), 'foreignkey_constraint',dict(),dict(onupdate="CASCADE", ondelete="CASCADE")),
+        
         # try out custom data types
         # TokensType and ParagraphsType are defined in doctable/coltypes.py
         # SQLAlchemy: Column('tokenized', TokensType), Column('sentencized', ParagraphsType)
@@ -75,7 +80,7 @@ class MyDocuments(DocTable2):
     
     
 if __name__ == '__main__':
-    md = MyDocuments('tmp.db', verbose=True)
+    md = MyDocuments(verbose=True)
     print(md)
     
     

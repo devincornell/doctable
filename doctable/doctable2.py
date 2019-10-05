@@ -39,6 +39,7 @@ class DocTable2:
         'unique_constraint': sa.UniqueConstraint,
         'check_constraint': sa.CheckConstraint,
         'primarykey_constraint': sa.PrimaryKeyConstraint,
+        'foreignkey_constraint': sa.ForeignKeyConstraint,
         'index': sa.Index,
     }
     
@@ -135,7 +136,10 @@ class DocTable2:
             else: # column is actually a constraint (not regular column)
                 if coltype  == 'index':
                     const = self._constraint_map[coltype](colname, *colargs, **coltypeargs)
-                elif coltype in ('check_constraint',):
+                elif coltype  == 'foreignkey_constraint':
+                    # colname is ([col1,col2],[parentcol1,parentcol2])
+                    const = self._constraint_map[coltype](*colname, **colargs)
+                elif coltype == 'check_constraint':
                     # in this case, colname should be a constraint string (i.e. "age > 0")
                     const = self._constraint_map[coltype](colname, **colargs)
                 else:
@@ -170,18 +174,18 @@ class DocTable2:
     
     #################### Convenience Methods ###################
     
-    def count(self,where=None):
+    def count(self,where=None, **kwargs):
         '''Count number of rows which match where condition.'''
         cter = func.count(self._table)
-        ct = self.select_first(cter,where=where)
+        ct = self.select_first(cter,where=where, **kwargs)
         return ct
     
-    def next_id(self, idcol='id'):
+    def next_id(self, idcol='id', **kwargs):
         # use the results object .inserted_primary_key to get after 
         # inserting. Here is the object returned by insert:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         
-        mx = self.select_first(func.max(self[idcol]))
+        mx = self.select_first(func.max(self[idcol]), **kwargs)
         if mx is None:
             return 1 # (usually first entry in sql table)
         else:
@@ -252,7 +256,7 @@ class DocTable2:
     
     ################# INSERT METHODS ##################
     
-    def insert(self, rowdat, ifnotunique='fail'):
+    def insert(self, rowdat, ifnotunique='fail', **kwargs):
         '''Insert a row.
         Args:
             rowdat (list<dict> or dict): row data to insert.
@@ -263,7 +267,7 @@ class DocTable2:
         '''
         q = sa.sql.insert(self._table, rowdat)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
-        r = self.execute(q)
+        r = self.execute(q, **kwargs)
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
@@ -295,7 +299,7 @@ class DocTable2:
         sel = self.select(col, *args, **kwargs)
         return pd.Series(sel)
     
-    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None):
+    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, **kwargs):
         '''Perform select query, yield result for each row.
         
         Description: Because output must be iterable, returns special column results 
@@ -320,7 +324,7 @@ class DocTable2:
                 cols = [cols]
                 
         # query colunmns in main table
-        result = self._exec_select_query(cols,where,orderby,groupby,limit)
+        result = self._exec_select_query(cols,where,orderby,groupby,limit, **kwargs)
         # this is the result object:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         
@@ -336,7 +340,7 @@ class DocTable2:
                 
     
                 
-    def _exec_select_query(self, cols, where, orderby, groupby, limit):
+    def _exec_select_query(self, cols, where, orderby, groupby, limit, **kwargs):
         
         q = sa.sql.select(cols)
         
@@ -349,14 +353,14 @@ class DocTable2:
         if limit is not None:
             q = q.limit(limit)
         
-        result = self.execute(q)
+        result = self.execute(q, **kwargs)
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return result
     
     #################### Update Methods ###################
     
-    def update(self,values,where=None):
+    def update(self,values,where=None, **kwargs):
         '''Update row(s) assigning the provided values.
         '''
             
@@ -364,7 +368,7 @@ class DocTable2:
         q = sa.sql.update(self._table).values(values)
         if where is not None:
             q = q.where(where)
-        r = self.execute(q)
+        r = self.execute(q, **kwargs)
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
@@ -372,32 +376,34 @@ class DocTable2:
     
     #################### Delete Methods ###################
     
-    def delete(self,where=None):
+    def delete(self,where=None, **kwargs):
         '''Delete rows from the table that meet the where criteria.
         '''
         q = sa.sql.delete(self._table)
         if where is not None:
             q = q.where(where)
-        r = self.execute(q)
+        r = self.execute(q, **kwargs)
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
     
     ################# CRITICAL SQL METHODS ##################
     
-    def execute(self, query):
+    def execute(self, query, **kwargs):
         '''Execute an sql command. Called by most higher-level functions.
         '''
         if self.verbose: print('DocTable2 Query: {}'
-                               ''.format(query))
+            ''.format(query))
         
         # try to parse
-        result = self._execute(query)
+        result = self._execute(query, **kwargs)
         return result
         
-    def _execute(self, query):
+    def _execute(self, query, conn=None):
         # takes raw query object
-        if self._conn is not None:
+        if conn is not None:
+            r = conn.execute(query)
+        elif self._conn is not None:
             r = self._conn.execute(query)
         else:
             with self._engine.connect() as conn:
