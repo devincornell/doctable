@@ -5,7 +5,7 @@ import pprint
 
 import sys
 sys.path.append('..')
-from doctable import DocTable2, func, op
+from doctable import DocTable2
 
 class MyDocuments(DocTable2):
     tabname = 'mydocuments'
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     
     # insert one at a time
     md = MyDocuments()
-    print(md.schema_str)
+    print(md.schema)
     for i in range(N):
         md.insert({'name':'user_'+str(i), 'age':random.random()})
     print(md) # <DocTable2::mydocuments ct: 10>

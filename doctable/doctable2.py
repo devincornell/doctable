@@ -104,7 +104,7 @@ class DocTable2:
             self._conn.close()
             
     def __str__(self):
-        return '<DocTable2::{} ct: {}>'.format(self.tabname, self.num_rows)
+        return '<DocTable2::{} ct: {}>'.format(self.tabname, self.count())
         
         
     ################# INITIALIZATION METHODS ##################
@@ -170,13 +170,7 @@ class DocTable2:
     
     #################### Convenience Methods ###################
     
-    def num_rows(self):
-        return self.select_first(func.count(self._table))
-    
     def count(self,where=None):
-        if where is None:
-            return self.num_rows()
-        
         cter = func.count(self._table)
         ct = self.select_first(cter,where=where)
         return ct
@@ -205,7 +199,7 @@ class DocTable2:
         return self._table.c
     
     @property
-    def colinfo(self):
+    def schema(self):
         '''Get info about each column as a dictionary.
         Returns:
             dict<dict>: info about each column. Selected by
