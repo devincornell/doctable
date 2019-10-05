@@ -78,28 +78,28 @@ class DocTable2:
         self.tabname = tabname
         self.verbose = verbose
         
-        self.engine = sa.create_engine('{}:///{}'.format(engine,fname))
+        self._engine = sa.create_engine('{}:///{}'.format(engine,fname))
         self._schema = schema
         
         # make table if needed
-        self.metadata = sa.MetaData()
+        self._metadata = sa.MetaData()
         if self._schema is not None:
             columns = self._parse_column_schema(schema)
-            self._table = sa.Table(self.tabname, self.metadata, *columns)
-            self.metadata.create_all(self.engine)
+            self._table = sa.Table(self.tabname, self._metadata, *columns)
+            self._metadata.create_all(self._engine)
         else:
-            self._table = sa.Table(self.tabname, self.metadata, 
-                                   autoload=True, autoload_with=self.engine)
+            self._table = sa.Table(self.tabname, self._metadata, 
+                                   autoload=True, autoload_with=self._engine)
             
         # connect with database engine
         if persistent_conn:
-            self.conn = self.engine.connect()
+            self._conn = self._engine.connect()
         else:
-            self.conn = None
+            self._conn = None
     
     def __delete__(self):
-        if self.conn is not None:
-            self.conn.close()
+        if self._conn is not None:
+            self._conn.close()
             
     def __str__(self):
         return '<DocTable2::{} ct: {}>'.format(self.tabname, self.num_rows)
@@ -154,6 +154,33 @@ class DocTable2:
     
     def _check_schema(self,schema):
         return True
+    
+    #################### Convenience Methods ###################
+    
+    def num_rows(self):
+        return self.select_first(func.count(self._table))
+    
+    def print_schema(self):
+        return pprint.pformat(self._schema)
+    
+    def count(self,where=None):
+        if where is None:
+            return self.num_rows
+        
+        cter = func.count(self._table)
+        ct = self.select_first(cter,where=where)
+        return ct
+    
+    def next_id(self, idcol='id'):
+        # use the results object .inserted_primary_key to get after 
+        # inserting. Here is the object returned by insert:
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
+        
+        mx = self.select_first(func.max(self[idcol]))
+        if mx is None:
+            return 1 # (usually first entry in sql table)
+        else:
+            return mx + 1
         
     
     ################# INSERT METHODS ##################
@@ -297,10 +324,10 @@ class DocTable2:
         
     def _execute(self, query):
         # takes raw query object
-        if self.conn is not None:
-            r = self.conn.execute(query)
+        if self._conn is not None:
+            r = self._conn.execute(query)
         else:
-            with self.engine.connect() as conn:
+            with self._engine.connect() as conn:
                 r = conn.execute(query)
         return r
     
@@ -319,32 +346,6 @@ class DocTable2:
     @property
     def table(self):
         return self._table
-        
-    @property
-    def num_rows(self):
-        return self.select_first(func.count(self._table))
-    
-    def print_schema(self):
-        return pprint.pformat(self._schema)
-    
-    def count(self,where=None):
-        if where is None:
-            return self.num_rows
-        
-        cter = func.count(self._table)
-        ct = self.select_first(cter,where=where)
-        return ct
-    
-    def next_id(self, idcol='id'):
-        # use the results object .inserted_primary_key to get after 
-        # inserting. Here is the object returned by insert:
-        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
-        
-        mx = self.select_first(func.max(self[idcol]))
-        if mx is None:
-            return 1 # (usually first entry in sql table)
-        else:
-            return mx + 1
     
     #################### Bootstrapping Methods ###################
     
