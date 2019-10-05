@@ -38,8 +38,6 @@ if __name__ == '__main__':
     print('next id:', md.next_id())
     
     
-    pprint(md.colinfo)
-    
-    print(md.select_first(md['age'].max))
-    
+    pprint(md.schema)
+        
     

@@ -6,7 +6,7 @@ import pandas as pd
 
 import sys
 sys.path.append('..')
-from doctable import DocTable2, func, op
+from doctable import DocTable2
 
 class MyDocuments(DocTable2):
     tabname = 'mydocuments'
@@ -33,17 +33,17 @@ if __name__ == '__main__':
     
     # insert one at a time
     md = MyDocuments()
-    print(md.schema_str)
+    print(md.schema)
     for i in range(N):
         md.insert({'name':'user_'+str(i), 'age':random.random()})
     print(md) # <DocTable2::mydocuments ct: 5>
-    print(pd.DataFrame(md.select()), '\n')
+    print(md.select_df(), '\n')
     
     md.update({'name':'best_user'},where=md['name']=='user_1')
     print('updated user_1 -> best_user:')
-    print(pd.DataFrame(md.select()), '\n')
+    print(md.select_df(), '\n')
     
     md.update({'age':16})
     print('updated all ages to 16:')
-    print(pd.DataFrame(md.select()), '\n')
+    print(md.select_df(), '\n')
     

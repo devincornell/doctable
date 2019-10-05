@@ -6,7 +6,7 @@ from time import time
 
 import sys
 sys.path.append('..')
-from doctable import DocTable2, func, op
+from doctable import DocTable2
 
 class MyDocuments(DocTable2):
     tabname = 'mydocuments'
@@ -42,13 +42,6 @@ if __name__ == '__main__':
     def get_ages(N):
         for i in range(N):
             yield {'name':'user_'+str(i), 'age':random.random()}
-    
-    # insert row elements as an iterator
-    md = MyDocuments()
-    age_iter = get_ages(N)
-    st = time()
-    md.insert(age_iter)
-    print('took {} sec to load from iterator'.format(time()-st),md) # <DocTable2::mydocuments ct: 5>
             
     # insert large list of items
     md = MyDocuments()
