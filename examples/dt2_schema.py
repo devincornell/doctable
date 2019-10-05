@@ -50,9 +50,12 @@ class MyDocuments(DocTable2):
         ('text','string',dict(),dict(length=500)),
         
         # make index table
+        # SQLAlchemy: Index('ind0', 'category', 'title', unique=True)
         ('ind0', 'index', ('category','title'),dict(unique=True)),
         
         # try out custom data types
+        # TokensType and ParagraphsType are defined in doctable/coltypes.py
+        # SQLAlchemy: Column('tokenized', TokensType), Column('sentencized', ParagraphsType)
         ('sentencized','paragraphs'),
         ('tokenized','tokens'),
 
@@ -72,7 +75,7 @@ class MyDocuments(DocTable2):
     
     
 if __name__ == '__main__':
-    md = MyDocuments(verbose=True)
+    md = MyDocuments('tmp.db', verbose=True)
     print(md)
     
     

@@ -1,15 +1,16 @@
 import random
+from pprint import pprint
 
 import sys
 sys.path.append('..')
-from doctable import DocTable2, func, op
+from doctable import DocTable2
 
 class MyDocuments(DocTable2):
     tabname = 'mydocuments'
     schema = (
         ('id','integer',dict(primary_key=True, autoincrement=True)),
-        ('name','string', dict(nullable=False)),
-        ('age','integer'),
+        ('name','string', dict(nullable=False, unique=True)),
+        ('age','integer',dict(comment='Hahaha this is my comment.')),
     )
     
     def __init__(self, fname=':memory:', engine='sqlite', verbose=False):
@@ -31,12 +32,14 @@ if __name__ == '__main__':
     for i in range(N):
         md.insert({'name':'user_'+str(i), 'age':random.random()})
     print(md)
-    
-    md.print_schema()
-    
+        
     print(md.count(md['age']>0.5))
-    
-    print(md.metadata)
-    
+        
     print('next id:', md.next_id())
+    
+    
+    pprint(md.colinfo)
+    
+    print(md.select_first(md['age'].max))
+    
     
