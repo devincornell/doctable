@@ -99,11 +99,15 @@ class DocTable2:
             self._conn = None
     
     def __delete__(self):
-        if self._conn is not None:
-            self._conn.close()
+        if self.close_conn()
             
     def __str__(self):
         return '<DocTable2::{} ct: {}>'.format(self.tabname, self.count())
+    
+    def close_conn(self):
+        if self._conn is not None:
+            self._conn.close()
+        self._conn = None
         
         
     ################# INITIALIZATION METHODS ##################
