@@ -38,6 +38,6 @@ if __name__ == '__main__':
     print('next id:', md.next_id())
     
     
-    pprint(md.schema)
+    pprint(md.schemainfo)
         
     

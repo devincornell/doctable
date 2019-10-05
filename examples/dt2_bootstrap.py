@@ -3,7 +3,7 @@ from pprint import pprint
 
 import sys
 sys.path.append('..')
-from doctable import DocTable2, func, op
+from doctable import DocTable2
 
 class MyDocuments(DocTable2):
     tabname = 'mydocuments'
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     print(md)
     
     # since count is in a list, will return as list of dicts
-    s = md.select([func.count()])
+    s = md.count()
     print(s) # [{'count_1': 5}] ###WEIRD STUFF HERE
     
     r = md.select_bootstrap(nsamp=2)

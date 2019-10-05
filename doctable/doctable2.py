@@ -196,7 +196,7 @@ class DocTable2:
         return self._table.c
     
     @property
-    def schema(self):
+    def schemainfo(self):
         '''Get info about each column as a dictionary.
         Returns:
             dict<dict>: info about each column. Selected by
@@ -219,6 +219,18 @@ class DocTable2:
             )
             info[col.name] = ci
         return info
+    
+    @property
+    def primary_key(self):
+        '''Returns primary key col name.
+        Notes:
+            Not sure of the behavior in case where multiple primary
+                keys exist.
+        '''
+        for cn,ci in self.schemainfo.items():
+            if ci['primary_key']:
+                return cn
+        return None
 
     
     ################# OPERATOR METHODS ##################
@@ -404,31 +416,33 @@ class DocTable2:
     def table(self):
         return self._table
     
-    #################### Bootstrapping Methods ###################
+
     
+    #################### Bootstrapping Methods ###################    
     
-    def select_bootstrap(self, cols=None, nsamp=None, where=None):
-        idwaves = self._bs_sampids(nsamp, where=where)
+    #################### Bootstrapping Methods ###################    
+    
+    def select_bootstrap(self, *args, **kwargs):
+        return list(self.select_bootstrap_iter(*args, **kwargs))
+    
+    def select_bootstrap_iter(self, cols=None, nsamp=None, where=None, idcol=None):
+        if idcol is None:
+            idcol = self.primary_key
+            if idcol is None:
+                raise ValueError('A primary key must exist or unique column '
+                    'specified in "key" param to use bootstrapping.')
+        if nsamp == None:
+            nsamp = self.count()
+        
+        idwaves = self._bs_sampids(nsamp, idcol, where=where)
         results = list()
         for idwave in idwaves:
-            results += self.select(cols, where=self.fkid_col.in_(idwave))
-        return results
-    
-    
-    def select_bootstrap_iter(self, cols=None, nsamp=None, where=None):
-        idwaves = self._bs_sampids(nsamp, where=where)
-        results = list()
-        for idwave in idwaves:
-            for row in self.select_iter(cols, where=self.fkid_col.in_(idwave)):
+            for row in self.select(cols, where=self[idcol].in_(idwave)):
                 yield row
                 
             
-    def _bs_sampids(self,nsamp,**kwargs):
-        if nsamp == None:
-            nsamp = self.num_rows
-        print(kwargs)
-        
-        ids = self.select(self.fkid_col, **kwargs) # includes WHERE clause args
+    def _bs_sampids(self,nsamp,idcol,**kwargs):
+        ids = self.select(self[idcol], **kwargs) # includes WHERE clause args
         cts = collections.Counter(random.choices(ids,k=nsamp))
         
         idwaves = list()
@@ -436,7 +450,7 @@ class DocTable2:
             ids = [idx for idx,ct in cts.items() if ct > i]
             idwaves.append(ids)
         return idwaves
-    
+
     
 
 coltype_error_str = ('Provided column schema must '
