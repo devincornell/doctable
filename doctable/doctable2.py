@@ -175,7 +175,7 @@ class DocTable2:
     
     def count(self,where=None):
         if where is None:
-            return self.num_rows
+            return self.num_rows()
         
         cter = func.count(self._table)
         ct = self.select_first(cter,where=where)

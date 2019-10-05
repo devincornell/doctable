@@ -33,6 +33,7 @@ if __name__ == '__main__':
     print(md)
     
     ############## Regular Select Method #################
+    print('regular selects')
     
     # prints first row
     s = md.select(limit=1)
@@ -61,6 +62,7 @@ if __name__ == '__main__':
     print(s) # {'myage': 0.003745668183779638, '_fk_special_': 1}
     
     ############## Count Method #################
+    print('count methd')
     
     # try simple count
     # since select arg is not sequence, returns list of single items
@@ -85,9 +87,16 @@ if __name__ == '__main__':
     print(s) # 2
     
     ############## Column Function Bindings #################
+    print('column function bindings')
     s = md.select_first(md['age'].max)
-    print(s) # 
+    print(s) # (0.9234,)
     
     s = md.select_first(md['age'].sum)
-    print(s)
+    print(s) # (2.5428,)
+    
+    
+    ############## Column Operator Bindings #################
+    
+    s = md.count(md.and_(md['age']>0.2, md['id']>1))
+    print(s) # 2
     
