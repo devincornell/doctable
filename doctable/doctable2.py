@@ -68,7 +68,7 @@ class DocTable2:
         
         # in cases where user did not want to create new db but a db does not 
         # exist
-        if fname != ':memory:' and not os.path.exists(fname) and not new_file:
+        if fname != ':memory:' and not os.path.exists(fname) and not new_db:
             raise ValueError('new_db is set to true and the database does not '
                              'exist yet.')
         
@@ -99,7 +99,7 @@ class DocTable2:
             self._conn = None
     
     def __delete__(self):
-        if self.close_conn()
+        self.close_conn()
             
     def __str__(self):
         return '<DocTable2::{} ct: {}>'.format(self.tabname, self.count())
