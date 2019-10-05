@@ -3,6 +3,7 @@ from time import time
 import pprint
 import random
 import pandas as pd
+import os.path
 
 # operators like and_, or_, and not_, functions like sum, min, max, etc
 import sqlalchemy.sql as op
@@ -41,7 +42,16 @@ class DocTable2:
         'index': sa.Index,
     }
     
-    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False):
+    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, check_schema=True, new_db=True):
+        '''Create new database.
+        
+        '''
+        
+        # in cases where user did not want to create new db but a db does not 
+        # exist
+        if fname != ':memory:' and not os.path.exists(fname) and not new_file:
+            raise ValueError('new_db is set to true and the database does not '
+                             'exist yet.')
         
         # separate tables for custom data types and main table
         self.tabname = tabname
