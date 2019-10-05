@@ -1,5 +1,6 @@
 import random
-
+import pandas as pd
+import numpy as np
 import sys
 sys.path.append('..')
 from doctable import DocTable2
@@ -96,7 +97,38 @@ if __name__ == '__main__':
     
     
     ############## Column Operator Bindings #################
+    print('selecting based on bound sqlalchemy operators')
     
     s = md.count(md.and_(md['age']>0.2, md['id']>1))
     print(s) # 2
+    
+    s = md.count(md.or_(md['age']>0.2, md['id']>1))
+    print(s) # 2
+    
+    s = md.select_first(md.not_(md['age']>0.2))
+    print(s) # 2
+    
+    ############## Pandas Series Select #################
+    print('selecting as pandas objects')
+    
+    s = md.select_series(md['age'])
+    print(s.var())
+    
+    df = md.select_df()
+    print(df.head(1))
+    
+    df['morehalf'] = df['age'] > df['age'].mean()
+    
+    df_agged = df.groupby('morehalf').agg(**{
+        'first_name':pd.NamedAgg(column='name', aggfunc='first'),
+        'last_name':pd.NamedAgg(column='name', aggfunc='last'),
+        'var_age':pd.NamedAgg(column='age', aggfunc=np.var),
+        'min_age':pd.NamedAgg(column='age', aggfunc='min'),
+        'av_age':pd.NamedAgg(column='age', aggfunc=np.mean),
+    })
+    print(df_agged)
+    
+    
+    
+    
     

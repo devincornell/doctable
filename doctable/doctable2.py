@@ -231,6 +231,8 @@ class DocTable2:
 
     
     ################# OPERATOR METHODS ##################
+    # binding sqlalchemy operators to the doctable object
+    # https://docs.sqlalchemy.org/en/13/core/sqlelement.html
     def and_(self,*args,**kwargs):
         return op.and_(*args, **kwargs)
     
@@ -266,12 +268,18 @@ class DocTable2:
         '''
         return self.select(*args, limit=1, **kwargs)[0]
     
-    def sel_df(self, *args, **kwargs):
+    def select_df(self, cols=None, *args, **kwargs):
         '''Select returning dataframe.'''
-        sel = self.select(*args, **kwargs)
-        return pd.DataFrame(list(sel))
+        
+        if not is_sequence(cols) and cols is not None:
+            raise TypeError('col argument should be multiple columns. '
+                'For single column, use .select_series().')
+        
+        sel = self.select(cols, *args, **kwargs)
+        rows = [dict(r) for r in sel]
+        return pd.DataFrame(rows)
     
-    def sel_series(self, col, *args, **kwargs):
+    def select_series(self, col, *args, **kwargs):
         '''Select returning pandas Series.
         '''
         if is_sequence(col):
