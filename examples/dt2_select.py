@@ -85,5 +85,5 @@ if __name__ == '__main__':
     print(s) # {'myage': 0.003745668183779638, '_fk_special_': 1}
     
     
-    s = md.select_first([func.count().label('ct')])
-    print(s) # {'ct': 5, '_fk_special_': 5}
+    s = md.count(md['age']>0.5)
+    print(s) # {'ct': 5}

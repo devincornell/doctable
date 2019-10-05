@@ -2,6 +2,7 @@ import collections
 from time import time
 import pprint
 import random
+import pandas as pd
 
 # operators like and_, or_, and not_, functions like sum, min, max, etc
 import sqlalchemy.sql as op
@@ -46,12 +47,12 @@ class DocTable2:
         self.verbose = verbose
         
         self.engine = sa.create_engine('{}:///{}'.format(engine,fname))
-        self.schema = schema
+        self._schema = schema
             
         # actually create table
         self.metadata = sa.MetaData()
         
-        if self.schema is not None:
+        if self._schema is not None:
             columns = self._parse_column_schema(schema)
             self._table = sa.Table(self.tabname, self.metadata, *columns)
             self.metadata.create_all(self.engine)
@@ -138,8 +139,20 @@ class DocTable2:
     ################# SELECT METHODS ##################
     
     def select_first(self, *args, **kwargs):
-        '''Perform regular select query returning only the first result.'''
+        '''Perform regular select query returning only the first result.
+        '''
         return self.select(*args, limit=1, **kwargs)[0]
+    
+    def sel_df(self, *args, **kwargs):
+        '''Select returning dataframe.'''
+        sel = self.select(*args, **kwargs)
+        return pd.DataFrame(list(sel))
+    
+    def sel_series(self, col, *args, **kwargs):
+        '''Select returning pandas Series.
+        '''
+        sel = self.select(col, *args, **kwargs)
+        return pd.Series(sel)
     
     def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None):
         '''Perform select query, yield result for each row.
@@ -167,12 +180,19 @@ class DocTable2:
                 
         # query colunmns in main table
         result = self._exec_select_query(cols,where,orderby,groupby,limit)
+        # this is the result object:
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         
-        # return output as list
+        # NOTE: I USE LIST RETURN BECAUSE UNDERLYING SQL ENGINE
+        # WILL LOAD THE DATA INTO MEMORY ANYWAYS. THIS JUST PRESENTS
+        # A MORE FLEXIBLE INTERFACE TO THE USER.
+        # row is an object that can be accessed by col keyword
+        # i.e. row['id'] or num index, i.e. row[0].
         if return_single:
-            return [r[0] for r in result]
+            return [row[0] for row in result]
         else:
-            return [dict(r) for r in result]
+            return [row for row in result]
+                
     
                 
     def _exec_select_query(self, cols, where, orderby, groupby, limit):
@@ -213,7 +233,8 @@ class DocTable2:
     #################### Delete Methods ###################
     
     def delete(self,where=None):
-        
+        '''Delete rows from the table that meet the where criteria.
+        '''
         q = sa.sql.delete(self._table)
         if where is not None:
             q = q.where(where)
@@ -223,6 +244,8 @@ class DocTable2:
     ################# CRITICAL SQL METHODS ##################
     
     def execute(self, query):
+        '''Execute an sql command. Called by most higher-level functions.
+        '''
         if self.verbose: print('DocTable2 Query: {}'
                                ''.format(query))
         
@@ -243,11 +266,13 @@ class DocTable2:
     #################### Accessor Methods ###################
     
     def col(self,name):
-        ref = self[name]
-        return ref
+        '''Accesses a column object.
+        '''
+        return self._table.c[name]
     
     def __getitem__(self, colname):
-        return self._table.c[colname]
+        '''Accesses a column object by calling .col().'''
+        return self.col(colname)
         
     @property
     def table(self):
@@ -258,9 +283,16 @@ class DocTable2:
         return self.select_first(func.count(self._table))
     
     @property
-    def schema_str(self):
-        return pprint.pformat(self.schema)
+    def print_schema(self):
+        return pprint.pformat(self._schema)
     
+    def count(self,where=None):
+        if where is None:
+            return self.num_rows
+        
+        cter = func.count(self._table)
+        ct = self.select_first(cter,where=where)
+        return ct
     
     #################### Bootstrapping Methods ###################
     
