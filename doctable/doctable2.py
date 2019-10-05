@@ -42,7 +42,7 @@ class DocTable2:
         'index': sa.Index,
     }
     
-    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, check_schema=True, new_db=True):
+    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, new_db=True):
         '''Create new database.
         Args:
             schema (list<list>): schema from which to create db. Includes a
@@ -62,8 +62,6 @@ class DocTable2:
                 while instance exists, esp if calling .update() in a .select()
                 loop. Set to False to access from separate processes.
             verbose (bool): Print every sql command before executing.
-            check_schema (bool): Check existing database schema against
-                the provided schema if schema is provided.
             new_db (bool): Indicate if new db file should be created given 
                 that a schema is provided and the db file doesn't exist.
         '''
@@ -90,6 +88,7 @@ class DocTable2:
         else:
             self._table = sa.Table(self.tabname, self._metadata, 
                                    autoload=True, autoload_with=self._engine)
+        
         # bind .min(), .max(), and .count() to col objects themselves.
         self._bind_functions()
             
@@ -165,12 +164,10 @@ class DocTable2:
             col.sum = func.sum(col)
             col.mode = func.mode(col)
     
-    def _check_schema(self,schema):
-        return True
-    
     #################### Convenience Methods ###################
     
     def count(self,where=None):
+        '''Count number of rows which match where condition.'''
         cter = func.count(self._table)
         ct = self.select_first(cter,where=where)
         return ct
