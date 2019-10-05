@@ -160,9 +160,6 @@ class DocTable2:
     def num_rows(self):
         return self.select_first(func.count(self._table))
     
-    def print_schema(self):
-        return pprint.pformat(self._schema)
-    
     def count(self,where=None):
         if where is None:
             return self.num_rows
