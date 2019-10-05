@@ -2,7 +2,7 @@ import random
 
 import sys
 sys.path.append('..')
-from doctable import DocTable2, func, op
+from doctable import DocTable2
 
 class MyDocuments(DocTable2):
     tabname = 'mydocuments'
@@ -32,14 +32,7 @@ if __name__ == '__main__':
         md.insert({'name':'user_'+str(i), 'age':random.random()})
     print(md)
     
-    # try simple count
-    # since select arg is not sequence, returns list of single items
-    s = md.select(func.count())
-    print(s) # [5]
-    
-    # since count is in a list, will return as list of dicts
-    s = md.select([func.count()])
-    print(s) # [{'count_1': 5}] ###WEIRD STUFF HERE
+    ############## Regular Select Method #################
     
     # prints first row
     s = md.select(limit=1)
@@ -59,31 +52,42 @@ if __name__ == '__main__':
     s = md.select([md['id'],md['name']], where=md['age']>age_mean)
     print(s) # [{'id': 3, 'name': 'user_2'}, {'id': 4, 'name': 'user_3'}]
     
-    # count rows that meet compound conditional
-    s = md.select_first(func.count(), where=(md['age']>age_mean) & (md['id']>1))
-    print(s) # 2
-    
-    # count rows that meet complex compound conditional
-    s = md.select_first(func.count(), where=(md['age']>age_mean) & ((md['id']<=2) | (md['id']>3)))
-    print(s) # 2
-    
-    # get count of rows where age is above average
-    s = md.select_first(func.count(), where=md['age']>age_mean)
-    print(s) # 3
-    
-    # get sum of ages
-    s = md.select_first(func.sum(md['age']))
-    print(s) # 2.632576185367908
-    
     # get two specific rows
     s = md.select([md['name'],md['id']],where=md['id'].in_([1,2]))
     print(s) # [{'name': 'user_0', 'id': 1}, {'name': 'user_1', 'id': 2}]
-    
     
     # select with a relabel
     s = md.select_first([md['age'].label('myage')])
     print(s) # {'myage': 0.003745668183779638, '_fk_special_': 1}
     
+    ############## Count Method #################
+    
+    # try simple count
+    # since select arg is not sequence, returns list of single items
+    s = md.count()
+    print(s) # 5
     
     s = md.count(md['age']>0.5)
     print(s) # {'ct': 5}
+    
+    # get count of rows where age is above average
+    ages = md.select(md['age']) # list of ages
+    age_mean = sum(ages)/len(ages)
+    s = md.count(where=md['age']>age_mean)
+    print(s) # 3
+    
+    # count rows that meet complex compound conditional
+    s = md.count(where=(md['age']>age_mean) & ((md['id']<=2) | (md['id']>3)))
+    print(s) # 2
+    
+    # count rows that meet compound conditional
+    s = md.count(where=(md['age']>age_mean) & (md['id']>1))
+    print(s) # 2
+    
+    ############## Column Function Bindings #################
+    s = md.select_first(md['age'].max)
+    print(s) # 
+    
+    s = md.select_first(md['age'].sum)
+    print(s)
+    
