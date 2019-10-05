@@ -32,16 +32,11 @@ if __name__ == '__main__':
         md.insert({'name':'user_'+str(i), 'age':random.random()})
     print(md)
     
-    #for row in md.select():
-    #    print(row['name'], row['age'])
-    
-    #exit()
-    print(md.schema)
+    md.print_schema()
     
     print(md.count(md['age']>0.5))
     
     print(md.metadata)
     
-    
-    
+    print('next id:', md.next_id())
     

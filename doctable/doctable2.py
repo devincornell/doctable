@@ -131,10 +131,11 @@ class DocTable2:
         else:
             return self.type_map[typstr]
     
+    #def _check_schema(self,schema):
+    
     
     ################# INSERT METHODS ##################
     
-    #
     def insert(self, rowdat, ifnotunique='fail'):
         '''Insert a row.
         Args:
@@ -295,7 +296,6 @@ class DocTable2:
     def num_rows(self):
         return self.select_first(func.count(self._table))
     
-    @property
     def print_schema(self):
         return pprint.pformat(self._schema)
     
@@ -306,6 +306,9 @@ class DocTable2:
         cter = func.count(self._table)
         ct = self.select_first(cter,where=where)
         return ct
+    
+    def next_id(self, idcol='id'):
+        return self.select_first(func.max(self[idcol]))+1
     
     #################### Bootstrapping Methods ###################
     
