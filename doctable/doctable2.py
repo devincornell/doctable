@@ -44,7 +44,28 @@ class DocTable2:
     
     def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, check_schema=True, new_db=True):
         '''Create new database.
-        
+        Args:
+            schema (list<list>): schema from which to create db. Includes a
+                list of columns (including contraints and indexes) as tuples
+                defined according to information needed to execute the sqlalchemy
+                commands.
+            tabname (str): table name for this specific doctable.
+            fname (str): filename for database to connect to. ":memory:" is a 
+                special value indicating to the python db engine that the db
+                should be created in memory. Will create new empty database file
+                if it does not exist and new_db is True.
+            engine (str): database engine through which to construct db.
+                For more info, see sqlalchemy dialect info:
+                https://docs.sqlalchemy.org/en/13/dialects/
+            persistent_conn (bool): whether or not to create a persistent conn 
+                to database. Set to True to lock db from other process access 
+                while instance exists, esp if calling .update() in a .select()
+                loop. Set to False to access from separate processes.
+            verbose (bool): Print every sql command before executing.
+            check_schema (bool): Check existing database schema against
+                the provided schema if schema is provided.
+            new_db (bool): Indicate if new db file should be created given 
+                that a schema is provided and the db file doesn't exist.
         '''
         
         # in cases where user did not want to create new db but a db does not 
@@ -59,16 +80,16 @@ class DocTable2:
         
         self.engine = sa.create_engine('{}:///{}'.format(engine,fname))
         self._schema = schema
-            
-        # actually create table
-        self.metadata = sa.MetaData()
         
+        # make table if needed
+        self.metadata = sa.MetaData()
         if self._schema is not None:
             columns = self._parse_column_schema(schema)
             self._table = sa.Table(self.tabname, self.metadata, *columns)
             self.metadata.create_all(self.engine)
         else:
-            self._table = sa.Table(self.tabname, self.metadata, autoload=True, autoload_with=self.engine)
+            self._table = sa.Table(self.tabname, self.metadata, 
+                                   autoload=True, autoload_with=self.engine)
             
         # connect with database engine
         if persistent_conn:
@@ -131,8 +152,9 @@ class DocTable2:
         else:
             return self.type_map[typstr]
     
-    #def _check_schema(self,schema):
-    
+    def _check_schema(self,schema):
+        return True
+        
     
     ################# INSERT METHODS ##################
     
