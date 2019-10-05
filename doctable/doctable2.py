@@ -42,6 +42,7 @@ class DocTable2:
         'foreignkey_constraint': sa.ForeignKeyConstraint,
         'index': sa.Index,
     }
+    _valid_types = list(_constraint_map.keys()) + list(_type_map.keys())
     
     def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, new_db=True):
         '''Create new database.
@@ -156,8 +157,8 @@ class DocTable2:
         '''Maps typstr with an sqlalchemy data type (or doctable custom type).
         '''
         if typstr not in self._type_map:
-            raise ValueError('Provided column type must match '
-                'one of {}.'.format(self._type_map.keys()))
+            raise ValueError('Provided column type "{}" doesn\'t match '
+                'one of {}.'.format(typstr,self._valid_types))
         else:
             return self._type_map[typstr]
     
@@ -426,9 +427,6 @@ class DocTable2:
     def table(self):
         return self._table
     
-
-    
-    #################### Bootstrapping Methods ###################    
     
     #################### Bootstrapping Methods ###################    
     
