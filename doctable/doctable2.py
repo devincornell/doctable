@@ -32,7 +32,7 @@ class DocTable2:
         'unicode':sa.Unicode,
         'unicodetext':sa.UnicodeText,
         'tokens':TokensType, # custom datatype
-        'paragraphs':ParagraphsType, # custom datatype
+        'subdocs':SubdocsType, # custom datatype
     }
     
     _constraint_map = {

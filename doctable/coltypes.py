@@ -16,7 +16,7 @@ class TokensType(types.TypeDecorator):
         else:
             return None
 
-class ParagraphsType(types.TypeDecorator):
+class SubdocsType(types.TypeDecorator):
     impl = types.String
     
     def process_bind_param(self, value, dialect):
