@@ -32,10 +32,10 @@ class DocTable2:
         'unicode':sa.Unicode,
         'unicodetext':sa.UnicodeText,
         'tokens':TokensType, # custom datatype
-        'paragraphs':TokensType, # custom datatype
+        'paragraphs':ParagraphsType, # custom datatype
     }
     
-    constraint_map = {
+    _constraint_map = {
         'unique_constraint': sa.UniqueConstraint,
         'check_constraint': sa.CheckConstraint,
         'primarykey_constraint': sa.PrimaryKeyConstraint,
@@ -90,6 +90,8 @@ class DocTable2:
         else:
             self._table = sa.Table(self.tabname, self._metadata, 
                                    autoload=True, autoload_with=self._engine)
+        # bind .min(), .max(), and .count() to col objects themselves.
+        self._bind_functions()
             
         # connect with database engine
         if persistent_conn:
@@ -152,6 +154,17 @@ class DocTable2:
         else:
             return self._type_map[typstr]
     
+    def _bind_functions(self):
+        '''Binds .max(), .min(), .count() to each column object.
+            note: https://docs.sqlalchemy.org/en/13/core/functions.html
+        '''
+        for col in self._table.c:
+            col.max = func.max(col)
+            col.min = func.min(col)
+            col.count = func.count(col)
+            col.sum = func.sum(col)
+            col.mode = func.mode(col)
+    
     def _check_schema(self,schema):
         return True
     
@@ -193,6 +206,11 @@ class DocTable2:
     
     @property
     def colinfo(self):
+        '''Get info about each column as a dictionary.
+        Returns:
+            dict<dict>: info about each column. Selected by
+                hand, so feel free to add/remove some info.
+        '''
         info = dict()
         for col in self._table.c:
             ci = dict(
@@ -245,6 +263,9 @@ class DocTable2:
     def sel_series(self, col, *args, **kwargs):
         '''Select returning pandas Series.
         '''
+        if is_sequence(col):
+            raise TypeError('col argument should be single column.')
+        
         sel = self.select(col, *args, **kwargs)
         return pd.Series(sel)
     
@@ -306,9 +327,6 @@ class DocTable2:
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return result
-    
-
-
     
     #################### Update Methods ###################
     
