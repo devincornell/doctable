@@ -3,7 +3,7 @@ from datetime import datetime
 
 import sys
 sys.path.append('..')
-from doctable import DocTable2, func, op
+from doctable import DocTable2
 
 class MyDocuments(DocTable2):
     '''Class providing schema for MyDocuments database.
@@ -56,7 +56,7 @@ class MyDocuments(DocTable2):
         # try out custom data types
         # TokensType and ParagraphsType are defined in doctable/coltypes.py
         # SQLAlchemy: Column('tokenized', TokensType), Column('sentencized', ParagraphsType)
-        ('sentencized','paragraphs'),
+        ('sentencized','subdocs'),
         ('tokenized','tokens'),
 
     )

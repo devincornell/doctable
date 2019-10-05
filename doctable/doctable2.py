@@ -10,7 +10,7 @@ import sqlalchemy.sql as op
 from sqlalchemy.sql import func
 import sqlalchemy as sa
 
-from .coltypes import TokensType, ParagraphsType
+from .coltypes import TokensType, SubdocsType
 
 class DocTable2:
     _type_map = {
