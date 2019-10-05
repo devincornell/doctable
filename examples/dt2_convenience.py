@@ -25,7 +25,7 @@ class MyDocuments(DocTable2):
     
 if __name__ == '__main__':
     md = MyDocuments()
-    
+    print('next id:', md.next_id())
     # insert random docs
     N = 50
     for i in range(N):

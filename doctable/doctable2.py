@@ -148,7 +148,9 @@ class DocTable2:
         q = sa.sql.insert(self._table, rowdat)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         r = self.execute(q)
-    
+        
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
+        return r
     
     ################# SELECT METHODS ##################
     
@@ -224,6 +226,7 @@ class DocTable2:
         
         result = self.execute(q)
         
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return result
     
 
@@ -241,6 +244,7 @@ class DocTable2:
             q = q.where(where)
         r = self.execute(q)
         
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
     
     
@@ -253,6 +257,8 @@ class DocTable2:
         if where is not None:
             q = q.where(where)
         r = self.execute(q)
+        
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
     
     ################# CRITICAL SQL METHODS ##################
@@ -308,7 +314,15 @@ class DocTable2:
         return ct
     
     def next_id(self, idcol='id'):
-        return self.select_first(func.max(self[idcol]))+1
+        # use the results object .inserted_primary_key to get after 
+        # inserting. Here is the object returned by insert:
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
+        
+        mx = self.select_first(func.max(self[idcol]))
+        if mx is None:
+            return 1 # (usually first entry in sql table)
+        else:
+            return mx + 1
     
     #################### Bootstrapping Methods ###################
     
