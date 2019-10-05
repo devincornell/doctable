@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from .coltypes import TokensType
 
 class DocTable2:
-    type_map = {
+    _type_map = {
         'biginteger':sa.BigInteger,
         'boolean':sa.Boolean,
         'date':sa.Date,
@@ -122,22 +122,22 @@ class DocTable2:
             else:
                 raise ValueError(coltype_error_str)
             
-            if coltype not in self.constraint_map: # if coltype is regular column
+            if coltype not in self._constraint_map: # if coltype is regular column
                 typ = self._get_sqlalchemy_type(coltype)
                 col = sa.Column(colname, typ(**coltypeargs), **colargs)
                 columns.append(col)
 
             else: # column is actually a constraint (not regular column)
                 if coltype  == 'index':
-                    const = self.constraint_map[coltype](colname, *colargs, **coltypeargs)
+                    const = self._constraint_map[coltype](colname, *colargs, **coltypeargs)
                 elif coltype in ('check_constraint',):
                     # in this case, colname should be a constraint string (i.e. "age > 0")
-                    const = self.constraint_map[coltype](colname, **colargs)
+                    const = self._constraint_map[coltype](colname, **colargs)
                 else:
                     if not is_sequence(colname):
                         raise ValueError('First column argument on {} should '
                             'be a sequence of columns.'.format(coltype))
-                    const = self.constraint_map[coltype](*colname, **colargs)
+                    const = self._constraint_map[coltype](*colname, **colargs)
                 columns.append(const)
         return columns
 
@@ -146,11 +146,11 @@ class DocTable2:
     def _get_sqlalchemy_type(self,typstr):
         '''Maps typstr with an sqlalchemy data type (or doctable custom type).
         '''
-        if typstr not in self.type_map:
+        if typstr not in self._type_map:
             raise ValueError('Provided column type must match '
-                'one of {}.'.format(self.type_map.keys()))
+                'one of {}.'.format(self._type_map.keys()))
         else:
-            return self.type_map[typstr]
+            return self._type_map[typstr]
     
     def _check_schema(self,schema):
         return True
@@ -181,6 +181,38 @@ class DocTable2:
             return 1 # (usually first entry in sql table)
         else:
             return mx + 1
+        
+    @property
+    def columns(self):
+        '''Exposes SQLAlchemy core table columns object.
+        Examples:
+            some info here: 
+            https://docs.sqlalchemy.org/en/13/core/metadata.html
+            
+            c = db.columns['id']
+            c.type, c.name, c.
+        '''
+        return self._table.c
+    
+    @property
+    def colinfo(self):
+        info = dict()
+        for col in self._table.c:
+            ci = dict(
+                name=col.name,
+                type=col.type,
+                comment=col.comment,
+                constraints=col.constraints,
+                expression=col.expression,
+                foreign_keys=col.foreign_keys,
+                index=col.index,                
+                nullable=col.nullable,
+                primary_key=col.primary_key,
+                onupdate=col.onupdate,
+                default=col.default,
+            )
+            info[col.name] = ci
+        return info
         
     
     ################# INSERT METHODS ##################
