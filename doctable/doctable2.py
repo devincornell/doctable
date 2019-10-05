@@ -38,6 +38,7 @@ class DocTable2:
         'unique_constraint': sa.UniqueConstraint,
         'check_constraint': sa.CheckConstraint,
         'primarykey_constraint': sa.PrimaryKeyConstraint,
+        'index': sa.Index,
     }
     
     def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False):
@@ -90,13 +91,15 @@ class DocTable2:
             else:
                 raise ValueError(coltype_error_str)
             
-            if not coltype in self.constraint_map: # if coltype is regular column
+            if coltype not in self.constraint_map: # if coltype is regular column
                 typ = self._get_sqlalchemy_type(coltype)
                 col = sa.Column(colname, typ(**coltypeargs), **colargs)
                 columns.append(col)
 
             else: # column is actually a constraint (not regular column)
-                if coltype in ('check_constraint',):
+                if coltype  == 'index':
+                    const = self.constraint_map[coltype](colname, *colargs, **coltypeargs)
+                elif coltype in ('check_constraint',):
                     # in this case, colname should be a constraint string (i.e. "age > 0")
                     const = self.constraint_map[coltype](colname, **colargs)
                 else:

@@ -49,6 +49,9 @@ class MyDocuments(DocTable2):
         #SQLAlchemy: Column('abstract', String, default='')
         ('text','string',dict(),dict(length=500)),
         
+        # make index table
+        ('ind0', 'index', ('category','title'),dict(unique=True)),
+        
         # try out custom data types
         ('sentencized','paragraphs'),
         ('tokenized','tokens'),
