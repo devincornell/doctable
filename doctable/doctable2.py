@@ -10,7 +10,7 @@ import sqlalchemy.sql as op
 from sqlalchemy.sql import func
 import sqlalchemy as sa
 
-from .coltypes import TokensType
+from .coltypes import TokensType, ParagraphsType
 
 class DocTable2:
     _type_map = {
@@ -228,7 +228,18 @@ class DocTable2:
             )
             info[col.name] = ci
         return info
-        
+
+    
+    ################# OPERATOR METHODS ##################
+    def and_(self,*args,**kwargs):
+        return op.and_(*args, **kwargs)
+    
+    def or_(self,*args,**kwargs):
+        return op.or_(*args, **kwargs)
+    
+    def not_(self,*args,**kwargs):
+        return op.not_(*args, **kwargs)
+    
     
     ################# INSERT METHODS ##################
     
