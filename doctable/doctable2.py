@@ -384,7 +384,7 @@ class DocTable2:
     
     #################### Update Methods ###################
     
-    def update(self, values, where=None, **kwargs):
+    def update(self, values, where=None, whrstr=None, **kwargs):
         '''Update row(s) assigning the provided values.
         NOTE: this does not currently handle updates of multiple 
             rows with provided multiple values. Needs to be done
@@ -412,6 +412,9 @@ class DocTable2:
         
         if where is not None:
             q = q.where(where)
+        if whrstr is not None:
+            q = q.where(sa.text(whrstr))
+        
         r = self.execute(q, **kwargs)
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
