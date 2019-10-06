@@ -435,7 +435,7 @@ class DocTable2:
     
     #################### Delete Methods ###################
     
-    def delete(self, where=None, whrstr=None, **kwargs):
+    def delete(self, where=None, whrstr=None, vacuum=False, **kwargs):
         '''Delete rows from the table that meet the where criteria.
         '''
         q = sa.sql.delete(self._table)
@@ -446,6 +446,9 @@ class DocTable2:
             q = q.where(sa.text(whrstr))
         
         r = self.execute(q, **kwargs)
+        
+        if vacuum:
+            self.execute('VACUUM')
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
