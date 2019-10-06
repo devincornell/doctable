@@ -388,7 +388,11 @@ class DocTable2:
         '''Update row(s) assigning the provided values.
         NOTE: this does not currently handle updates of multiple 
             rows with provided multiple values. Needs to be done
-            individually.
+            individually. For future reference:
+            https://docs.sqlalchemy.org/en/13/core/tutorial.html
+            
+            Additionally
+            UPDATE some_table SET x = y + 10, y = 20
         Args:
             values (dict<colname->value>): values to populate rows
                 that match where condition with.
@@ -397,7 +401,15 @@ class DocTable2:
         '''
             
         # update the main column values
-        q = sa.sql.update(self._table).values(values)
+        
+        
+        if isinstance(values,list) or isinstance(values,tuple):
+            q = sa.sql.update(self._table, preserve_parameter_order=True)
+            q = q.values(values)
+        else:
+            q = sa.sql.update(self._table)
+            q = q.values(values)
+        
         if where is not None:
             q = q.where(where)
         r = self.execute(q, **kwargs)
