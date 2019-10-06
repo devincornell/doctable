@@ -268,7 +268,13 @@ class DocTable2:
     def select_first(self, *args, **kwargs):
         '''Perform regular select query returning only the first result.
         '''
-        return self.select(*args, limit=1, **kwargs)[0]
+        result = self.select(*args, limit=1, **kwargs)
+        if len(result) == 0:
+            raise LookupError('No results were returned. Needed to error '
+                'so this result wasn not confused with case where actual '
+                'result is None. If not sure about result, use regular '
+                '.select() method with limit=1.')
+        return result[0]
     
     def select_df(self, cols=None, *args, **kwargs):
         '''Select returning dataframe.'''
@@ -290,7 +296,7 @@ class DocTable2:
         sel = self.select(col, *args, **kwargs)
         return pd.Series(sel)
     
-    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, clausestr=None, **kwargs):
+    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, **kwargs):
         '''Perform select query, yield result for each row.
         
         Description: Because output must be iterable, returns special column results 
@@ -318,7 +324,7 @@ class DocTable2:
                 cols = [cols]
                 
         # query colunmns in main table
-        result = self._exec_select_query(cols,where,orderby,groupby,limit,whrstr,clausestr,**kwargs)
+        result = self._exec_select_query(cols,where,orderby,groupby,limit,whrstr,**kwargs)
         # this is the result object:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         
@@ -334,7 +340,7 @@ class DocTable2:
                 
     
                 
-    def _exec_select_query(self, cols, where, orderby, groupby, limit, whrstr, clausestr, **kwargs):
+    def _exec_select_query(self, cols, where, orderby, groupby, limit, whrstr, **kwargs):
         
         q = sa.sql.select(cols)
         
@@ -355,8 +361,6 @@ class DocTable2:
             
         if limit is not None:
             q = q.limit(limit)
-        if clausestr is not None:
-            q = q.where(sa.text(whrstr))
         
         result = self.execute(q, **kwargs)
         
