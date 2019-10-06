@@ -20,7 +20,7 @@ Most of the documentation for DocTable2 is provided via the examples. Here is a 
 - [Select Examples](examples/dt2_select.ipynb)
 - [Update Examples](examples/dt2_update.ipynb)
 - [Schema Examples](examples/dt2_schema.py)
-- [Special Column Type Examples](examples/dt2_specialtypes.py)
+- [Special Column Type Examples](examples/dt2_specialtypes.ipynb)
 
 ### Quick Example
 
