@@ -239,9 +239,9 @@ class DocTable2:
             Not sure of the behavior in case where multiple primary
                 keys exist.
         '''
-        for cn,ci in self.schemainfo.items():
+        for ci in self.schemainfo:
             if ci['primary_key']:
-                return cn
+                return ci['name']
         return None
     
     
@@ -270,7 +270,9 @@ class DocTable2:
         if is_sequence(rowdat):
             if 'verbose' in kwargs:
                 del kwargs['verbose']
-        r = self.execute(q, verbose=False, **kwargs)
+            r = self.execute(q, verbose=False, **kwargs)
+        else:
+            r = self.execute(q, **kwargs)
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
@@ -504,7 +506,7 @@ class DocTable2:
     def select_bootstrap(self, *args, **kwargs):
         return list(self.select_bootstrap_iter(*args, **kwargs))
     
-    def select_bootstrap_iter(self, cols=None, nsamp=None, where=None, idcol=None):
+    def select_bootstrap_iter(self, cols=None, nsamp=None, where=None, idcol=None, **kwargs):
         if idcol is None:
             idcol = self.primary_key
             if idcol is None:
@@ -516,7 +518,7 @@ class DocTable2:
         idwaves = self._bs_sampids(nsamp, idcol, where=where)
         results = list()
         for idwave in idwaves:
-            for row in self.select(cols, where=self[idcol].in_(idwave)):
+            for row in self.select(cols, where=self[idcol].in_(idwave), **kwargs):
                 yield row
                 
             
