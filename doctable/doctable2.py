@@ -210,6 +210,10 @@ class DocTable2:
             dict<dict>: info about each column. Selected by
                 hand, so feel free to add/remove some info.
         '''
+        inspector = sa.inspect(self._engine)
+        return inspector.get_columns(self.tabname)
+    
+    def schemainfo_long(self):
         info = dict()
         for col in self._table.c:
             ci = dict(
@@ -286,7 +290,7 @@ class DocTable2:
         sel = self.select(col, *args, **kwargs)
         return pd.Series(sel)
     
-    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, **kwargs):
+    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, clausestr=None, **kwargs):
         '''Perform select query, yield result for each row.
         
         Description: Because output must be iterable, returns special column results 
@@ -295,10 +299,13 @@ class DocTable2:
         
         Args:
             cols: list of sqlalchemy datatypes created from calling .col() method.
-            where: sqlalchemy where object to parse
+            where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
             orderby: sqlalchemy orderby directive
             groupby: sqlalchemy gropuby directive
             limit (int): number of entries to return before stopping
+            whrstr (str): raw sql "where" conditionals to add to where input
+            clausestr (str): extra SQL clauses to be appended to sql command
+            **kwargs (args): to be appended to 
         Yields:
             dictionary: row data
         '''
@@ -311,7 +318,7 @@ class DocTable2:
                 cols = [cols]
                 
         # query colunmns in main table
-        result = self._exec_select_query(cols,where,orderby,groupby,limit, **kwargs)
+        result = self._exec_select_query(cols,where,orderby,groupby,limit,whrstr,clausestr,**kwargs)
         # this is the result object:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         
@@ -327,18 +334,29 @@ class DocTable2:
                 
     
                 
-    def _exec_select_query(self, cols, where, orderby, groupby, limit, **kwargs):
+    def _exec_select_query(self, cols, where, orderby, groupby, limit, whrstr, clausestr, **kwargs):
         
         q = sa.sql.select(cols)
         
         if where is not None:
             q = q.where(where)
+        if whrstr is not None:
+            q = q.where(sa.text(whrstr))
         if orderby is not None:
-            q = q.order_by(orderby)
+            if is_sequence(orderby):
+                q = q.order_by(*orderby)
+            else:
+                q = q.order_by(orderby)
         if groupby is not None:
-            q = q.groupby(orderby)
+            if is_sequence(groupby):
+                q = q.group_by(*groupby)
+            else:
+                q = q.group_by(groupby)
+            
         if limit is not None:
             q = q.limit(limit)
+        if clausestr is not None:
+            q = q.where(sa.text(whrstr))
         
         result = self.execute(q, **kwargs)
         
@@ -347,7 +365,7 @@ class DocTable2:
     
     #################### Update Methods ###################
     
-    def update(self,values,where=None, **kwargs):
+    def update(self, values, where=None, **kwargs):
         '''Update row(s) assigning the provided values.
         '''
             
@@ -391,7 +409,7 @@ class DocTable2:
         # try to parse
         result = self._execute(query, **kwargs)
         return result
-        
+    
     def _execute(self, query, conn=None):
         # takes raw query object
         if conn is not None:
