@@ -240,19 +240,6 @@ class DocTable2:
             if ci['primary_key']:
                 return cn
         return None
-
-    
-    ################# OPERATOR METHODS ##################
-    # binding sqlalchemy operators to the doctable object
-    # https://docs.sqlalchemy.org/en/13/core/sqlelement.html
-    def and_(self,*args,**kwargs):
-        return op.and_(*args, **kwargs)
-    
-    def or_(self,*args,**kwargs):
-        return op.or_(*args, **kwargs)
-    
-    def not_(self,*args,**kwargs):
-        return op.not_(*args, **kwargs)
     
     
     ################# INSERT METHODS ##################
@@ -390,11 +377,17 @@ class DocTable2:
     
     ################# CRITICAL SQL METHODS ##################
     
-    def execute(self, query, **kwargs):
+    def execute(self, query, verbose=None, **kwargs):
         '''Execute an sql command. Called by most higher-level functions.
+        Args:
+            verbose (bool or None): Set verbose to override 
+                instance-level verbose setting. Otherwise
+                defers.
         '''
-        if self.verbose: print('DocTable2 Query: {}'
-            ''.format(query))
+        prstr = 'DocTable2 Query: {}'
+        if verbose is not None:
+            if verbose: print(prstr.format(query))
+        elif self.verbose: print(prstr.format(query))
         
         # try to parse
         result = self._execute(query, **kwargs)
