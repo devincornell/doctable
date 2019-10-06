@@ -386,6 +386,14 @@ class DocTable2:
     
     def update(self, values, where=None, **kwargs):
         '''Update row(s) assigning the provided values.
+        NOTE: this does not currently handle updates of multiple 
+            rows with provided multiple values. Needs to be done
+            individually.
+        Args:
+            values (dict<colname->value>): values to populate rows
+                that match where condition with.
+            where (sqlalchemy condition): used to match rows where
+                update will be applied.
         '''
             
         # update the main column values
