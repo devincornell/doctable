@@ -258,7 +258,19 @@ class DocTable2:
         '''
         q = sa.sql.insert(self._table, rowdat)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
-        r = self.execute(q, **kwargs)
+        
+        #NOTE: there is a weird issue with using verbose mode with a 
+        #  multiple insert. The printing interface is not aware of 
+        #  the SQL dialect and therefore throws an error.
+        
+        # To print correctly, would need something like this:
+        #from sqlalchemy.dialects import mysql
+        #print str(q.statement.compile(dialect=mysql.dialect()))
+        
+        if is_sequence(rowdat):
+            if 'verbose' in kwargs:
+                del kwargs['verbose']
+        r = self.execute(q, verbose=False, **kwargs)
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
@@ -423,12 +435,16 @@ class DocTable2:
     
     #################### Delete Methods ###################
     
-    def delete(self,where=None, **kwargs):
+    def delete(self, where=None, whrstr=None, **kwargs):
         '''Delete rows from the table that meet the where criteria.
         '''
         q = sa.sql.delete(self._table)
+
         if where is not None:
             q = q.where(where)
+        if whrstr is not None:
+            q = q.where(sa.text(whrstr))
+        
         r = self.execute(q, **kwargs)
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
