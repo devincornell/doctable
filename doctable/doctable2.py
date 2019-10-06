@@ -296,7 +296,7 @@ class DocTable2:
         sel = self.select(col, *args, **kwargs)
         return pd.Series(sel)
     
-    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, **kwargs):
+    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, offset=None, **kwargs):
         '''Perform select query, yield result for each row.
         
         Description: Because output must be iterable, returns special column results 
@@ -324,7 +324,7 @@ class DocTable2:
                 cols = [cols]
                 
         # query colunmns in main table
-        result = self._exec_select_query(cols,where,orderby,groupby,limit,whrstr,**kwargs)
+        result = self._exec_select_query(cols,where,orderby,groupby,limit,whrstr,offset,**kwargs)
         # this is the result object:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         
@@ -340,7 +340,7 @@ class DocTable2:
                 
     
                 
-    def _exec_select_query(self, cols, where, orderby, groupby, limit, whrstr, **kwargs):
+    def _exec_select_query(self, cols, where, orderby, groupby, limit, whrstr, offset,**kwargs):
         
         q = sa.sql.select(cols)
         
@@ -361,11 +361,26 @@ class DocTable2:
             
         if limit is not None:
             q = q.limit(limit)
+        if offset is not None:
+            q = q.offset(offset)
         
         result = self.execute(q, **kwargs)
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return result
+    
+    def select_chunk(self, cols=None, chunksize=1, max_rows=None, **kwargs):
+        '''Performs select while querying only a subset of the results at a time.
+        '''
+        offset = 0
+        while True:
+            rows = self.select(cols, offset=offset, limit=chunksize, **kwargs)
+            for row in rows[:max_rows-offset]:
+                yield row
+            offset += len(rows)
+            
+            if (max_rows is not None and offset >= max_rows) or len(rows) == 0:
+                break
     
     #################### Update Methods ###################
     
