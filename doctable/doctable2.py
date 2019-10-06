@@ -171,7 +171,6 @@ class DocTable2:
             col.min = func.min(col)
             col.count = func.count(col)
             col.sum = func.sum(col)
-            col.mode = func.mode(col)
     
     #################### Convenience Methods ###################
     
