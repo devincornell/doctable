@@ -336,6 +336,7 @@ class DocTable2:
             if not is_sequence(cols):
                 return_single = True
                 cols = [cols]
+        cols = [c if not isinstance(c,str) else self[c] for c in cols]
                 
         # query colunmns in main table
         result = self._exec_select_query(cols,where,orderby,groupby,limit,whrstr,offset,**kwargs)
