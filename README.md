@@ -19,7 +19,7 @@ Most of the documentation for DocTable2 is provided via the examples. Here is a 
 - [Insert/Delete Examples](examples/dt2_insert_delete.ipynb)
 - [Select Examples](examples/dt2_select.ipynb)
 - [Update Examples](examples/dt2_update.ipynb)
-- [Schema Examples](examples/dt2_shema.py)
+- [Schema Examples](examples/dt2_schema.py)
 - [Special Column Type Examples](examples/dt2_specialtypes.py)
 
 ### Quick Example
