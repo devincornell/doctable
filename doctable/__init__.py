@@ -1,8 +1,4 @@
-
-# operators like and_, or_, and not_
-#import sqlalchemy.sql as op
-# functions like min, max, sum, count
-#from sqlalchemy.sql import func
+name = "example_pkg"
 
 # expose some features of sqlalchemy
 from sqlalchemy.sql import and_, or_, not_

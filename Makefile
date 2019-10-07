@@ -4,27 +4,43 @@
 # make clean (deletes all doc files)
 
 # toplevel (run when enters 'make' without args)
-all: docs
+all: docs build
 	git add Makefile
 
+PACKAGE_NAME = doctable
+PACKAGE_FOLDER = $(PACKAGE_NAME)/
 DOCS_FOLDER = docs/
 MD_FOLDER = examples/markdown/
 EXAMPLES_FOLDER = examples/
 
 docs: gen_markdown pydoc
+	git add README.md
 
 gen_markdown:
 	jupyter nbconvert --to markdown $(EXAMPLES_FOLDER)/*.ipynb
 	mv examples/*.md $(MD_FOLDER)
 	git add $(MD_FOLDER)/*.md
 
+# use pydoc to generate documentation
 pydoc:
+	pydoc -w doctable
 	pydoc -w doctable.DocTable2
 	pydoc -w doctable.DocTable
 	-mkdir docs
+	mv doctable.html $(DOCS_FOLDER)
 	mv doctable.DocTable.html $(DOCS_FOLDER)
 	mv doctable.DocTable2.html $(DOCS_FOLDER)
 	git add $(DOCS_FOLDER)/*.html
+
+build:
+	# install latest version of compile software
+	pip install --user --upgrade setuptools wheel
+	
+	# actually set up package
+	python setup.py sdist bdist_wheel
+	
+	git add setup.cfg setup.py LICENSE.txt
+
 
 test:
 	@echo "need to implement testing with pytest"
@@ -32,5 +48,12 @@ test:
 clean:
 	-rm $(MD_FOLDER)*.md
 	-rm $(EXAMPLES_FOLDER)*.db
+	
+	# from pydocs build
 	-rm -r $(DOCS_FOLDER)
+	
+	# from building python package
+	-rm -r $(PACKAGE_NAME).egg-info
+	-rm -r dist
+	-rm -r build
 	
