@@ -59,14 +59,17 @@ build:
 	
 	
 deploy: build
-	# mostly pulled from https://packaging.python.org/tutorials/packaging-projects/
+	# mostly pulled from https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56
+	#also this: https://packaging.python.org/tutorials/packaging-projects/
 	
 	# first make sure deploy package is activated
 	pip install --user --upgrade twine
 	
+	# create a source distribution
+	python setup.py sdist
+	
 	# here we go now upload
-	python -m twine upload --repository-url https://pypi.org/project/doctable/ dist/*
-
+	python -m twine upload dist/*
 
 TMP_TEST_FOLDER = tmp_test_deleteme
 test:

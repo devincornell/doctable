@@ -1,10 +1,15 @@
 
 from setuptools import setup
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 version = 0.4
 setup(name='doctable',
     version='{}'.format(version),
     description='Simple database interface for text analysis applications.',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     url='https://github.com/devincornell/doctable',
     author='Devin J. Cornell',
     author_email='devinj.cornell@gmail.com',
