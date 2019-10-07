@@ -2,39 +2,23 @@
 #from timeit import default_timer as timer
 import os
 
-
-from testdata import get_sklearn_newsgroups
-
 import sys
 sys.path.append('..')
-from doctable import DocTable
+import doctable as dt
 
-
-class SimpleNewsGroups(DocTable):
-    def __init__(self, fname):
-        tabname = 'simplenewsgroups'
-        super().__init__(
-            fname=fname, 
-            tabname=tabname, 
-            colschema=(
-                'id integer primary key autoincrement',
-                'file_id int',
-                'category string',
-                'raw_text string',
-            ),
-            constraints=(
-                'UNIQUE(file_id)',
-            )
+        
+def new_db():
+    db = dt.DocTable(
+        colschema=(
+            'id integer primary key autoincrement',
+            'file_id int',
+            'category string',
+            'raw_text string',
+        ),
+        constraints=(
+            'UNIQUE(file_id)',
         )
-
-def setup(fname='1321564113.db', ndocs=100):
-    sng = SimpleNewsGroups(fname)
-    ddf = get_sklearn_newsgroups(ndocs)
-    return sng, ddf, fname
-    
-def tearme(fname):
-    os.remove(fname)
-    
+    )    
     
 def test_add_sequential():
     fname = 'add_sequential.db'

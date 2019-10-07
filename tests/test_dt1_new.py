@@ -1,7 +1,7 @@
 
 import email
 
-from example_helper import get_sklearn_newsgroups # for this example
+from test_dt1_data import get_sklearn_newsgroups # for this example
 
 from doctable import DocTable # this will be the table object we use to interact with our database.
 
