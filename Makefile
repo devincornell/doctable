@@ -2,6 +2,18 @@
 # examples
 # make docs (generates all docs)
 # make clean (deletes all doc files)
+# make test (runs unit tests in tests/ and exports notebooks in examples/ and tries to run them)
+# make build (actually builds the python package)
+# make deploy (actually builds package)
+
+
+#################### TO DEPLOY INSTRUCTIONS ###########################
+#make test
+#make clean
+#make docs
+#make build
+#make deploy
+
 
 # toplevel (run when enters 'make' without args)
 all: docs build
@@ -44,6 +56,16 @@ build:
 	python setup.py sdist bdist_wheel
 	
 	git add setup.cfg setup.py LICENSE.txt
+	
+	
+deploy: build
+	# mostly pulled from https://packaging.python.org/tutorials/packaging-projects/
+	
+	# first make sure deploy package is activated
+	pip install --user --upgrade twine
+	
+	# here we go now upload
+	python -m twine upload --repository-url https://pypi.org/project/doctable/ dist/*
 
 
 TMP_TEST_FOLDER = tmp_test_deleteme
