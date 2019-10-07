@@ -2,7 +2,7 @@
 import random
 from time import time
 
-import test_helper as th
+import test_dt2_helper as th
 
 import sys
 sys.path.append('..')
