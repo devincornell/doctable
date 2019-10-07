@@ -15,12 +15,12 @@ The typical way to use this package is to create new classes which inherit from 
 ### Examples
 Most of the documentation for DocTable2 is provided via the examples. Here is a list of example notebooks and scripts:
 
-- [DocTable2 Basic Examples](examples/dt2_basics.ipynb)
-- [Insert/Delete Examples](examples/dt2_insert_delete.ipynb)
-- [Select Examples](examples/dt2_select.ipynb)
-- [Update Examples](examples/dt2_update.ipynb)
-- [Schema Examples](examples/dt2_schema.py)
-- [Special Column Type Examples](examples/dt2_specialtypes.ipynb)
+- [DocTable2 Basic Examples](examples/markdown/dt2_basics.md)
+- [Insert/Delete Examples](examples/markdown/dt2_insert_delete.md)
+- [Select Examples](examples/markdown/dt2_select.md)
+- [Update Examples](examples/markdown/dt2_update.md)
+- [Schema Examples](examples/markdown/dt2_schema.md)
+- [Special Column Type Examples](examples/markdown/dt2_specialtypes.md)
 
 ### Quick Example
 
