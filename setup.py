@@ -1,17 +1,18 @@
 
 from setuptools import setup
 
+version = 0.4
 setup(name='doctable',
-    version='0.3',
-    description='Python interface for single-table sqlite databases that allow for easy conversion to Pandas DataFrames.',
+    version='{}'.format(version),
+    description='Simple database interface for text analysis applications.',
     url='https://github.com/devincornell/doctable',
     author='Devin J. Cornell',
     author_email='devinj.cornell@gmail.com',
     license='MIT',
     packages=['doctable'],
-    requires=['sqlite3', 'pickle', 'pandas'],
+    requires=['sqlalchemy', 'pickle', 'pandas', 'sqlite3'],
     zip_safe=False,
-    download_url='https://github.com/devincornell/doctable/archive/v0.3.tar.gz'
+    download_url='https://github.com/devincornell/doctable/archive/v{}.tar.gz'.format(version)
      )
 
 
