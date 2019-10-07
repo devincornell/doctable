@@ -49,4 +49,3 @@ class NGWithConstraint(DocTable):
             )
         )
 
-testdblist = [SimpleNewsGroups, ]
