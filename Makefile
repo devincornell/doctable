@@ -42,8 +42,36 @@ build:
 	git add setup.cfg setup.py LICENSE.txt
 
 
+TMP_TEST_FOLDER = tmp_test_deleteme
 test:
-	pytest tests/test_dt2_simple.py
+	# tests from tests folder
+	pytest tests/test_dt2_*.py
+	
+	# make temporary testing folder and copy files into it
+	-rm -r $(TMP_TEST_FOLDER)
+	mkdir $(TMP_TEST_FOLDER)
+	cp $(EXAMPLES_FOLDER)/*.ipynb $(TMP_TEST_FOLDER)
+	cp $(EXAMPLES_FOLDER)/*.py $(TMP_TEST_FOLDER)
+	
+	# convert notebooks to .py scripts
+	jupyter nbconvert --to script $(TMP_TEST_FOLDER)/*.ipynb
+	
+	
+	# NOTE: THIS IS WEIRD BECAUSE PYTEST RELIES ON "test_" prefixes
+	#     to both scripts and functions. SO THE OUTPUT WILL LOOK LIKE
+	#     0 tests run AND WILL GIVE ERROR make: *** [test] Error 5.
+	#     IF THERE IS A MISTAKE, IT WILL RAISE AN ERROR AND FAIL.
+	# NOTE2: IT MAY BE DIFFICULT TO DEBUG BECAUSE YOU WILL NEED TO
+	#     TRACE THE ERROR BACK TO THE ORIGINAL NOTEBOOK.
+	
+	# run tests
+	# must cd into temp folder bc that's where example scripts
+	#     are supposed to run
+	-cd $(TMP_TEST_FOLDER); pytest ./*.py
+	
+	# cleanup temp folder
+	rm -r $(TMP_TEST_FOLDER)
+	
 
 clean:
 	-rm $(MD_FOLDER)*.md

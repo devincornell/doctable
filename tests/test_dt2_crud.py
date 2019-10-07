@@ -4,32 +4,21 @@ from time import time
 
 import sys
 sys.path.append('../..')
-from doctable import DocTable2, func, op
+import doctable as dt
 
 
 def make_dt(schema, fname):
     if fname is None:
-        dt = DocTable2(schema, verbose=False)
+        db = dt.DocTable2(schema, verbose=False)
     else:
-        dt = DocTable2(schema, verbose=False, fname=fname)
-    return dt
+        db = dt.DocTable2(schema, verbose=False, fname=fname)
+    return db
 
 def dt_basic(fname=None):
     schema = (
         ('id','integer',dict(primary_key=True)),
         ('title','string', dict(unique=True)),
         ('age','float'),
-    )
-    return make_dt(schema,fname)
-
-def dt_special(fname=None):
-    schema = (
-        ('id','integer',dict(primary_key=True)),
-        ('title','string', dict(unique=True)),
-        ('age','float'),
-        ('model','bigblob'),
-        ('sents','subdoc'),
-        ('paragraphs','subdoc'),
     )
     return make_dt(schema,fname)
     
@@ -97,79 +86,39 @@ def test_select_iter_basic():
     
     print('checking single aggregate function')
     sum_age = sum([dr['age'] for dr in dictrows])
-    s = dt.select_first(func.sum(dt['age']))
+    s = dt.select_first(dt.sum(dt['age']))
     assert(s == sum_age)
     
     
     print('checking multiple aggregate functions')
     sum_age = sum([dr['age'] for dr in dictrows])
     sum_id = sum([i+1 for i in range(len(dictrows))])
-    s = dt.select_first([func.sum(dt['age'].label('agesum')), func.sum(dt['id'].label('idsum'))])
+    s = dt.select_first([dt.sum(dt['age'].label('agesum')), dt.sum(dt['id'].label('idsum'))])
     assert(s['sum_1'] == sum_age) #NOTE: THE LABEL METHODS HERE ARENT ASSIGNED TO OUTPUT KEYS
     assert(s['sum_2'] == sum_id)
     
     print('checking complicated where')
     ststr = 'user+_3'
     ct_titlematch = sum([dr['title'].startswith(ststr) for dr in dictrows])
-    s = dt.select_first(func.count(dt['title']), where=dt['title'].like(ststr+'%'))
+    s = dt.select_first(dt.count(dt['title']), where=dt['title'].like(ststr+'%'))
     assert(s == ct_titlematch)
     
     print('running conditional queries')
-    minage = dt.select_first(func.min(dt['age']))
-    maxid = dt.select_first(func.max(dt['id']))
+    minage = dt.select_first(dt.min(dt['age']))
+    maxid = dt.select_first(dt.max(dt['id']))
     whr = (dt['age'] > minage) & (dt['id'] < maxid)
-    s = dt.select_first(func.sum(dt['age']), where=whr)
+    s = dt.select_first(dt.sum(dt['age']), where=whr)
     sumage = sum([dr['age'] for dr in dictrows[:-1] if dr['age'] > minage])
     assert(s == sumage)
     
     print('selecting right number of elements with negation')
-    maxid = dt.select_first(func.max(dt['id']))
-    s = dt.select_first(func.count(), where=~(dt['id'] < maxid))
+    maxid = dt.select_first(dt.max(dt['id']))
+    s = dt.select_first(dt.count(), where=~(dt['id'] < maxid))
     assert(s == 1)
     
     print('selecting specific rows')
-    s = dt.select_first(func.count(), where=dt['id'].in_([1,2]))
+    s = dt.select_first(dt.count(), where=dt['id'].in_([1,2]))
     assert(s == 2)
-    
-
-def test_select_iter_special(n=20):
-    datarows, dictrows = generate_data_many(n=n)
-    #dt = dt_basic(fname='db/tb4.db')
-    dt = dt_special()#fname='db/tb5.db')
-    print(dt)
-    
-    print('inserting')
-    for dr in dictrows:
-        dt.insert(dr)
-    
-    print('verifying stored results')
-    st = time()
-    for dr,row in zip(dictrows,dt.select_iter(orderby=dt['id'].asc())):
-        for cn in dr.keys():
-            assert(dr[cn] == row[cn])
-    print('took {} min to check {} rows using select_iter()'
-         ''.format((time()-st)/60,n))
-    
-def test_select_special(n=20):
-    datarows, dictrows = generate_data_many(n=n)
-    #dt = dt_basic(fname='db/tb4.db')
-    dt = dt_special()#fname='db/tb5.db')
-    print(dt)
-    
-    print('inserting')
-    for dr in dictrows:
-        dt.insert(dr)
-    
-    print('checking data consistency')
-    st = time()
-    for dr,row in zip(dictrows,dt.select(orderby=dt['id'].asc())):
-        for cn in dr.keys():
-            assert(dr[cn] == row[cn])
-    print('took {} min to check {} rows using select()'
-         ''.format((time()-st)/60,n))
-    
-    
-    
     
     
     
@@ -177,13 +126,5 @@ if __name__ == '__main__':
     
     # basic select using different query types
     test_select_iter_basic()
-    
-    # compare time select() should be faster than select_iter()
-    # because select_iter queries data columns one-per-query.
-    # On the other hand, select_iter should have smaller memory
-    # overhead.
-    n = 20
-    test_select_iter_special(n)
-    test_select_special(n)
     
     
