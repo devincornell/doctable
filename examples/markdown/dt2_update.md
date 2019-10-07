@@ -78,21 +78,21 @@ db.select_df(limit=3)
       <td>0</td>
       <td>1</td>
       <td>user_0</td>
-      <td>0.342088</td>
+      <td>0.083900</td>
       <td>False</td>
     </tr>
     <tr>
       <td>1</td>
       <td>2</td>
       <td>user_1</td>
-      <td>0.958548</td>
-      <td>True</td>
+      <td>0.494784</td>
+      <td>False</td>
     </tr>
     <tr>
       <td>2</td>
       <td>3</td>
       <td>user_2</td>
-      <td>0.999047</td>
+      <td>0.847461</td>
       <td>True</td>
     </tr>
   </tbody>
@@ -142,21 +142,21 @@ db.select_df(where=db['is_old']==True, limit=3, verbose=False)
       <td>0</td>
       <td>1</td>
       <td>user_0</td>
-      <td>0.725059</td>
+      <td>0.968410</td>
       <td>True</td>
     </tr>
     <tr>
       <td>1</td>
-      <td>5</td>
-      <td>user_4</td>
-      <td>0.697233</td>
+      <td>6</td>
+      <td>user_5</td>
+      <td>0.972617</td>
       <td>True</td>
     </tr>
     <tr>
       <td>2</td>
-      <td>9</td>
-      <td>user_8</td>
-      <td>0.515677</td>
+      <td>7</td>
+      <td>user_6</td>
+      <td>0.578333</td>
       <td>True</td>
     </tr>
   </tbody>
@@ -216,15 +216,15 @@ db.select_df(limit=3, verbose=False)
       <td>1</td>
       <td>2</td>
       <td>user_1</td>
-      <td>1</td>
-      <td>True</td>
+      <td>0</td>
+      <td>False</td>
     </tr>
     <tr>
       <td>2</td>
       <td>3</td>
       <td>user_2</td>
-      <td>1</td>
-      <td>True</td>
+      <td>0</td>
+      <td>False</td>
     </tr>
   </tbody>
 </table>
@@ -278,21 +278,21 @@ db.select_df(limit=3, verbose=False)
       <td>0</td>
       <td>1</td>
       <td>user_0th</td>
-      <td>1.385227</td>
+      <td>1.881009</td>
       <td>True</td>
     </tr>
     <tr>
       <td>1</td>
       <td>2</td>
       <td>user_1th</td>
-      <td>1.114447</td>
+      <td>1.565073</td>
       <td>True</td>
     </tr>
     <tr>
       <td>2</td>
       <td>3</td>
       <td>user_2th</td>
-      <td>1.364155</td>
+      <td>1.713250</td>
       <td>True</td>
     </tr>
   </tbody>
@@ -346,23 +346,23 @@ db.select_df(limit=3, verbose=False)
     <tr>
       <td>0</td>
       <td>1</td>
-      <td>-0.0727614249612974</td>
-      <td>1.927239</td>
+      <td>-0.338800414247636</td>
+      <td>1.661200</td>
       <td>True</td>
     </tr>
     <tr>
       <td>1</td>
       <td>2</td>
-      <td>-0.652814265979039</td>
-      <td>1.347186</td>
-      <td>False</td>
+      <td>-0.137948518648513</td>
+      <td>1.862051</td>
+      <td>True</td>
     </tr>
     <tr>
       <td>2</td>
       <td>3</td>
-      <td>-0.301096674435441</td>
-      <td>1.698903</td>
-      <td>True</td>
+      <td>-0.515398471205426</td>
+      <td>1.484602</td>
+      <td>False</td>
     </tr>
   </tbody>
 </table>
@@ -414,7 +414,7 @@ db.select_df(limit=5, verbose=False)
       <td>0</td>
       <td>1</td>
       <td>user_0</td>
-      <td>0.058850</td>
+      <td>0.466169</td>
       <td>False</td>
     </tr>
     <tr>
@@ -435,14 +435,14 @@ db.select_df(limit=5, verbose=False)
       <td>3</td>
       <td>4</td>
       <td>user_3</td>
-      <td>1.000000</td>
-      <td>True</td>
+      <td>0.444071</td>
+      <td>False</td>
     </tr>
     <tr>
       <td>4</td>
       <td>5</td>
       <td>user_4</td>
-      <td>0.103194</td>
+      <td>0.174235</td>
       <td>False</td>
     </tr>
   </tbody>

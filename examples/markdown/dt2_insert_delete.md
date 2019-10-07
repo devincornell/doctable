@@ -41,6 +41,11 @@ for row in make_rows():
 db.select_df(verbose=False)
 ```
 
+    DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:name, :age, :is_old)
+    DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:name, :age, :is_old)
+    DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:name, :age, :is_old)
+
+
 
 
 
@@ -73,21 +78,21 @@ db.select_df(verbose=False)
       <td>0</td>
       <td>1</td>
       <td>user_0</td>
-      <td>0.150690</td>
-      <td>False</td>
+      <td>0.812574</td>
+      <td>True</td>
     </tr>
     <tr>
       <td>1</td>
       <td>2</td>
       <td>user_1</td>
-      <td>0.180140</td>
-      <td>False</td>
+      <td>0.604537</td>
+      <td>True</td>
     </tr>
     <tr>
       <td>2</td>
       <td>3</td>
       <td>user_2</td>
-      <td>0.642784</td>
+      <td>0.848029</td>
       <td>True</td>
     </tr>
   </tbody>
@@ -135,21 +140,21 @@ db.select_df(verbose=False)
       <td>0</td>
       <td>1</td>
       <td>user_0</td>
-      <td>0.519751</td>
-      <td>True</td>
+      <td>0.317018</td>
+      <td>False</td>
     </tr>
     <tr>
       <td>1</td>
       <td>2</td>
       <td>user_1</td>
-      <td>0.048514</td>
-      <td>False</td>
+      <td>0.847784</td>
+      <td>True</td>
     </tr>
     <tr>
       <td>2</td>
       <td>3</td>
       <td>user_2</td>
-      <td>0.875334</td>
+      <td>0.567131</td>
       <td>True</td>
     </tr>
   </tbody>
@@ -246,14 +251,14 @@ db.select_df(verbose=False)
       <td>0</td>
       <td>1</td>
       <td>user_0</td>
-      <td>0.980449</td>
+      <td>0.912611</td>
       <td>True</td>
     </tr>
     <tr>
       <td>1</td>
       <td>2</td>
       <td>user_1</td>
-      <td>0.805837</td>
+      <td>0.709072</td>
       <td>True</td>
     </tr>
   </tbody>
@@ -305,16 +310,9 @@ db.select_df(verbose=False)
   <tbody>
     <tr>
       <td>0</td>
-      <td>2</td>
-      <td>user_1</td>
-      <td>0.917798</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>1</td>
       <td>3</td>
       <td>user_2</td>
-      <td>0.539498</td>
+      <td>0.904681</td>
       <td>True</td>
     </tr>
   </tbody>

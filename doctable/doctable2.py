@@ -95,21 +95,36 @@ class DocTable2:
         self._bind_functions()
             
         # connect with database engine
+        self._conn = None
         if persistent_conn:
-            self._conn = self._engine.connect()
-        else:
-            self._conn = None
+            self.open_conn()
     
     def __delete__(self):
+        '''Closes database connection to prevent locking.'''
         self.close_conn()
             
     def __str__(self):
         return '<DocTable2::{} ct: {}>'.format(self.tabname, self.count())
     
     def close_conn(self):
+        '''Closes connection to db (if one exists).
+        Notes:
+            Primarily to be used if persistent_conn flag was set
+                to true in constructor, but user wants to close.
+        '''
         if self._conn is not None:
             self._conn.close()
         self._conn = None
+		
+    def open_conn(self):
+        '''Opens connection to db (if one does not exist).
+        Notes:
+            Primarily to be used if persistent_conn flag was set
+                to false in constructor, but user wants to create.
+        
+        '''
+        if self._conn is None:
+            self._conn = self._engine.connect()
         
         
     ################# INITIALIZATION METHODS ##################
@@ -154,7 +169,10 @@ class DocTable2:
 
                 
     def _get_sqlalchemy_type(self,typstr):
-        '''Maps typstr with an sqlalchemy data type (or doctable custom type).
+        '''Maps typstr to a sqlalchemy data type (or doctable custom type).
+        Notes:
+            See examples/markdown/dt2_basics.md#type-mappings for more 
+                information about type mappings.
         '''
         if typstr not in self._type_map:
             raise ValueError('Provided column type "{}" doesn\'t match '
@@ -174,13 +192,27 @@ class DocTable2:
     
     #################### Convenience Methods ###################
     
-    def count(self,where=None, **kwargs):
-        '''Count number of rows which match where condition.'''
+    def count(self, where=None, whrstr=None, **kwargs):
+        '''Count number of rows which match where condition.
+        Notes:
+            Calls select_first under the hood.
+        Args:
+            where (sqlalchemy condition): filter rows before counting.
+            whrstr (str): filter rows before counting.
+        Returns:
+            int: number of rows that match "where" and "whrstr" criteria.
+        '''
         cter = func.count(self._table)
-        ct = self.select_first(cter,where=where, **kwargs)
+        ct = self.select_first(cter, where=where, whrstr=whrstr, **kwargs)
         return ct
     
     def next_id(self, idcol='id', **kwargs):
+        '''Returns the highest value in idcol plus one.
+        Args:
+            idcol (str): column name to look up.
+        Returns:
+            int: next id to be assigned by autoincrement.
+        '''
         # use the results object .inserted_primary_key to get after 
         # inserting. Here is the object returned by insert:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
@@ -194,12 +226,15 @@ class DocTable2:
     @property
     def columns(self):
         '''Exposes SQLAlchemy core table columns object.
-        Examples:
+        Notes:
             some info here: 
             https://docs.sqlalchemy.org/en/13/core/metadata.html
             
             c = db.columns['id']
             c.type, c.name, c.
+        Returns:
+            sqlalchemy columns: access to underlying columns
+                object.
         '''
         return self._table.c
     
@@ -207,13 +242,21 @@ class DocTable2:
     def schemainfo(self):
         '''Get info about each column as a dictionary.
         Returns:
-            dict<dict>: info about each column. Selected by
-                hand, so feel free to add/remove some info.
+            dict<dict>: info about each column.
         '''
         inspector = sa.inspect(self._engine)
         return inspector.get_columns(self.tabname)
     
     def schemainfo_long(self):
+        '''Get custom-selected schema information.
+        Notes:
+            This method is similar to schemainfo, but includes
+                more hand-selected information. Likeley to be 
+                removed in future versions.
+        Returns:
+            dict<dict>: info about each column, more info than 
+                .schemainfo() provides.
+        '''
         info = dict()
         for col in self._table.c:
             ci = dict(
@@ -236,8 +279,8 @@ class DocTable2:
     def primary_key(self):
         '''Returns primary key col name.
         Notes:
-            Not sure of the behavior in case where multiple primary
-                keys exist.
+            Returns first primary key where multiple primary
+                keys exist (should be updated in future).
         '''
         for ci in self.schemainfo:
             if ci['primary_key']:
@@ -248,13 +291,13 @@ class DocTable2:
     ################# INSERT METHODS ##################
     
     def insert(self, rowdat, ifnotunique='fail', **kwargs):
-        '''Insert a row.
+        '''Insert a row or rows into the database.
         Args:
             rowdat (list<dict> or dict): row data to insert.
-            ifnotunique: way to handle inserted data if it breaks
+            ifnotunique (str): way to handle inserted data if it breaks
                 a table constraint. Choose from FAIL, IGNORE, REPLACE.
         Returns:
-            sqlalchemy query result object
+            sqlalchemy query result object. 
         '''
         q = sa.sql.insert(self._table, rowdat)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
@@ -281,6 +324,17 @@ class DocTable2:
     
     def select_first(self, *args, **kwargs):
         '''Perform regular select query returning only the first result.
+        Args:
+            *args: args to regular .select() method.
+            **kwargs: args to regular .select() method.
+        Returns:
+            sqlalchemy results obect: First result from select query.
+        Raises:
+            LookupError: where no items are returned with the select 
+                statement. Couldn't return None or other object because
+                those could be valid objects in a single-row select query.
+                In cases where uncertain if row match exists, use regular 
+                .select() and count num results, or use try/catch.
         '''
         result = self.select(*args, limit=1, **kwargs)
         if len(result) == 0:
@@ -291,7 +345,18 @@ class DocTable2:
         return result[0]
     
     def select_df(self, cols=None, *args, **kwargs):
-        '''Select returning dataframe.'''
+        '''Select returning dataframe.
+        Args:
+            cols: sequence of columns to query. Must be sequence,
+                passed directly to .select() method.
+            *args: args to regular .select() method.
+            **kwargs: args to regular .select() method.
+        Returns:
+            pandas dataframe: Each row is a database row,
+                and output is not indexed according to primary 
+                key or otherwise. Call .set_index('id') on the
+                dataframe to envoke this behavior.
+        '''
         
         if not is_sequence(cols) and cols is not None:
             raise TypeError('col argument should be multiple columns. '
@@ -303,6 +368,13 @@ class DocTable2:
     
     def select_series(self, col, *args, **kwargs):
         '''Select returning pandas Series.
+        Args:
+            col: column to query. Passed directly to .select() 
+                method.
+            *args: args to regular .select() method.
+            **kwargs: args to regular .select() method.
+        Returns:
+            pandas series: enters rows as values.
         '''
         if is_sequence(col):
             raise TypeError('col argument should be single column.')
@@ -324,10 +396,8 @@ class DocTable2:
             groupby: sqlalchemy gropuby directive
             limit (int): number of entries to return before stopping
             whrstr (str): raw sql "where" conditionals to add to where input
-            clausestr (str): extra SQL clauses to be appended to sql command
-            **kwargs (args): to be appended to 
         Yields:
-            dictionary: row data
+            sqlalchemy result object: row data
         '''
         return_single = False
         if cols is None:
@@ -386,6 +456,17 @@ class DocTable2:
     
     def select_chunk(self, cols=None, chunksize=1, max_rows=None, **kwargs):
         '''Performs select while querying only a subset of the results at a time.
+        Args:
+            cols (col name(s) or sqlalchemy object(s)): columns to query
+            chunksize (int): size of individual queries to be made. Will
+                load this number of rows into memory before yielding.
+            max_rows (int): maximum number of rows to retrieve. Because 
+                the limit argument is being used internally to limit data
+                to smaller chunks, use this argument instead. Internally,
+                this function will load a maximum of max_rows + chunksize 
+                - 1 rows into memory, but yields only max_rows.
+        Yields:
+            sqlalchemy result: row data - same as .select() method.
         '''
         offset = 0
         while True:
@@ -401,18 +482,22 @@ class DocTable2:
     
     def update(self, values, where=None, whrstr=None, **kwargs):
         '''Update row(s) assigning the provided values.
-        NOTE: this does not currently handle updates of multiple 
-            rows with provided multiple values. Needs to be done
-            individually. For future reference:
-            https://docs.sqlalchemy.org/en/13/core/tutorial.html
-            
-            Additionally
-            UPDATE some_table SET x = y + 10, y = 20
         Args:
-            values (dict<colname->value>): values to populate rows
-                that match where condition with.
+            values (dict<colname->value> or list<dict> or list<(col,value)>)): 
+                values to populate rows with. If dict, will insert those values
+                into all rows that match conditions. If list of dicts, assigns
+                expression in value (i.e. id['year']+1) to column. If list of 
+                (col,value) 2-tuples, will assign value to col in the order 
+                provided. For example given row values x=1 and y=2, the input
+                [(x,y+10),(y,20)], new values will be x=12, y=20. If opposite
+                order [(y,20),(x,y+10)] is provided new values would be y=20,
+                x=30. In cases where list<dict> is provided, this behavior is 
+                undefined.
             where (sqlalchemy condition): used to match rows where
                 update will be applied.
+            whrstr (sql string condition): matches same as where arg.
+        Returns:
+            SQLAlchemy result proxy object
         '''
             
         # update the main column values
@@ -440,6 +525,14 @@ class DocTable2:
     
     def delete(self, where=None, whrstr=None, vacuum=False, **kwargs):
         '''Delete rows from the table that meet the where criteria.
+        Args:
+            where (sqlalchemy condition): criteria for deletion.
+            whrstr (sql string): addtnl criteria for deletion.
+            vacuum (bool): will execute vacuum sql command to reduce
+                storage space needed by SQL table. Use when deleting
+                significant ammounts of data.
+        Returns:
+            SQLAlchemy result proxy object.
         '''
         q = sa.sql.delete(self._table)
 
@@ -461,9 +554,11 @@ class DocTable2:
     def execute(self, query, verbose=None, **kwargs):
         '''Execute an sql command. Called by most higher-level functions.
         Args:
-            verbose (bool or None): Set verbose to override 
-                instance-level verbose setting. Otherwise
-                defers.
+            query (sqlalchemy condition or str): query to execute;
+                can be provided as sqlalchemy condition object or
+                plain sql text.
+            verbose (bool or None): Print SQL command issued before
+                execution.
         '''
         prstr = 'DocTable2 Query: {}'
         if verbose is not None:
@@ -489,7 +584,10 @@ class DocTable2:
     #################### Accessor Methods ###################
     
     def col(self,name):
-        '''Accesses a column object.
+        '''Accesses a column object. Equivalent to table.c[name].
+        Args:
+            Name of column to access. Applied as subscript to 
+                sqlalchemy columns object.
         '''
         return self._table.c[name]
     
@@ -499,15 +597,45 @@ class DocTable2:
         
     @property
     def table(self):
+        '''Returns underlying sqlalchemy table object for manual manipulation.
+        '''
         return self._table
     
     
     #################### Bootstrapping Methods ###################    
     
     def select_bootstrap(self, *args, **kwargs):
+        ''' Performs select statement by bootstrapping output.
+        Notes:
+            This is a simple wrapper over .select_bootstrap_iter(),
+                simply casting to a list before returning.
+        Args:
+            *args: passed to .select_bootstrap_iter() method.
+            **kwargs: passed to .select_bootstrap_iter() method.
+        Returns:
+            list: result rows
+        '''
         return list(self.select_bootstrap_iter(*args, **kwargs))
     
-    def select_bootstrap_iter(self, cols=None, nsamp=None, where=None, idcol=None, **kwargs):
+    def select_bootstrap_iter(self, cols=None, nsamp=None, where=None, idcol=None, whrstr=None, **kwargs):
+        '''Bootstrap (sample with replacement) from database.
+        Notes:
+            This should be used in cases where the order of returned elements
+                does not matter. It works internally by selecting primary key
+                (idcol), sampling with replacement using python, and then performing
+                select queries where idcol in (selected ids). Number of queries varies
+                by the maximum count of ids which were sampled.
+        Args:
+            cols (sqlalchemy column names or objects): passed directly to 
+                .select().
+            nsamp (int): number of rows to sample with replacement.
+            where (sqlalchemy condition): where criteria.
+            whrstr (str): SQL command to conditionally select
+            idcol (col name or object): Must be unique id assigned to each
+                column. Extracts first primary key by default.
+        Yields:
+            sqlalchemy row objects: bootstrapped rows (order not gauranteed).
+        '''
         if idcol is None:
             idcol = self.primary_key
             if idcol is None:

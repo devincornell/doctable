@@ -57,11 +57,11 @@ db.select()
 
 
 
-    [(1, 'user_0', 0.4161851979243477, False),
-     (2, 'user_1', 0.37148559537119163, False),
-     (3, 'user_2', 0.9389122192656695, True),
-     (4, 'user_3', 0.6709306663312412, True),
-     (5, 'user_4', 0.4574398725307163, False)]
+    [(1, 'user_0', 0.5460915367661396, True),
+     (2, 'user_1', 0.9242334727101083, True),
+     (3, 'user_2', 0.8544210737656606, True),
+     (4, 'user_3', 0.6364344086051639, True),
+     (5, 'user_4', 0.9062232522850379, True)]
 
 
 
@@ -104,36 +104,36 @@ db.select_df()
       <td>0</td>
       <td>1</td>
       <td>user_0</td>
-      <td>0.416185</td>
-      <td>False</td>
+      <td>0.546092</td>
+      <td>True</td>
     </tr>
     <tr>
       <td>1</td>
       <td>2</td>
       <td>user_1</td>
-      <td>0.371486</td>
-      <td>False</td>
+      <td>0.924233</td>
+      <td>True</td>
     </tr>
     <tr>
       <td>2</td>
       <td>3</td>
       <td>user_2</td>
-      <td>0.938912</td>
+      <td>0.854421</td>
       <td>True</td>
     </tr>
     <tr>
       <td>3</td>
       <td>4</td>
       <td>user_3</td>
-      <td>0.670931</td>
+      <td>0.636434</td>
       <td>True</td>
     </tr>
     <tr>
       <td>4</td>
       <td>5</td>
       <td>user_4</td>
-      <td>0.457440</td>
-      <td>False</td>
+      <td>0.906223</td>
+      <td>True</td>
     </tr>
   </tbody>
 </table>
@@ -151,8 +151,11 @@ db.select(where=db['is_old']==True)
 
 
 
-    [(3, 'user_2', 0.9389122192656695, True),
-     (4, 'user_3', 0.6709306663312412, True)]
+    [(1, 'user_0', 0.5460915367661396, True),
+     (2, 'user_1', 0.9242334727101083, True),
+     (3, 'user_2', 0.8544210737656606, True),
+     (4, 'user_3', 0.6364344086051639, True),
+     (5, 'user_4', 0.9062232522850379, True)]
 
 
 
@@ -164,7 +167,7 @@ db.select(where=db['id']==3)
 
 
 
-    [(3, 'user_2', 0.9389122192656695, True)]
+    [(3, 'user_2', 0.8544210737656606, True)]
 
 
 
@@ -179,11 +182,11 @@ db.select()
 
 
 
-    [(1, 'user_0', 0.4161851979243477, False),
-     (2, 'user_1', 0.37148559537119163, False),
-     (3, 'smartypants', 0.9389122192656695, True),
-     (4, 'user_3', 0.6709306663312412, True),
-     (5, 'user_4', 0.4574398725307163, False)]
+    [(1, 'user_0', 0.5460915367661396, True),
+     (2, 'user_1', 0.9242334727101083, True),
+     (3, 'smartypants', 0.8544210737656606, True),
+     (4, 'user_3', 0.6364344086051639, True),
+     (5, 'user_4', 0.9062232522850379, True)]
 
 
 
@@ -196,11 +199,11 @@ db.select()
 
 
 
-    [(1, 'user_0', 41.618519792434775, False),
-     (2, 'user_1', 37.14855953711916, False),
-     (3, 'smartypants', 93.89122192656694, True),
-     (4, 'user_3', 67.09306663312412, True),
-     (5, 'user_4', 45.74398725307163, False)]
+    [(1, 'user_0', 54.609153676613964, True),
+     (2, 'user_1', 92.42334727101083, True),
+     (3, 'smartypants', 85.44210737656606, True),
+     (4, 'user_3', 63.643440860516385, True),
+     (5, 'user_4', 90.62232522850378, True)]
 
 
 
@@ -215,10 +218,10 @@ db.select()
 
 
 
-    [(1, 'user_0', 41.618519792434775, False),
-     (2, 'user_1', 37.14855953711916, False),
-     (4, 'user_3', 67.09306663312412, True),
-     (5, 'user_4', 45.74398725307163, False)]
+    [(1, 'user_0', 54.609153676613964, True),
+     (2, 'user_1', 92.42334727101083, True),
+     (4, 'user_3', 63.643440860516385, True),
+     (5, 'user_4', 90.62232522850378, True)]
 
 
 
@@ -247,7 +250,7 @@ db['id'] < 3
 
 
 
-    <sqlalchemy.sql.elements.BinaryExpression object at 0x7f0786e53320>
+    <sqlalchemy.sql.elements.BinaryExpression object at 0x7f9ca322a5f8>
 
 
 
@@ -273,7 +276,7 @@ db.columns
 
 
 
-    <sqlalchemy.sql.base.ImmutableColumnCollection at 0x7f0786e8eea0>
+    <sqlalchemy.sql.base.ImmutableColumnCollection at 0x7f9ca3298798>
 
 
 

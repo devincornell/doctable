@@ -14,7 +14,7 @@
 <br>&nbsp;</tt></td></tr>
 <tr><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
-<dl><dt><a name="DocTable2-__delete__"><strong>__delete__</strong></a>(self)</dt></dl>
+<dl><dt><a name="DocTable2-__delete__"><strong>__delete__</strong></a>(self)</dt><dd><tt>Closes&nbsp;database&nbsp;connection&nbsp;to&nbsp;prevent&nbsp;locking.</tt></dd></dl>
 
 <dl><dt><a name="DocTable2-__getitem__"><strong>__getitem__</strong></a>(self, colname)</dt><dd><tt>Accesses&nbsp;a&nbsp;column&nbsp;object&nbsp;by&nbsp;calling&nbsp;.<a href="#doctable.DocTable2-col">col</a>().</tt></dd></dl>
 
@@ -42,31 +42,70 @@ Args:<br>
 
 <dl><dt><a name="DocTable2-__str__"><strong>__str__</strong></a>(self)</dt><dd><tt>Return&nbsp;str(self).</tt></dd></dl>
 
-<dl><dt><a name="DocTable2-close_conn"><strong>close_conn</strong></a>(self)</dt></dl>
+<dl><dt><a name="DocTable2-close_conn"><strong>close_conn</strong></a>(self)</dt><dd><tt>Closes&nbsp;connection&nbsp;to&nbsp;db&nbsp;(if&nbsp;one&nbsp;exists).<br>
+Notes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Primarily&nbsp;to&nbsp;be&nbsp;used&nbsp;if&nbsp;persistent_conn&nbsp;flag&nbsp;was&nbsp;set<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;true&nbsp;in&nbsp;constructor,&nbsp;but&nbsp;user&nbsp;wants&nbsp;to&nbsp;close.</tt></dd></dl>
 
-<dl><dt><a name="DocTable2-col"><strong>col</strong></a>(self, name)</dt><dd><tt>Accesses&nbsp;a&nbsp;column&nbsp;object.</tt></dd></dl>
+<dl><dt><a name="DocTable2-col"><strong>col</strong></a>(self, name)</dt><dd><tt>Accesses&nbsp;a&nbsp;column&nbsp;object.&nbsp;Equivalent&nbsp;to&nbsp;table.c[name].<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;column&nbsp;to&nbsp;access.&nbsp;Applied&nbsp;as&nbsp;subscript&nbsp;to&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;columns&nbsp;object.</tt></dd></dl>
 
-<dl><dt><a name="DocTable2-count"><strong>count</strong></a>(self, where=None, **kwargs)</dt><dd><tt>Count&nbsp;number&nbsp;of&nbsp;rows&nbsp;which&nbsp;match&nbsp;where&nbsp;condition.</tt></dd></dl>
+<dl><dt><a name="DocTable2-count"><strong>count</strong></a>(self, where=None, whrstr=None, **kwargs)</dt><dd><tt>Count&nbsp;number&nbsp;of&nbsp;rows&nbsp;which&nbsp;match&nbsp;where&nbsp;condition.<br>
+Notes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Calls&nbsp;select_first&nbsp;under&nbsp;the&nbsp;hood.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;(sqlalchemy&nbsp;condition):&nbsp;filter&nbsp;rows&nbsp;before&nbsp;counting.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;whrstr&nbsp;(str):&nbsp;filter&nbsp;rows&nbsp;before&nbsp;counting.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;int:&nbsp;number&nbsp;of&nbsp;rows&nbsp;that&nbsp;match&nbsp;"where"&nbsp;and&nbsp;"whrstr"&nbsp;criteria.</tt></dd></dl>
 
-<dl><dt><a name="DocTable2-delete"><strong>delete</strong></a>(self, where=None, whrstr=None, vacuum=False, **kwargs)</dt><dd><tt>Delete&nbsp;rows&nbsp;from&nbsp;the&nbsp;table&nbsp;that&nbsp;meet&nbsp;the&nbsp;where&nbsp;criteria.</tt></dd></dl>
+<dl><dt><a name="DocTable2-delete"><strong>delete</strong></a>(self, where=None, whrstr=None, vacuum=False, **kwargs)</dt><dd><tt>Delete&nbsp;rows&nbsp;from&nbsp;the&nbsp;table&nbsp;that&nbsp;meet&nbsp;the&nbsp;where&nbsp;criteria.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;(sqlalchemy&nbsp;condition):&nbsp;criteria&nbsp;for&nbsp;deletion.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;whrstr&nbsp;(sql&nbsp;string):&nbsp;addtnl&nbsp;criteria&nbsp;for&nbsp;deletion.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;vacuum&nbsp;(bool):&nbsp;will&nbsp;execute&nbsp;vacuum&nbsp;sql&nbsp;command&nbsp;to&nbsp;reduce<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;storage&nbsp;space&nbsp;needed&nbsp;by&nbsp;SQL&nbsp;table.&nbsp;Use&nbsp;when&nbsp;deleting<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;significant&nbsp;ammounts&nbsp;of&nbsp;data.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;SQLAlchemy&nbsp;result&nbsp;proxy&nbsp;object.</tt></dd></dl>
 
 <dl><dt><a name="DocTable2-execute"><strong>execute</strong></a>(self, query, verbose=None, **kwargs)</dt><dd><tt>Execute&nbsp;an&nbsp;sql&nbsp;command.&nbsp;Called&nbsp;by&nbsp;most&nbsp;higher-level&nbsp;functions.<br>
 Args:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;verbose&nbsp;(bool&nbsp;or&nbsp;None):&nbsp;Set&nbsp;verbose&nbsp;to&nbsp;override&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;instance-level&nbsp;verbose&nbsp;setting.&nbsp;Otherwise<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defers.</tt></dd></dl>
+&nbsp;&nbsp;&nbsp;&nbsp;query&nbsp;(sqlalchemy&nbsp;condition&nbsp;or&nbsp;str):&nbsp;query&nbsp;to&nbsp;execute;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;can&nbsp;be&nbsp;provided&nbsp;as&nbsp;sqlalchemy&nbsp;condition&nbsp;object&nbsp;or<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;plain&nbsp;sql&nbsp;text.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;verbose&nbsp;(bool&nbsp;or&nbsp;None):&nbsp;Print&nbsp;SQL&nbsp;command&nbsp;issued&nbsp;before<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;execution.</tt></dd></dl>
 
-<dl><dt><a name="DocTable2-insert"><strong>insert</strong></a>(self, rowdat, ifnotunique='fail', **kwargs)</dt><dd><tt>Insert&nbsp;a&nbsp;row.<br>
+<dl><dt><a name="DocTable2-insert"><strong>insert</strong></a>(self, rowdat, ifnotunique='fail', **kwargs)</dt><dd><tt>Insert&nbsp;a&nbsp;row&nbsp;or&nbsp;rows&nbsp;into&nbsp;the&nbsp;database.<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;rowdat&nbsp;(list&lt;dict&gt;&nbsp;or&nbsp;dict):&nbsp;row&nbsp;data&nbsp;to&nbsp;insert.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;ifnotunique:&nbsp;way&nbsp;to&nbsp;handle&nbsp;inserted&nbsp;data&nbsp;if&nbsp;it&nbsp;breaks<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ifnotunique&nbsp;(str):&nbsp;way&nbsp;to&nbsp;handle&nbsp;inserted&nbsp;data&nbsp;if&nbsp;it&nbsp;breaks<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;table&nbsp;constraint.&nbsp;Choose&nbsp;from&nbsp;FAIL,&nbsp;IGNORE,&nbsp;REPLACE.<br>
 Returns:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;query&nbsp;result&nbsp;object</tt></dd></dl>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;query&nbsp;result&nbsp;object.</tt></dd></dl>
 
-<dl><dt><a name="DocTable2-next_id"><strong>next_id</strong></a>(self, idcol='id', **kwargs)</dt></dl>
+<dl><dt><a name="DocTable2-next_id"><strong>next_id</strong></a>(self, idcol='id', **kwargs)</dt><dd><tt>Returns&nbsp;the&nbsp;highest&nbsp;value&nbsp;in&nbsp;idcol&nbsp;plus&nbsp;one.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;idcol&nbsp;(str):&nbsp;column&nbsp;name&nbsp;to&nbsp;look&nbsp;up.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;int:&nbsp;next&nbsp;id&nbsp;to&nbsp;be&nbsp;assigned&nbsp;by&nbsp;autoincrement.</tt></dd></dl>
 
-<dl><dt><a name="DocTable2-schemainfo_long"><strong>schemainfo_long</strong></a>(self)</dt></dl>
+<dl><dt><a name="DocTable2-open_conn"><strong>open_conn</strong></a>(self)</dt><dd><tt>Opens&nbsp;connection&nbsp;to&nbsp;db&nbsp;(if&nbsp;one&nbsp;does&nbsp;not&nbsp;exist).<br>
+Notes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Primarily&nbsp;to&nbsp;be&nbsp;used&nbsp;if&nbsp;persistent_conn&nbsp;flag&nbsp;was&nbsp;set<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;false&nbsp;in&nbsp;constructor,&nbsp;but&nbsp;user&nbsp;wants&nbsp;to&nbsp;create.</tt></dd></dl>
+
+<dl><dt><a name="DocTable2-schemainfo_long"><strong>schemainfo_long</strong></a>(self)</dt><dd><tt>Get&nbsp;custom-selected&nbsp;schema&nbsp;information.<br>
+Notes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;method&nbsp;is&nbsp;similar&nbsp;to&nbsp;schemainfo,&nbsp;but&nbsp;includes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;more&nbsp;hand-selected&nbsp;information.&nbsp;Likeley&nbsp;to&nbsp;be&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;removed&nbsp;in&nbsp;future&nbsp;versions.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dict&lt;dict&gt;:&nbsp;info&nbsp;about&nbsp;each&nbsp;column,&nbsp;more&nbsp;info&nbsp;than&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<a href="#doctable.DocTable2-schemainfo">schemainfo</a>()&nbsp;provides.</tt></dd></dl>
 
 <dl><dt><a name="DocTable2-select"><strong>select</strong></a>(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, offset=None, **kwargs)</dt><dd><tt>Perform&nbsp;select&nbsp;query,&nbsp;yield&nbsp;result&nbsp;for&nbsp;each&nbsp;row.<br>
 &nbsp;<br>
@@ -81,36 +120,101 @@ Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;groupby:&nbsp;sqlalchemy&nbsp;gropuby&nbsp;directive<br>
 &nbsp;&nbsp;&nbsp;&nbsp;limit&nbsp;(int):&nbsp;number&nbsp;of&nbsp;entries&nbsp;to&nbsp;return&nbsp;before&nbsp;stopping<br>
 &nbsp;&nbsp;&nbsp;&nbsp;whrstr&nbsp;(str):&nbsp;raw&nbsp;sql&nbsp;"where"&nbsp;conditionals&nbsp;to&nbsp;add&nbsp;to&nbsp;where&nbsp;input<br>
-&nbsp;&nbsp;&nbsp;&nbsp;clausestr&nbsp;(str):&nbsp;extra&nbsp;SQL&nbsp;clauses&nbsp;to&nbsp;be&nbsp;appended&nbsp;to&nbsp;sql&nbsp;command<br>
-&nbsp;&nbsp;&nbsp;&nbsp;**kwargs&nbsp;(args):&nbsp;to&nbsp;be&nbsp;appended&nbsp;to&nbsp;<br>
 Yields:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;dictionary:&nbsp;row&nbsp;data</tt></dd></dl>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;result&nbsp;object:&nbsp;row&nbsp;data</tt></dd></dl>
 
-<dl><dt><a name="DocTable2-select_bootstrap"><strong>select_bootstrap</strong></a>(self, *args, **kwargs)</dt></dl>
+<dl><dt><a name="DocTable2-select_bootstrap"><strong>select_bootstrap</strong></a>(self, *args, **kwargs)</dt><dd><tt>Performs&nbsp;select&nbsp;statement&nbsp;by&nbsp;bootstrapping&nbsp;output.<br>
+Notes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;is&nbsp;a&nbsp;simple&nbsp;wrapper&nbsp;over&nbsp;.<a href="#doctable.DocTable2-select_bootstrap_iter">select_bootstrap_iter</a>(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;simply&nbsp;casting&nbsp;to&nbsp;a&nbsp;list&nbsp;before&nbsp;returning.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;*args:&nbsp;passed&nbsp;to&nbsp;.<a href="#doctable.DocTable2-select_bootstrap_iter">select_bootstrap_iter</a>()&nbsp;method.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**kwargs:&nbsp;passed&nbsp;to&nbsp;.<a href="#doctable.DocTable2-select_bootstrap_iter">select_bootstrap_iter</a>()&nbsp;method.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;list:&nbsp;result&nbsp;rows</tt></dd></dl>
 
-<dl><dt><a name="DocTable2-select_bootstrap_iter"><strong>select_bootstrap_iter</strong></a>(self, cols=None, nsamp=None, where=None, idcol=None, **kwargs)</dt></dl>
+<dl><dt><a name="DocTable2-select_bootstrap_iter"><strong>select_bootstrap_iter</strong></a>(self, cols=None, nsamp=None, where=None, idcol=None, whrstr=None, **kwargs)</dt><dd><tt>Bootstrap&nbsp;(sample&nbsp;with&nbsp;replacement)&nbsp;from&nbsp;database.<br>
+Notes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;should&nbsp;be&nbsp;used&nbsp;in&nbsp;cases&nbsp;where&nbsp;the&nbsp;order&nbsp;of&nbsp;returned&nbsp;elements<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;does&nbsp;not&nbsp;matter.&nbsp;It&nbsp;works&nbsp;internally&nbsp;by&nbsp;selecting&nbsp;primary&nbsp;key<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(idcol),&nbsp;sampling&nbsp;with&nbsp;replacement&nbsp;using&nbsp;python,&nbsp;and&nbsp;then&nbsp;performing<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;queries&nbsp;where&nbsp;idcol&nbsp;in&nbsp;(selected&nbsp;ids).&nbsp;Number&nbsp;of&nbsp;queries&nbsp;varies<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;the&nbsp;maximum&nbsp;count&nbsp;of&nbsp;ids&nbsp;which&nbsp;were&nbsp;sampled.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;cols&nbsp;(sqlalchemy&nbsp;column&nbsp;names&nbsp;or&nbsp;objects):&nbsp;passed&nbsp;directly&nbsp;to&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<a href="#doctable.DocTable2-select">select</a>().<br>
+&nbsp;&nbsp;&nbsp;&nbsp;nsamp&nbsp;(int):&nbsp;number&nbsp;of&nbsp;rows&nbsp;to&nbsp;sample&nbsp;with&nbsp;replacement.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;(sqlalchemy&nbsp;condition):&nbsp;where&nbsp;criteria.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;whrstr&nbsp;(str):&nbsp;SQL&nbsp;command&nbsp;to&nbsp;conditionally&nbsp;select<br>
+&nbsp;&nbsp;&nbsp;&nbsp;idcol&nbsp;(col&nbsp;name&nbsp;or&nbsp;object):&nbsp;Must&nbsp;be&nbsp;unique&nbsp;id&nbsp;assigned&nbsp;to&nbsp;each<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column.&nbsp;Extracts&nbsp;first&nbsp;primary&nbsp;key&nbsp;by&nbsp;default.<br>
+Yields:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;row&nbsp;objects:&nbsp;bootstrapped&nbsp;rows&nbsp;(order&nbsp;not&nbsp;gauranteed).</tt></dd></dl>
 
-<dl><dt><a name="DocTable2-select_chunk"><strong>select_chunk</strong></a>(self, cols=None, chunksize=1, max_rows=None, **kwargs)</dt><dd><tt>Performs&nbsp;select&nbsp;while&nbsp;querying&nbsp;only&nbsp;a&nbsp;subset&nbsp;of&nbsp;the&nbsp;results&nbsp;at&nbsp;a&nbsp;time.</tt></dd></dl>
+<dl><dt><a name="DocTable2-select_chunk"><strong>select_chunk</strong></a>(self, cols=None, chunksize=1, max_rows=None, **kwargs)</dt><dd><tt>Performs&nbsp;select&nbsp;while&nbsp;querying&nbsp;only&nbsp;a&nbsp;subset&nbsp;of&nbsp;the&nbsp;results&nbsp;at&nbsp;a&nbsp;time.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;cols&nbsp;(col&nbsp;name(s)&nbsp;or&nbsp;sqlalchemy&nbsp;object(s)):&nbsp;columns&nbsp;to&nbsp;query<br>
+&nbsp;&nbsp;&nbsp;&nbsp;chunksize&nbsp;(int):&nbsp;size&nbsp;of&nbsp;individual&nbsp;queries&nbsp;to&nbsp;be&nbsp;made.&nbsp;Will<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;load&nbsp;this&nbsp;number&nbsp;of&nbsp;rows&nbsp;into&nbsp;memory&nbsp;before&nbsp;yielding.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;max_rows&nbsp;(int):&nbsp;maximum&nbsp;number&nbsp;of&nbsp;rows&nbsp;to&nbsp;retrieve.&nbsp;Because&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;limit&nbsp;argument&nbsp;is&nbsp;being&nbsp;used&nbsp;internally&nbsp;to&nbsp;limit&nbsp;data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;smaller&nbsp;chunks,&nbsp;use&nbsp;this&nbsp;argument&nbsp;instead.&nbsp;Internally,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this&nbsp;function&nbsp;will&nbsp;load&nbsp;a&nbsp;maximum&nbsp;of&nbsp;max_rows&nbsp;+&nbsp;chunksize&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;1&nbsp;rows&nbsp;into&nbsp;memory,&nbsp;but&nbsp;yields&nbsp;only&nbsp;max_rows.<br>
+Yields:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;result:&nbsp;row&nbsp;data&nbsp;-&nbsp;same&nbsp;as&nbsp;.<a href="#doctable.DocTable2-select">select</a>()&nbsp;method.</tt></dd></dl>
 
-<dl><dt><a name="DocTable2-select_df"><strong>select_df</strong></a>(self, cols=None, *args, **kwargs)</dt><dd><tt>Select&nbsp;returning&nbsp;dataframe.</tt></dd></dl>
+<dl><dt><a name="DocTable2-select_df"><strong>select_df</strong></a>(self, cols=None, *args, **kwargs)</dt><dd><tt>Select&nbsp;returning&nbsp;dataframe.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;cols:&nbsp;sequence&nbsp;of&nbsp;columns&nbsp;to&nbsp;query.&nbsp;Must&nbsp;be&nbsp;sequence,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;passed&nbsp;directly&nbsp;to&nbsp;.<a href="#doctable.DocTable2-select">select</a>()&nbsp;method.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;*args:&nbsp;args&nbsp;to&nbsp;regular&nbsp;.<a href="#doctable.DocTable2-select">select</a>()&nbsp;method.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**kwargs:&nbsp;args&nbsp;to&nbsp;regular&nbsp;.<a href="#doctable.DocTable2-select">select</a>()&nbsp;method.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pandas&nbsp;dataframe:&nbsp;Each&nbsp;row&nbsp;is&nbsp;a&nbsp;database&nbsp;row,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;output&nbsp;is&nbsp;not&nbsp;indexed&nbsp;according&nbsp;to&nbsp;primary&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;key&nbsp;or&nbsp;otherwise.&nbsp;Call&nbsp;.set_index('id')&nbsp;on&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dataframe&nbsp;to&nbsp;envoke&nbsp;this&nbsp;behavior.</tt></dd></dl>
 
-<dl><dt><a name="DocTable2-select_first"><strong>select_first</strong></a>(self, *args, **kwargs)</dt><dd><tt>Perform&nbsp;regular&nbsp;select&nbsp;query&nbsp;returning&nbsp;only&nbsp;the&nbsp;first&nbsp;result.</tt></dd></dl>
+<dl><dt><a name="DocTable2-select_first"><strong>select_first</strong></a>(self, *args, **kwargs)</dt><dd><tt>Perform&nbsp;regular&nbsp;select&nbsp;query&nbsp;returning&nbsp;only&nbsp;the&nbsp;first&nbsp;result.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;*args:&nbsp;args&nbsp;to&nbsp;regular&nbsp;.<a href="#doctable.DocTable2-select">select</a>()&nbsp;method.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**kwargs:&nbsp;args&nbsp;to&nbsp;regular&nbsp;.<a href="#doctable.DocTable2-select">select</a>()&nbsp;method.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;results&nbsp;obect:&nbsp;First&nbsp;result&nbsp;from&nbsp;select&nbsp;query.<br>
+Raises:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;LookupError:&nbsp;where&nbsp;no&nbsp;items&nbsp;are&nbsp;returned&nbsp;with&nbsp;the&nbsp;select&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;statement.&nbsp;Couldn't&nbsp;return&nbsp;None&nbsp;or&nbsp;other&nbsp;object&nbsp;because<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;those&nbsp;could&nbsp;be&nbsp;valid&nbsp;objects&nbsp;in&nbsp;a&nbsp;single-row&nbsp;select&nbsp;query.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;In&nbsp;cases&nbsp;where&nbsp;uncertain&nbsp;if&nbsp;row&nbsp;match&nbsp;exists,&nbsp;use&nbsp;regular&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<a href="#doctable.DocTable2-select">select</a>()&nbsp;and&nbsp;count&nbsp;num&nbsp;results,&nbsp;or&nbsp;use&nbsp;try/catch.</tt></dd></dl>
 
-<dl><dt><a name="DocTable2-select_series"><strong>select_series</strong></a>(self, col, *args, **kwargs)</dt><dd><tt>Select&nbsp;returning&nbsp;pandas&nbsp;Series.</tt></dd></dl>
+<dl><dt><a name="DocTable2-select_series"><strong>select_series</strong></a>(self, col, *args, **kwargs)</dt><dd><tt>Select&nbsp;returning&nbsp;pandas&nbsp;Series.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;col:&nbsp;column&nbsp;to&nbsp;query.&nbsp;Passed&nbsp;directly&nbsp;to&nbsp;.<a href="#doctable.DocTable2-select">select</a>()&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;method.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;*args:&nbsp;args&nbsp;to&nbsp;regular&nbsp;.<a href="#doctable.DocTable2-select">select</a>()&nbsp;method.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**kwargs:&nbsp;args&nbsp;to&nbsp;regular&nbsp;.<a href="#doctable.DocTable2-select">select</a>()&nbsp;method.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pandas&nbsp;series:&nbsp;enters&nbsp;rows&nbsp;as&nbsp;values.</tt></dd></dl>
 
 <dl><dt><a name="DocTable2-update"><strong>update</strong></a>(self, values, where=None, whrstr=None, **kwargs)</dt><dd><tt>Update&nbsp;row(s)&nbsp;assigning&nbsp;the&nbsp;provided&nbsp;values.<br>
-NOTE:&nbsp;this&nbsp;does&nbsp;not&nbsp;currently&nbsp;handle&nbsp;updates&nbsp;of&nbsp;multiple&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;rows&nbsp;with&nbsp;provided&nbsp;multiple&nbsp;values.&nbsp;Needs&nbsp;to&nbsp;be&nbsp;done<br>
-&nbsp;&nbsp;&nbsp;&nbsp;individually.&nbsp;For&nbsp;future&nbsp;reference:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;https://docs.sqlalchemy.org/en/13/core/tutorial.html<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;Additionally<br>
-&nbsp;&nbsp;&nbsp;&nbsp;UPDATE&nbsp;some_table&nbsp;SET&nbsp;x&nbsp;=&nbsp;y&nbsp;+&nbsp;10,&nbsp;y&nbsp;=&nbsp;20<br>
 Args:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;values&nbsp;(dict&lt;colname-&gt;value&gt;):&nbsp;values&nbsp;to&nbsp;populate&nbsp;rows<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;that&nbsp;match&nbsp;where&nbsp;condition&nbsp;with.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;values&nbsp;(dict&lt;colname-&gt;value&gt;&nbsp;or&nbsp;list&lt;dict&gt;&nbsp;or&nbsp;list&lt;(col,value)&gt;)):&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;values&nbsp;to&nbsp;populate&nbsp;rows&nbsp;with.&nbsp;If&nbsp;dict,&nbsp;will&nbsp;insert&nbsp;those&nbsp;values<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;into&nbsp;all&nbsp;rows&nbsp;that&nbsp;match&nbsp;conditions.&nbsp;If&nbsp;list&nbsp;of&nbsp;dicts,&nbsp;assigns<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expression&nbsp;in&nbsp;value&nbsp;(i.e.&nbsp;id['year']+1)&nbsp;to&nbsp;column.&nbsp;If&nbsp;list&nbsp;of&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(col,value)&nbsp;2-tuples,&nbsp;will&nbsp;assign&nbsp;value&nbsp;to&nbsp;col&nbsp;in&nbsp;the&nbsp;order&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;provided.&nbsp;For&nbsp;example&nbsp;given&nbsp;row&nbsp;values&nbsp;x=1&nbsp;and&nbsp;y=2,&nbsp;the&nbsp;input<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[(x,y+10),(y,20)],&nbsp;new&nbsp;values&nbsp;will&nbsp;be&nbsp;x=12,&nbsp;y=20.&nbsp;If&nbsp;opposite<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order&nbsp;[(y,20),(x,y+10)]&nbsp;is&nbsp;provided&nbsp;new&nbsp;values&nbsp;would&nbsp;be&nbsp;y=20,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x=30.&nbsp;In&nbsp;cases&nbsp;where&nbsp;list&lt;dict&gt;&nbsp;is&nbsp;provided,&nbsp;this&nbsp;behavior&nbsp;is&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;undefined.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;(sqlalchemy&nbsp;condition):&nbsp;used&nbsp;to&nbsp;match&nbsp;rows&nbsp;where<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;update&nbsp;will&nbsp;be&nbsp;applied.</tt></dd></dl>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;update&nbsp;will&nbsp;be&nbsp;applied.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;whrstr&nbsp;(sql&nbsp;string&nbsp;condition):&nbsp;matches&nbsp;same&nbsp;as&nbsp;where&nbsp;arg.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;SQLAlchemy&nbsp;result&nbsp;proxy&nbsp;object</tt></dd></dl>
 
 <hr>
 Data descriptors defined here:<br>
@@ -122,26 +226,29 @@ Data descriptors defined here:<br>
 </dl>
 <dl><dt><strong>columns</strong></dt>
 <dd><tt>Exposes&nbsp;SQLAlchemy&nbsp;core&nbsp;table&nbsp;columns&nbsp;object.<br>
-Examples:<br>
+Notes:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;some&nbsp;info&nbsp;here:&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;https://docs.sqlalchemy.org/en/13/core/metadata.html<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;c&nbsp;=&nbsp;db.columns['id']<br>
-&nbsp;&nbsp;&nbsp;&nbsp;c.type,&nbsp;c.name,&nbsp;c.</tt></dd>
+&nbsp;&nbsp;&nbsp;&nbsp;c.type,&nbsp;c.name,&nbsp;c.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;columns:&nbsp;access&nbsp;to&nbsp;underlying&nbsp;columns<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;object.</tt></dd>
 </dl>
 <dl><dt><strong>primary_key</strong></dt>
 <dd><tt>Returns&nbsp;primary&nbsp;key&nbsp;col&nbsp;name.<br>
 Notes:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;Not&nbsp;sure&nbsp;of&nbsp;the&nbsp;behavior&nbsp;in&nbsp;case&nbsp;where&nbsp;multiple&nbsp;primary<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keys&nbsp;exist.</tt></dd>
+&nbsp;&nbsp;&nbsp;&nbsp;Returns&nbsp;first&nbsp;primary&nbsp;key&nbsp;where&nbsp;multiple&nbsp;primary<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keys&nbsp;exist&nbsp;(should&nbsp;be&nbsp;updated&nbsp;in&nbsp;future).</tt></dd>
 </dl>
 <dl><dt><strong>schemainfo</strong></dt>
 <dd><tt>Get&nbsp;info&nbsp;about&nbsp;each&nbsp;column&nbsp;as&nbsp;a&nbsp;dictionary.<br>
 Returns:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;dict&lt;dict&gt;:&nbsp;info&nbsp;about&nbsp;each&nbsp;column.&nbsp;Selected&nbsp;by<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hand,&nbsp;so&nbsp;feel&nbsp;free&nbsp;to&nbsp;add/remove&nbsp;some&nbsp;info.</tt></dd>
+&nbsp;&nbsp;&nbsp;&nbsp;dict&lt;dict&gt;:&nbsp;info&nbsp;about&nbsp;each&nbsp;column.</tt></dd>
 </dl>
 <dl><dt><strong>table</strong></dt>
+<dd><tt>Returns&nbsp;underlying&nbsp;sqlalchemy&nbsp;table&nbsp;object&nbsp;for&nbsp;manual&nbsp;manipulation.</tt></dd>
 </dl>
 </td></tr></table>
 </body></html>

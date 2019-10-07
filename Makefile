@@ -43,7 +43,7 @@ build:
 
 
 test:
-	@echo "need to implement testing with pytest"
+	pytest tests/test_dt2_simple.py
 
 clean:
 	-rm $(MD_FOLDER)*.md

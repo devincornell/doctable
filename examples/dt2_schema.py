@@ -4,7 +4,7 @@ import random
 
 import sys
 sys.path.append('..')
-from doctable import DocTable2
+import doctable as dt
 
 
 schema = (
@@ -63,7 +63,7 @@ schema = (
     
     
 if __name__ == '__main__':
-    md = MyDocuments(verbose=True)
+    md = dt.DocTable2(schema, verbose=True)
     print(md)
     
     
