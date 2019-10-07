@@ -7,6 +7,10 @@
 all: docs build
 	git add Makefile
 
+final_check: docs build test
+	@echo "running final check"
+
+
 PACKAGE_NAME = doctable
 PACKAGE_FOLDER = $(PACKAGE_NAME)/
 DOCS_FOLDER = docs/
@@ -45,7 +49,7 @@ build:
 TMP_TEST_FOLDER = tmp_test_deleteme
 test:
 	# tests from tests folder
-	pytest tests/test_dt1_*.py
+	#pytest tests/test_dt1_*.py (THERE CURRENTLY ARE NO doctable1 TESTS HERE.)
 	pytest tests/test_dt2_*.py
 	
 	# make temporary testing folder and copy files into it

@@ -6,7 +6,6 @@ In this notebook, I show how to define a DocTable as a python class, populate th
 ```python
 from pprint import pprint
 from timeit import default_timer as timer
-
 from dt1_helper import get_sklearn_newsgroups
 
 import sys
