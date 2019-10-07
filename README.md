@@ -104,10 +104,6 @@ class NewsGroups(DocTable):
 
 ```
 
-See examples example_simple.ipynb and example_advanced.ipynb for demonstration of how to use this library.
+# Thanks
 
-
-NOTE: Right now I haven't included any text analysis-specific features. It just seems to be convenient for my text-based projects so far.
-
-
-
+The setup of this package was created following [this guide](https://packaging.python.org/tutorials/packaging-projects/).
