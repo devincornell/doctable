@@ -45,6 +45,7 @@ build:
 TMP_TEST_FOLDER = tmp_test_deleteme
 test:
 	# tests from tests folder
+	pytest tests/test_dt1_*.py
 	pytest tests/test_dt2_*.py
 	
 	# make temporary testing folder and copy files into it

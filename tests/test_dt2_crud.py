@@ -64,60 +64,60 @@ def test_select_iter_basic():
         dt.insert({c:dr[c] for c in usecols})
         
     print('query title')
-    for dr,title in zip(dictrows,dt.select_iter(dt['title'],orderby=dt['id'].asc())):
+    for dr,title in zip(dictrows,dt.select(dt['title'],orderby=dt['id'].asc())):
         #print(dr['title'] , title)
         assert(dr['title'] == title)
         
     print('query two')
-    for dr,row in zip(dictrows,dt.select_iter([dt['title'],dt['age']],orderby=dt['id'].asc())):
+    for dr,row in zip(dictrows,dt.select([dt['title'],dt['age']],orderby=dt['id'].asc())):
         #print(dr['title'] , row['title'])
         assert(dr['title'] == row['title'])
         assert(dr['age'] == row['age'])
         
     print('query all')
-    for dr,row in zip(dictrows,dt.select_iter(orderby=dt['id'].asc())):
+    for dr,row in zip(dictrows,dt.select(orderby=dt['id'].asc())):
         #print(dr['title'] , row['title'])
         assert(dr['title'] == row['title'])
         assert(dr['age'] == row['age'])
     
     print('query one, check num results (be sure to start with empty db)')
-    assert(len(list(dt.select_iter())) == len(dictrows))
-    assert(len(list(dt.select_iter(limit=1))) == 1)
+    assert(len(list(dt.select())) == len(dictrows))
+    assert(len(list(dt.select(limit=1))) == 1)
     
     print('checking single aggregate function')
     sum_age = sum([dr['age'] for dr in dictrows])
-    s = dt.select_first(dt.sum(dt['age']))
+    s = dt.select_first(dt['age'].sum)
     assert(s == sum_age)
     
     
     print('checking multiple aggregate functions')
     sum_age = sum([dr['age'] for dr in dictrows])
     sum_id = sum([i+1 for i in range(len(dictrows))])
-    s = dt.select_first([dt.sum(dt['age'].label('agesum')), dt.sum(dt['id'].label('idsum'))])
-    assert(s['sum_1'] == sum_age) #NOTE: THE LABEL METHODS HERE ARENT ASSIGNED TO OUTPUT KEYS
-    assert(s['sum_2'] == sum_id)
+    s = dt.select_first([dt['age'].sum.label('agesum'), dt['id'].sum.label('idsum')])
+    assert(s['agesum'] == sum_age) #NOTE: THE LABEL METHODS HERE ARENT ASSIGNED TO OUTPUT KEYS
+    assert(s['idsum'] == sum_id)
     
     print('checking complicated where')
     ststr = 'user+_3'
     ct_titlematch = sum([dr['title'].startswith(ststr) for dr in dictrows])
-    s = dt.select_first(dt.count(dt['title']), where=dt['title'].like(ststr+'%'))
+    s = dt.count(where=dt['title'].like(ststr+'%'))
     assert(s == ct_titlematch)
     
     print('running conditional queries')
-    minage = dt.select_first(dt.min(dt['age']))
-    maxid = dt.select_first(dt.max(dt['id']))
+    minage = dt.select_first(dt['age'].min)
+    maxid = dt.select_first(dt['id'].max)
     whr = (dt['age'] > minage) & (dt['id'] < maxid)
-    s = dt.select_first(dt.sum(dt['age']), where=whr)
+    s = dt.select_first(dt['age'].sum, where=whr)
     sumage = sum([dr['age'] for dr in dictrows[:-1] if dr['age'] > minage])
     assert(s == sumage)
     
     print('selecting right number of elements with negation')
-    maxid = dt.select_first(dt.max(dt['id']))
-    s = dt.select_first(dt.count(), where=~(dt['id'] < maxid))
+    maxid = dt.select_first(dt['id'].max)
+    s = dt.count(where=~(dt['id'] < maxid))
     assert(s == 1)
     
     print('selecting specific rows')
-    s = dt.select_first(dt.count(), where=dt['id'].in_([1,2]))
+    s = dt.count(where=dt['id'].in_([1,2]))
     assert(s == 2)
     
     
