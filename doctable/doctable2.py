@@ -68,7 +68,8 @@ class DocTable2:
                 that a schema is provided and the db file doesn't exist.
             engine_args (**kwargs): Pass directly to the sqlalchemy
                 .create_engine(). Args typically vary by dialect.
-                Example: connect_args={'timeout': 15} (for sqlite)
+                Example: connect_args={'timeout': 15} for sqlite
+                or connect_args={'connect_timeout': 15} for PostgreSQL.
         '''
         
         # in cases where user did not want to create new db but a db does not 
