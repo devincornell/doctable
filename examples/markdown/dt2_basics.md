@@ -1,5 +1,3 @@
-
-
 ```python
 import random
 import pandas as pd
@@ -57,11 +55,59 @@ db.select()
 
 
 
-    [(1, 'user_0', 0.5460915367661396, True),
-     (2, 'user_1', 0.9242334727101083, True),
-     (3, 'user_2', 0.8544210737656606, True),
-     (4, 'user_3', 0.6364344086051639, True),
-     (5, 'user_4', 0.9062232522850379, True)]
+    [(1, 'user_0', 0.2642203445941881, False),
+     (2, 'user_1', 0.967644452442394, True),
+     (3, 'user_2', 0.2309394848344387, False),
+     (4, 'user_3', 0.17800587917544441, False),
+     (5, 'user_4', 0.31607298450832433, False)]
+
+
+
+
+```python
+db.select('name')
+```
+
+
+
+
+    ['user_0', 'user_1', 'user_2', 'user_3', 'user_4']
+
+
+
+
+```python
+db.select(['id','name'])
+```
+
+
+
+
+    [(1, 'user_0'), (2, 'user_1'), (3, 'user_2'), (4, 'user_3'), (5, 'user_4')]
+
+
+
+
+```python
+db.select(db['age'].sum)
+```
+
+
+
+
+    [1.9568831455547897]
+
+
+
+
+```python
+db.select([db['age'].sum,db['age'].count])
+```
+
+
+
+
+    [(1.9568831455547897, 5)]
 
 
 

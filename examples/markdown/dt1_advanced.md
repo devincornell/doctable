@@ -1,4 +1,3 @@
-
 # DocTable (slightly more) Advanced Example
 In this notebook, I show how to define a DocTable with blob data types, add new rows, and then iterate through rows to populate previously empty fields.
 

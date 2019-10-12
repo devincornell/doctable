@@ -1,4 +1,3 @@
-
 # DocTable Simple Example
 In this notebook, I show how to define a DocTable as a python class, populate the DocTable using the .add() and .addmany() commands, query data through generators and pandas dataframes, and finally update DocTable entries.
 
