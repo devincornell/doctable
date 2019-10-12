@@ -98,6 +98,8 @@ test:
 	# must cd into temp folder bc that's where example scripts
 	#     are supposed to run
 	#-cd $(TMP_TEST_FOLDER); pytest ./*.py
+	
+	# run regular python
 	cd $(TMP_TEST_FOLDER); python ./*.py
 	
 	# cleanup temp folder
