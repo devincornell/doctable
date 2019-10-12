@@ -75,7 +75,8 @@ class DocTable2:
                              'exist yet.')
         
         # separate tables for custom data types and main table
-        self.tabname = tabname
+        self._fname = fname
+        self._tabname = tabname
         self.verbose = verbose
         
         self._engine = sa.create_engine('{}:///{}'.format(engine,fname))
@@ -85,10 +86,10 @@ class DocTable2:
         self._metadata = sa.MetaData()
         if self._schema is not None:
             columns = self._parse_column_schema(schema)
-            self._table = sa.Table(self.tabname, self._metadata, *columns)
+            self._table = sa.Table(self._tabname, self._metadata, *columns)
             self._metadata.create_all(self._engine)
         else:
-            self._table = sa.Table(self.tabname, self._metadata, 
+            self._table = sa.Table(self._tabname, self._metadata, 
                                    autoload=True, autoload_with=self._engine)
         
         # bind .min(), .max(), and .count() to col objects themselves.
@@ -104,7 +105,7 @@ class DocTable2:
         self.close_conn()
             
     def __str__(self):
-        return '<DocTable2::{} ct: {}>'.format(self.tabname, self.count())
+        return '<DocTable2::{} ct: {}>'.format(self._tabname, self.count())
     
     def close_conn(self):
         '''Closes connection to db (if one exists).
@@ -245,7 +246,7 @@ class DocTable2:
             dict<dict>: info about each column.
         '''
         inspector = sa.inspect(self._engine)
-        return inspector.get_columns(self.tabname)
+        return inspector.get_columns(self._tabname)
     
     def schemainfo_long(self):
         '''Get custom-selected schema information.
@@ -600,6 +601,11 @@ class DocTable2:
         '''Returns underlying sqlalchemy table object for manual manipulation.
         '''
         return self._table
+    
+    @property
+    def tabname(self):
+        '''Gets name of table for this connection.'''
+        return self._tabname
     
     
     #################### Bootstrapping Methods ###################    
