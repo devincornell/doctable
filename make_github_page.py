@@ -10,10 +10,12 @@ import os.path
 
 docs_folder = 'docs/'
 #github_branch = 'https://github.com/devincornell/doctable/blob/master/'
-
+indexfile = docs_folder+'/index.html'
 
 html_fnames = glob(docs_folder+'/*.html')
 
+if indexfile in html_fnames:
+	html_fnames.remove(indexfile)
 #md_fnames = glob(docs_folder+'/*.md')
 #md_fnames = [github_branch+fn for fn in md_fnames]
 
@@ -25,8 +27,9 @@ output_html += '<p>Check out the <a href="https://github.com/devincornell/doctab
 output_html += '<h2>Class Documentation Files</h2>'
 for hfn in html_fnames:
 	bn = os.path.basename(hfn)
-	bn = '.'.join(bn.split('.')[:-1])
-	output_html += '<a href="{}"><h3>{}</h3></a>'.format(hfn,bn)
+	bn_title = '.'.join(bn.split('.')[:-1])
+	print('adding {} to index file.'.format(bn_title))
+	output_html += '<a href="{}"><h3>{}</h3></a>'.format(bn,bn_title)
 
 with open(docs_folder+'/index.html','w') as f:
 	f.write(output_html)
