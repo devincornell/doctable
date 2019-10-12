@@ -1,4 +1,4 @@
-name = "example_pkg"
+name = "doctable"
 
 # expose some features of sqlalchemy
 from sqlalchemy.sql import and_, or_, not_

@@ -29,24 +29,27 @@ DOCS_FOLDER = docs/
 EXAMPLES_FOLDER = examples/
 TESTS_FOLDER = tests/
 
-docs: example_markdown pydoc
+docs: example_markdown pydoc github_page
 	git add README.md
+	git add make_github_page.py
+	git add --all $(DOCS_FOLDER)*.html
+	git add --all $(DOCS_FOLDER)*.md
+	
+github_page: pydoc
+	python make_github_page.py
 
 example_markdown:
 	jupyter nbconvert --to markdown $(EXAMPLES_FOLDER)/*.ipynb
 	mv $(EXAMPLES_FOLDER)/*.md $(DOCS_FOLDER)
-	git add $(DOCS_FOLDER)/*.md
 
 # use pydoc to generate documentation
 pydoc:
-	pydoc -w doctable
-	pydoc -w doctable.DocTable2
-	pydoc -w doctable.DocTable
+	pydoc -w doctable.DocTable doctable.DocTable2
 	
-	mv doctable.html $(DOCS_FOLDER)
-	mv doctable.DocTable.html $(DOCS_FOLDER)
-	mv doctable.DocTable2.html $(DOCS_FOLDER)
-	git add $(DOCS_FOLDER)/*.html
+	mv *.html $(DOCS_FOLDER)
+	
+
+
 
 build:
 	# install latest version of compile software
