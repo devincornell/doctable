@@ -20,7 +20,7 @@ html_fnames = glob(docs_folder+'/*.html')
 
 output_html = '<h1>DocTable Python Package</h1>'
 
-output_html += '<p>Check out the <a href="https://github.com/devincornell/doctable/blob/master/README">README.md file</a> of the repository for a description and examples of how to use doctable.</p>'
+output_html += '<p>Check out the <a href="https://github.com/devincornell/doctable/blob/master/README.md">README file</a> of the repository for a description and examples of how to use doctable.</p>'
 
 output_html += '<h2>Class Documentation Files</h2>'
 for hfn in html_fnames:
