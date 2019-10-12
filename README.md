@@ -4,13 +4,15 @@
 
 Object-based database access specifically intended for text analysis applications.
 
-The package makes it easy to create a new database tables with simple schemas; a common task in many text analysis projects. The package consists primarily of two classes: the original **DocTable**, built directly as a thin interface to the sqlite3 package, and **DocTable2**, the successor which is implemented using SQLAlchemy.
+The package makes it easy to create a new database tables with simple schemas; a common task in many text analysis projects. The package consists primarily of two classes: the original [**DocTable**](https://devincornell.github.io/doctable/doctable.DocTable.html), built directly as a thin interface to the sqlite3 package, and [**DocTable2**](https://devincornell.github.io/doctable/doctable.DocTable2.html), the successor which is implemented using SQLAlchemy.
 
 The typical way to use this package is to create new classes which inherit from DocTable2 or DocTable. These classes can manage schema info and allow users to add application-specific member functions for convenient access to the underlying databases.
 
+See the documentation here: [DocTable2 Class Documentation](https://devincornell.github.io/doctable/doctable.DocTable2.html), [DocTable Class Documentation](https://devincornell.github.io/doctable/doctable.DocTable.html)
+
 ## DocTable2 Class
 
-**DocTable2** is built on [SQLAlchemy Core](https://docs.sqlalchemy.org/en/13/core/), a flexible object-oriented interface to many mainstream DB engines. DocTable2 is inspired by the object-based interface of SQLAlchemy, but makes it easier to access SQLAlchemy features without importing a large number of python objects. The interface requires much less user code compared to SQLAlchemy, taking cues from the original Doctable class.
+[**DocTable2**](https://devincornell.github.io/doctable/doctable.DocTable2.html) is built on [SQLAlchemy Core](https://docs.sqlalchemy.org/en/13/core/), a flexible object-oriented interface to many mainstream DB engines. DocTable2 is inspired by the object-based interface of SQLAlchemy, but makes it easier to access SQLAlchemy features without importing a large number of python objects. The interface requires much less user code compared to SQLAlchemy, taking cues from the original Doctable class.
 
 ### Examples
 Most of the documentation for DocTable2 is provided via the examples. Here is a list of example notebooks and scripts:
@@ -25,7 +27,7 @@ Most of the documentation for DocTable2 is provided via the examples. Here is a 
 
 ### Quick Example
 
-The initialization of a doctable requires a schema, as shown in this example. See the [DocTable2 Basics Document](examples/dt2_basics.ipynb) for more.
+The initialization of a doctable requires a schema, as shown in this example. See the [DocTable2 Basics Document](docs/dt2_basics.ipynb) for more.
 
     ```python
 
@@ -64,18 +66,18 @@ The output will yield this:
  (5, 'user_4', 0.4574398725307163)]
 ```
     
-Read the [basic introduction](examples/dt2_basics.ipynb) or other examples to see more!
+Read the [basic introduction](docs/dt2_basics.ipynb) or other examples to see more!
 
     
 ### Special Data Types
 
-In addition to regular schema mappings, DocTable2 provides custom data types for token lists and lists of token lists (think tokenized sentences). See the [Special Type Examples](examples/dt2_specialtypes.ipynb) for more information.
+In addition to regular schema mappings, DocTable2 provides custom data types for token lists and lists of token lists (think tokenized sentences). See the [Special Type Examples](docs/dt2_specialtypes.ipynb) for more information.
 
 
 
 ## Original DocTable Class
 
-This package provides a thin layer over the sqlite package specifically for working with single tables of data, as is often the case with many basic text analysis applications. Somewhere between a spreadsheet and full-fledged database server, this package allows for a very simple interface for storing, updating, and retrieving data. It transparently handles picklable python objects that can be stored as sqlite blob types, so you can treat python objects like any other retrievable database type.
+[**DocTable**](https://devincornell.github.io/doctable/doctable.DocTable.html) provides a thin layer over the sqlite package specifically for working with single tables of data, as is often the case with many basic text analysis applications. Somewhere between a spreadsheet and full-fledged database server, this package allows for a very simple interface for storing, updating, and retrieving data. It transparently handles picklable python objects that can be stored as sqlite blob types, so you can treat python objects like any other retrievable database type.
 
 The package consists of a single class called DocTable, a base class with useful read/write/update interface methods. This example (found in example_advanced.ipynb) shows the NewsGroups DocTable, where I have created columns file_id, category, raw_text, subject, author, and tokenized_text. Notice that tokenized_text has been assigned the "blob" type, which DocTable will automatically convert to and from Python objects automatically.
 
