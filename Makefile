@@ -26,23 +26,23 @@ final_check: docs build test
 PACKAGE_NAME = doctable
 PACKAGE_FOLDER = $(PACKAGE_NAME)/
 DOCS_FOLDER = docs/
-MD_FOLDER = examples/markdown/
 EXAMPLES_FOLDER = examples/
+TESTS_FOLDER = tests/
 
-docs: gen_markdown pydoc
+docs: example_markdown pydoc
 	git add README.md
 
-gen_markdown:
+example_markdown:
 	jupyter nbconvert --to markdown $(EXAMPLES_FOLDER)/*.ipynb
-	mv examples/*.md $(MD_FOLDER)
-	git add $(MD_FOLDER)/*.md
+	mv $(EXAMPLES_FOLDER)/*.md $(DOCS_FOLDER)
+	git add $(DOCS_FOLDER)/*.md
 
 # use pydoc to generate documentation
 pydoc:
 	pydoc -w doctable
 	pydoc -w doctable.DocTable2
 	pydoc -w doctable.DocTable
-	-mkdir docs
+	
 	mv doctable.html $(DOCS_FOLDER)
 	mv doctable.DocTable.html $(DOCS_FOLDER)
 	mv doctable.DocTable2.html $(DOCS_FOLDER)
@@ -74,8 +74,8 @@ deploy: build
 TMP_TEST_FOLDER = tmp_test_deleteme
 test:
 	# tests from tests folder
-	#pytest tests/test_dt1_*.py (THERE CURRENTLY ARE NO doctable1 TESTS HERE.)
-	pytest tests/test_dt2_*.py
+	#pytest $(TESTS_FOLDER)/test_dt1_*.py (THERE CURRENTLY ARE NO doctable1 TESTS HERE.)
+	pytest $(TESTS_FOLDER)/test_dt2_*.py
 	
 	# make temporary testing folder and copy files into it
 	-rm -r $(TMP_TEST_FOLDER)
@@ -97,18 +97,21 @@ test:
 	# run tests
 	# must cd into temp folder bc that's where example scripts
 	#     are supposed to run
-	-cd $(TMP_TEST_FOLDER); pytest ./*.py
+	#-cd $(TMP_TEST_FOLDER); pytest ./*.py
+	cd $(TMP_TEST_FOLDER); python ./*.py
 	
 	# cleanup temp folder
 	rm -r $(TMP_TEST_FOLDER)
 	
 
 clean:
-	-rm $(MD_FOLDER)*.md
+	# leftover files from experimentation
 	-rm $(EXAMPLES_FOLDER)*.db
+	-rm $(TESTS_FOLDER)*.db
 	
-	# from pydocs build
-	-rm -r $(DOCS_FOLDER)
+	# from building documents
+	-rm $(DOCS_FOLDER)/*.md
+	-rm $(DOCS_FOLDER)/*.html
 	
 	# from building python package
 	-rm -r $(PACKAGE_NAME).egg-info
