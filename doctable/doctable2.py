@@ -44,7 +44,7 @@ class DocTable2:
     }
     _valid_types = list(_constraint_map.keys()) + list(_type_map.keys())
     
-    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, new_db=True, **conn_args):
+    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, new_db=True, **engine_args):
         '''Create new database.
         Args:
             schema (list<list>): schema from which to create db. Includes a
@@ -66,7 +66,7 @@ class DocTable2:
             verbose (bool): Print every sql command before executing.
             new_db (bool): Indicate if new db file should be created given 
                 that a schema is provided and the db file doesn't exist.
-            conn_args (**kwargs): Pass directly to the sqlalchemy
+            engine_args (**kwargs): Pass directly to the sqlalchemy
                 .create_engine(). Args typically vary by dialect.
                 Example: connect_args={'timeout': 15} (for sqlite)
         '''
@@ -83,7 +83,7 @@ class DocTable2:
         self.verbose = verbose
         
         connstr = '{}:///{}'.format(engine,fname)
-        self._engine = sa.create_engine(connstr, **conn_args)
+        self._engine = sa.create_engine(connstr, **engine_args)
         self._schema = schema
         
         # make table if needed
