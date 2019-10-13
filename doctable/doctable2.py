@@ -36,21 +36,21 @@ class DocTable2:
     }
     
     _constraint_map = {
-        'unique_constraint': sa.UniqueConstraint,
-        'check_constraint': sa.CheckConstraint,
-        'primarykey_constraint': sa.PrimaryKeyConstraint,
-        'foreignkey_constraint': sa.ForeignKeyConstraint,
-        'index': sa.Index,
+        'unique': sa.UniqueConstraint,
+        'check': sa.CheckConstraint,
+        'primarykey': sa.PrimaryKeyConstraint,
+        'foreignkey': sa.ForeignKeyConstraint,
     }
     _valid_types = list(_constraint_map.keys()) + list(_type_map.keys())
     
-    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, new_db=True, **engine_args):
-        '''Create new database.
+    def __init__(self, schema=None, constraints=None, indexes=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, new_db=True, **engine_args):
+        '''Create new DocTable.
         Args:
             schema (list<list>): schema from which to create db. Includes a
-                list of columns (including contraints and indexes) as tuples
-                defined according to information needed to execute the sqlalchemy
-                commands.
+                list of columns as 2-, 3-, or 5- tuples (colname (str), 
+				coltype (str) [, column args (dict), type args (dict))]. 
+			constraints (list<list>): list of constraints as tuples.
+			indexes (list<list>): list of indexes as tuples.
             tabname (str): table name for this specific doctable.
             fname (str): filename for database to connect to. ":memory:" is a 
                 special value indicating to the python db engine that the db
@@ -85,12 +85,12 @@ class DocTable2:
         
         connstr = '{}:///{}'.format(engine,fname)
         self._engine = sa.create_engine(connstr, **engine_args)
-        self._schema = schema
+        self._supplied_schema = schema
         
         # make table if needed
         self._metadata = sa.MetaData()
-        if self._schema is not None:
-            columns = self._parse_column_schema(schema)
+        if self._supplied_schema is not None:
+            columns = self._parse_column_schema(schema, constraints, indexes)
             self._table = sa.Table(self._tabname, self._metadata, *columns)
             self._metadata.create_all(self._engine)
         else:
@@ -135,7 +135,7 @@ class DocTable2:
         
     ################# INITIALIZATION METHODS ##################
     
-    def _parse_column_schema(self,schema):
+    def _parse_column_schema(self, schema, constraints, indexes):
         self.colnames = [c[0] for c in schema]
         columns = list()
         for colinfo in schema:
@@ -150,26 +150,35 @@ class DocTable2:
             else:
                 raise ValueError(coltype_error_str)
             
-            if coltype not in self._constraint_map: # if coltype is regular column
-                typ = self._get_sqlalchemy_type(coltype)
-                col = sa.Column(colname, typ(**coltypeargs), **colargs)
-                columns.append(col)
-
-            else: # column is actually a constraint (not regular column)
-                if coltype  == 'index':
-                    const = self._constraint_map[coltype](colname, *colargs, **coltypeargs)
-                elif coltype  == 'foreignkey_constraint':
-                    # colname is ([col1,col2],[parentcol1,parentcol2])
-                    const = self._constraint_map[coltype](*colname, **colargs)
-                elif coltype == 'check_constraint':
-                    # in this case, colname should be a constraint string (i.e. "age > 0")
-                    const = self._constraint_map[coltype](colname, **colargs)
+            typ = self._get_sqlalchemy_type(coltype)
+            col = sa.Column(colname, typ(**coltypeargs), **colargs)
+            columns.append(col)
+        
+        # parse constraints
+        if constraints is not None:
+            for cinfo in constraints:
+                # ('check', 'col1 < 5')
+                # ('unique', 'col1', 'col2', dict(name=work_key))
+                if isinstance(cinfo[-1], dict) and len(cinfo) > 2:
+                    cname, cargs, kwargs = cinfo[0], cinfo[1:-1], cinfo[-1]
                 else:
-                    if not is_sequence(colname):
-                        raise ValueError('First column argument on {} should '
-                            'be a sequence of columns.'.format(coltype))
-                    const = self._constraint_map[coltype](*colname, **colargs)
+                    cname, cargs, kwargs = cinfo[0], cinfo[1:], dict()
+                const = self._constraint_map[cname](*cargs, **kwargs)
                 columns.append(const)
+            
+        # parse indexes
+        if indexes is not None:
+            for index in indexes:
+                print(index)
+                # ('ind0', 'col1','col2', [ dict(unique=True)) ]
+                if isinstance(index[-1],dict) and len(index) > 2:
+                    name, cols, kwargs = index[0], index[1:-1], index[-1]
+                else:
+                    name, cols, kwargs = index[0], index[1:], dict()
+
+                ind = sa.Index(name, *cols, **kwargs)
+                columns.append(ind)
+
         return columns
 
 
