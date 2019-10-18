@@ -1,5 +1,5 @@
 import sqlite3
-import pickle
+import _pickle as pickle
 import pandas as pd
 
 ##### DOCUMENT INTERFACE FOR WORKING WITH TEXT DATA #####
