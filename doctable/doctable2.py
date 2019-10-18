@@ -10,7 +10,7 @@ import sqlalchemy.sql as op
 from sqlalchemy.sql import func
 import sqlalchemy as sa
 
-from .coltypes import TokensType, SubdocsType
+from .coltypes import TokensType, SubdocsType, SubsubdocsType, CpickleType
 
 class DocTable2:
     _type_map = {
@@ -33,6 +33,8 @@ class DocTable2:
         'unicodetext':sa.UnicodeText,
         'tokens':TokensType, # custom datatype
         'subdocs':SubdocsType, # custom datatype
+        'subsubdocs':SubsubdocsType,
+        'cpickle': CpickleType,
     }
     
     _constraint_map = {
