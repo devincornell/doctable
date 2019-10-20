@@ -12,10 +12,10 @@ def random_toks(tmin=1, tmax=3):
     toks = [str(random.randrange(0,99))
             for _ in range(random.randrange(tmin, tmax))
            ]
-    return toks
+    return tuple(toks)
 
 
-def test_tokens(n=10):
+def test_tokens(n=100):
     db = dt.DocTable2(schema=(
         ('id', 'integer'),
         ('doc','tokens'),
@@ -31,19 +31,19 @@ def test_tokens(n=10):
         assert(toks == intoks[i])
     
         
-def random_sents(tmin=1, tmax=3):
-    sents = [
-        [str(random.randrange(10,99))
+def random_sents(tmin=0, tmax=5):
+    sents = tuple([
+        tuple([str(random.randrange(10,99))
             for _ in range(random.randrange(tmin,tmax))
-        ]
-        for _ in range(random.randrange(tmin+1, tmax))
-    ]
+        ])
+        for _ in range(random.randrange(tmin, tmax))
+    ])
     return sents
         
-def test_subdocs(n=10):
+def test_subdocs(n=100):
     db = dt.DocTable2(schema=(
         ('id', 'integer'),
-        ('sents','subdocs'),
+        ('sents','tokens'),
     ))
     insents = list()
     for i in range(n):
@@ -58,19 +58,19 @@ def test_subdocs(n=10):
     
 
 def random_paragraphs(tmin=0, tmax=20):
-    pars = [
-        [
-            [str(random.randrange(10,99)) for _ in range(random.randrange(tmin,tmax))]
-            for _ in range(random.randrange(tmin+1,tmax))
-        ]
-        for _ in range(random.randrange(tmin+1, tmax))
-    ]
+    pars = tuple([
+        tuple([
+            tuple([str(random.randrange(10,99)) for _ in range(random.randrange(tmin,tmax))])
+            for _ in range(random.randrange(tmin,tmax))
+        ])
+        for _ in range(random.randrange(tmin, tmax))
+    ])
     return pars
         
-def test_subsubdocs(n=1000):
+def test_subsubdocs(n=100):
     db = dt.DocTable2(schema=(
         ('id', 'integer'),
-        ('pars','subsubdocs'),
+        ('pars','tokens'),
     ))
     inpars = list()
     for i in range(n):
@@ -86,8 +86,5 @@ def test_subsubdocs(n=1000):
     
 if __name__ == '__main__':
     
-
-    
-    # basic select using different query types
-    test_select_iter_basic()
+    pass
     

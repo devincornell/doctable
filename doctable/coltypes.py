@@ -2,86 +2,7 @@ import _pickle as cPickle
 import sqlalchemy.types as types
 import numpy as np
 
-# separators for token, subdoc, and subsubdoc types
-#http://www.asciitable.com/
-tok_sep = '\x1f' # unit separator for splitting tokens
-sdoc_sep = '\x1e' # record separator for splitting subdocs
-ssdoc_sep = '\x1d' # group separator for splitting subsubdocs
 
-class TokensType(types.TypeDecorator):
-    impl = types.String
-    
-    def process_bind_param(self, value, dialect):
-        if value is not None:
-            return tok_sep.join(value)+tok_sep
-        else:
-            return None
-
-    def process_result_value(self, value, dialect):
-        if value is not None:
-            return value.split(tok_sep)[:-1]
-        else:
-            return None
-
-class SubdocsType(types.TypeDecorator):
-    impl = types.String
-    
-    def process_bind_param(self, subdocs, dialect):
-        if subdocs is not None:
-            return sdoc_sep.join([tok_sep.join(sd)+tok_sep for sd in subdocs])+sdoc_sep
-        else:
-            return None
-
-    def process_result_value(self, sdocstr, dialect):
-        if sdocstr is not None:
-            return [
-                sdoc.split(tok_sep)[:-1]
-                for sdoc in sdocstr.split(sdoc_sep)
-            ][:-1]
-        else:
-            return None
-        
-class SubsubdocsType(types.TypeDecorator):
-    impl = types.String
-    
-    def process_bind_param(self, ssdoc, dialect):
-        '''Convert subsubdoc to string for storage.
-        Args:
-            ssdoc (list<list<str>>): subsubdoc to store into database.
-                Might want to store lists of paragraphs as lists of sents
-                as lists of tokens.
-        Output:
-            str: subsubdoc as string for storage
-        '''
-        if ssdoc is not None:
-            return ssdoc_sep.join([
-                sdoc_sep.join([
-                    ''.join([t+tok_sep for t in toks]) for toks in sdoc
-                ])+sdoc_sep for sdoc in ssdoc
-            ])+ssdoc_sep
-        else:
-            return None
-
-    def process_result_value(self, ssdocstr, dialect):
-        '''Extract subsubdoc from database.
-        Args:
-            value (str): string where "\n\n\n" separates subdocuments,
-                "\n\n" separates subsubdocuments and "\n" separates tokens.
-        Output:
-            list<list<str>>: list of list of tokens
-        '''
-        if ssdocstr is not None:
-            return [
-                [
-                    tokstr.split(tok_sep)[:-1]
-                    for tokstr in sdocstr.split(sdoc_sep)[:-1]
-                ]
-                for sdocstr in ssdocstr.split(ssdoc_sep)[:-1]
-            ]
-        else:
-            return None
-
-        
 class CpickleType(types.TypeDecorator):
     impl = types.LargeBinary
     
@@ -96,4 +17,61 @@ class CpickleType(types.TypeDecorator):
             return cPickle.loads(value)
         else:
             return None
+
+
+class TokensType(types.TypeDecorator):
+    impl = types.String
+    
+    def process_bind_param(self, tokens, dialect):
+        if tokens is not None:
+            return store_tokens(tokens)
+        else:
+            return None
+
+    def process_result_value(self, tokstr, dialect):
+        if tokstr is not None:
+            return load_tokens(tokstr)
+        else:
+            return None
+
+# =================== Token Storage Functions (recursive, so nessecarily functions) ===========
+
+tok_mark = '\x1f' # unit separator (used to separate tokens)
+storechars = (
+    '\x1c', # file separator
+    '\x1d', # group separator
+    '\x1e', # record separator
+    '\x0b', # vertical tab
+)
+# these are used because they are unlikeley to appear in documents submitted by the user
+#http://www.asciitable.com/
+
+
+def store_tokens(toktree, i=0, sep=storechars, tok_mark=tok_mark):
+    '''Stores a set of nested tokens as a string, tokens are separated by special chars.'''
+    if isinstance(toktree,str):
+        #print('    '*i, 'token', toktree, '({:02x})'.format(ord(tok_mark)))
+        return toktree + tok_mark
+    
+    #print('    '*i, toktree, '({:02x})'.format(ord(sep[i])))
+    return ''.join(
+        store_tokens(child, i+1, sep, tok_mark)
+        for child in toktree
+    ) + sep[i]
+
+
+def load_l_tokens(treestr, i, sep, tok_mark):
+    #print('  '*(i) + printhex(treestr), '({:02x})'.format(ord(sep[i])))
+    if not treestr:
+        return ()
+    elif treestr[-1] == tok_mark:
+        return tuple(treestr[:-1].split(tok_mark))
+    children = treestr.split(sep[i])[:-1]
+    return tuple(load_l_tokens(child, i+1, sep, tok_mark) for child in children)
+
+def load_tokens(treestr, sep=storechars, tok_mark=tok_mark):
+    '''Loads a set of nested tokens from a string. Opposite of store_tokens().'''
+    return load_l_tokens(treestr, 0, sep, tok_mark)[0]
+
+        
 
