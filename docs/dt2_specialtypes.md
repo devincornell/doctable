@@ -18,8 +18,8 @@ schema = (
     ('id','integer',dict(primary_key=True, autoincrement=True)),
     ('title','string', dict(nullable=False)),
     ('bag_of_words','tokens'),
-    ('tokenized_sentences', 'subdocs'),
-    ('paragraphs', 'subsubdocs'),
+    ('tokenized_sentences', 'tokens'),
+    ('paragraphs', 'tokens'),
     ('data', 'cpickle'),
 )
 db = dt.DocTable2(schema)
@@ -40,7 +40,7 @@ db.select(['title','bag_of_words'])
 
 
 
-    [('Happy sentence', ['this', 'is', 'the', 'happiest', 'day', 'of', 'my', 'life', '.']),
+    [('Happy sentence', ('this', 'is', 'the', 'happiest', 'day', 'of', 'my', 'life', '.')),
      ('Happy nothing', None)]
 
 
@@ -179,7 +179,7 @@ db.select_df()
       <td>0</td>
       <td>1</td>
       <td>Happy sentence</td>
-      <td>[this, is, the, happiest, day, of, my, life, .]</td>
+      <td>(this, is, the, happiest, day, of, my, life, .)</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>

@@ -55,11 +55,11 @@ db.select()
 
 
 
-    [(1, 'user_0', 0.2642203445941881, False),
-     (2, 'user_1', 0.967644452442394, True),
-     (3, 'user_2', 0.2309394848344387, False),
-     (4, 'user_3', 0.17800587917544441, False),
-     (5, 'user_4', 0.31607298450832433, False)]
+    [(1, 'user_0', 0.8476935147306451, True),
+     (2, 'user_1', 0.7260777383869824, True),
+     (3, 'user_2', 0.7778160218481746, True),
+     (4, 'user_3', 0.6031477136002875, True),
+     (5, 'user_4', 0.29258596671901227, False)]
 
 
 
@@ -95,7 +95,7 @@ db.select(db['age'].sum)
 
 
 
-    [1.9568831455547897]
+    [3.247320955285102]
 
 
 
@@ -107,7 +107,7 @@ db.select([db['age'].sum,db['age'].count])
 
 
 
-    [(1.9568831455547897, 5)]
+    [(3.247320955285102, 5)]
 
 
 
@@ -150,36 +150,36 @@ db.select_df()
       <td>0</td>
       <td>1</td>
       <td>user_0</td>
-      <td>0.546092</td>
+      <td>0.847694</td>
       <td>True</td>
     </tr>
     <tr>
       <td>1</td>
       <td>2</td>
       <td>user_1</td>
-      <td>0.924233</td>
+      <td>0.726078</td>
       <td>True</td>
     </tr>
     <tr>
       <td>2</td>
       <td>3</td>
       <td>user_2</td>
-      <td>0.854421</td>
+      <td>0.777816</td>
       <td>True</td>
     </tr>
     <tr>
       <td>3</td>
       <td>4</td>
       <td>user_3</td>
-      <td>0.636434</td>
+      <td>0.603148</td>
       <td>True</td>
     </tr>
     <tr>
       <td>4</td>
       <td>5</td>
       <td>user_4</td>
-      <td>0.906223</td>
-      <td>True</td>
+      <td>0.292586</td>
+      <td>False</td>
     </tr>
   </tbody>
 </table>
@@ -197,11 +197,10 @@ db.select(where=db['is_old']==True)
 
 
 
-    [(1, 'user_0', 0.5460915367661396, True),
-     (2, 'user_1', 0.9242334727101083, True),
-     (3, 'user_2', 0.8544210737656606, True),
-     (4, 'user_3', 0.6364344086051639, True),
-     (5, 'user_4', 0.9062232522850379, True)]
+    [(1, 'user_0', 0.8476935147306451, True),
+     (2, 'user_1', 0.7260777383869824, True),
+     (3, 'user_2', 0.7778160218481746, True),
+     (4, 'user_3', 0.6031477136002875, True)]
 
 
 
@@ -213,7 +212,7 @@ db.select(where=db['id']==3)
 
 
 
-    [(3, 'user_2', 0.8544210737656606, True)]
+    [(3, 'user_2', 0.7778160218481746, True)]
 
 
 
@@ -228,11 +227,11 @@ db.select()
 
 
 
-    [(1, 'user_0', 0.5460915367661396, True),
-     (2, 'user_1', 0.9242334727101083, True),
-     (3, 'smartypants', 0.8544210737656606, True),
-     (4, 'user_3', 0.6364344086051639, True),
-     (5, 'user_4', 0.9062232522850379, True)]
+    [(1, 'user_0', 0.8476935147306451, True),
+     (2, 'user_1', 0.7260777383869824, True),
+     (3, 'smartypants', 0.7778160218481746, True),
+     (4, 'user_3', 0.6031477136002875, True),
+     (5, 'user_4', 0.29258596671901227, False)]
 
 
 
@@ -245,11 +244,11 @@ db.select()
 
 
 
-    [(1, 'user_0', 54.609153676613964, True),
-     (2, 'user_1', 92.42334727101083, True),
-     (3, 'smartypants', 85.44210737656606, True),
-     (4, 'user_3', 63.643440860516385, True),
-     (5, 'user_4', 90.62232522850378, True)]
+    [(1, 'user_0', 84.76935147306452, True),
+     (2, 'user_1', 72.60777383869824, True),
+     (3, 'smartypants', 77.78160218481746, True),
+     (4, 'user_3', 60.31477136002875, True),
+     (5, 'user_4', 29.258596671901227, False)]
 
 
 
@@ -264,10 +263,10 @@ db.select()
 
 
 
-    [(1, 'user_0', 54.609153676613964, True),
-     (2, 'user_1', 92.42334727101083, True),
-     (4, 'user_3', 63.643440860516385, True),
-     (5, 'user_4', 90.62232522850378, True)]
+    [(1, 'user_0', 84.76935147306452, True),
+     (2, 'user_1', 72.60777383869824, True),
+     (4, 'user_3', 60.31477136002875, True),
+     (5, 'user_4', 29.258596671901227, False)]
 
 
 
@@ -296,7 +295,7 @@ db['id'] < 3
 
 
 
-    <sqlalchemy.sql.elements.BinaryExpression object at 0x7f9ca322a5f8>
+    <sqlalchemy.sql.elements.BinaryExpression object at 0x7fdab5ad7828>
 
 
 
@@ -322,7 +321,7 @@ db.columns
 
 
 
-    <sqlalchemy.sql.base.ImmutableColumnCollection at 0x7f9ca3298798>
+    <sqlalchemy.sql.base.ImmutableColumnCollection at 0x7fdab5b4b1f8>
 
 
 
@@ -428,7 +427,7 @@ dt.DocTable2._type_map
      'unicode': sqlalchemy.sql.sqltypes.Unicode,
      'unicodetext': sqlalchemy.sql.sqltypes.UnicodeText,
      'tokens': doctable.coltypes.TokensType,
-     'subdocs': doctable.coltypes.SubdocsType}
+     'cpickle': doctable.coltypes.CpickleType}
 
 
 
