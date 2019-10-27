@@ -12,10 +12,23 @@ sys.path.append('..')
 import doctable as dt
 import pytest
 
-def test_make_new_db_flag(n=20):
+        
+def test_init_errors():
+    # never actually creates this database
+    randdbname = 'randomdbname2349io8oipaudjrtfoajsd.db'
+    
+    # testing make_new_db
     with pytest.raises(FileNotFoundError):
-        dt.DocTable(fname='randomdbname2349io889523479.db', make_new_db=False)
-        dt.DocTable(make_new_db=False)
+        dt.DocTable(fname=randdbname, make_new_db=False)
+        
+    # trying to create new file but didn't provide a column schema
+    with pytest.raises(ValueError):
+        dt.DocTable(fname=randdbname)
+    
+    # set to check schema without providing a colschema
+    with pytest.raises(ValueError):
+        dt.DocTable(check_schema=True)
+    
 
 if __name__ == '__main__':
     pass

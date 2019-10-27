@@ -12,13 +12,14 @@ class DocTable:
     '''
     
     def __init__(self,
-                 fname=':memory:', 
+                 colschema=None, 
+                 fname=':memory:',  
                  tabname='documents', 
-                 colschema=('num integer', 'doc blob'),
-                 constraints=tuple(),
-                 verbose=False,
-                 persistent_conn=True,
-                 make_new_db=True,
+                 constraints=tuple(), 
+                 verbose=False, 
+                 persistent_conn=True, 
+                 make_new_db=True, 
+                 check_schema=True, 
                 ):
         '''
         Args:
@@ -33,9 +34,18 @@ class DocTable:
                 exist. Prevents creation of new db if filename is mis-specified.
         '''
         
-        if not make_new_db and fname!=':memory:' and not os.path.exists(fname):
+        if fname!=':memory:' and not os.path.exists(fname) and not make_new_db:
             raise FileNotFoundError('The {} database file does not exist and '
                 'make_new_db is set to False.'.format(fname))
+        
+        if fname!=':memory:' and not os.path.exists(fname) and colschema is None:
+            raise ValueError('The database file does not exist already and a '
+                'a colschema was not provided. Need to provide a colschema to '
+                'create a new database.')
+        
+        if check_schema and colschema is None:
+            raise ValueError('check_schema was set to true but colschema was '
+                'not provided.')
         
         self.fname = fname
         self.tabname = tabname
@@ -49,7 +59,8 @@ class DocTable:
         self.schema = self._get_schema()
         self.columns = list(self.schema['name'])
         
-        self._check_schema()
+        if check_schema:
+            self._check_schema()
         
         if persistent_conn:
             self.conn = sqlite3.connect(fname)
@@ -73,13 +84,13 @@ class DocTable:
             if cname not in self.columns:
                 estr = ('colschema entry "{}" is not found in '
                         'existing table cols: {}')
-                raise Exception(estr.format(cname, self.columns))
+                raise ValueError(estr.format(cname, self.columns))
                 
             elif ctype != self.schema.loc[cname,'type']:
                 exist_type = self.schema.loc[cname,'type']
                 estr = ('provided "{}" column type "{}" does not match '
                         'existing data schema type "{}".')
-                raise Exception(estr.format(cname, ctype, exist_type))
+                raise ValueError(estr.format(cname, ctype, exist_type))
             else:
                 pass
     
@@ -182,7 +193,7 @@ class DocTable:
                 list of values with python objects pickled into blobs
         '''
         if not all([c in self.columns for c in cols]):
-            raise Exception('Not all submitted columns are in database.')
+            raise ValueError('Not all submitted columns are in database.')
         
         out_values = list()
         for colname,val in zip(cols,values):
