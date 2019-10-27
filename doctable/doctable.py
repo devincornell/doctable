@@ -12,7 +12,7 @@ class DocTable:
     '''
     
     def __init__(self,
-                 fname='documents.db', 
+                 fname=':memory:', 
                  tabname='documents', 
                  colschema=('num integer', 'doc blob'),
                  constraints=tuple(),
@@ -33,7 +33,7 @@ class DocTable:
                 exist. Prevents creation of new db if filename is mis-specified.
         '''
         
-        if not make_new_db and not os.path.exists(fname):
+        if not make_new_db and fname!=':memory:' and not os.path.exists(fname):
             raise FileNotFoundError('The {} database file does not exist and '
                 'make_new_db is set to False.'.format(fname))
         
