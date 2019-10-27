@@ -92,19 +92,6 @@ test: pytest
 	# convert notebooks to .py scripts
 	jupyter nbconvert --to script $(TMP_TEST_FOLDER)/*.ipynb
 	
-	
-	# NOTE: THIS IS WEIRD BECAUSE PYTEST RELIES ON "test_" prefixes
-	#     to both scripts and functions. SO THE OUTPUT WILL LOOK LIKE
-	#     0 tests run AND WILL GIVE ERROR make: *** [test] Error 5.
-	#     IF THERE IS A MISTAKE, IT WILL RAISE AN ERROR AND FAIL.
-	# NOTE2: IT MAY BE DIFFICULT TO DEBUG BECAUSE YOU WILL NEED TO
-	#     TRACE THE ERROR BACK TO THE ORIGINAL NOTEBOOK.
-	
-	# run tests
-	# must cd into temp folder bc that's where example scripts
-	#     are supposed to run
-	#-cd $(TMP_TEST_FOLDER); pytest ./*.py
-	
 	# run regular python
 	cd $(TMP_TEST_FOLDER); python ./*.py
 	

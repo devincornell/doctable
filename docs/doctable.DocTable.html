@@ -15,7 +15,16 @@ It&nbsp;is&nbsp;to&nbsp;be&nbsp;inhereted&nbsp;by&nbsp;a&nbsp;class&nbsp;actuall
 <td width="100%">Methods defined here:<br>
 <dl><dt><a name="DocTable-__del__"><strong>__del__</strong></a>(self)</dt><dd><tt>Closes&nbsp;connection&nbsp;upon&nbsp;deletion.</tt></dd></dl>
 
-<dl><dt><a name="DocTable-__init__"><strong>__init__</strong></a>(self, fname='documents.db', tabname='documents', colschema=('num integer', 'doc blob'), constraints=(), verbose=False, persistent_conn=True)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+<dl><dt><a name="DocTable-__init__"><strong>__init__</strong></a>(self, colschema=None, fname='doctable.db', tabname='documents', constraints=(), verbose=False, persistent_conn=True, make_new_db=True, check_schema=True)</dt><dd><tt>Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;fname&nbsp;(str):&nbsp;filename&nbsp;of&nbsp;database<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tabname&nbsp;(str):&nbsp;name&nbsp;of&nbsp;sqlite&nbsp;table&nbsp;to&nbsp;manipulate.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;colschema&nbsp;(tuple&nbsp;of&nbsp;2-tuples):&nbsp;list&nbsp;of&nbsp;colname,&nbsp;coltype&nbsp;columns<br>
+&nbsp;&nbsp;&nbsp;&nbsp;constraints&nbsp;(tuple&nbsp;of&nbsp;str):&nbsp;constraints&nbsp;to&nbsp;put&nbsp;on&nbsp;columns<br>
+&nbsp;&nbsp;&nbsp;&nbsp;verbose&nbsp;(bool):&nbsp;print&nbsp;querys&nbsp;before&nbsp;executing<br>
+&nbsp;&nbsp;&nbsp;&nbsp;persistent_conn&nbsp;(bool):&nbsp;keep&nbsp;a&nbsp;persistent&nbsp;sqlite3&nbsp;connection&nbsp;to&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;db.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;new_db&nbsp;(bool):&nbsp;create&nbsp;a&nbsp;new&nbsp;database&nbsp;file&nbsp;if&nbsp;one&nbsp;does&nbsp;not&nbsp;already&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exist.&nbsp;Prevents&nbsp;creation&nbsp;of&nbsp;new&nbsp;db&nbsp;if&nbsp;filename&nbsp;is&nbsp;mis-specified.</tt></dd></dl>
 
 <dl><dt><a name="DocTable-__str__"><strong>__str__</strong></a>(self)</dt><dd><tt>Outputs&nbsp;string&nbsp;specifying&nbsp;number&nbsp;of&nbsp;documents&nbsp;in&nbsp;the&nbsp;table.<br>
 &nbsp;<br>
@@ -47,7 +56,7 @@ Output:<br>
 
 <dl><dt><a name="DocTable-commit"><strong>commit</strong></a>(self)</dt><dd><tt>Commits&nbsp;database&nbsp;changes&nbsp;to&nbsp;file.</tt></dd></dl>
 
-<dl><dt><a name="DocTable-delete"><strong>delete</strong></a>(self, where, **queryargs)</dt><dd><tt>Deletes&nbsp;all&nbsp;rows&nbsp;matching&nbsp;the&nbsp;where&nbsp;criteria.<br>
+<dl><dt><a name="DocTable-delete"><strong>delete</strong></a>(self, where=None, **queryargs)</dt><dd><tt>Deletes&nbsp;all&nbsp;rows&nbsp;matching&nbsp;the&nbsp;where&nbsp;criteria.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<br>
 Inputs:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;where:&nbsp;if&nbsp;"*"&nbsp;is&nbsp;specified,&nbsp;will&nbsp;drop&nbsp;all&nbsp;rows.&nbsp;Otherwise<br>

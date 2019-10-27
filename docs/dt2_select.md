@@ -62,8 +62,8 @@ db.select(limit=2)
 
 
 
-    [(1, 'user_0', 0.5166077975509809, True),
-     (2, 'user_1', 0.4580011805001314, False)]
+    [(1, 'user_0', 0.3164412298275918, False),
+     (2, 'user_1', 0.16846270602459934, False)]
 
 
 
@@ -116,7 +116,7 @@ db.select_first()
 
 
 
-    (1, 'user_0', 0.5166077975509809, True)
+    (1, 'user_0', 0.3164412298275918, False)
 
 
 
@@ -150,7 +150,7 @@ db.select_first('age')
 
 
 
-    0.5166077975509809
+    0.3164412298275918
 
 
 
@@ -169,7 +169,7 @@ db.select(where=db['id']==2)
 
 
 
-    [(2, 'user_1', 0.4580011805001314, False)]
+    [(2, 'user_1', 0.16846270602459934, False)]
 
 
 
@@ -186,8 +186,8 @@ db.select(where=db['id']<3)
 
 
 
-    [(1, 'user_0', 0.5166077975509809, True),
-     (2, 'user_1', 0.4580011805001314, False)]
+    [(1, 'user_0', 0.3164412298275918, False),
+     (2, 'user_1', 0.16846270602459934, False)]
 
 
 
@@ -206,8 +206,8 @@ db.select(where=(db['id']%2)==0, limit=2)
 
 
 
-    [(2, 'user_1', 0.4580011805001314, False),
-     (4, 'user_3', 0.561619450442891, True)]
+    [(2, 'user_1', 0.16846270602459934, False),
+     (4, 'user_3', 0.8760700109368977, True)]
 
 
 
@@ -225,8 +225,8 @@ db.select(where= (db['id']>=2) & (db['id']<=4) & (db['name']!='user_2'))
 
 
 
-    [(2, 'user_1', 0.4580011805001314, False),
-     (4, 'user_3', 0.561619450442891, True)]
+    [(2, 'user_1', 0.16846270602459934, False),
+     (4, 'user_3', 0.8760700109368977, True)]
 
 
 
@@ -243,8 +243,8 @@ db.select(where=db['name'].in_(('user_2','user_3')))
 
 
 
-    [(3, 'user_2', 0.11765522238230297, False),
-     (4, 'user_3', 0.561619450442891, True)]
+    [(3, 'user_2', 0.5487944288357308, True),
+     (4, 'user_3', 0.8760700109368977, True)]
 
 
 
@@ -261,9 +261,9 @@ db.select(where=db['id'].between(2,4))
 
 
 
-    [(2, 'user_1', 0.4580011805001314, False),
-     (3, 'user_2', 0.11765522238230297, False),
-     (4, 'user_3', 0.561619450442891, True)]
+    [(2, 'user_1', 0.16846270602459934, False),
+     (3, 'user_2', 0.5487944288357308, True),
+     (4, 'user_3', 0.8760700109368977, True)]
 
 
 
@@ -281,8 +281,8 @@ db.select(where= ~(db['name'].in_(('user_2','user_3'))) & (db['id'] < 4))
 
 
 
-    [(1, 'user_0', 0.5166077975509809, True),
-     (2, 'user_1', 0.4580011805001314, False)]
+    [(1, 'user_0', 0.3164412298275918, False),
+     (2, 'user_1', 0.16846270602459934, False)]
 
 
 
@@ -300,8 +300,8 @@ db.select(where= dt.or_(dt.not_(db['id']==4)) & (db['id'] <= 2))
 
 
 
-    [(1, 'user_0', 0.5166077975509809, True),
-     (2, 'user_1', 0.4580011805001314, False)]
+    [(1, 'user_0', 0.3164412298275918, False),
+     (2, 'user_1', 0.16846270602459934, False)]
 
 
 
@@ -324,7 +324,7 @@ db.select(db['name'], where=db['age']>mean_age, limit=2)
 
 
 
-    ['user_0', 'user_1']
+    ['user_3', 'user_5']
 
 
 
@@ -342,7 +342,7 @@ dict(db.select_first([db['age'].label('myage'), db['name'].label('myname')]))
 
 
 
-    {'myage': 0.5166077975509809, 'myname': 'user_0'}
+    {'myage': 0.3164412298275918, 'myname': 'user_0'}
 
 
 
@@ -362,7 +362,7 @@ db.select_first([db['age'].sum, db['age'].count, db['age']])
 
 
 
-    (4.249563654021776, 10, 0.5166077975509809)
+    (5.5745842928905915, 10, 0.3164412298275918)
 
 
 
@@ -380,7 +380,7 @@ dict(db.select_first([db['age'].sum.label('sum'), db['age'].count.label('ct')]))
 
 
 
-    {'sum': 4.249563654021776, 'ct': 10}
+    {'sum': 5.5745842928905915, 'ct': 10}
 
 
 
@@ -401,8 +401,8 @@ db.select(limit=2)
 
 
 
-    [(1, 'user_0', 0.5166077975509809, True),
-     (2, 'user_1', 0.4580011805001314, False)]
+    [(1, 'user_0', 0.3164412298275918, False),
+     (2, 'user_1', 0.16846270602459934, False)]
 
 
 
@@ -420,8 +420,8 @@ db.select(orderby=db['age'].desc(), limit=2)
 
 
 
-    [(5, 'user_4', 0.7481864771605083, True),
-     (10, 'user_9', 0.5813252888364897, True)]
+    [(4, 'user_3', 0.8760700109368977, True),
+     (9, 'user_8', 0.8706290541203731, True)]
 
 
 
@@ -439,8 +439,8 @@ db.select(orderby=(db['age'].desc(),db['is_old'].asc()), limit=2)
 
 
 
-    [(5, 'user_4', 0.7481864771605083, True),
-     (10, 'user_9', 0.5813252888364897, True)]
+    [(4, 'user_3', 0.8760700109368977, True),
+     (9, 'user_8', 0.8706290541203731, True)]
 
 
 
@@ -459,8 +459,8 @@ db.select(orderby='age', limit=2)
 
 
 
-    [(8, 'user_7', 0.10519959676561441, False),
-     (3, 'user_2', 0.11765522238230297, False)]
+    [(5, 'user_4', 0.050003572489580095, False),
+     (2, 'user_1', 0.16846270602459934, False)]
 
 
 
@@ -478,8 +478,8 @@ db.select(groupby=db['is_old'])
 
 
 
-    [(2, 'user_1', 0.4580011805001314, False),
-     (1, 'user_0', 0.5166077975509809, True)]
+    [(1, 'user_0', 0.3164412298275918, False),
+     (3, 'user_2', 0.5487944288357308, True)]
 
 
 
@@ -497,9 +497,9 @@ db.select(groupby=(db['is_old'],db['name']), limit=3)
 
 
 
-    [(2, 'user_1', 0.4580011805001314, False),
-     (3, 'user_2', 0.11765522238230297, False),
-     (7, 'user_6', 0.15063468910129174, False)]
+    [(1, 'user_0', 0.3164412298275918, False),
+     (2, 'user_1', 0.16846270602459934, False),
+     (5, 'user_4', 0.050003572489580095, False)]
 
 
 
@@ -517,7 +517,7 @@ db.select(db['age'].max, groupby=db['is_old'])
 
 
 
-    [0.49796326086092635, 0.7481864771605083]
+    [0.3164412298275918, 0.8760700109368977]
 
 
 
@@ -537,7 +537,7 @@ dict(list(results)[0])
 
 
 
-    {'age': 0.5166077975509809, 'name': 'user_0'}
+    {'age': 0.3164412298275918, 'name': 'user_0'}
 
 
 
@@ -556,8 +556,8 @@ db.select(whrstr=whrstr, limit=2)
 
 
 
-    [(1, 'user_0', 0.5166077975509809, True),
-     (4, 'user_3', 0.561619450442891, True)]
+    [(3, 'user_2', 0.5487944288357308, True),
+     (4, 'user_3', 0.8760700109368977, True)]
 
 
 
@@ -576,9 +576,8 @@ db.select(where=db['id']<=5, whrstr=whrstr)
 
 
 
-    [(1, 'user_0', 0.5166077975509809, True),
-     (4, 'user_3', 0.561619450442891, True),
-     (5, 'user_4', 0.7481864771605083, True)]
+    [(3, 'user_2', 0.5487944288357308, True),
+     (4, 'user_3', 0.8760700109368977, True)]
 
 
 
@@ -597,9 +596,8 @@ db.select(where=db['id']<=5, whrstr=whrstr)
 
 
 
-    [(1, 'user_0', 0.5166077975509809, True),
-     (4, 'user_3', 0.561619450442891, True),
-     (5, 'user_4', 0.7481864771605083, True)]
+    [(3, 'user_2', 0.5487944288357308, True),
+     (4, 'user_3', 0.8760700109368977, True)]
 
 
 
@@ -639,7 +637,7 @@ db.count(db['age'] < 0.5)
 
 
 
-    5
+    3
 
 
 
@@ -674,7 +672,7 @@ db.next_id(idcol='age')
 
 
 
-    1.7481864771605085
+    1.8760700109368977
 
 
 
@@ -694,8 +692,8 @@ db.select_series(db['age']).head(2)
 
 
 
-    0    0.516608
-    1    0.458001
+    0    0.316441
+    1    0.168463
     dtype: float64
 
 
@@ -712,8 +710,8 @@ db.select_series(db['age']).quantile([0.025, 0.985])
 
 
 
-    0.025    0.108002
-    0.985    0.725660
+    0.025    0.076657
+    0.985    0.875335
     dtype: float64
 
 
@@ -756,12 +754,60 @@ db.select_df(['id','age']).head(2)
     <tr>
       <td>0</td>
       <td>1</td>
-      <td>0.516608</td>
+      <td>0.316441</td>
     </tr>
     <tr>
       <td>1</td>
       <td>2</td>
-      <td>0.458001</td>
+      <td>0.168463</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+db.select_df('age').head(2)
+```
+
+    DocTable2 Query: SELECT mydocuments.age 
+    FROM mydocuments
+
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>0.316441</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>0.168463</td>
     </tr>
   </tbody>
 </table>
@@ -808,11 +854,11 @@ db.select_df([db['id'],db['age']]).corr()
     <tr>
       <td>id</td>
       <td>1.000000</td>
-      <td>-0.055382</td>
+      <td>0.579989</td>
     </tr>
     <tr>
       <td>age</td>
-      <td>-0.055382</td>
+      <td>0.579989</td>
       <td>1.000000</td>
     </tr>
   </tbody>
@@ -867,22 +913,22 @@ db.select_df([db['id'],db['age']]).describe().T
       <td>10.0</td>
       <td>5.500000</td>
       <td>3.02765</td>
-      <td>1.0000</td>
-      <td>3.250000</td>
+      <td>1.000000</td>
+      <td>3.25000</td>
       <td>5.500000</td>
       <td>7.750000</td>
-      <td>10.000000</td>
+      <td>10.00000</td>
     </tr>
     <tr>
       <td>age</td>
       <td>10.0</td>
-      <td>0.424956</td>
-      <td>0.22161</td>
-      <td>0.1052</td>
-      <td>0.227476</td>
-      <td>0.505167</td>
-      <td>0.550367</td>
-      <td>0.748186</td>
+      <td>0.557458</td>
+      <td>0.28826</td>
+      <td>0.050004</td>
+      <td>0.37453</td>
+      <td>0.625552</td>
+      <td>0.748219</td>
+      <td>0.87607</td>
     </tr>
   </tbody>
 </table>
@@ -974,41 +1020,41 @@ df.groupby('old_grp').describe()
   <tbody>
     <tr>
       <td>False</td>
-      <td>3.0</td>
-      <td>6.000000</td>
-      <td>2.645751</td>
-      <td>3.0</td>
+      <td>4.0</td>
+      <td>2.750000</td>
+      <td>1.707825</td>
+      <td>1.0</td>
+      <td>1.75</td>
+      <td>2.5</td>
+      <td>3.50</td>
       <td>5.0</td>
-      <td>7.0</td>
-      <td>7.5</td>
-      <td>8.0</td>
-      <td>3.0</td>
-      <td>0.124497</td>
-      <td>0.023477</td>
-      <td>0.105200</td>
-      <td>0.111427</td>
-      <td>0.117655</td>
-      <td>0.134145</td>
-      <td>0.150635</td>
+      <td>4.0</td>
+      <td>0.270925</td>
+      <td>0.214933</td>
+      <td>0.050004</td>
+      <td>0.138848</td>
+      <td>0.242452</td>
+      <td>0.374530</td>
+      <td>0.548794</td>
     </tr>
     <tr>
       <td>True</td>
-      <td>7.0</td>
-      <td>5.285714</td>
-      <td>3.352327</td>
-      <td>1.0</td>
-      <td>3.0</td>
-      <td>5.0</td>
+      <td>6.0</td>
+      <td>7.333333</td>
+      <td>2.160247</td>
+      <td>4.0</td>
+      <td>6.25</td>
       <td>7.5</td>
+      <td>8.75</td>
       <td>10.0</td>
-      <td>7.0</td>
-      <td>0.553725</td>
-      <td>0.094868</td>
-      <td>0.458001</td>
-      <td>0.505167</td>
-      <td>0.516608</td>
-      <td>0.571472</td>
-      <td>0.748186</td>
+      <td>6.0</td>
+      <td>0.748480</td>
+      <td>0.111277</td>
+      <td>0.610373</td>
+      <td>0.666343</td>
+      <td>0.746540</td>
+      <td>0.840446</td>
+      <td>0.876070</td>
     </tr>
   </tbody>
 </table>
@@ -1068,13 +1114,13 @@ df.groupby('old_grp').agg(**{
   <tbody>
     <tr>
       <td>False</td>
-      <td>user_2</td>
-      <td>0.000551</td>
+      <td>user_0</td>
+      <td>0.046196</td>
     </tr>
     <tr>
       <td>True</td>
-      <td>user_0</td>
-      <td>0.009000</td>
+      <td>user_3</td>
+      <td>0.012383</td>
     </tr>
   </tbody>
 </table>
@@ -1097,13 +1143,13 @@ for row in db.select_chunk(chunksize=2, max_rows=3, where=(db['id']%2)==0):
     FROM mydocuments 
     WHERE mydocuments.id % :id_1 = :param_1
      LIMIT :param_2 OFFSET :param_3
-    (2, 'user_1', 0.4580011805001314, False)
-    (4, 'user_3', 0.561619450442891, True)
+    (2, 'user_1', 0.16846270602459934, False)
+    (4, 'user_3', 0.8760700109368977, True)
     DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
     FROM mydocuments 
     WHERE mydocuments.id % :id_1 = :param_1
      LIMIT :param_2 OFFSET :param_3
-    (6, 'user_5', 0.5123706904206388, True)
+    (6, 'user_5', 0.7431812816282332, True)
 
 
 # Bootstrap Select
@@ -1121,15 +1167,15 @@ db.select_bootstrap(nsamp=10, verbose=False)
 
 
 
-    [(1, 'user_0', 0.5166077975509809, True),
-     (3, 'user_2', 0.11765522238230297, False),
-     (4, 'user_3', 0.561619450442891, True),
-     (5, 'user_4', 0.7481864771605083, True),
-     (6, 'user_5', 0.5123706904206388, True),
-     (7, 'user_6', 0.15063468910129174, False),
-     (8, 'user_7', 0.10519959676561441, False),
-     (4, 'user_3', 0.561619450442891, True),
-     (5, 'user_4', 0.7481864771605083, True),
-     (6, 'user_5', 0.5123706904206388, True)]
+    [(2, 'user_1', 0.16846270602459934, False),
+     (3, 'user_2', 0.5487944288357308, True),
+     (6, 'user_5', 0.7431812816282332, True),
+     (7, 'user_6', 0.6407300749770457, True),
+     (8, 'user_7', 0.6103732528229019, True),
+     (9, 'user_8', 0.8706290541203731, True),
+     (2, 'user_1', 0.16846270602459934, False),
+     (3, 'user_2', 0.5487944288357308, True),
+     (8, 'user_7', 0.6103732528229019, True),
+     (2, 'user_1', 0.16846270602459934, False)]
 
 
