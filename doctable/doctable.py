@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import _pickle as pickle
 import pandas as pd
@@ -17,7 +18,24 @@ class DocTable:
                  constraints=tuple(),
                  verbose=False,
                  persistent_conn=True,
+                 make_new_db=True,
                 ):
+        '''
+        Args:
+            fname (str): filename of database
+            tabname (str): name of sqlite table to manipulate.
+            colschema (tuple of 2-tuples): list of colname, coltype columns
+            constraints (tuple of str): constraints to put on columns
+            verbose (bool): print querys before executing
+            persistent_conn (bool): keep a persistent sqlite3 connection to 
+                the db.
+            new_db (bool): create a new database file if one does not already 
+                exist. Prevents creation of new db if filename is mis-specified.
+        '''
+        
+        if not make_new_db and not os.path.exists(fname):
+            raise FileNotFoundError('The {} database file does not exist and '
+                'make_new_db is set to False.'.format(fname))
         
         self.fname = fname
         self.tabname = tabname
