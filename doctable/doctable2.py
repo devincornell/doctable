@@ -44,7 +44,7 @@ class DocTable2:
     }
     _valid_types = list(_constraint_map.keys()) + list(_type_map.keys())
     
-    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, new_db=True, **engine_args):
+    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, make_new_db=True, **engine_args):
         '''Create new database.
         Args:
             schema (list<list>): schema from which to create db. Includes a
@@ -74,7 +74,7 @@ class DocTable2:
         
         # in cases where user did not want to create new db but a db does not 
         # exist
-        if fname != ':memory:' and not os.path.exists(fname) and not new_db:
+        if fname != ':memory:' and not os.path.exists(fname) and not make_new_db:
             raise ValueError('new_db is set to true and the database does not '
                              'exist yet.')
         

@@ -74,11 +74,14 @@ deploy: build
 	# here we go now upload
 	python -m twine upload dist/*
 
-TMP_TEST_FOLDER = tmp_test_deleteme
-test:
+pytest:
 	# tests from tests folder
 	pytest $(TESTS_FOLDER)/test_dt1_*.py
 	pytest $(TESTS_FOLDER)/test_dt2_*.py
+
+
+TMP_TEST_FOLDER = tmp_test_deleteme
+test: pytest
 	
 	# make temporary testing folder and copy files into it
 	-rm -r $(TMP_TEST_FOLDER)
