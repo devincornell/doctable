@@ -363,9 +363,8 @@ class DocTable2:
                 dataframe to envoke this behavior.
         '''
         
-        if not is_sequence(cols) and cols is not None:
-            raise TypeError('col argument should be multiple columns. '
-                'For single column, use .select_series().')
+        if not is_sequence(cols):
+            cols = [cols]
         
         sel = self.select(cols, *args, **kwargs)
         rows = [dict(r) for r in sel]
