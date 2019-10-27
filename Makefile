@@ -77,7 +77,7 @@ deploy: build
 TMP_TEST_FOLDER = tmp_test_deleteme
 test:
 	# tests from tests folder
-	#pytest $(TESTS_FOLDER)/test_dt1_*.py (THERE CURRENTLY ARE NO doctable1 TESTS HERE.)
+	pytest $(TESTS_FOLDER)/test_dt1_*.py
 	pytest $(TESTS_FOLDER)/test_dt2_*.py
 	
 	# make temporary testing folder and copy files into it
