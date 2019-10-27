@@ -10,7 +10,7 @@ import sqlalchemy.sql as op
 from sqlalchemy.sql import func
 import sqlalchemy as sa
 
-from .coltypes import CpickleType, TokensType
+from .coltypes import CpickleType
 
 class DocTable2:
     _type_map = {
@@ -31,7 +31,6 @@ class DocTable2:
         'time':sa.Time,
         'unicode':sa.Unicode,
         'unicodetext':sa.UnicodeText,
-        'tokens':TokensType, # custom datatype
         'pickle': CpickleType, # custom datatype
     }
     
