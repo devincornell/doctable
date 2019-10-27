@@ -13,7 +13,7 @@ class DocTable:
     
     def __init__(self,
                  colschema=None, 
-                 fname=':memory:',  
+                 fname='doctable.db',  
                  tabname='documents', 
                  constraints=tuple(), 
                  verbose=False, 
@@ -59,7 +59,7 @@ class DocTable:
         self.schema = self._get_schema()
         self.columns = list(self.schema['name'])
         
-        if check_schema:
+        if check_schema and fname != ':memory:':
             self._check_schema()
         
         if persistent_conn:
@@ -127,6 +127,7 @@ class DocTable:
         '''
         if self.conn is not None:
             self.conn.commit()
+            self.conn.close()
         
     def __str__(self):
         '''
@@ -266,7 +267,7 @@ class DocTable:
         
         return self.query(qstr, payload, many=True, **queryargs)
     
-    def delete(self, where, **queryargs):
+    def delete(self, where=None, **queryargs):
         '''
             Deletes all rows matching the where criteria.
                 
@@ -278,7 +279,7 @@ class DocTable:
                 query response
         '''
         qstr = 'DELETE FROM '+ self.tabname
-        if where == '*':
+        if where is not None:
             qstr += ' WHERE ' + where
             
         return self.query(qstr, **queryargs)
