@@ -24,7 +24,7 @@ class DocTable2:
         'interval':sa.Interval,
         'largebinary':sa.LargeBinary,
         'numeric':sa.Numeric,
-        'pickle':sa.PickleType,
+        #'pickle':sa.PickleType,
         'smallinteger':sa.SmallInteger,
         'string':sa.String,
         'text':sa.Text,
@@ -32,7 +32,7 @@ class DocTable2:
         'unicode':sa.Unicode,
         'unicodetext':sa.UnicodeText,
         'tokens':TokensType, # custom datatype
-        'cpickle': CpickleType, # custom datatype
+        'pickle': CpickleType, # custom datatype
     }
     
     _constraint_map = {
