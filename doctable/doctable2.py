@@ -11,6 +11,7 @@ from sqlalchemy.sql import func
 import sqlalchemy as sa
 
 from .coltypes import CpickleType
+from .bootstrap import DocBootstrap
 
 class DocTable2:
     _type_map = {
@@ -612,6 +613,20 @@ class DocTable2:
     
     
     #################### Bootstrapping Methods ###################    
+    
+    def get_bootstrap(self, *args, **kwargs):
+        '''Generates a DocBootstrap object to sample from.
+        Notes:
+            The DocBootstrap object keeps all selected docs in
+                memory, and yields samples with .sample().
+        Args:
+            *args: passed to .select()
+            **kwargs: passed to .select()
+        Returns:
+            DocBootstrap object for bootstrapping.
+        '''
+        docs = self.select(*args, **kwargs)
+        return DocBootstrap(docs)
     
     def select_bootstrap(self, *args, **kwargs):
         ''' Performs select statement by bootstrapping output.
