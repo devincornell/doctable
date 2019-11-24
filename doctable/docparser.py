@@ -3,6 +3,65 @@
 class DocParser:
     '''Class that maintains convenient functions for parsing Spacy doc objects.'''
     
+
+    
+    @classmethod
+    def tokenize_doc(cls, doc, split_sents=False, merge_ents=False, merge_noun_chunks=False, ngrams=list(), spacy_ngram_matcher=None, ngram_sep=' ', use_tok_args=dict(), parse_tok_args=dict()):
+        '''Parse spacy doc object.
+        Args:
+            split_sents (bool): parse into list of sentence tokens using doc.sents.
+            merge_ents (bool): merge multi_word entities into same token.
+            ngrams (iter<iter<str>>): iterable of token tuples to merge after parsing.
+            spacy_ngram_matcher (spacy Matcher): matcher object to use on the spacy doc.
+                Normally will create using spacy.Matcher(nlp.vocab), see more details
+                at https://spacy.io/usage/rule-based-matching And also note that the 
+                nlp object must be the one used for parsing.
+            use_tok_args (dict): arguments to be passed to .use_tok()
+            parse_tok_args (dict): arguments to pass to .parse_tok()
+        '''
+        
+        # NOTE! These need to be under two separate retokenize() blocks
+        #     because retokenizing only occurs after the block and sometimes
+        #     custom matches (provided via matcher) overlap with ents. Easiest
+        #     way is to do custom first, then non-overlapping.
+        if spacy_ngram_matcher is not None:
+            # merge custom matches
+            with doc.retokenize() as retokenizer:
+                for match_id, start, end in spacy_ngram_matcher(doc):
+                    retokenizer.merge(doc[start:end])
+        if merge_ents:
+            # merge entities
+            with doc.retokenize() as retokenizer:
+                for ent in doc.ents:
+                    retokenizer.merge(ent)
+        if merge_noun_chunks:
+            # merge entities
+            with doc.retokenize() as retokenizer:
+                for nc in doc.noun_chunks:
+                    retokenizer.merge(nc)
+                
+        # sentence parsing mode
+        if split_sents:
+            sents = [
+                [cls.parse_tok(tok, **parse_tok_args) 
+                 for tok in sent if cls.use_tok(tok, **use_tok_args)] 
+                for sent in doc.sents
+            ]
+            
+            if len(ngrams) > 0:
+                sents = [cls.merge_ngrams(sent, ngrams, ngram_sep=ngram_sep) for sent in sents]
+            
+            return sents
+        
+        # doc parsing mode
+        else:
+            toks = [cls.parse_tok(tok, **parse_tok_args) 
+                    for tok in doc if cls.use_tok(tok, **use_tok_args)]
+            
+            if len(ngrams) > 0:
+                toks = cls.merge_ngrams(toks, ngrams, ngram_sep=ngram_sep)
+            return toks
+        
     @staticmethod
     def parse_tok(tok, replace_num=None, replace_digit=None, lemmatize=False, normal_convert=None, format_ents=True, ent_convert=None):
         '''Convert spacy token object to string.
@@ -31,7 +90,7 @@ class DocParser:
             if lemmatize:
                 return tok.lemma_.lower().strip()
             elif normal_convert is not None:
-                return other_convert(tok)
+                return normal_convert(tok)
             else:
                 return tok.text.lower().strip()
         
@@ -44,7 +103,7 @@ class DocParser:
                 return tok.text.strip()
         
     @staticmethod
-    def use_tok(tok, no_whitespace=True, no_punct=False, no_num=False, no_digit=False, no_stop=False, no_ent=False):
+    def use_tok(tok, filter_whitespace=True, filter_punct=False, filter_stop=False, filter_digit=False, filter_num=False, filter_all_ents=False, filter_ent_types=tuple()):
         '''Decide to use token or not (can be overridden).
         Args:
             no_whitespace (bool): exclude whitespace.
@@ -54,66 +113,49 @@ class DocParser:
             no_stop (bool): exclude stopwords.
         '''
         do_use_tok = True
-        if no_whitespace:
-            do_use_tok = do_use_tok and (tok.is_ascii and \
-                not tok.is_space and len(tok.text.strip()) > 0)
-        if no_punct:
+        if filter_whitespace:
+            do_use_tok = do_use_tok and (not tok.is_space and len(tok.text.strip()) > 0)
+        
+        if filter_punct:
             do_use_tok = do_use_tok and not tok.is_punct
             
-        if no_stop:
+        if filter_stop:
             do_use_tok = do_use_tok and not tok.is_stop
             
-        if no_whitespace:
-            do_use_tok = do_use_tok and not tok.is_space
-            
-        if no_num:
+        if filter_digit:
             do_use_tok = do_use_tok and not tok.is_digit
             
-        if no_digit:
+        if filter_num:
             do_use_tok = do_use_tok and not tok.like_num
         
-        if no_ent:
-            do_use_tok = do_use_tok and tok.ent_type_ != ''
+        if filter_all_ents:
+            do_use_tok = do_use_tok and tok.ent_type_ == ''
+            
+        if len(filter_ent_types) > 0:
+            do_use_tok = do_use_tok and tok.ent_type_ not in filter_ent_types
             
         return do_use_tok
     
-    @classmethod
-    def tokenize_doc(cls,doc, split_sents=False, merge_ents=False, matcher=None, use_tok_args=dict(), parse_tok_args=dict()):
-        '''Parse spacy doc object.
-        Args:
-            split_sents (bool): parse into list of sentence tokens using doc.sents.
-            merge_ents (bool): merge multi_word entities into same
-            matcher (spacy Matcher): matcher object to use on the spacy doc.
-                Normally will create using spacy.Matcher(nlp.vocab), see more details
-                at https://spacy.io/usage/rule-based-matching And also note that the 
-                nlp object must be the one used for parsing.
-            use_tok_args (dict): arguments to be passed to .use_tok()
-            parse_tok_args (dict): arguments to pass to .parse_tok()
+    
+    @staticmethod
+    def merge_ngrams(toks, ngrams, ngram_sep=' '):
+        '''Merges consecutive strings (tokenized n-grams) into single tokens.
         '''
+        new_toks = list()
+        ngram_starts = [ng[0] for ng in ngrams] # first word of every ngram
+        i = 0
+        while i < len(toks):
+            if toks[i] in ngram_starts: # match is possible
+                for ng in ngrams:
+                    zip_rng = zip(range(len(ng)), range(i,len(toks)))
+                    if all([ng[j]==toks[k] for j,k in zip_rng]):
+                        new_toks.append(ngram_sep.join(ng))
+                        i += len(ng)
+                        break
+                new_toks.append(toks[i])
+                i += 1
+            else: # match is impossible
+                new_toks.append(toks[i])
+                i += 1
+        return new_toks
         
-        # NOTE! These need to be under two separate retokenize() blocks
-        #     because retokenizing only occurs after the block and sometimes
-        #     custom matches (provided via matcher) overlap with ents. Easiest
-        #     way is to do custom first, then non-overlapping.
-        if matcher is not None:
-            with doc.retokenize() as retokenizer:
-                # merge custom matches
-                if matcher is not None:
-                    for match_id, start, end in matcher(doc):
-                        retokenizer.merge(doc[start:end])
-        if merge_ents:
-            with doc.retokenize() as retokenizer:
-                # merge entities
-                for ent in doc.ents:
-                    retokenizer.merge(ent)
-                
-        if split_sents:
-            sents = [
-                [cls.parse_tok(tok, **parse_tok_args) 
-                 for tok in sent if cls.use_tok(tok, **use_tok_args)] 
-                for sent in doc.sents
-            ]
-            return sents
-        else:
-            return [cls.parse_tok(tok, **parse_tok_args) 
-                    for tok in doc if cls.use_tok(tok, **use_tok_args)]
