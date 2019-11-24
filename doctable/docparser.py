@@ -3,8 +3,6 @@
 class DocParser:
     '''Class that maintains convenient functions for parsing Spacy doc objects.'''
     
-
-    
     @classmethod
     def tokenize_doc(cls, doc, split_sents=False, merge_ents=False, merge_noun_chunks=False, ngrams=list(), spacy_ngram_matcher=None, ngram_sep=' ', use_tok_args=dict(), parse_tok_args=dict()):
         '''Parse spacy doc object.
