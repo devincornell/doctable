@@ -1,7 +1,55 @@
 
 
+
 class DocParser:
     '''Class that maintains convenient functions for parsing Spacy doc objects.'''
+
+    # NOT CURRENTLY BEING USED
+    #default_parsetree_tok_info = {
+    #    'pos': lambda tok: tok.pos_, 
+    #    'tag': lambda tok: tok.tag_, 
+    #    'dep': lambda tok: tok.dep_, 
+    #    'ent_type': lambda tok: tok.ent_type_ if tok.ent_type_ != '' else None,
+    #}
+    
+    @classmethod
+    def get_parsetree(cls, doc, parse_tok_func=None, parse_tok_args=dict(), parsetree_tok_info=dict(), tok_attrname='tok', children_attrname='children'):
+        '''Extracts parsetree from spacy doc objects.
+        Args:
+            doc (spacy.Doc object): doc to generate parsetree from.
+            parse_tok_func (function): used to parse token. If none, reverts to build-in token parser. Added so 
+                users could create a custom function instead of using the built-in.
+            parse_tok_args (dict): to be pased to .parse_tok(), which is applied to tok_attrname in parsing tree.
+                This part is a little weird, but I had to include tok_attrname instead of rely on user passing
+                it through parsetree_tok_info so that it could use the underlying token (parameter defaults).
+            parsetree_tok_info (str->func): maps token attributes to attributes in resulting parse tree
+            tok_attrname (str): attribute name for actual token ext, automatically included in parsetree result
+            children_attrname (str): attribute name for list of children object in resulting parsetree
+        '''
+        
+        if parse_tok_func is None:
+            parse_tok_func = cls.parse_tok
+        #if parsetree_tok_info is None:
+        #    parsetree_tok_info = dict()#cls.default_parsetree_tok_info
+        
+        sent_trees = [
+            cls._recurse_parsetree(sent.root, parsetree_tok_info, tok_attrname, children_attrname, parse_tok_func, parse_tok_args) 
+            for sent in doc.sents
+        ]
+        return sent_trees
+        
+    @classmethod
+    def _recurse_parsetree(cls, tok, parsetree_tok_info, tok_attrname, children_attrname, parse_tok_func, parse_tok_args):
+        tok_info = {attr:info_func(tok) for attr, info_func in parsetree_tok_info.items()}
+        node = {**tok_info, 'tok': parse_tok_func(tok, **parse_tok_args), children_attrname:list()}
+        
+        # add each child and their children
+        for child in tok.children:
+            child_node = cls._recurse_parsetree(child, parsetree_tok_info, tok_attrname, children_attrname, parse_tok_func, parse_tok_args)
+            node[children_attrname].append(child_node)
+
+        return node
+        
     
     @classmethod
     def tokenize_doc(cls, doc, split_sents=False, merge_ents=False, merge_noun_chunks=False, ngrams=list(), spacy_ngram_matcher=None, ngram_sep=' ', use_tok_args=dict(), parse_tok_args=dict()):
@@ -156,4 +204,5 @@ class DocParser:
                 new_toks.append(toks[i])
                 i += 1
         return new_toks
+        
         
