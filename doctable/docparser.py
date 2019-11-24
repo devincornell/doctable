@@ -1,8 +1,10 @@
 
 
-def DocParser:
+class DocParser:
     '''Class that maintains convenient functions for parsing Spacy doc objects.'''
-    def parse_tok(tok, replace_num='__NUM__', replace_digit='__DIGIT__', lemmatize=False, other_convert=None, format_ents=True, ent_convert=None, other_convert=None):
+    
+    @staticmethod
+    def parse_tok(tok, replace_num=None, replace_digit=None, lemmatize=False, normal_convert=None, format_ents=True, ent_convert=None):
         '''Convert spacy token object to string.
         Args:
             tok (spacy token or span): token object to convert to string.
@@ -11,7 +13,7 @@ def DocParser:
             replace_digit (str/None): Replace digit meeting tok.is_digit with special token. 
                 Only used when replace_num is None.
             lemmatize (bool): return lemma instead of full word.
-            other_convert (func): custom conversion function to happen as last step
+            normal_convert (func): custom conversion function to happen as last step
                 for non-entities. This way can keep all other functionality.
             format_ents (bool): Replace whitespace with space and capitalize first 
                 letter of ents.
@@ -28,7 +30,7 @@ def DocParser:
         if tok.ent_type_ == '': # non-entity token
             if lemmatize:
                 return tok.lemma_.lower().strip()
-            elif other_convert is not None:
+            elif normal_convert is not None:
                 return other_convert(tok)
             else:
                 return tok.text.lower().strip()
@@ -37,11 +39,11 @@ def DocParser:
             if ent_convert is not None:
                 return ent_convert(tok)
             elif format_ents:
-                return ' '.join([t.capitalize() for t in tok.text.split()])
+                return ' '.join([t.lower().capitalize() for t in tok.text.split()])
             else:
                 return tok.text.strip()
         
-
+    @staticmethod
     def use_tok(tok, no_whitespace=True, no_punct=False, no_num=False, no_digit=False, no_stop=False, no_ent=False):
         '''Decide to use token or not (can be overridden).
         Args:
@@ -74,21 +76,44 @@ def DocParser:
             do_use_tok = do_use_tok and tok.ent_type_ != ''
             
         return do_use_tok
-
-    def tokenize_doc(doc, split_sents=True, merge_ents=False, use_tok_args=dict()):
+    
+    @classmethod
+    def tokenize_doc(cls,doc, split_sents=False, merge_ents=False, matcher=None, use_tok_args=dict(), parse_tok_args=dict()):
         '''Parse spacy doc object.
         Args:
             split_sents (bool): parse into list of sentence tokens using doc.sents.
             merge_ents (bool): merge multi_word entities into same
+            matcher (spacy Matcher): matcher object to use on the spacy doc.
+                Normally will create using spacy.Matcher(nlp.vocab), see more details
+                at https://spacy.io/usage/rule-based-matching And also note that the 
+                nlp object must be the one used for parsing.
             use_tok_args (dict): arguments to be passed to .use_tok()
             parse_tok_args (dict): arguments to pass to .parse_tok()
         '''
         
+        # NOTE! These need to be under two separate retokenize() blocks
+        #     because retokenizing only occurs after the block and sometimes
+        #     custom matches (provided via matcher) overlap with ents. Easiest
+        #     way is to do custom first, then non-overlapping.
+        if matcher is not None:
+            with doc.retokenize() as retokenizer:
+                # merge custom matches
+                if matcher is not None:
+                    for match_id, start, end in matcher(doc):
+                        retokenizer.merge(doc[start:end])
         if merge_ents:
-            for ent in doc.ents:
-                ent.merge(tag=ent.root.tag_, ent_type=ent.root.ent_type_)
+            with doc.retokenize() as retokenizer:
+                # merge entities
+                for ent in doc.ents:
+                    retokenizer.merge(ent)
                 
         if split_sents:
-            return [[self.parse_tok(tok) for tok in sent] for sent in doc.sents]
+            sents = [
+                [cls.parse_tok(tok, **parse_tok_args) 
+                 for tok in sent if cls.use_tok(tok, **use_tok_args)] 
+                for sent in doc.sents
+            ]
+            return sents
         else:
-            return [self.parse_tok(tok) for tok in doc if use_tok(tok)]
+            return [cls.parse_tok(tok, **parse_tok_args) 
+                    for tok in doc if cls.use_tok(tok, **use_tok_args)]
