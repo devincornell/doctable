@@ -13,7 +13,7 @@ class DocParser:
     #}
     
     @classmethod
-    def get_parsetree(cls, doc, parse_tok_func=None, parse_tok_args=dict(), parsetree_tok_info=dict(), tok_attrname='tok', children_attrname='children'):
+    def get_parsetree(cls, doc, tok_info_map=None, children_attrname='childs', merge_ents=False, spacy_ngram_matcher=None, merge_noun_chunks=False):
         '''Extracts parsetree from spacy doc objects.
         Args:
             doc (spacy.Doc object): doc to generate parsetree from.
@@ -26,30 +26,32 @@ class DocParser:
             tok_attrname (str): attribute name for actual token ext, automatically included in parsetree result
             children_attrname (str): attribute name for list of children object in resulting parsetree
         '''
+        cls.apply_ngram_merges(doc, 
+                               merge_ents=merge_ents, 
+                               spacy_ngram_matcher=spacy_ngram_matcher, 
+                               merge_noun_chunks=merge_noun_chunks
+                              )
         
-        if parse_tok_func is None:
-            parse_tok_func = cls.parse_tok
-        #if parsetree_tok_info is None:
-        #    parsetree_tok_info = dict()#cls.default_parsetree_tok_info
+        if tok_info_map is None:
+            tok_info_map = {'tok':cls.parse_tok, 'dep':lambda tok: tok.dep_}
         
         sent_trees = [
-            cls._recurse_parsetree(sent.root, parsetree_tok_info, tok_attrname, children_attrname, parse_tok_func, parse_tok_args) 
+            cls._recurse_parsetree(sent.root, tok_info_map, children_attrname) 
             for sent in doc.sents
         ]
         return sent_trees
         
     @classmethod
-    def _recurse_parsetree(cls, tok, parsetree_tok_info, tok_attrname, children_attrname, parse_tok_func, parse_tok_args):
-        tok_info = {attr:info_func(tok) for attr, info_func in parsetree_tok_info.items()}
-        node = {**tok_info, 'tok': parse_tok_func(tok, **parse_tok_args), children_attrname:list()}
+    def _recurse_parsetree(cls, tok, tok_info_map, children_attrname):
+        tok_info = {attr:info_func(tok) for attr, info_func in tok_info_map.items()}
+        node = {**tok_info, children_attrname:list()}
         
         # add each child and their children
         for child in tok.children:
-            child_node = cls._recurse_parsetree(child, parsetree_tok_info, tok_attrname, children_attrname, parse_tok_func, parse_tok_args)
+            child_node = cls._recurse_parsetree(child, tok_info_map, children_attrname)
             node[children_attrname].append(child_node)
 
         return node
-        
     
     @classmethod
     def tokenize_doc(cls, doc, split_sents=False, merge_ents=False, merge_noun_chunks=False, ngrams=list(), spacy_ngram_matcher=None, ngram_sep=' ', use_tok_args=dict(), parse_tok_args=dict()):
@@ -70,21 +72,7 @@ class DocParser:
         #     because retokenizing only occurs after the block and sometimes
         #     custom matches (provided via matcher) overlap with ents. Easiest
         #     way is to do custom first, then non-overlapping.
-        if spacy_ngram_matcher is not None:
-            # merge custom matches
-            with doc.retokenize() as retokenizer:
-                for match_id, start, end in spacy_ngram_matcher(doc):
-                    retokenizer.merge(doc[start:end])
-        if merge_ents:
-            # merge entities
-            with doc.retokenize() as retokenizer:
-                for ent in doc.ents:
-                    retokenizer.merge(ent)
-        if merge_noun_chunks:
-            # merge entities
-            with doc.retokenize() as retokenizer:
-                for nc in doc.noun_chunks:
-                    retokenizer.merge(nc)
+        cls.apply_ngram_merges(doc, merge_ents=merge_ents, spacy_ngram_matcher=spacy_ngram_matcher, merge_noun_chunks=merge_noun_chunks)
                 
         # sentence parsing mode
         if split_sents:
@@ -184,6 +172,25 @@ class DocParser:
     
     
     @staticmethod
+    def apply_ngram_merges(doc, merge_ents=True, spacy_ngram_matcher=None, merge_noun_chunks=False):
+        '''Apply merges to doc object including entities, normal ngrams, and noun chunks.'''
+        if spacy_ngram_matcher is not None:
+            # merge custom matches
+            with doc.retokenize() as retokenizer:
+                for match_id, start, end in spacy_ngram_matcher(doc):
+                    retokenizer.merge(doc[start:end])
+        if merge_ents:
+            # merge entities
+            with doc.retokenize() as retokenizer:
+                for ent in doc.ents:
+                    retokenizer.merge(ent)
+        if merge_noun_chunks:
+            # merge entities
+            with doc.retokenize() as retokenizer:
+                for nc in doc.noun_chunks:
+                    retokenizer.merge(nc)
+    
+    @staticmethod
     def merge_ngrams(toks, ngrams, ngram_sep=' '):
         '''Merges consecutive strings (tokenized n-grams) into single tokens.
         '''
@@ -204,5 +211,9 @@ class DocParser:
                 new_toks.append(toks[i])
                 i += 1
         return new_toks
+        
+
+
+        
         
         
