@@ -2,10 +2,14 @@
 from functools import reduce
 
 class ParseTree:
-    def __init__(self, ptree_dict):
+    def __init__(self, root_tok, *args, **kwargs):
+        
+        if '' in (root_tok.dep_, root_tok.tag_, root_tok.pos_):
+            raise ValueError('Both the Spacy tagger and parser must '
+                'be enabled to use a ParseTree.')
         
         # build tree object and keep reference of ordered tokens
-        self.tree = ParseNode(ptree_dict)
+        self.tree = ParseNode(root_tok, *args, **kwargs)
         self.nodes = self.tree.get_descendant_list()
         self.root = self.nodes[[n.dep for n in self.nodes].index('ROOT')]
         
@@ -70,7 +74,20 @@ class ParseTree:
         
 
 class ParseNode:
-    def __init__(self, ptree_dict):
+    
+    def __init__(self, tok, tok_parse_func, info_func_map=dict()):
+        self.i = tok.i
+        self.tok = tok_parse_func(tok)
+        self.pos = tok.pos_
+        self.dep = tok.dep_
+        self.tag = tok.tag_
+        self.info = {attr:func(tok) for attr,func in info_func_map.items()}
+        
+        # recursive constructor
+        self.childs = [ParseNode(c, tok_parse_func, info_func_map=info_func_map) 
+                       for c in tok.children]
+    
+    def from_dict(self, ptree_dict):
         
         req_prop = ('i','tok','pos','dep','tag','childs',)
         if not all([k in ptree_dict for k in req_prop]):
@@ -95,6 +112,8 @@ class ParseNode:
             self.parent = None
         for child in self.childs:
             child.parent = self
+            
+
     
     def __str__(self):
         return 'ParseNode({})'.format(self.tok)

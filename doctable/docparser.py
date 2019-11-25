@@ -5,65 +5,56 @@ class DocParser:
     '''Class that maintains convenient functions for parsing Spacy doc objects.'''
     
     @classmethod
-    def get_parsetree_obj(cls, doc, tok_info_map=dict(), include_ent_type=True, **kwargs):
-        parse_tree_info_map = {
-            'i':lambda tok: tok.i,
-            'tok':cls.parse_tok, 
-            'dep':lambda tok: tok.dep_,
-            'pos':lambda tok: tok.pos_,
-            'tag':lambda tok: tok.tag_,
-        }
-        if include_ent_type:
-            parse_tree_info_map['ent_type'] = lambda tok: tok.ent_type_
-        
-        tok_info_map = {**parse_tree_info_map, **tok_info_map}
-        kwargs['children_attrname'] = 'childs'
-        ptrees = cls.get_parsetree(doc, tok_info_map=tok_info_map, **kwargs)
-        return [ParseTree(pt) for pt in ptrees]
-    
-    @classmethod
-    def get_parsetree(cls, doc, tok_info_map=None, children_attrname='childs', merge_ents=False, spacy_ngram_matcher=None, merge_noun_chunks=False):
+    def get_parsetrees(cls, doc,
+            tok_parse_func=None,
+            info_func_map=dict(), 
+            merge_ents=False, 
+            spacy_ngram_matcher=None, 
+            merge_noun_chunks=False, 
+        ):
         '''Extracts parsetree from spacy doc objects.
         Args:
             doc (spacy.Doc object): doc to generate parsetree from.
-            parse_tok_func (function): used to parse token. If none, reverts to build-in token parser. Added so 
-                users could create a custom function instead of using the built-in.
-            parse_tok_args (dict): to be pased to .parse_tok(), which is applied to tok_attrname in parsing tree.
-                This part is a little weird, but I had to include tok_attrname instead of rely on user passing
-                it through parsetree_tok_info so that it could use the underlying token (parameter defaults).
-            parsetree_tok_info (str->func): maps token attributes to attributes in resulting parse tree
-            tok_attrname (str): attribute name for actual token ext, automatically included in parsetree result
-            children_attrname (str): attribute name for list of children object in resulting parsetree
+            tok_parse_func (func): function used to convert token to 
+                a string representation. Usually a lambda function 
+                wrapping some variant of self.parse_tok().
+            info_func_map (dict<str->func>): attribute to function 
+                mapping. Functions take a token and output a property
+                that will be stored in each parsetree node.
+            merge_ents (bool): merge multi-word entities.
+            spacy_ngram_matcher (Spacy Matcher): used to create ngrams
+                with Spacy. Powerful wildcards etc.
+            merge_noun_chunks (bool): merge noun chunks or not.
         '''
-        cls.apply_ngram_merges(doc, 
-                               merge_ents=merge_ents, 
-                               spacy_ngram_matcher=spacy_ngram_matcher, 
-                               merge_noun_chunks=merge_noun_chunks
-                              )
+        if tok_parse_func is None:
+            tok_parse_func = cls.parse_tok
         
-        if tok_info_map is None:
-            tok_info_map = {'tok':cls.parse_tok, 'dep':lambda tok: tok.dep_}
+        # apply ngram merges to doc object (permanently modifies doc object)
+        cls.apply_ngram_merges(
+            doc, 
+            merge_ents=merge_ents, 
+            spacy_ngram_matcher=spacy_ngram_matcher, 
+            merge_noun_chunks=merge_noun_chunks
+        )
         
         sent_trees = [
-            cls._recurse_parsetree(sent.root, tok_info_map, children_attrname) 
+            ParseTree(sent.root, tok_parse_func, info_func_map=info_func_map)
             for sent in doc.sents
         ]
         return sent_trees
         
-    @classmethod
-    def _recurse_parsetree(cls, tok, tok_info_map, children_attrname):
-        tok_info = {attr:info_func(tok) for attr, info_func in tok_info_map.items()}
-        node = {**tok_info, children_attrname:list()}
-        
-        # add each child and their children
-        for child in tok.children:
-            child_node = cls._recurse_parsetree(child, tok_info_map, children_attrname)
-            node[children_attrname].append(child_node)
-
-        return node
     
     @classmethod
-    def tokenize_doc(cls, doc, split_sents=False, merge_ents=False, merge_noun_chunks=False, ngrams=list(), spacy_ngram_matcher=None, ngram_sep=' ', use_tok_args=dict(), parse_tok_args=dict()):
+    def tokenize_doc(cls, doc, 
+            split_sents=False, 
+            merge_ents=False, 
+            merge_noun_chunks=False, 
+            ngrams=list(), 
+            spacy_ngram_matcher=None, 
+            ngram_sep=' ', 
+            use_tok_args=dict(), 
+            parse_tok_args=dict()
+        ):
         '''Parse spacy doc object.
         Args:
             split_sents (bool): parse into list of sentence tokens using doc.sents.
@@ -81,7 +72,11 @@ class DocParser:
         #     because retokenizing only occurs after the block and sometimes
         #     custom matches (provided via matcher) overlap with ents. Easiest
         #     way is to do custom first, then non-overlapping.
-        cls.apply_ngram_merges(doc, merge_ents=merge_ents, spacy_ngram_matcher=spacy_ngram_matcher, merge_noun_chunks=merge_noun_chunks)
+        cls.apply_ngram_merges(doc, 
+                merge_ents=merge_ents, 
+                spacy_ngram_matcher=spacy_ngram_matcher,
+                merge_noun_chunks=merge_noun_chunks
+            )
                 
         # sentence parsing mode
         if split_sents:
@@ -106,7 +101,14 @@ class DocParser:
             return toks
         
     @staticmethod
-    def parse_tok(tok, replace_num=None, replace_digit=None, lemmatize=False, normal_convert=None, format_ents=True, ent_convert=None):
+    def parse_tok(tok, 
+            replace_num=None, 
+            replace_digit=None, 
+            lemmatize=False, 
+            normal_convert=None, 
+            format_ents=True, 
+            ent_convert=None
+        ):
         '''Convert spacy token object to string.
         Args:
             tok (spacy token or span): token object to convert to string.
