@@ -1,25 +1,73 @@
 
-
+from functools import reduce
 
 class ParseTree:
     def __init__(self, ptree_dict):
         
         # build tree object and keep reference of ordered tokens
         self.tree = ParseNode(ptree_dict)
-        self.node_l = self.tree.get_descendant_list()
+        self.nodes = self.tree.get_descendant_list()
+        self.root = self.nodes[[n.dep for n in self.nodes].index('ROOT')]
         
     def __len__(self):
-        return len(self.node_l)
+        return len(self.nodes)
     
     def __getitem__(self,ind):
         '''Returns ith item in ordered list of tokens.'''
-        return self.node_l[ind]
+        return self.nodes[ind]
     
     def __iter__(self):
-        return iter(self.node_l)
+        return iter(self.nodes)
 
     def get_ents(self):
-        return self.tree.get_descendant_ents()
+        if self[0].ent is None:
+            raise ValueError('ParseTree needs to have "ent_type" property '
+                'to use .get_ents().')
+        return [n for n in self if n.ent!='']
+    
+    def get_subj_verb_obj(self):
+        triplets = list()
+        for node in self:
+            if node.pos in ('VERB','ADV'):
+                rel = (self.child_dep(node,'nsubj'), node, self.child_dep(node,'dobj'))
+                triplets.append(rel)
+        return triplets
+
+    @staticmethod
+    def child_dep(node, dep_type): # gets first child where node.dep==dep_type.
+        for c in tok.children:
+            if c.dep == dep_type:
+                return c
+        return None
+    
+    def print_ascii_tree(self):
+        '''Print out an ascii tree.
+        taken from: https://stackoverflow.com/questions/32151776/visualize-tree-in-bash-like-the-output-of-unix-tree
+        '''
+        self._print_ascii_tree(self.root, 0)
+        
+    @classmethod
+    def _print_ascii_tree(cls, node, level, last=False, sup=[]):
+        def update(left, i):
+            if i < len(left):
+                left[i] = '   '
+            return left
+        branch = '├'
+        pipe = '|'
+        end = '└'
+        dash = '─'
+
+        print(''.join(reduce(update, sup, ['{}  '.format(pipe)] * level)) \
+              + (end if last else branch) + '{} '.format(dash) \
+              + '({}) {}'.format(node.dep, node.tok))
+        if len(node.childs) > 0:
+            level += 1
+            for node in node.childs[:-1]:
+                cls._print_ascii_tree(node, level, sup=sup)
+            if len(node.childs) > 1:
+                cls._print_ascii_tree(node.childs[-1], level, True, [level] + sup)
+
+        
 
 class ParseNode:
     def __init__(self, ptree_dict):
@@ -55,19 +103,9 @@ class ParseNode:
         return str(self)
         
     def get_descendant_list(self):
-        '''Get list of self and descendants.'''
+        '''Get list of self and descendants to generate node list.'''
         nodes = [self]
         for child in self.childs:
             nodes += child.get_descendant_list()
         return list(sorted(nodes,key=lambda n:n.i))
-    
-    def get_descendant_ents(self):
-        if self.ent is None:
-            raise ValueError('ParseTree needs to have "ent_type" property')
-        
-        ent_l = [t for t in self.get_descendant_list() if t.ent != '']
-        if self.ent != '':
-            ent_l.append(self)
-        return  ent_l
-
     
