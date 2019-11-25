@@ -1,16 +1,25 @@
 
-
+from .parsetree import ParseTree
 
 class DocParser:
     '''Class that maintains convenient functions for parsing Spacy doc objects.'''
+    
+    @classmethod
+    def get_parsetree_obj(cls, doc, tok_info_map=dict(), **kwargs):
+        grammar_tree_info_map = {
+            'i':lambda tok: tok.i,
+            'tok':cls.parse_tok, 
+            'dep':lambda tok: tok.dep_,
+            'pos':lambda tok: tok.pos_,
+            'tag':lambda tok: tok.tag_,
+        }
+        
+        tok_info_map = {**grammar_tree_info_map, **tok_info_map}
+        kwargs['children_attrname'] = 'childs'
+        pt = self.get_parsetree(doc, tok_info_map=tok_info_map, **kwargs)
+        return GrammarTree(pt)
+        
 
-    # NOT CURRENTLY BEING USED
-    #default_parsetree_tok_info = {
-    #    'pos': lambda tok: tok.pos_, 
-    #    'tag': lambda tok: tok.tag_, 
-    #    'dep': lambda tok: tok.dep_, 
-    #    'ent_type': lambda tok: tok.ent_type_ if tok.ent_type_ != '' else None,
-    #}
     
     @classmethod
     def get_parsetree(cls, doc, tok_info_map=None, children_attrname='childs', merge_ents=False, spacy_ngram_matcher=None, merge_noun_chunks=False):
