@@ -38,7 +38,7 @@ class DocParser:
         )
         
         sent_trees = [
-            ParseTree.from_tok(sent.root, tok_parse_func, info_func_map=info_func_map)
+            ParseTree(sent.root, tok_parse_func, info_func_map=info_func_map)
             for sent in doc.sents
         ]
         return sent_trees

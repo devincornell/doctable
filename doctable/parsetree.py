@@ -5,36 +5,18 @@ class ParseTree:
     tree = None
     nodes = None
     root = None
-    def __init__(self):
-        # create from either from_tok or from_dict
-        pass
-    
-    @staticmethod
-    def from_tok(root_tok, *args, **kwargs):
+    def __init__(self, root_node, *args, **kwargs):
+        '''Create from dict parsetree or spacy sentence root.'''
         
-        if '' in (root_tok.dep_, root_tok.tag_, root_tok.pos_):
-            raise ValueError('Both the Spacy tagger and parser must '
-                'be enabled to use a ParseTree.')
+        # check that spacy token is good
+        if not isinstance(root_node, dict):
+            if '' in (root_node.dep_, root_node.tag_, root_node.pos_):
+                raise ValueError('Both the Spacy tagger and parser must '
+                    'be enabled to use a ParseTree.')
         
-        # build tree object and keep reference of ordered tokens
-        pt = ParseTree()
-        pt.tree = ParseNode.from_tok(root_tok, *args, **kwargs)
-        pt.make_node_list()
-        return pt
-    
-    @staticmethod
-    def from_dict(tdict):
-        # build tree object and keep reference of ordered tokens
-        pt = ParseTree()
-        pt.tree = ParseNode.from_dict(tdict)
-        pt.make_node_list()
-        return pt
-    
-    def asdict(self):
-        return self.tree.asdict()
-    
-    def make_node_list(self):
-        self.nodes = self.tree.get_descendant_list()
+        self.tree = ParseNode(root_node, *args, **kwargs)
+        nodes = self.bubble_apply(lambda n: [n])
+        self.nodes = list(sorted(nodes,key=lambda n:n.i))
         self.root = self.nodes[[n.dep for n in self.nodes].index('ROOT')]
         
     def __len__(self):
@@ -47,7 +29,11 @@ class ParseTree:
     def __iter__(self):
         return iter(self.nodes)
     
-
+    def asdict(self):
+        return self.tree.asdict()
+    
+    def bubble_agg(self, func):
+        return self.tree.bubble_agg(func)
 
     def get_ents(self):
         if self[0].ent is None:
@@ -97,49 +83,36 @@ class ParseTree:
             if len(node.childs) > 1:
                 cls._print_ascii_tree(node.childs[-1], level, True, [level] + sup)
 
-        
 
 class ParseNode:
-    i = None
-    tok = None
-    pos = None
-    dep = None
-    tag = None
-    info = None
-    parent = None
-    childs = None
     
-    def __init__(self):
-        pass
-    
-    @staticmethod
-    def from_tok(tok, tok_parse_func, info_func_map=dict(), parent=None):
-        pn = ParseNode()
-        pn.i = tok.i
-        pn.tok = tok_parse_func(tok)
-        pn.pos = tok.pos_
-        pn.dep = tok.dep_
-        pn.tag = tok.tag_
-        pn.info = {attr:func(tok) for attr,func in info_func_map.items()}
+    def __init__(self, node, tok_parse_func=None, info_func_map=dict(), parent=None):
+        '''Construct from either a dictionary or spacy token.'''
+        self.parent = parent
         
-        # recursive constructor
-        pn.parent = parent
-        pn.childs = [ParseNode.from_tok(c, tok_parse_func, info_func_map=info_func_map, parent=pn) 
-                       for c in tok.children]
-        return pn
+        if isinstance(node, dict):
+            ndict = node
+            self.i = ndict['i']
+            self.tok = ndict['tok']
+            self.pos = ndict['pos']
+            self.dep = ndict['dep']
+            self.tag = ndict['tag']
+            self.info = ndict['info']
+            self.childs = [ParseNode(c, parent=self) for c in ndict['childs']]
+
+            
+        else: # node is spacy token
+            tok = node
+            self.i = tok.i
+            self.tok = tok_parse_func(tok) if tok_parse_func is not None else tok.lower_
+            self.pos = tok.pos_
+            self.dep = tok.dep_
+            self.tag = tok.tag_
+            self.info = {attr:func(tok) for attr,func in info_func_map.items()}
+            self.childs = [ParseNode(child, tok_parse_func=tok_parse_func, \
+                            info_func_map=info_func_map, parent=self) 
+                           for child in tok.children]
     
-    @staticmethod
-    def from_dict(ndict, parent=None):
-        pn = ParseNode()
-        pn.i = ndict['i']
-        pn.tok = ndict['tok']
-        pn.pos = ndict['pos']
-        pn.dep = ndict['dep']
-        pn.tag = ndict['tag']
-        pn.info = ndict['info']
-        pn.parent = parent
-        pn.childs = [ParseNode.from_dict(c, parent=pn) for c in ndict['childs']]
-        return pn
         
     def asdict(self):
         '''Convert self to a dict.'''
@@ -161,15 +134,14 @@ class ParseNode:
     def __repr__(self):
         return str(self)
     
-
-    
-
-        
-        
-    def get_descendant_list(self):
-        '''Get list of self and descendants to generate sorted node list.'''
-        nodes = [self]
+    def bubble_agg(self, func):
+        '''Applies func to each node and bubbles up a list of results.
+        Args:
+            func (function): apply function to an object returning list.
+        '''
+        aggregated_list = func(self)
         for child in self.childs:
-            nodes += child.get_descendant_list()
-        return list(sorted(nodes,key=lambda n:n.i))
+            aggregated_list += child.bubble_agg(func)
+        return aggregated_list
+    
     
