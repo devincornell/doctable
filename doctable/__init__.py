@@ -6,6 +6,7 @@ from sqlalchemy.sql import and_, or_, not_
 from .doctable import DocTable
 from .doctable2 import DocTable2
 from .docparser import DocParser
+from .parsetree import ParseTree
 
 from .migration import migrate_db
 

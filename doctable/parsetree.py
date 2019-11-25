@@ -2,14 +2,38 @@
 from functools import reduce
 
 class ParseTree:
-    def __init__(self, root_tok, *args, **kwargs):
+    tree = None
+    nodes = None
+    root = None
+    def __init__(self):
+        # create from either from_tok or from_dict
+        pass
+    
+    @staticmethod
+    def from_tok(root_tok, *args, **kwargs):
         
         if '' in (root_tok.dep_, root_tok.tag_, root_tok.pos_):
             raise ValueError('Both the Spacy tagger and parser must '
                 'be enabled to use a ParseTree.')
         
         # build tree object and keep reference of ordered tokens
-        self.tree = ParseNode(root_tok, *args, **kwargs)
+        pt = ParseTree()
+        pt.tree = ParseNode.from_tok(root_tok, *args, **kwargs)
+        pt.make_node_list()
+        return pt
+    
+    @staticmethod
+    def from_dict(tdict):
+        # build tree object and keep reference of ordered tokens
+        pt = ParseTree()
+        pt.tree = ParseNode.from_dict(tdict)
+        pt.make_node_list()
+        return pt
+    
+    def asdict(self):
+        return self.tree.asdict()
+    
+    def make_node_list(self):
         self.nodes = self.tree.get_descendant_list()
         self.root = self.nodes[[n.dep for n in self.nodes].index('ROOT')]
         
@@ -22,6 +46,8 @@ class ParseTree:
     
     def __iter__(self):
         return iter(self.nodes)
+    
+
 
     def get_ents(self):
         if self[0].ent is None:
@@ -74,55 +100,74 @@ class ParseTree:
         
 
 class ParseNode:
+    i = None
+    tok = None
+    pos = None
+    dep = None
+    tag = None
+    info = None
+    parent = None
+    childs = None
     
-    def __init__(self, tok, tok_parse_func, info_func_map=dict()):
-        self.i = tok.i
-        self.tok = tok_parse_func(tok)
-        self.pos = tok.pos_
-        self.dep = tok.dep_
-        self.tag = tok.tag_
-        self.info = {attr:func(tok) for attr,func in info_func_map.items()}
+    def __init__(self):
+        pass
+    
+    @staticmethod
+    def from_tok(tok, tok_parse_func, info_func_map=dict(), parent=None):
+        pn = ParseNode()
+        pn.i = tok.i
+        pn.tok = tok_parse_func(tok)
+        pn.pos = tok.pos_
+        pn.dep = tok.dep_
+        pn.tag = tok.tag_
+        pn.info = {attr:func(tok) for attr,func in info_func_map.items()}
         
         # recursive constructor
-        self.childs = [ParseNode(c, tok_parse_func, info_func_map=info_func_map) 
+        pn.parent = parent
+        pn.childs = [ParseNode.from_tok(c, tok_parse_func, info_func_map=info_func_map, parent=pn) 
                        for c in tok.children]
+        return pn
     
-    def from_dict(self, ptree_dict):
+    @staticmethod
+    def from_dict(ndict, parent=None):
+        pn = ParseNode()
+        pn.i = ndict['i']
+        pn.tok = ndict['tok']
+        pn.pos = ndict['pos']
+        pn.dep = ndict['dep']
+        pn.tag = ndict['tag']
+        pn.info = ndict['info']
+        pn.parent = parent
+        pn.childs = [ParseNode.from_dict(c, parent=pn) for c in ndict['childs']]
+        return pn
         
-        req_prop = ('i','tok','pos','dep','tag','childs',)
-        if not all([k in ptree_dict for k in req_prop]):
-            raise ValueError('A ParseTree should have at least the keys '
-                '{}'.format(req_prop))
+    def asdict(self):
+        '''Convert self to a dict.'''
+        node = dict(
+            i=self.i,
+            tok=self.tok,
+            pos=self.pos,
+            tag=self.tag,
+            dep=self.dep,
+            info=self.info,
+            childs=[c.asdict() for c in self.childs],
+        )
+        return node
         
-        self.i = ptree_dict['i']
-        self.tok = ptree_dict['tok']
-        self.pos = ptree_dict['pos']
-        self.tag = ptree_dict['tag']
-        self.dep = ptree_dict['dep']
-        self.ent = ptree_dict.get('ent_type')
-        
-        # recursive constructor
-        self.childs = [ParseNode(c) for c in ptree_dict['childs']]
-        
-        # keeping any non-standard properties
-        self.info = {k:v for k,v in ptree_dict.items() if k not in req_prop}
-        
-        # set parent values
-        if self.dep == 'ROOT':
-            self.parent = None
-        for child in self.childs:
-            child.parent = self
             
-
-    
     def __str__(self):
         return 'ParseNode({})'.format(self.tok)
     
     def __repr__(self):
         return str(self)
+    
+
+    
+
+        
         
     def get_descendant_list(self):
-        '''Get list of self and descendants to generate node list.'''
+        '''Get list of self and descendants to generate sorted node list.'''
         nodes = [self]
         for child in self.childs:
             nodes += child.get_descendant_list()
