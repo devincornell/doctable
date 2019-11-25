@@ -4,34 +4,27 @@
 class ParseTree:
     def __init__(self, ptree_dict):
         
-        # check to make sure they have the right information
-
-        
         # build tree object and keep reference of ordered tokens
         self.tree = ParseNode(ptree_dict)
-        self.ordered = self.tree.get_as_list()
+        self.node_l = self.tree.get_descendant_list()
+        
+    def __len__(self):
+        return len(self.node_l)
     
     def __getitem__(self,ind):
         '''Returns ith item in ordered list of tokens.'''
-        return self.ordered[ind]
-        
+        return self.node_l[ind]
+    
+    def __iter__(self):
+        return iter(self.node_l)
 
-    def get_ents(self, ptree=None):
-        if ptree is None:
-            ptree = self.ptree
-        
-        ents = list()
-        if ptree['ent_type'] is not None:
-            ents.append((ptree['tok'], ptree['ent_type']))
-
-        for child in ptree['children']:
-            ents += self.get_ents(child)
-        return ents
+    def get_ents(self):
+        return self.tree.get_descendant_ents()
 
 class ParseNode:
-    def __init__(self, ptree_dict, is_root=True):
+    def __init__(self, ptree_dict):
         
-        req_tags = ('i','tok','pos','dep','tag','childs',)
+        req_prop = ('i','tok','pos','dep','tag','childs',)
         if not all([k in ptree_dict for k in req_prop]):
             raise ValueError('A ParseTree should have at least the keys '
                 '{}'.format(req_prop))
@@ -41,17 +34,16 @@ class ParseNode:
         self.pos = ptree_dict['pos']
         self.tag = ptree_dict['tag']
         self.dep = ptree_dict['dep']
+        self.ent = ptree_dict.get('ent_type')
         
         # recursive constructor
-        self.childs = [ParseNode(c, is_root=False) for c in ptree_dict['childs']]
+        self.childs = [ParseNode(c) for c in ptree_dict['childs']]
         
         # keeping any non-standard properties
-        self.info = ptree_dict
-        for k in req_tags:
-            del self.info[k]
+        self.info = {k:v for k,v in ptree_dict.items() if k not in req_prop}
         
         # set parent values
-        if is_first:
+        if self.dep == 'ROOT':
             self.parent = None
         for child in self.childs:
             child.parent = self
@@ -59,9 +51,23 @@ class ParseNode:
     def __str__(self):
         return 'ParseNode({})'.format(self.tok)
     
-    def get_as_list(self):
-        # returns list including self and descendants
+    def __repr__(self):
+        return str(self)
+        
+    def get_descendant_list(self):
+        '''Get list of self and descendants.'''
         nodes = [self]
         for child in self.childs:
-            nodes += child.get_as_list()
+            nodes += child.get_descendant_list()
         return list(sorted(nodes,key=lambda n:n.i))
+    
+    def get_descendant_ents(self):
+        if self.ent is None:
+            raise ValueError('ParseTree needs to have "ent_type" property')
+        
+        ent_l = [t for t in self.get_descendant_list() if t.ent != '']
+        if self.ent != '':
+            ent_l.append(self)
+        return  ent_l
+
+    
