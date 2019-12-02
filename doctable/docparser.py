@@ -1,17 +1,14 @@
-
+import re
 from .parsetree import ParseTree
 
 class DocParser:
     '''Class that maintains convenient functions for parsing Spacy doc objects.'''
     
+    re_url = re.compile(r'http\S+', flags=re.MULTILINE)
+    
     @classmethod
-    def get_parsetrees(cls, doc,
-            tok_parse_func=None,
-            info_func_map=dict(), 
-            merge_ents=False, 
-            spacy_ngram_matcher=None, 
-            merge_noun_chunks=False, 
-        ):
+    def get_parsetrees(cls, doc, tok_parse_func=None, info_func_map=dict(), merge_ents=False, 
+            spacy_ngram_matcher=None, merge_noun_chunks=False):
         '''Extracts parsetree from spacy doc objects.
         Args:
             doc (spacy.Doc object): doc to generate parsetree from.
@@ -45,16 +42,9 @@ class DocParser:
         
     
     @classmethod
-    def tokenize_doc(cls, doc, 
-            split_sents=False, 
-            merge_ents=False, 
-            merge_noun_chunks=False, 
-            ngrams=list(), 
-            spacy_ngram_matcher=None, 
-            ngram_sep=' ', 
-            use_tok_args=dict(), 
-            parse_tok_args=dict()
-        ):
+    def tokenize_doc(cls, doc, split_sents=False, merge_ents=False, merge_noun_chunks=False, 
+        ngrams=list(), spacy_ngram_matcher=None, ngram_sep=' ', use_tok_args=dict(), 
+        parse_tok_args=dict()):
         '''Parse spacy doc object.
         Args:
             split_sents (bool): parse into list of sentence tokens using doc.sents.
@@ -101,14 +91,8 @@ class DocParser:
             return toks
         
     @staticmethod
-    def parse_tok(tok, 
-            replace_num=None, 
-            replace_digit=None, 
-            lemmatize=False, 
-            normal_convert=None, 
-            format_ents=True, 
-            ent_convert=None
-        ):
+    def parse_tok(tok, replace_num=None, replace_digit=None, lemmatize=False, normal_convert=None, 
+            format_ents=True, ent_convert=None):
         '''Convert spacy token object to string.
         Args:
             tok (spacy token or span): token object to convert to string.
@@ -181,6 +165,16 @@ class DocParser:
             
         return do_use_tok
     
+    @classmethod
+    def preprocess(cls, text, remove_url=False):
+        '''Apply preprocessing step before parsing.
+        Args:
+            text (str): document as a text string
+            remove_url (bool): choose to remove url
+        '''
+        if remove_url:
+            text = re.sub(cls.re_url, '', text)
+        return text
     
     @staticmethod
     def apply_ngram_merges(doc, merge_ents=True, spacy_ngram_matcher=None, merge_noun_chunks=False):
