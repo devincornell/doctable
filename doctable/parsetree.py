@@ -9,8 +9,8 @@ class ParseTree:
         '''Create from dict parsetree or spacy sentence root.'''
         
         # check that spacy token is good
-        if not isinstance(root_node, dict):
-            if '' in (root_node.dep_, root_node.tag_, root_node.pos_):
+        if not isinstance(root_node, dict): # root node is spacy token
+            if not root_node.doc.is_parsed:
                 raise ValueError('Both the Spacy tagger and parser must '
                     'be enabled to use a ParseTree.')
         
@@ -96,24 +96,43 @@ class ParseNode:
             ndict = node
             self.i = ndict['i']
             self.tok = ndict['tok']
-            self.pos = ndict['pos']
             self.dep = ndict['dep']
             self.tag = ndict['tag']
             self.info = ndict['info']
             self.childs = [ParseNode(c, parent=self) for c in ndict['childs']]
+            self._pos = ndict['pos']
+            self._ent = ndict['ent']
 
             
         else: # node is spacy token
             tok = node
             self.i = tok.i
             self.tok = tok_parse_func(tok) if tok_parse_func is not None else tok.lower_
-            self.pos = tok.pos_
             self.dep = tok.dep_
             self.tag = tok.tag_
             self.info = {attr:func(tok) for attr,func in info_func_map.items()}
+            
             self.childs = [ParseNode(child, tok_parse_func=tok_parse_func, \
                             info_func_map=info_func_map, parent=self) 
                            for child in tok.children]
+            
+            self._pos = tok.pos_ if tok.doc.is_tagged else None
+            self._ent = tok.ent_type_ if tok.doc.is_nered else None
+            
+    
+    @property
+    def pos(self):
+        if self._pos is None:
+            raise AttributeError('Part-of-speech tag is not available in ParseTree because '
+                'POS-tagging was not enabled while processing with Spacy.')
+        return self._pos
+
+    @property
+    def ent(self):
+        if self._ent is None:
+            raise AttributeError('Entity tag is not available in ParseTree because '
+                'NER was not enabled while processing with Spacy.')
+        return self._ent    
     
         
     def asdict(self):
@@ -121,11 +140,12 @@ class ParseNode:
         node = dict(
             i=self.i,
             tok=self.tok,
-            pos=self.pos,
             tag=self.tag,
             dep=self.dep,
             info=self.info,
             childs=[c.asdict() for c in self.childs],
+            pos=self._pos,
+            ent=self._ent,
         )
         return node
         
