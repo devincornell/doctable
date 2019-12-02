@@ -79,6 +79,16 @@ Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;verbose&nbsp;(bool&nbsp;or&nbsp;None):&nbsp;Print&nbsp;SQL&nbsp;command&nbsp;issued&nbsp;before<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;execution.</tt></dd></dl>
 
+<dl><dt><a name="DocTable2-get_bootstrap"><strong>get_bootstrap</strong></a>(self, *args, **kwargs)</dt><dd><tt>Generates&nbsp;a&nbsp;DocBootstrap&nbsp;object&nbsp;to&nbsp;sample&nbsp;from.<br>
+Notes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;DocBootstrap&nbsp;object&nbsp;keeps&nbsp;all&nbsp;selected&nbsp;docs&nbsp;in<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memory,&nbsp;and&nbsp;yields&nbsp;samples&nbsp;with&nbsp;.sample().<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;*args:&nbsp;passed&nbsp;to&nbsp;.<a href="#doctable.DocTable2-select">select</a>()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**kwargs:&nbsp;passed&nbsp;to&nbsp;.<a href="#doctable.DocTable2-select">select</a>()<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;DocBootstrap&nbsp;object&nbsp;for&nbsp;bootstrapping.</tt></dd></dl>
+
 <dl><dt><a name="DocTable2-insert"><strong>insert</strong></a>(self, rowdat, ifnotunique='fail', **kwargs)</dt><dd><tt>Insert&nbsp;a&nbsp;row&nbsp;or&nbsp;rows&nbsp;into&nbsp;the&nbsp;database.<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;rowdat&nbsp;(list&lt;dict&gt;&nbsp;or&nbsp;dict):&nbsp;row&nbsp;data&nbsp;to&nbsp;insert.<br>

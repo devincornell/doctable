@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: class DocParser</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><strong>doctable.DocParser</strong> = <a name="doctable.DocParser">class DocParser</a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Class&nbsp;that&nbsp;maintains&nbsp;convenient&nbsp;functions&nbsp;for&nbsp;parsing&nbsp;Spacy&nbsp;doc&nbsp;objects.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Class methods defined here:<br>
+<dl><dt><a name="DocParser-get_parsetrees"><strong>get_parsetrees</strong></a>(doc, tok_parse_func=None, info_func_map={}, merge_ents=False, spacy_ngram_matcher=None, merge_noun_chunks=False)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Extracts&nbsp;parsetree&nbsp;from&nbsp;spacy&nbsp;doc&nbsp;objects.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;doc&nbsp;(spacy.Doc&nbsp;object):&nbsp;doc&nbsp;to&nbsp;generate&nbsp;parsetree&nbsp;from.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tok_parse_func&nbsp;(func):&nbsp;function&nbsp;used&nbsp;to&nbsp;convert&nbsp;token&nbsp;to&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;string&nbsp;representation.&nbsp;Usually&nbsp;a&nbsp;lambda&nbsp;function&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wrapping&nbsp;some&nbsp;variant&nbsp;of&nbsp;self.<a href="#doctable.DocParser-parse_tok">parse_tok</a>().<br>
+&nbsp;&nbsp;&nbsp;&nbsp;info_func_map&nbsp;(dict&lt;str-&gt;func&gt;):&nbsp;attribute&nbsp;to&nbsp;function&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mapping.&nbsp;Functions&nbsp;take&nbsp;a&nbsp;token&nbsp;and&nbsp;output&nbsp;a&nbsp;property<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;that&nbsp;will&nbsp;be&nbsp;stored&nbsp;in&nbsp;each&nbsp;parsetree&nbsp;node.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;merge_ents&nbsp;(bool):&nbsp;merge&nbsp;multi-word&nbsp;entities.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;spacy_ngram_matcher&nbsp;(Spacy&nbsp;Matcher):&nbsp;used&nbsp;to&nbsp;create&nbsp;ngrams<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with&nbsp;Spacy.&nbsp;Powerful&nbsp;wildcards&nbsp;etc.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;merge_noun_chunks&nbsp;(bool):&nbsp;merge&nbsp;noun&nbsp;chunks&nbsp;or&nbsp;not.</tt></dd></dl>
+
+<dl><dt><a name="DocParser-tokenize_doc"><strong>tokenize_doc</strong></a>(doc, split_sents=False, merge_ents=False, merge_noun_chunks=False, ngrams=[], spacy_ngram_matcher=None, ngram_sep=' ', use_tok_args={}, parse_tok_args={})<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Parse&nbsp;spacy&nbsp;doc&nbsp;object.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;split_sents&nbsp;(bool):&nbsp;parse&nbsp;into&nbsp;list&nbsp;of&nbsp;sentence&nbsp;tokens&nbsp;using&nbsp;doc.sents.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;merge_ents&nbsp;(bool):&nbsp;merge&nbsp;multi_word&nbsp;entities&nbsp;into&nbsp;same&nbsp;token.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ngrams&nbsp;(iter&lt;iter&lt;str&gt;&gt;):&nbsp;iterable&nbsp;of&nbsp;token&nbsp;tuples&nbsp;to&nbsp;merge&nbsp;after&nbsp;parsing.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;spacy_ngram_matcher&nbsp;(spacy&nbsp;Matcher):&nbsp;matcher&nbsp;object&nbsp;to&nbsp;use&nbsp;on&nbsp;the&nbsp;spacy&nbsp;doc.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Normally&nbsp;will&nbsp;create&nbsp;using&nbsp;spacy.Matcher(nlp.vocab),&nbsp;see&nbsp;more&nbsp;details<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;https://spacy.io/usage/rule-based-matching&nbsp;And&nbsp;also&nbsp;note&nbsp;that&nbsp;the&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nlp&nbsp;object&nbsp;must&nbsp;be&nbsp;the&nbsp;one&nbsp;used&nbsp;for&nbsp;parsing.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;use_tok_args&nbsp;(dict):&nbsp;arguments&nbsp;to&nbsp;be&nbsp;passed&nbsp;to&nbsp;.<a href="#doctable.DocParser-use_tok">use_tok</a>()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;parse_tok_args&nbsp;(dict):&nbsp;arguments&nbsp;to&nbsp;pass&nbsp;to&nbsp;.<a href="#doctable.DocParser-parse_tok">parse_tok</a>()</tt></dd></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="DocParser-apply_ngram_merges"><strong>apply_ngram_merges</strong></a>(doc, merge_ents=True, spacy_ngram_matcher=None, merge_noun_chunks=False)</dt><dd><tt>Apply&nbsp;merges&nbsp;to&nbsp;doc&nbsp;object&nbsp;including&nbsp;entities,&nbsp;normal&nbsp;ngrams,&nbsp;and&nbsp;noun&nbsp;chunks.</tt></dd></dl>
+
+<dl><dt><a name="DocParser-merge_ngrams"><strong>merge_ngrams</strong></a>(toks, ngrams, ngram_sep=' ')</dt><dd><tt>Merges&nbsp;consecutive&nbsp;strings&nbsp;(tokenized&nbsp;n-grams)&nbsp;into&nbsp;single&nbsp;tokens.</tt></dd></dl>
+
+<dl><dt><a name="DocParser-parse_tok"><strong>parse_tok</strong></a>(tok, replace_num=None, replace_digit=None, lemmatize=False, normal_convert=None, format_ents=True, ent_convert=None)</dt><dd><tt>Convert&nbsp;spacy&nbsp;token&nbsp;object&nbsp;to&nbsp;string.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tok&nbsp;(spacy&nbsp;token&nbsp;or&nbsp;span):&nbsp;token&nbsp;object&nbsp;to&nbsp;convert&nbsp;to&nbsp;string.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;replace_num&nbsp;(str/None):&nbsp;Replace&nbsp;number&nbsp;following&nbsp;tok.like_num&nbsp;(includes&nbsp;"five",&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or&nbsp;5)&nbsp;with&nbsp;a&nbsp;special&nbsp;token&nbsp;(i.e.&nbsp;__NUM__).&nbsp;None&nbsp;means&nbsp;no&nbsp;replacement.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;replace_digit&nbsp;(str/None):&nbsp;Replace&nbsp;digit&nbsp;meeting&nbsp;tok.is_digit&nbsp;with&nbsp;special&nbsp;token.&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Only&nbsp;used&nbsp;when&nbsp;replace_num&nbsp;is&nbsp;None.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;lemmatize&nbsp;(bool):&nbsp;return&nbsp;lemma&nbsp;instead&nbsp;of&nbsp;full&nbsp;word.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;normal_convert&nbsp;(func):&nbsp;custom&nbsp;conversion&nbsp;function&nbsp;to&nbsp;happen&nbsp;as&nbsp;last&nbsp;step<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;non-entities.&nbsp;This&nbsp;way&nbsp;can&nbsp;keep&nbsp;all&nbsp;other&nbsp;functionality.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;format_ents&nbsp;(bool):&nbsp;Replace&nbsp;whitespace&nbsp;with&nbsp;space&nbsp;and&nbsp;capitalize&nbsp;first&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;letter&nbsp;of&nbsp;ents.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ent_convert&nbsp;(func):&nbsp;custom&nbsp;conversion&nbsp;function&nbsp;to&nbsp;happen&nbsp;as&nbsp;last&nbsp;step<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;entities.&nbsp;This&nbsp;way&nbsp;can&nbsp;keep&nbsp;all&nbsp;other&nbsp;functionality.</tt></dd></dl>
+
+<dl><dt><a name="DocParser-use_tok"><strong>use_tok</strong></a>(tok, filter_whitespace=True, filter_punct=False, filter_stop=False, filter_digit=False, filter_num=False, filter_all_ents=False, filter_ent_types=())</dt><dd><tt>Decide&nbsp;to&nbsp;use&nbsp;token&nbsp;or&nbsp;not&nbsp;(can&nbsp;be&nbsp;overridden).<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;no_whitespace&nbsp;(bool):&nbsp;exclude&nbsp;whitespace.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;no_punct&nbsp;(bool):&nbsp;exclude&nbsp;punctuation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;no_num&nbsp;(bool):&nbsp;exclude&nbsp;numbers&nbsp;using&nbsp;tok.is_num.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;no_digit&nbsp;(bool):&nbsp;exclude&nbsp;digits&nbsp;using&nbsp;tok.is_digit.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;no_stop&nbsp;(bool):&nbsp;exclude&nbsp;stopwords.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table>
+</body></html>
