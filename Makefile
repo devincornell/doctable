@@ -44,7 +44,7 @@ example_markdown:
 
 # use pydoc to generate documentation
 pydoc:
-	pydoc -w doctable.DocTable doctable.DocTable2 doctable.DocParser doctable.ParseTree doctable.ParseNode
+	pydoc -w doctable.DocTable doctable.DocTable2 doctable.DocParser doctable.ParseTree doctable.ParseNode doctable.DocBootstrap
 	
 	mv *.html $(DOCS_FOLDER)
 	

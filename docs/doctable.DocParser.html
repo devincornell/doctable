@@ -26,6 +26,11 @@ Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with&nbsp;Spacy.&nbsp;Powerful&nbsp;wildcards&nbsp;etc.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;merge_noun_chunks&nbsp;(bool):&nbsp;merge&nbsp;noun&nbsp;chunks&nbsp;or&nbsp;not.</tt></dd></dl>
 
+<dl><dt><a name="DocParser-preprocess"><strong>preprocess</strong></a>(text, remove_url=False)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Apply&nbsp;preprocessing&nbsp;step&nbsp;before&nbsp;parsing.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;(str):&nbsp;document&nbsp;as&nbsp;a&nbsp;text&nbsp;string<br>
+&nbsp;&nbsp;&nbsp;&nbsp;remove_url&nbsp;(bool):&nbsp;choose&nbsp;to&nbsp;remove&nbsp;url</tt></dd></dl>
+
 <dl><dt><a name="DocParser-tokenize_doc"><strong>tokenize_doc</strong></a>(doc, split_sents=False, merge_ents=False, merge_noun_chunks=False, ngrams=[], spacy_ngram_matcher=None, ngram_sep=' ', use_tok_args={}, parse_tok_args={})<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Parse&nbsp;spacy&nbsp;doc&nbsp;object.<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;split_sents&nbsp;(bool):&nbsp;parse&nbsp;into&nbsp;list&nbsp;of&nbsp;sentence&nbsp;tokens&nbsp;using&nbsp;doc.sents.<br>
@@ -75,5 +80,9 @@ Data descriptors defined here:<br>
 <dl><dt><strong>__weakref__</strong></dt>
 <dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
 </dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>re_url</strong> = re.compile('http\\S+', re.MULTILINE)</dl>
+
 </td></tr></table>
 </body></html>
