@@ -38,10 +38,19 @@ class ParseTree:
         return self.root.asdict()
     
     def bubble_accum(self, func):
+        '''Applies func to each node and bubbles up accumulated results.
+        Args:
+            func (function): apply function to an object returning list.
+        '''
         return self.root.bubble_accum(func)
     
-    def bubble_agg(self, func, init_data):
-        return self.root.bubble_agg(func, init_data)
+    def bubble_reduce(self, func, init_data):
+        '''Applies func to each node and bubbles up accumulated list of results.
+        Args:
+            func (function): apply function to an object returning list.
+            init_data (any type): initial data to pass through reduce function
+        '''
+        return self.root.bubble_reduce(func, init_data)
     
     def get_subj_verb_obj(self):
         triplets = list()
@@ -163,23 +172,15 @@ class ParseNode:
         return iter(self.childs)
     
     def bubble_accum(self, func):
-        '''Applies func to each node and bubbles up accumulated list of results.
-        Args:
-            func (function): apply function to an object returning list.
-        '''
         aggregated_list = func(self)
         for child in self.childs:
             aggregated_list += child.bubble_accum(func)
         return aggregated_list
     
-    def bubble_agg(self, func, agg_data):
-        '''Applies func to each node and bubbles up accumulated results.
-        Args:
-            func (function): apply function to an object returning list.
-        '''
+    def bubble_reduce(self, func, agg_data):
         agg_data = func(self, agg_data)
         for child in self.childs:
-            agg_data = child.bubble_agg(func, agg_data)
+            agg_data = child.bubble_reduce(func, agg_data)
         return agg_data
     
     
