@@ -52,20 +52,6 @@ class ParseTree:
         '''
         return self.root.bubble_reduce(func, init_data)
     
-    def get_subj_verb_obj(self):
-        triplets = list()
-        for node in self:
-            if node.pos in ('VERB','ADV'):
-                rel = (self.child_dep(node,'nsubj'), node, self.child_dep(node,'dobj'))
-                triplets.append(rel)
-        return triplets
-
-    @staticmethod
-    def child_dep(node, dep_type): # gets first child where node.dep==dep_type.
-        for c in tok.children:
-            if c.dep == dep_type:
-                return c
-        return None
     
     def print_ascii_tree(self):
         '''Print out an ascii tree.
