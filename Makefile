@@ -26,29 +26,30 @@ final_check: docs build test
 PACKAGE_NAME = doctable
 PACKAGE_FOLDER = $(PACKAGE_NAME)/
 DOCS_FOLDER = docs/
+DOCS_EXAMPLES_FOLDER = $(DOCS_FOLDER)/examples/
+DOCS_REF_FOLDER = $(DOCS_FOLDER)/ref/
 EXAMPLES_FOLDER = examples/
 TESTS_FOLDER = tests/
 
-docs: example_markdown pydoc github_page
+docs: example_html pydoc
 	git add README.md
-	git add make_github_page.py
-	git add --all $(DOCS_FOLDER)*.html
-	git add --all $(DOCS_FOLDER)*.md
+	#git add make_github_page.py
 	
-github_page: pydoc
-	python make_github_page.py
+#github_page: pydoc
+	#python make_github_page.py
 
-example_markdown:
-	jupyter nbconvert --to markdown $(EXAMPLES_FOLDER)/*.ipynb
-	mv $(EXAMPLES_FOLDER)/*.md $(DOCS_FOLDER)
+example_html:
+	#jupyter nbconvert --to markdown $(EXAMPLES_FOLDER)/*.ipynb
+	#mv $(EXAMPLES_FOLDER)/*.md $(DOCS_FOLDER)
+	jupyter nbconvert --to html $(EXAMPLES_FOLDER)/*.ipynb
+	mv $(EXAMPLES_FOLDER)/*.html $(DOCS_EXAMPLES_FOLDER)
+	git add --all $(DOCS_EXAMPLES_FOLDER)*.html
 
 # use pydoc to generate documentation
 pydoc:
 	pydoc -w doctable.DocTable doctable.DocTable2 doctable.DocParser doctable.ParseTree doctable.ParseNode doctable.DocBootstrap
-	
-	mv *.html $(DOCS_FOLDER)
-	
-
+	mv *.html $(DOCS_REF_FOLDER)
+	git add --all $(DOCS_REF_FOLDER)*.html
 
 
 build:
