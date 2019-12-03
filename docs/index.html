@@ -73,8 +73,8 @@
     <div class="container h-100">
       <div class="row h-100 align-items-center">
         <div class="col-lg-12">
-          <h1 class="display-4 text-white mt-5 mb-2"></h1>
-          <p class="lead mb-5 text-white-50">Database management and document parsing for large-scale text analysis.</p>
+          <h1 class="display-4 text-white mt-5 mb-2">Databases for text analysis</h1>
+          <p class="lead mb-5 text-white-50">This is a Python package for parsing, storing, and accessing text documents and models at scale.</p>
         </div>
       </div>
     </div>
@@ -88,7 +88,10 @@
         <h2>Here's the scenario:</h2>
         <hr>
         <p>You're starting a new text analysis project. You need to take raw text and convert it into a format which can be used for your analysis. The data is big. It may require preprocessing, tokenization, or parsetree extraction, and all needs to be stored and accessed efficiently in a single file. Databases may be your best option, but SQL is a pain. In this case, DocTable could be a good way to work with your data.</p>
-		 <p>AND/OR: Your text analysis algorithms produce large models, and you may need to generate several of them with different parameter configurations. DocTable is good for that too. DocTable2 is equipped with custom column types for storing pickled python objects, including ones optimized for parsed document objects.</p>
+          <p><b>AND/OR:</b> Your text analysis algorithms produce large models, and you may need to generate several of them with different parameter configurations. DocTable is good for that too. DocTable2 is equipped with custom column types for storing pickled python objects, including ones optimized for parsed document objects.</p>
+        <h2>What's in it:</h2>
+        <hr>
+        <p>DocTable features are accessed through three primary Python classes: DocTable2 and DocParser.
 		  
         <a class="btn btn-primary btn-lg" href="examples/dt2_basics.html">See Overview &raquo;</a>
       </div>
@@ -98,7 +101,7 @@
 		  <p>Sociology PhD student at Duke: Culture and discourse using computational methods. Humanist, electrical engineer, sociologist (in training).</p>
 		  <a href='https://dcornellresearch.org'>Research Blog</a><br/>
 		  <a href='https://twitter.com/Devin_Cornell'>Twitter @devin_cornell</a>
-		  <img src="https://dcornellresearchdotorg.files.wordpress.com/2019/04/devin_square.png?w=836&h=836&crop=1" alt=""/>
+		  <img src="https://dcornellresearchdotorg.files.wordpress.com/2019/04/devin_square.png?w=836&h=836&crop=1" alt="" style="width:200px;height:200px;"/>
       </div>
     </div>
     <!-- /.row -->
@@ -110,9 +113,17 @@
           <div class="card-body">
             <h4 class="card-title">DocTable2</h4>
             <p class="card-text">Core python class for working with databases.</p>
+            <h2>Examples:</h2>
+			<ul>
+                <li><a href="examples/dt2_basics.html" class="btn btn-primary">Basics</a></li>
+                <li><a href="examples/dt2_insert_delete.html" class="btn btn-primary">Insert/Delete Rows</a></li>
+                <li><a href="examples/dt2_select.html" class="btn btn-primary">Select Rows</a></li>
+                <li><a href="examples/dt2_update.html" class="btn btn-primary">Update Rows</a></li>
+                <li><a href="examples/dt2_bootstrap.html" class="btn btn-primary">Bootstrap</a></li>
+                <li><a href="examples/dt2_concurrency.html" class="btn btn-primary">Concurrency</a></li>
+              </ul>
           </div>
           <div class="card-footer">
-			  <a href="examples/dt2_basics.html" class="btn btn-primary">Examples</a>
 			  <a href="ref/doctable.DocTable2.html" class="btn btn-primary">Reference</a>
           </div>
 			
@@ -135,13 +146,13 @@
         <div class="card h-100">
           <!--<img class="card-img-top" src="http://placehold.it/300x200" alt="">-->
           <div class="card-body">
-            <h4 class="card-title">Original DocTable</h4>
+            <h4 class="card-title">Original DocTable (Depreciated)</h4>
             <p class="card-text">The old version of doctable.</p>
           </div>
           <div class="card-footer">
-			  <a href="examples/dt1_simple.html" class="btn btn-primary">Examples</a>
-            <a href="ref/doctable.DocTable.html" class="btn btn-primary">Reference</a>
 			  
+            <a href="ref/doctable.DocTable.html" class="btn btn-primary">Reference</a>
+
           </div>
         </div>
       </div>
