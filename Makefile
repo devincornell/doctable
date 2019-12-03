@@ -25,19 +25,18 @@ final_check: docs build test
 
 PACKAGE_NAME = doctable
 PACKAGE_FOLDER = $(PACKAGE_NAME)/
-DOCS_FOLDER = docs/
-DOCS_EXAMPLES_FOLDER = $(DOCS_FOLDER)/examples/
-DOCS_REF_FOLDER = $(DOCS_FOLDER)/ref/
+
+
+
 EXAMPLES_FOLDER = examples/
 TESTS_FOLDER = tests/
 
+DOCS_FOLDER = docs/
 docs: example_html pydoc
 	git add README.md
-	#git add make_github_page.py
-	
-#github_page: pydoc
-	#python make_github_page.py
 
+
+DOCS_EXAMPLES_FOLDER = $(DOCS_FOLDER)/examples/
 example_html:
 	#jupyter nbconvert --to markdown $(EXAMPLES_FOLDER)/*.ipynb
 	#mv $(EXAMPLES_FOLDER)/*.md $(DOCS_FOLDER)
@@ -46,6 +45,7 @@ example_html:
 	git add --all $(DOCS_EXAMPLES_FOLDER)*.html
 
 # use pydoc to generate documentation
+DOCS_REF_FOLDER = $(DOCS_FOLDER)/ref/
 pydoc:
 	pydoc -w doctable.DocTable doctable.DocTable2 doctable.DocParser doctable.ParseTree doctable.ParseNode doctable.DocBootstrap
 	mv *.html $(DOCS_REF_FOLDER)
@@ -53,13 +53,13 @@ pydoc:
 
 
 build:
-	# install latest version of compile software
+	# install latest version of compiler software
 	pip install --user --upgrade setuptools wheel
 	
 	# actually set up package
 	python setup.py sdist bdist_wheel
 	
-	git add setup.cfg setup.py LICENSE.txt
+	git add setup.cfg setup.py LICENSE.txt 
 	
 	
 deploy: build
