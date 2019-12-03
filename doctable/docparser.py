@@ -1,10 +1,88 @@
 import re
+from multiprocessing import Pool
+import math
+import os
+
 from .parsetree import ParseTree
 
 class DocParser:
     '''Class that maintains convenient functions for parsing Spacy doc objects.'''
     
     re_url = re.compile(r'http\S+', flags=re.MULTILINE)
+    
+    
+    @classmethod
+    def distribute_parse(cls, texts, spacynlp, parsefunc=None, preprocessfunc=None, 
+        paragraph_sep=None, n_cores=None, verbose=False):
+        '''Will distribute document parsing tasks across multiple processors.
+        Args:
+            texts (list<str>): list of document strings to parse
+            spacynlp (spacy Lanugage model): i.e. nlp = spacy.load('en')
+            parsefunc (func): function accepting a single spacy doc object
+                as an argument, and ouputting the desired parsed document.
+                Defaults to DocParser.tokenize_doc() with defaults
+            preprocessfunc (func): function used to process text before parsing
+                with spacy.
+            paragraph_sep (str or None): used to separate documents into 
+                paragraphs before parsing with spacy if needed. This will 
+                distribute paragraph parsing across processes which is more
+                balanced than distributing at document level.
+        '''
+        if parsefunc is None:
+            parsefunc = cls.tokenize_doc
+        
+        if preprocessfunc is None:
+            preprocessfunc = cls.preprocess
+            
+        # split into paragraphs
+        if verbose: print('parsing {} docs'.format(len(texts)))
+        if paragraph_sep is not None:
+            texts, ind = list(zip(*[(par.strip(),i) for i,text in enumerate(texts) 
+                              for par in text.split(paragraph_sep)]))
+            if verbose: print('split into {} paragraphs'.format(len(texts)))
+                
+        # decide on number of cores
+        if n_cores is None:
+            n_cores = min([os.cpu_count(), len(texts)])
+        else:
+            n_cores = min([os.cpu_count(), len(texts), n_cores])
+                
+                
+        # start parallel processing. Keep inside Pool() to get number of used processes
+        with Pool(processes=n_cores) as p:
+            chunk_size = math.ceil(len(texts)/p._processes)
+            print('processing chunks of size {} with {} processes.'.format(chunk_size,p._processes))
+            
+            chunks = [(texts[i*chunk_size:(i+1)*chunk_size], spacynlp, parsefunc, preprocessfunc)
+                           for i in range(p._processes)]
+
+            parsed = [d for docs in p.map(cls._distribute_parse_thread, chunks) 
+                    for d in docs]
+            print('returned {} parsed docs or paragraphs'.format(len(parsed)))
+            
+            if paragraph_sep is None:
+                parsed_docs = parsed
+            else:
+                parsed_docs = list()
+                last_i, last_ind = 0, 0
+                for i in range(len(ind)):
+                    if ind[i] != last_ind or i == len(ind)-1:
+                        parsed_docs.append(parsed[last_i:i])
+                        last_ind = ind[i]
+                        last_i = i
+        
+        return parsed_docs
+    
+    
+    @staticmethod
+    def _distribute_parse_thread(args):
+        texts, nlp, parsefunc, preprocessfunc = args
+        parsed_docs = list()
+        for doc in nlp.pipe(map(preprocessfunc,texts)):
+            parsed_docs.append(parsefunc(doc))
+        return parsed_docs
+        
+    
     
     @classmethod
     def get_parsetrees(cls, doc, tok_parse_func=None, info_func_map=dict(), merge_ents=False, 
