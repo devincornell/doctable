@@ -55,9 +55,7 @@ schema = (
     # try out custom data types
     # TokensType and ParagraphsType are defined in doctable/coltypes.py
     # SQLAlchemy: Column('tokenized', TokensType), Column('sentencized', ParagraphsType)
-    ('sentencized','subdocs'),
-    ('tokenized','tokens'),
-
+    ('tokenized','pickle'),
 )
     
     

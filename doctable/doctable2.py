@@ -10,7 +10,7 @@ import sqlalchemy.sql as op
 from sqlalchemy.sql import func
 import sqlalchemy as sa
 
-from .coltypes import CpickleType
+from .coltypes import CpickleType, ParseTreeType
 from .bootstrap import DocBootstrap
 
 class DocTable2:
@@ -33,6 +33,7 @@ class DocTable2:
         'unicode':sa.Unicode,
         'unicodetext':sa.UnicodeText,
         'pickle': CpickleType, # custom datatype
+        'parsetree': ParseTreeType, # custom datatype
     }
     
     _constraint_map = {
