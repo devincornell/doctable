@@ -51,14 +51,14 @@ class DocParser:
         # start parallel processing. Keep inside Pool() to get number of used processes
         with Pool(processes=n_cores) as p:
             chunk_size = math.ceil(len(texts)/p._processes)
-            print('processing chunks of size {} with {} processes.'.format(chunk_size,p._processes))
+            if verbose: print('processing chunks of size {} with {} processes.'.format(chunk_size,p._processes))
             
             chunks = [(texts[i*chunk_size:(i+1)*chunk_size], spacynlp, parsefunc, preprocessfunc)
                            for i in range(p._processes)]
 
             parsed = [d for docs in p.map(cls._distribute_parse_thread, chunks) 
                     for d in docs]
-            print('returned {} parsed docs or paragraphs'.format(len(parsed)))
+            if verbose: print('returned {} parsed docs or paragraphs'.format(len(parsed)))
             
             if paragraph_sep is None:
                 parsed_docs = parsed
@@ -121,8 +121,8 @@ class DocParser:
     
     @classmethod
     def tokenize_doc(cls, doc, split_sents=False, merge_ents=False, merge_noun_chunks=False, 
-        ngrams=list(), spacy_ngram_matcher=None, ngram_sep=' ', use_tok_args=dict(), 
-        parse_tok_args=dict()):
+        ngrams=list(), spacy_ngram_matcher=None, ngram_sep=' ', use_tok_func=None, 
+        parse_tok_func=None):
         '''Parse spacy doc object.
         Args:
             split_sents (bool): parse into list of sentence tokens using doc.sents.
@@ -132,8 +132,10 @@ class DocParser:
                 Normally will create using spacy.Matcher(nlp.vocab), see more details
                 at https://spacy.io/usage/rule-based-matching And also note that the 
                 nlp object must be the one used for parsing.
-            use_tok_args (dict): arguments to be passed to .use_tok()
-            parse_tok_args (dict): arguments to pass to .parse_tok()
+            use_tok_func (func): func used to decide to keep func or not. Default is
+                cls.use_tok().
+            parse_tok_func (func): func used to parse tokens. By default uses 
+                cls.parse_tok().
         '''
         
         # NOTE! These need to be under two separate retokenize() blocks
@@ -146,11 +148,17 @@ class DocParser:
                 merge_noun_chunks=merge_noun_chunks
             )
                 
+            
+        if parse_tok_func is None:
+            parse_tok_func = cls.parse_tok
+        if use_tok_func is None:
+            use_tok_func = cls.use_tok
+            
         # sentence parsing mode
         if split_sents:
             sents = [
-                [cls.parse_tok(tok, **parse_tok_args) 
-                 for tok in sent if cls.use_tok(tok, **use_tok_args)] 
+                [parse_tok_func(tok) 
+                 for tok in sent if use_tok_func(tok)] 
                 for sent in doc.sents
             ]
             
@@ -161,8 +169,8 @@ class DocParser:
         
         # doc parsing mode
         else:
-            toks = [cls.parse_tok(tok, **parse_tok_args) 
-                    for tok in doc if cls.use_tok(tok, **use_tok_args)]
+            toks = [parse_tok_func(tok) 
+                    for tok in doc if use_tok_func(tok)]
             
             if len(ngrams) > 0:
                 toks = cls.merge_ngrams(toks, ngrams, ngram_sep=ngram_sep)
