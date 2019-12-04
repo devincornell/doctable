@@ -1,371 +1,701 @@
-import os
-import sqlite3
-import _pickle as pickle
+import collections
+from time import time
+import pprint
+import random
 import pandas as pd
+import os.path
 
-##### DOCUMENT INTERFACE FOR WORKING WITH TEXT DATA #####
+# operators like and_, or_, and not_, functions like sum, min, max, etc
+import sqlalchemy.sql as op
+from sqlalchemy.sql import func
+import sqlalchemy as sa
+
+from .coltypes import CpickleType, ParseTreeType
+from .bootstrap import DocBootstrap
 
 class DocTable:
-    '''
-        This is a base class for working with text documents. 
-        It is to be inhereted by a class actually defining the table schema for documents.
-    '''
+    _type_map = {
+        'biginteger':sa.BigInteger,
+        'boolean':sa.Boolean,
+        'date':sa.Date,
+        'datetime':sa.DateTime,
+        'enum':sa.Enum,
+        'float':sa.Float,
+        'integer':sa.Integer,
+        'interval':sa.Interval,
+        'largebinary':sa.LargeBinary,
+        'numeric':sa.Numeric,
+        #'pickle':sa.PickleType,
+        'smallinteger':sa.SmallInteger,
+        'string':sa.String,
+        'text':sa.Text,
+        'time':sa.Time,
+        'unicode':sa.Unicode,
+        'unicodetext':sa.UnicodeText,
+        'pickle': CpickleType, # custom datatype
+        'parsetree': ParseTreeType, # custom datatype
+    }
     
-    def __init__(self,
-                 colschema=None, 
-                 fname='doctable.db',  
-                 tabname='documents', 
-                 constraints=tuple(), 
-                 verbose=False, 
-                 persistent_conn=True, 
-                 make_new_db=True, 
-                 check_schema=True, 
-                ):
-        '''
+    _constraint_map = {
+        'unique_constraint': sa.UniqueConstraint,
+        'check_constraint': sa.CheckConstraint,
+        'primarykey_constraint': sa.PrimaryKeyConstraint,
+        'foreignkey_constraint': sa.ForeignKeyConstraint,
+        'index': sa.Index,
+    }
+    _valid_types = list(_constraint_map.keys()) + list(_type_map.keys())
+    
+    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, make_new_db=True, **engine_args):
+        '''Create new database.
         Args:
-            fname (str): filename of database
-            tabname (str): name of sqlite table to manipulate.
-            colschema (tuple of 2-tuples): list of colname, coltype columns
-            constraints (tuple of str): constraints to put on columns
-            verbose (bool): print querys before executing
-            persistent_conn (bool): keep a persistent sqlite3 connection to 
-                the db.
-            new_db (bool): create a new database file if one does not already 
-                exist. Prevents creation of new db if filename is mis-specified.
+            schema (list<list>): schema from which to create db. Includes a
+                list of columns (including contraints and indexes) as tuples
+                defined according to information needed to execute the sqlalchemy
+                commands.
+            tabname (str): table name for this specific doctable.
+            fname (str): filename for database to connect to. ":memory:" is a 
+                special value indicating to the python db engine that the db
+                should be created in memory. Will create new empty database file
+                if it does not exist and new_db is True.
+            engine (str): database engine through which to construct db.
+                For more info, see sqlalchemy dialect info:
+                https://docs.sqlalchemy.org/en/13/dialects/
+            persistent_conn (bool): whether or not to create a persistent conn 
+                to database. Set to True to lock db from other process access 
+                while instance exists, esp if calling .update() in a .select()
+                loop. Set to False to access from separate processes.
+            verbose (bool): Print every sql command before executing.
+            new_db (bool): Indicate if new db file should be created given 
+                that a schema is provided and the db file doesn't exist.
+            engine_args (**kwargs): Pass directly to the sqlalchemy
+                .create_engine(). Args typically vary by dialect.
+                Example: connect_args={'timeout': 15} for sqlite
+                or connect_args={'connect_timeout': 15} for PostgreSQL.
         '''
         
-        if fname!=':memory:' and not os.path.exists(fname) and not make_new_db:
-            raise FileNotFoundError('The {} database file does not exist and '
-                'make_new_db is set to False.'.format(fname))
+        # in cases where user did not want to create new db but a db does not 
+        # exist
+        if fname != ':memory:' and not os.path.exists(fname) and not make_new_db:
+            raise ValueError('new_db is set to true and the database does not '
+                             'exist yet.')
         
-        if fname!=':memory:' and not os.path.exists(fname) and colschema is None:
-            raise ValueError('The database file does not exist already and a '
-                'a colschema was not provided. Need to provide a colschema to '
-                'create a new database.')
-        
-        if check_schema and colschema is None:
-            raise ValueError('check_schema was set to true but colschema was '
-                'not provided.')
-        
-        self.fname = fname
-        self.tabname = tabname
-        self.colschema = colschema
-        self.constraints = constraints
+        # separate tables for custom data types and main table
+        self._fname = fname
+        self._tabname = tabname
         self.verbose = verbose
-        self.conn = None
         
-        self._try_create_table()
+        connstr = '{}:///{}'.format(engine,fname)
+        self._engine = sa.create_engine(connstr, **engine_args)
+        self._schema = schema
         
-        self.schema = self._get_schema()
-        self.columns = list(self.schema['name'])
+        # make table if needed
+        self._metadata = sa.MetaData()
+        if self._schema is not None:
+            columns = self._parse_column_schema(schema)
+            self._table = sa.Table(self._tabname, self._metadata, *columns)
+            self._metadata.create_all(self._engine)
+        else:
+            self._table = sa.Table(self._tabname, self._metadata, 
+                                   autoload=True, autoload_with=self._engine)
         
-        if check_schema and fname != ':memory:':
-            self._check_schema()
-        
+        # bind .min(), .max(), and .count() to col objects themselves.
+        self._bind_functions()
+            
+        # connect with database engine
+        self._conn = None
         if persistent_conn:
-            self.conn = sqlite3.connect(fname)
-        
-        self.isblob = {name:d['type'].lower()=='blob' for name,d in self.schema.iterrows()}
-        
-        
+            self.open_conn()
     
-    def _try_create_table(self,):
-        
-        args = (self.tabname, ', '.join(self.colschema + self.constraints))
-        return self.query('CREATE TABLE IF NOT EXISTS {} ({})'.format(*args))
-        
-    def _check_schema(self,):
-        '''
-            Compares actual table schema to user-provided schema.
-        '''
-        for colinfo in self.colschema:
-            colinfo = colinfo.split()
-            cname, ctype = colinfo[0], colinfo[1]
-            if cname not in self.columns:
-                estr = ('colschema entry "{}" is not found in '
-                        'existing table cols: {}')
-                raise ValueError(estr.format(cname, self.columns))
-                
-            elif ctype != self.schema.loc[cname,'type']:
-                exist_type = self.schema.loc[cname,'type']
-                estr = ('provided "{}" column type "{}" does not match '
-                        'existing data schema type "{}".')
-                raise ValueError(estr.format(cname, ctype, exist_type))
-            else:
-                pass
-    
-    def _get_schema(self):
-        '''
-            Sets schema from table, parsing out variable names and types.
-        '''
-        qstr = 'PRAGMA table_Info("{}")'.format(self.tabname,)
-        result = tuple(self.query(qstr))
-        
-        cols = ['cid', 'name', 'type', 'notnull', 'dflt_value','pk']
-        schema_df = pd.DataFrame(index=range(len(result)), columns=cols)
-        
-        for i,row in enumerate(result):
-            schema_df.iloc[i] = row
+    def __delete__(self):
+        '''Closes database connection to prevent locking.'''
+        self.close_conn()
             
-        schema_df = schema_df.set_index('name',drop=False)
-            
-        return schema_df
-
-    
-    def _get_existing_tables(self):
-        '''
-            Gets list of existing tables in the db.
-        '''
-        res = self.query("SELECT name FROM sqlite_master WHERE type='table'")
-        existcols = [col[0] for col in res]
-        return existcols
-    
-    
-    def __del__(self):
-        '''
-            Closes connection upon deletion.
-        '''
-        if self.conn is not None:
-            self.conn.commit()
-            self.conn.close()
-        
     def __str__(self):
+        return '<DocTable2::{} ct: {}>'.format(self._tabname, self.count())
+    
+    def close_conn(self):
+        '''Closes connection to db (if one exists).
+        Notes:
+            Primarily to be used if persistent_conn flag was set
+                to true in constructor, but user wants to close.
         '''
-            Outputs string specifying number of documents in the table.
+        if self._conn is not None:
+            self._conn.close()
+        self._conn = None
+		
+    def open_conn(self):
+        '''Opens connection to db (if one does not exist).
+        Notes:
+            Primarily to be used if persistent_conn flag was set
+                to false in constructor, but user wants to create.
+        
+        '''
+        if self._conn is None:
+            self._conn = self._engine.connect()
+        
+        
+    ################# INITIALIZATION METHODS ##################
+    
+    def _parse_column_schema(self,schema):
+        self.colnames = [c[0] for c in schema]
+        columns = list()
+        for colinfo in schema:
+            if len(colinfo) == 2:
+                colname, coltype = colinfo
+                colargs, coltypeargs = dict(), dict()
+            elif len(colinfo) == 3:
+                colname, coltype, colargs = colinfo
+                coltypeargs = dict()
+            elif len(colinfo) == 4:
+                colname, coltype, colargs, coltypeargs = colinfo
+            else:
+                raise ValueError(coltype_error_str)
             
-            Output: string of doc info
+            if coltype not in self._constraint_map: # if coltype is regular column
+                typ = self._get_sqlalchemy_type(coltype)
+                col = sa.Column(colname, typ(**coltypeargs), **colargs)
+                columns.append(col)
+
+            else: # column is actually a constraint (not regular column)
+                if coltype  == 'index':
+                    const = self._constraint_map[coltype](colname, *colargs, **coltypeargs)
+                elif coltype  == 'foreignkey_constraint':
+                    # colname is ([col1,col2],[parentcol1,parentcol2])
+                    const = self._constraint_map[coltype](*colname, **colargs)
+                elif coltype == 'check_constraint':
+                    # in this case, colname should be a constraint string (i.e. "age > 0")
+                    const = self._constraint_map[coltype](colname, **colargs)
+                else:
+                    if not is_sequence(colname):
+                        raise ValueError('First column argument on {} should '
+                            'be a sequence of columns.'.format(coltype))
+                    const = self._constraint_map[coltype](*colname, **colargs)
+                columns.append(const)
+        return columns
+
+
+                
+    def _get_sqlalchemy_type(self,typstr):
+        '''Maps typstr to a sqlalchemy data type (or doctable custom type).
+        Notes:
+            See examples/markdown/dt2_basics.md#type-mappings for more 
+                information about type mappings.
         '''
-        info = ''
+        if typstr not in self._type_map:
+            raise ValueError('Provided column type "{}" doesn\'t match '
+                'one of {}.'.format(typstr,self._valid_types))
+        else:
+            return self._type_map[typstr]
+    
+    def _bind_functions(self):
+        '''Binds .max(), .min(), .count() to each column object.
+            note: https://docs.sqlalchemy.org/en/13/core/functions.html
+        '''
+        for col in self._table.c:
+            col.max = func.max(col)
+            col.min = func.min(col)
+            col.count = func.count(col)
+            col.sum = func.sum(col)
+    
+    #################### Convenience Methods ###################
+    
+    def count(self, where=None, whrstr=None, **kwargs):
+        '''Count number of rows which match where condition.
+        Notes:
+            Calls select_first under the hood.
+        Args:
+            where (sqlalchemy condition): filter rows before counting.
+            whrstr (str): filter rows before counting.
+        Returns:
+            int: number of rows that match "where" and "whrstr" criteria.
+        '''
+        cter = func.count(self._table)
+        ct = self.select_first(cter, where=where, whrstr=whrstr, **kwargs)
+        return ct
+    
+    def next_id(self, idcol='id', **kwargs):
+        '''Returns the highest value in idcol plus one.
+        Args:
+            idcol (str): column name to look up.
+        Returns:
+            int: next id to be assigned by autoincrement.
+        '''
+        # use the results object .inserted_primary_key to get after 
+        # inserting. Here is the object returned by insert:
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         
-        ct = self.query('SELECT Count(*) FROM '+self.tabname).__next__()[0]
-        info += '<Documents ct: ' + str(ct) + '>'
+        mx = self.select_first(func.max(self[idcol]), **kwargs)
+        if mx is None:
+            return 1 # (usually first entry in sql table)
+        else:
+            return mx + 1
         
+    @property
+    def columns(self):
+        '''Exposes SQLAlchemy core table columns object.
+        Notes:
+            some info here: 
+            https://docs.sqlalchemy.org/en/13/core/metadata.html
+            
+            c = db.columns['id']
+            c.type, c.name, c.
+        Returns:
+            sqlalchemy columns: access to underlying columns
+                object.
+        '''
+        return self._table.c
+    
+    @property
+    def schemainfo(self):
+        '''Get info about each column as a dictionary.
+        Returns:
+            dict<dict>: info about each column.
+        '''
+        inspector = sa.inspect(self._engine)
+        return inspector.get_columns(self._tabname)
+    
+    def schemainfo_long(self):
+        '''Get custom-selected schema information.
+        Notes:
+            This method is similar to schemainfo, but includes
+                more hand-selected information. Likeley to be 
+                removed in future versions.
+        Returns:
+            dict<dict>: info about each column, more info than 
+                .schemainfo() provides.
+        '''
+        info = dict()
+        for col in self._table.c:
+            ci = dict(
+                name=col.name,
+                type=col.type,
+                comment=col.comment,
+                constraints=col.constraints,
+                expression=col.expression,
+                foreign_keys=col.foreign_keys,
+                index=col.index,                
+                nullable=col.nullable,
+                primary_key=col.primary_key,
+                onupdate=col.onupdate,
+                default=col.default,
+            )
+            info[col.name] = ci
         return info
     
-    def commit(self):
+    @property
+    def primary_key(self):
+        '''Returns primary key col name.
+        Notes:
+            Returns first primary key where multiple primary
+                keys exist (should be updated in future).
         '''
-            Commits database changes to file.
-        '''
-        if self.conn is not None:
-            return self.conn.commit()
-        # do nothing otherwise; change to exception later?
+        for ci in self.schemainfo:
+            if ci['primary_key']:
+                return ci['name']
+        return None
     
     
-    def query(self, qstr, payload=None, many=False, verbose=False):
+    ################# INSERT METHODS ##################
+    
+    def insert(self, rowdat, ifnotunique='fail', **kwargs):
+        '''Insert a row or rows into the database.
+        Args:
+            rowdat (list<dict> or dict): row data to insert.
+            ifnotunique (str): way to handle inserted data if it breaks
+                a table constraint. Choose from FAIL, IGNORE, REPLACE.
+        Returns:
+            sqlalchemy query result object. 
         '''
-            Executes raw query using database connection.
-            
-            Output: sqlite query conn.execute() output.
-        '''
-        if self.verbose or verbose: print(qstr)
+        q = sa.sql.insert(self._table, rowdat)
+        q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         
-        # make a new connection and cursor
-        if self.conn is None:
-            with sqlite3.connect(self.fname) as conn:
-                cursor = conn.cursor()
-                return self._query_exec(cursor, qstr, payload, many)
+        #NOTE: there is a weird issue with using verbose mode with a 
+        #  multiple insert. The printing interface is not aware of 
+        #  the SQL dialect and therefore throws an error.
         
-        # use instance connection and make new cursor
+        # To print correctly, would need something like this:
+        #from sqlalchemy.dialects import mysql
+        #print str(q.statement.compile(dialect=mysql.dialect()))
+        
+        if is_sequence(rowdat):
+            if 'verbose' in kwargs:
+                del kwargs['verbose']
+            r = self.execute(q, verbose=False, **kwargs)
         else:
-            cursor = self.conn.cursor()
-            return self._query_exec(cursor, qstr, payload, many)
+            r = self.execute(q, **kwargs)
         
-    @staticmethod
-    def _query_exec(cursor, qstr, payload, many):
-        if payload is None:
-            return cursor.execute(qstr)
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
+        return r
+    
+    ################# SELECT METHODS ##################
+    
+    def select_first(self, *args, **kwargs):
+        '''Perform regular select query returning only the first result.
+        Args:
+            *args: args to regular .select() method.
+            **kwargs: args to regular .select() method.
+        Returns:
+            sqlalchemy results obect: First result from select query.
+        Raises:
+            LookupError: where no items are returned with the select 
+                statement. Couldn't return None or other object because
+                those could be valid objects in a single-row select query.
+                In cases where uncertain if row match exists, use regular 
+                .select() and count num results, or use try/catch.
+        '''
+        result = self.select(*args, limit=1, **kwargs)
+        if len(result) == 0:
+            raise LookupError('No results were returned. Needed to error '
+                'so this result wasn not confused with case where actual '
+                'result is None. If not sure about result, use regular '
+                '.select() method with limit=1.')
+        return result[0]
+    
+    def select_df(self, cols=None, *args, **kwargs):
+        '''Select returning dataframe.
+        Args:
+            cols: sequence of columns to query. Must be sequence,
+                passed directly to .select() method.
+            *args: args to regular .select() method.
+            **kwargs: args to regular .select() method.
+        Returns:
+            pandas dataframe: Each row is a database row,
+                and output is not indexed according to primary 
+                key or otherwise. Call .set_index('id') on the
+                dataframe to envoke this behavior.
+        '''
+        
+        if not is_sequence(cols):
+            cols = [cols]
+        
+        sel = self.select(cols, *args, **kwargs)
+        rows = [dict(r) for r in sel]
+        return pd.DataFrame(rows)
+    
+    def select_series(self, col, *args, **kwargs):
+        '''Select returning pandas Series.
+        Args:
+            col: column to query. Passed directly to .select() 
+                method.
+            *args: args to regular .select() method.
+            **kwargs: args to regular .select() method.
+        Returns:
+            pandas series: enters rows as values.
+        '''
+        if is_sequence(col):
+            raise TypeError('col argument should be single column.')
+        
+        sel = self.select(col, *args, **kwargs)
+        return pd.Series(sel)
+    
+    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, offset=None, **kwargs):
+        '''Perform select query, yield result for each row.
+        
+        Description: Because output must be iterable, returns special column results 
+            by performing one query per row. Can be inefficient for many smaller 
+            special data information.
+        
+        Args:
+            cols: list of sqlalchemy datatypes created from calling .col() method.
+            where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
+            orderby: sqlalchemy orderby directive
+            groupby: sqlalchemy gropuby directive
+            limit (int): number of entries to return before stopping
+            whrstr (str): raw sql "where" conditionals to add to where input
+        Yields:
+            sqlalchemy result object: row data
+        '''
+        return_single = False
+        if cols is None:
+            cols = list(self._table.columns)
         else:
-            if not many:
-                return cursor.execute(qstr,payload)
-            else:
-                return cursor.executemany(qstr,payload)
-    
-        
-    def _pickle_values(self, cols, values, serialize=True):
-        '''
-            Converts blob type columns into pickled blobs. 
-                Also error-checks submitted columns.
-            
-            Inputs:
-                cols: list of columns associated with each value
-                values: list or tuple of values to potentially convert
-            
-            Output:
-                list of values with python objects pickled into blobs
-        '''
-        if not all([c in self.columns for c in cols]):
-            raise ValueError('Not all submitted columns are in database.')
-        
-        out_values = list()
-        for colname,val in zip(cols,values):
-            if self.isblob[colname]:
-                if serialize:
-                    out_values.append( pickle.dumps(val) )
-                else:
-                    if val is not None:
-                        out_values.append( pickle.loads(val) )
-                    else:
-                        out_values.append( None )
-            else:
-                out_values.append(val)
-        return out_values
-    
-    
-    def add(self, datadict, ifnotunique=None, **queryargs):
-        '''
-            Adds a single entry where each column is identified by a key-value pair. 
-                Will automatically convert python types to sqlite storage blobs using pickle.
-            
-            Inputs:
-                datadict: dictionary of column name -> value mappings
-                ifnotunique: choose what happens when an existing entry matches
-                    any UNIQUE criteria specified in the schema.
-                    Choose from ('REPLACE', 'IGNORE').
-            Output:
-                query response
-        '''
-        data = list(datadict.items())
-        cols = [c for c,v in data]
-        values = [v for c,v in data]
-        #payload = [datadict[c] if not (c in self.isblob.keys() and self.isblob[c]) else pickle.dumps(datadict[c]) for c in cols]
-        payload = self._pickle_values(cols, values, serialize=True)
-        n = len(cols)
-        replacecode = ' OR ' + ifnotunique if ifnotunique is not None else ''
-        
-        qstr = 'INSERT'+replacecode+' INTO ' + self.tabname + '('+','.join(cols)+') VALUES ('+','.join(['?']*n)+')'
-        return self.query(qstr, payload, **queryargs)
-        
-    def addmany(self, data, keys=None, ifnotunique=None, **queryargs):
-        '''
-            Adds multiple entries to the database, where column names are specified by "keys".
-                If "keys" is not specified, will use all columns (including autoincrement columns).
-                Will automatically convert python types to sqlite storage blobs using pickle.
+            if not is_sequence(cols):
+                return_single = True
+                cols = [cols]
+        cols = [c if not isinstance(c,str) else self[c] for c in cols]
                 
-            Inputs:
-                data: lists of tuples representing data for each row
-                keys: column names corresponding to each tuple entry
-                ifnotunique: choose what happens when an existing entry matches
-                    any UNIQUE criteria specified in the schema.
-                    Choose from ('REPLACE', 'IGNORE').
-            Output:
-                sqlite executemany query response
-        '''
-        # use all columns if keys is not specified
-        cols = list(keys) if keys is not None else self.columns
-        n = len(cols)
+        # query colunmns in main table
+        result = self._exec_select_query(cols,where,orderby,groupby,limit,whrstr,offset,**kwargs)
+        # this is the result object:
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         
-        
-        if sum(self.isblob.values()) > 0:
-            # need to convert some python objects to blobs for storage
-            #payload = ([d[i] if not self.isblob[c] else pickle.dumps(d[i]) for i,c in enumerate(cols)] for d in data)
-            payload = [self._pickle_values(cols, values, serialize=True) for values in data]
+        # NOTE: I USE LIST RETURN BECAUSE UNDERLYING SQL ENGINE
+        # WILL LOAD THE DATA INTO MEMORY ANYWAYS. THIS JUST PRESENTS
+        # A MORE FLEXIBLE INTERFACE TO THE USER.
+        # row is an object that can be accessed by col keyword
+        # i.e. row['id'] or num index, i.e. row[0].
+        if return_single:
+            return [row[0] for row in result]
         else:
-            payload = data
-        
-        replacecode = ' OR ' + ifnotunique if ifnotunique is not None else ''
-        qstr = 'INSERT'+replacecode+' INTO ' + self.tabname + '('+','.join(cols)+') VALUES ('+','.join(['?']*n)+')'
-        
-        return self.query(qstr, payload, many=True, **queryargs)
-    
-    def delete(self, where=None, **queryargs):
-        '''
-            Deletes all rows matching the where criteria.
+            return [row for row in result]
                 
-            Inputs:
-                where: if "*" is specified, will drop all rows. Otherwise
-                    is fed directly into the query statement.
-            
-            Output:
-                query response
-        '''
-        qstr = 'DELETE FROM '+ self.tabname
+    
+                
+    def _exec_select_query(self, cols, where, orderby, groupby, limit, whrstr, offset,**kwargs):
+        
+        q = sa.sql.select(cols)
+        
         if where is not None:
-            qstr += ' WHERE ' + where
+            q = q.where(where)
+        if whrstr is not None:
+            q = q.where(sa.text(whrstr))
+        if orderby is not None:
+            if is_sequence(orderby):
+                q = q.order_by(*orderby)
+            else:
+                q = q.order_by(orderby)
+        if groupby is not None:
+            if is_sequence(groupby):
+                q = q.group_by(*groupby)
+            else:
+                q = q.group_by(groupby)
             
-        return self.query(qstr, **queryargs)
+        if limit is not None:
+            q = q.limit(limit)
+        if offset is not None:
+            q = q.offset(offset)
         
+        result = self.execute(q, **kwargs)
+        
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
+        return result
     
-    def update(self, values, where, **queryargs):
+    def select_chunk(self, cols=None, chunksize=1, max_rows=None, **kwargs):
+        '''Performs select while querying only a subset of the results at a time.
+        Args:
+            cols (col name(s) or sqlalchemy object(s)): columns to query
+            chunksize (int): size of individual queries to be made. Will
+                load this number of rows into memory before yielding.
+            max_rows (int): maximum number of rows to retrieve. Because 
+                the limit argument is being used internally to limit data
+                to smaller chunks, use this argument instead. Internally,
+                this function will load a maximum of max_rows + chunksize 
+                - 1 rows into memory, but yields only max_rows.
+        Yields:
+            sqlalchemy result: row data - same as .select() method.
         '''
-            Updates rows matching the "where" string with specified values.
-                
-            Inputs:
-                values: dictionary of field->values. all rows which meet the where criteria 
-                    will have these values assigned
-                where: literal SQLite "where" string corresponding to column criteria for 
-                    value replacement.
-                    The value "*" will match all rows by omitting WHERE statement.
-            Output:
-                query response
+        offset = 0
+        while True:
+            rows = self.select(cols, offset=offset, limit=chunksize, **kwargs)
+            for row in rows[:max_rows-offset]:
+                yield row
+            offset += len(rows)
+            
+            if (max_rows is not None and offset >= max_rows) or len(rows) == 0:
+                break
+    
+    #################### Update Methods ###################
+    
+    def update(self, values, where=None, whrstr=None, **kwargs):
+        '''Update row(s) assigning the provided values.
+        Args:
+            values (dict<colname->value> or list<dict> or list<(col,value)>)): 
+                values to populate rows with. If dict, will insert those values
+                into all rows that match conditions. If list of dicts, assigns
+                expression in value (i.e. id['year']+1) to column. If list of 
+                (col,value) 2-tuples, will assign value to col in the order 
+                provided. For example given row values x=1 and y=2, the input
+                [(x,y+10),(y,20)], new values will be x=12, y=20. If opposite
+                order [(y,20),(x,y+10)] is provided new values would be y=20,
+                x=30. In cases where list<dict> is provided, this behavior is 
+                undefined.
+            where (sqlalchemy condition): used to match rows where
+                update will be applied.
+            whrstr (sql string condition): matches same as where arg.
+        Returns:
+            SQLAlchemy result proxy object
         '''
-        valuelist = list(values.items())
-        vals = [v for k,v in valuelist]
-        cols = [k for k,v in valuelist]
-        # UPDATE tasks SET priority = ?, begin_date = ?, end_date = ? WHERE id = ?
-        qstr =  'UPDATE '+self.tabname+' SET ' + ', '.join([c+' = ?' for c in cols])
-        if where != '*':
-            qstr += ' WHERE ' + where
+            
+        # update the main column values
+        
+        
+        if isinstance(values,list) or isinstance(values,tuple):
+            q = sa.sql.update(self._table, preserve_parameter_order=True)
+            q = q.values(values)
+        else:
+            q = sa.sql.update(self._table)
+            q = q.values(values)
+        
+        if where is not None:
+            q = q.where(where)
+        if whrstr is not None:
+            q = q.where(sa.text(whrstr))
+        
+        r = self.execute(q, **kwargs)
+        
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
+        return r
+    
+    
+    #################### Delete Methods ###################
+    
+    def delete(self, where=None, whrstr=None, vacuum=False, **kwargs):
+        '''Delete rows from the table that meet the where criteria.
+        Args:
+            where (sqlalchemy condition): criteria for deletion.
+            whrstr (sql string): addtnl criteria for deletion.
+            vacuum (bool): will execute vacuum sql command to reduce
+                storage space needed by SQL table. Use when deleting
+                significant ammounts of data.
+        Returns:
+            SQLAlchemy result proxy object.
+        '''
+        q = sa.sql.delete(self._table)
 
-        pickled_values = self._pickle_values(cols, vals, serialize=True)
-        return self.query(qstr,pickled_values, **queryargs)
+        if where is not None:
+            q = q.where(where)
+        if whrstr is not None:
+            q = q.where(sa.text(whrstr))
+        
+        r = self.execute(q, **kwargs)
+        
+        if vacuum:
+            self.execute('VACUUM')
+        
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
+        return r
     
+    ################# CRITICAL SQL METHODS ##################
+    
+    def execute(self, query, verbose=None, **kwargs):
+        '''Execute an sql command. Called by most higher-level functions.
+        Args:
+            query (sqlalchemy condition or str): query to execute;
+                can be provided as sqlalchemy condition object or
+                plain sql text.
+            verbose (bool or None): Print SQL command issued before
+                execution.
+        '''
+        prstr = 'DocTable2 Query: {}'
+        if verbose is not None:
+            if verbose: print(prstr.format(query))
+        elif self.verbose: print(prstr.format(query))
+        
+        # try to parse
+        result = self._execute(query, **kwargs)
+        return result
+    
+    def _execute(self, query, conn=None):
+        # takes raw query object
+        if conn is not None:
+            r = conn.execute(query)
+        elif self._conn is not None:
+            r = self._conn.execute(query)
+        else:
+            with self._engine.connect() as conn:
+                r = conn.execute(query)
+        return r
+    
+    
+    #################### Accessor Methods ###################
+    
+    def col(self,name):
+        '''Accesses a column object. Equivalent to table.c[name].
+        Args:
+            Name of column to access. Applied as subscript to 
+                sqlalchemy columns object.
+        '''
+        return self._table.c[name]
+    
+    def __getitem__(self, colname):
+        '''Accesses a column object by calling .col().'''
+        return self.col(colname)
+        
+    @property
+    def table(self):
+        '''Returns underlying sqlalchemy table object for manual manipulation.
+        '''
+        return self._table
+    
+    @property
+    def tabname(self):
+        '''Gets name of table for this connection.'''
+        return self._tabname
+    
+    
+    #################### Bootstrapping Methods ###################    
+    
+    def get_bootstrap(self, *args, **kwargs):
+        '''Generates a DocBootstrap object to sample from.
+        Notes:
+            The DocBootstrap object keeps all selected docs in
+                memory, and yields samples with .sample().
+        Args:
+            *args: passed to .select()
+            **kwargs: passed to .select()
+        Returns:
+            DocBootstrap object for bootstrapping.
+        '''
+        docs = self.select(*args, **kwargs)
+        return DocBootstrap(docs)
+    
+    def select_bootstrap(self, *args, **kwargs):
+        ''' Performs select statement by bootstrapping output.
+        Notes:
+            This is a simple wrapper over .select_bootstrap_iter(),
+                simply casting to a list before returning.
+        Args:
+            *args: passed to .select_bootstrap_iter() method.
+            **kwargs: passed to .select_bootstrap_iter() method.
+        Returns:
+            list: result rows
+        '''
+        return list(self.select_bootstrap_iter(*args, **kwargs))
+    
+    def select_bootstrap_iter(self, cols=None, nsamp=None, where=None, idcol=None, whrstr=None, **kwargs):
+        '''Bootstrap (sample with replacement) from database.
+        Notes:
+            This should be used in cases where the order of returned elements
+                does not matter. It works internally by selecting primary key
+                (idcol), sampling with replacement using python, and then performing
+                select queries where idcol in (selected ids). Number of queries varies
+                by the maximum count of ids which were sampled.
+        Args:
+            cols (sqlalchemy column names or objects): passed directly to 
+                .select().
+            nsamp (int): number of rows to sample with replacement.
+            where (sqlalchemy condition): where criteria.
+            whrstr (str): SQL command to conditionally select
+            idcol (col name or object): Must be unique id assigned to each
+                column. Extracts first primary key by default.
+        Yields:
+            sqlalchemy row objects: bootstrapped rows (order not gauranteed).
+        '''
+        if idcol is None:
+            idcol = self.primary_key
+            if idcol is None:
+                raise ValueError('A primary key must exist or unique column '
+                    'specified in "key" param to use bootstrapping.')
+        if nsamp == None:
+            nsamp = self.count()
+        
+        idwaves = self._bs_sampids(nsamp, idcol, where=where)
+        results = list()
+        for idwave in idwaves:
+            for row in self.select(cols, where=self[idcol].in_(idwave), **kwargs):
+                yield row
+                
             
-    def get(self, sel=None, where=None, orderby=None, limit=None, table=None, verbose=False, asdict=True, **queryargs):
-        '''
-            Query rows from database as generator.
-                
-            Inputs:
-                sel: list of fields to retrieve with the query
-                where: literal SQLite "where" string corresponding to criteria for 
-                    value replacement.
-                orderby: literal sqlite order by command value. Can be "column_1 ASC",
-                    or order by multiple columns using, for instance, "column_1 ASC, column_2 DESC"
-                limit: number of rows to retrieve before stopping query. Can be used for quick testing.
-                table: table name to retrieve for. Default is object table name, but can query from 
-                    others here.
-                verbose: True/False flag indicating whether or not output should appear.
-                asdict: True/False flag indicating whether rows should be returned as 
-                    lists (False) or as dicts with field names (True & default).
-                kwargs: to be sent to self.query().
-        '''
-                
-        tabname = table if table is not None else self.tabname
-        whereclause = ' WHERE '+where if where is not None else ''
-        orderbyclause = (' ORDER BY '+orderby) if orderby is not None else ''
-        limitclause = ' LIMIT ' + str(limit) if limit is not None else ''
+    def _bs_sampids(self,nsamp,idcol,**kwargs):
+        ids = self.select(self[idcol], **kwargs) # includes WHERE clause args
+        cts = collections.Counter(random.choices(ids,k=nsamp))
         
-        if sel is None:
-            usecols = self.columns
-        else:
-            usecols = sel
-        
-        n = len(usecols)
-        
-        qstr = 'select '+','.join(usecols)+' from '+tabname+whereclause+orderbyclause+limitclause
-        if verbose: print(qstr)
-        
-        if asdict:
-            for result in self.query(qstr, **queryargs):
-                yield {
-                    col:val for col,val in zip(usecols,self._pickle_values(usecols,result,serialize=False))
-                }
-        else:
-            for result in self.query(qstr, **queryargs):
-                yield self._pickle_values(usecols,result,serialize=False)
-        
-    def getdf(self, *args, **kwargs):
-        '''
-            Query rows from database, return as Pandas DataFrame.
-                
-            Inputs:
-                See inputs for self.get().
-        '''
-        results = list(self.get(*args, **kwargs))
-        if len(results) > 0:
-            sel = list(results[0].keys())
-        else:
-            try:
-                sel
-            except NameError:
-                sel = list()
-        return pd.DataFrame(results, columns=sel)
+        idwaves = list()
+        for i in range(max(cts.values())):
+            ids = [idx for idx,ct in cts.items() if ct > i]
+            idwaves.append(ids)
+        return idwaves
+
+    
+
+coltype_error_str = ('Provided column schema must '
+                    'be a two-tuple (colname, coltype), three-tuple '
+                    '(colname,coltype,{sqlalchemy type data}), or '
+                    'four-tuple (colname, coltype, sqlalchemy type data, '
+                    '{sqlalchemy column arguments}).')
+    
+
+def is_sequence(obj):
+    return isinstance(obj, list) or isinstance(obj,set) or isinstance(obj,tuple)
+
+
