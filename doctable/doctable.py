@@ -36,14 +36,8 @@ class DocTable:
         'parsetree': ParseTreeType, # custom datatype
     }
     
-    _constraint_map = {
-        'unique_constraint': sa.UniqueConstraint,
-        'check_constraint': sa.CheckConstraint,
-        'primarykey_constraint': sa.PrimaryKeyConstraint,
-        'foreignkey_constraint': sa.ForeignKeyConstraint,
-        'index': sa.Index,
-    }
-    _valid_types = list(_constraint_map.keys()) + list(_type_map.keys())
+
+    #_valid_types = list(_constraint_map.keys()) + list(_type_map.keys())
     
     def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, make_new_db=True, **engine_args):
         '''Create new database.
@@ -135,57 +129,55 @@ class DocTable:
         
         
     ################# INITIALIZATION METHODS ##################
-    
+	
     def _parse_column_schema(self,schema):
-        self.colnames = [c[0] for c in schema]
         columns = list()
         for colinfo in schema:
-            if len(colinfo) == 2:
-                colname, coltype = colinfo
-                colargs, coltypeargs = dict(), dict()
-            elif len(colinfo) == 3:
-                colname, coltype, colargs = colinfo
-                coltypeargs = dict()
-            elif len(colinfo) == 4:
-                colname, coltype, colargs, coltypeargs = colinfo
-            else:
-                raise ValueError(coltype_error_str)
-            
-            if coltype not in self._constraint_map: # if coltype is regular column
-                typ = self._get_sqlalchemy_type(coltype)
-                col = sa.Column(colname, typ(**coltypeargs), **colargs)
-                columns.append(col)
+			n = len(colinfo)
+            if n not in (2,3,4):
+                raise ValueError('A schema entry must have 2+ arguments: (type,name,..)')
 
-            else: # column is actually a constraint (not regular column)
-                if coltype  == 'index':
-                    const = self._constraint_map[coltype](colname, *colargs, **coltypeargs)
-                elif coltype  == 'foreignkey_constraint':
-                    # colname is ([col1,col2],[parentcol1,parentcol2])
-                    const = self._constraint_map[coltype](*colname, **colargs)
-                elif coltype == 'check_constraint':
-                    # in this case, colname should be a constraint string (i.e. "age > 0")
-                    const = self._constraint_map[coltype](colname, **colargs)
-                else:
-                    if not is_sequence(colname):
-                        raise ValueError('First column argument on {} should '
-                            'be a sequence of columns.'.format(coltype))
-                    const = self._constraint_map[coltype](*colname, **colargs)
-                columns.append(const)
+			# column is regular type
+			if colinfo[0] in self._type_map:
+				coltype, colname = colinfo[:2]
+				colargs = colinf[2] if n > 2 else dict()
+				coltypeargs = colinfo[3] if n > 3 else dict()
+                col = sa.Column(colname, self._type_map[coltype](**coltypeargs), **colargs)
+                columns.append(col)
+			else:
+				if colinfo[0] == 'index':
+					# ('index', 'ind0', ('name','address'),dict(unique=True)),
+					indargs = colinfo[2] if n > 2 else dict()
+					indkwargs = colinfo[3] if n > 3 else dict()
+					ind = sa.Index(colinfo[1], *indargs, **indkwargs)
+					columns.append(ind)
+				elif colinfo[0] == 'check_constraint':
+					# ('check_constraint','age >= 0 AND age < 120',, dict(name='age')),
+					kwargs = colinfo[2] if n > 2 else dict()
+					const = sa.CheckConstraint(colinfo[1], **kwargs)
+					columns.append(const)
+				elif colinfo[0] == 'unique_constraint':
+					# ('unique_constraint', ('name','address'), dict(name='name_addr')),
+					kwargs = colinfo[2] if n > 2 else dict()
+					const = sa.UniqueConstraint(*colinfo[1], **kwargs)
+					columns.append(const)
+				elif colinfo[0] == 'primarykey_constraint':
+					# ('primarykey_constraint', ('name','address'),dict(unique=True)),
+					kwargs = colinfo[2] if n > 2 else dict()
+					const = sa.PrimaryKeyConstraint(*colinfo[1], **kwargs)
+					columns.append(const)
+				elif colinfo[0] == 'foreignkey_constraint':
+					# ('foreignkey_constraint', 
+					# [('othertab_name','othertab_address'),('othertab.name', 'othertab.address')])
+					kwargs = colinfo[2] if n > 2 else dict()
+					const = sa.ForeignKeyConstraint(*colinfo[1], **kwargs)
+					columns.append(const)
+				else:
+					raise ValueError('Column or constraint type "{}" was not recognized.'
+									''.format(colinfo[0]))
+				
         return columns
 
-
-                
-    def _get_sqlalchemy_type(self,typstr):
-        '''Maps typstr to a sqlalchemy data type (or doctable custom type).
-        Notes:
-            See examples/markdown/dt2_basics.md#type-mappings for more 
-                information about type mappings.
-        '''
-        if typstr not in self._type_map:
-            raise ValueError('Provided column type "{}" doesn\'t match '
-                'one of {}.'.format(typstr,self._valid_types))
-        else:
-            return self._type_map[typstr]
     
     def _bind_functions(self):
         '''Binds .max(), .min(), .count() to each column object.
