@@ -546,19 +546,21 @@ class DocTable:
     
     #################### Bootstrapping Methods ###################    
     
-    def get_bootstrap(self, *args, **kwargs):
-        '''Generates a DocBootstrap object to sample from.
+    def bootstrap(self, *args, n=None, **kwargs):
+        '''Generates a DocBootstrapper object to sample from.
         Notes:
             The DocBootstrap object keeps all selected docs in
                 memory, and yields samples with .sample().
         Args:
             *args: passed to .select()
+            n (int): number of samples to bs. If left unset, can
+                specify when drawing sample from DocBootstrap obj.
             **kwargs: passed to .select()
         Returns:
             DocBootstrap object for bootstrapping.
         '''
         docs = self.select(*args, **kwargs)
-        return DocBootstrap(docs)
+        return DocBootstrap(docs, n=n)
     
 
 def is_sequence(obj):
