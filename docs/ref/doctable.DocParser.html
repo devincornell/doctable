@@ -26,10 +26,10 @@ Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;distribute&nbsp;paragraph&nbsp;parsing&nbsp;across&nbsp;processes&nbsp;which&nbsp;is&nbsp;more<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;balanced&nbsp;than&nbsp;distributing&nbsp;at&nbsp;document&nbsp;level.</tt></dd></dl>
 
-<dl><dt><a name="DocParser-get_parsetrees"><strong>get_parsetrees</strong></a>(doc, tok_parse_func=None, info_func_map={}, merge_ents=False, spacy_ngram_matcher=None, merge_noun_chunks=False)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Extracts&nbsp;parsetree&nbsp;from&nbsp;spacy&nbsp;doc&nbsp;objects.<br>
+<dl><dt><a name="DocParser-get_parsetrees"><strong>get_parsetrees</strong></a>(doc, parse_tok_func=None, info_func_map={}, merge_ents=False, spacy_ngram_matcher=None, merge_noun_chunks=False)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Extracts&nbsp;parsetree&nbsp;from&nbsp;spacy&nbsp;doc&nbsp;objects.<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;doc&nbsp;(spacy.Doc&nbsp;object):&nbsp;doc&nbsp;to&nbsp;generate&nbsp;parsetree&nbsp;from.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;tok_parse_func&nbsp;(func):&nbsp;function&nbsp;used&nbsp;to&nbsp;convert&nbsp;token&nbsp;to&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;parse_tok_func&nbsp;(func):&nbsp;function&nbsp;used&nbsp;to&nbsp;convert&nbsp;token&nbsp;to&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;string&nbsp;representation.&nbsp;Usually&nbsp;a&nbsp;lambda&nbsp;function&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wrapping&nbsp;some&nbsp;variant&nbsp;of&nbsp;self.<a href="#doctable.DocParser-parse_tok">parse_tok</a>().<br>
 &nbsp;&nbsp;&nbsp;&nbsp;info_func_map&nbsp;(dict&lt;str-&gt;func&gt;):&nbsp;attribute&nbsp;to&nbsp;function&nbsp;<br>
@@ -40,10 +40,12 @@ Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with&nbsp;Spacy.&nbsp;Powerful&nbsp;wildcards&nbsp;etc.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;merge_noun_chunks&nbsp;(bool):&nbsp;merge&nbsp;noun&nbsp;chunks&nbsp;or&nbsp;not.</tt></dd></dl>
 
-<dl><dt><a name="DocParser-preprocess"><strong>preprocess</strong></a>(text, remove_url=False)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Apply&nbsp;preprocessing&nbsp;step&nbsp;before&nbsp;parsing.<br>
+<dl><dt><a name="DocParser-preprocess"><strong>preprocess</strong></a>(text, replace_url=None, replace_xml=None, replace_digits=None)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Apply&nbsp;preprocessing&nbsp;step,&nbsp;modifies&nbsp;and&nbsp;returns&nbsp;text.<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;(str):&nbsp;document&nbsp;as&nbsp;a&nbsp;text&nbsp;string<br>
-&nbsp;&nbsp;&nbsp;&nbsp;remove_url&nbsp;(bool):&nbsp;choose&nbsp;to&nbsp;remove&nbsp;url</tt></dd></dl>
+&nbsp;&nbsp;&nbsp;&nbsp;replace_url&nbsp;(str&nbsp;or&nbsp;None):&nbsp;if&nbsp;not&nbsp;None,&nbsp;replace&nbsp;url&nbsp;with&nbsp;string<br>
+&nbsp;&nbsp;&nbsp;&nbsp;replace_xml&nbsp;(str&nbsp;or&nbsp;None):&nbsp;if&nbsp;not&nbsp;None,&nbsp;replace&nbsp;xml&nbsp;tags&nbsp;with&nbsp;string<br>
+&nbsp;&nbsp;&nbsp;&nbsp;replace_digits&nbsp;(str&nbsp;or&nbsp;None):&nbsp;if&nbsp;not&nbsp;None,&nbsp;replace&nbsp;digits&nbsp;with&nbsp;string</tt></dd></dl>
 
 <dl><dt><a name="DocParser-tokenize_doc"><strong>tokenize_doc</strong></a>(doc, split_sents=False, merge_ents=False, merge_noun_chunks=False, ngrams=[], spacy_ngram_matcher=None, ngram_sep=' ', use_tok_func=None, parse_tok_func=None)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Parse&nbsp;spacy&nbsp;doc&nbsp;object.<br>
 Args:<br>
@@ -63,9 +65,9 @@ Args:<br>
 Static methods defined here:<br>
 <dl><dt><a name="DocParser-apply_ngram_merges"><strong>apply_ngram_merges</strong></a>(doc, merge_ents=True, spacy_ngram_matcher=None, merge_noun_chunks=False)</dt><dd><tt>Apply&nbsp;merges&nbsp;to&nbsp;doc&nbsp;object&nbsp;including&nbsp;entities,&nbsp;normal&nbsp;ngrams,&nbsp;and&nbsp;noun&nbsp;chunks.</tt></dd></dl>
 
-<dl><dt><a name="DocParser-merge_ngrams"><strong>merge_ngrams</strong></a>(toks, ngrams, ngram_sep=' ')</dt><dd><tt>Merges&nbsp;consecutive&nbsp;strings&nbsp;(tokenized&nbsp;n-grams)&nbsp;into&nbsp;single&nbsp;tokens.</tt></dd></dl>
+<dl><dt><a name="DocParser-merge_ngrams"><strong>merge_ngrams</strong></a>(toks, ngrams, ngram_sep=' ')</dt><dd><tt>Merges&nbsp;specified&nbsp;consecutive&nbsp;tokens&nbsp;into&nbsp;single&nbsp;tokens.</tt></dd></dl>
 
-<dl><dt><a name="DocParser-parse_tok"><strong>parse_tok</strong></a>(tok, replace_num=None, replace_digit=None, lemmatize=False, normal_convert=None, format_ents=True, ent_convert=None)</dt><dd><tt>Convert&nbsp;spacy&nbsp;token&nbsp;object&nbsp;to&nbsp;string.<br>
+<dl><dt><a name="DocParser-parse_tok"><strong>parse_tok</strong></a>(tok, replace_num=None, replace_digit=None, lemmatize=False, normal_convert=None, format_ents=False, ent_convert=None)</dt><dd><tt>Convert&nbsp;spacy&nbsp;token&nbsp;object&nbsp;to&nbsp;string.<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;tok&nbsp;(spacy&nbsp;token&nbsp;or&nbsp;span):&nbsp;token&nbsp;object&nbsp;to&nbsp;convert&nbsp;to&nbsp;string.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;replace_num&nbsp;(str/None):&nbsp;Replace&nbsp;number&nbsp;following&nbsp;tok.like_num&nbsp;(includes&nbsp;"five",&nbsp;<br>
@@ -98,7 +100,11 @@ Data descriptors defined here:<br>
 </dl>
 <hr>
 Data and other attributes defined here:<br>
+<dl><dt><strong>re_digits</strong> = re.compile('\\d*[-\\./,]*\\d+')</dl>
+
 <dl><dt><strong>re_url</strong> = re.compile('http\\S+', re.MULTILINE)</dl>
+
+<dl><dt><strong>re_xml_tag</strong> = re.compile('&lt;[^&lt;]+&gt;', re.MULTILINE)</dl>
 
 </td></tr></table>
 </body></html>
