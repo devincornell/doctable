@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>dt1_simple</title>
+<title>doctable_update</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13074,338 +13074,46 @@ div#notebook {
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
 
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="DocTable-Simple-Example">DocTable Simple Example<a class="anchor-link" href="#DocTable-Simple-Example">&#182;</a></h1><p>In this notebook, I show how to define a DocTable as a python class, populate the DocTable using the .add() and .addmany() commands, query data through generators and pandas dataframes, and finally update DocTable entries.</p>
-
-</div>
-</div>
-</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
-<span class="kn">from</span> <span class="nn">timeit</span> <span class="k">import</span> <span class="n">default_timer</span> <span class="k">as</span> <span class="n">timer</span>
-<span class="kn">from</span> <span class="nn">dt1_helper</span> <span class="k">import</span> <span class="n">get_sklearn_newsgroups</span>
-
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
-<span class="kn">import</span> <span class="nn">doctable</span> <span class="k">as</span> <span class="nn">dt</span> <span class="c1"># this will be the table object we use to interact with our database.</span>
+<span class="kn">import</span> <span class="nn">doctable</span> <span class="k">as</span> <span class="nn">dt</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Get-News-Data-From-sklearn.datasets">Get News Data From sklearn.datasets<a class="anchor-link" href="#Get-News-Data-From-sklearn.datasets">&#182;</a></h2><p>Then parses into a dataframe.</p>
-
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ddf</span> <span class="o">=</span> <span class="n">get_sklearn_newsgroups</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">ddf</span><span class="o">.</span><span class="n">info</span><span class="p">())</span>
-<span class="n">ddf</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
-RangeIndex: 11314 entries, 0 to 11313
-Data columns (total 3 columns):
-filename    11314 non-null object
-target      11314 non-null object
-text        11314 non-null object
-dtypes: object(3)
-memory usage: 265.3+ KB
-None
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[2]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>filename</th>
-      <th>target</th>
-      <th>text</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>21379</td>
-      <td>soc.religion.christian</td>
-      <td>From: kbanner@philae.sas.upenn.edu (Ken Banner...</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>20874</td>
-      <td>soc.religion.christian</td>
-      <td>From: simon@monu6.cc.monash.edu.au\nSubject: S...</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>58936</td>
-      <td>sci.med</td>
-      <td>From: jeffp@vetmed.wsu.edu (Jeff Parke)\nSubje...</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Define-DocTable-Class">Define DocTable Class<a class="anchor-link" href="#Define-DocTable-Class">&#182;</a></h2><p>This class definition will contain the columns, datatypes, unique constraints, and index commands needed for your DocTable.
-In moving your data from DataFrame to DocTable, you should consider column data types and custom indices carefully.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># this class will represent the doctable. It inherits from DocTable a number of add/query/remove functions.</span>
-<span class="c1"># of course, you can add any additional methods to this class definition as you find useful.</span>
-<span class="k">class</span> <span class="nc">SimpleNewsGroups</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">            This includes examples of init variables. See DocTable class for complete list of options.</span>
-<span class="sd">            Inputs:</span>
-<span class="sd">                fname: fname is the name of the new sqlite database that will be used for this class.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">tabname</span> <span class="o">=</span> <span class="s1">&#39;simplenewsgroups&#39;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span> 
-            <span class="n">tabname</span><span class="o">=</span><span class="n">tabname</span><span class="p">,</span> 
-            <span class="n">colschema</span><span class="o">=</span><span class="p">(</span>
-                <span class="s1">&#39;id integer primary key autoincrement&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;file_id int&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;category string&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;raw_text string&#39;</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-        
-        <span class="c1"># this section defines any other commands that should be executed upon init</span>
-        <span class="c1"># NOTICE: references tabname defined in the above __init__ function</span>
-        <span class="c1"># extra commands to create index tables for fast lookup</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;create index if not exists idx1 on &quot;</span><span class="o">+</span><span class="n">tabname</span><span class="o">+</span><span class="s2">&quot;(file_id)&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;create index if not exists idx2 on &quot;</span><span class="o">+</span><span class="n">tabname</span><span class="o">+</span><span class="s2">&quot;(category)&quot;</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Create a connection to the database by constructing an instance of the class. If this is the first time you've run this code, it will create a new sqlite database file with no entries.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sng</span> <span class="o">=</span> <span class="n">SimpleNewsGroups</span><span class="p">(</span><span class="s1">&#39;simple_news_group.db&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">sng</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>&lt;Documents ct: 0&gt;
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Adding-Data">Adding Data<a class="anchor-link" href="#Adding-Data">&#182;</a></h2><p>There are two common ways to add data to your DocTable.</p>
-<p>(1) Add in rows individually</p>
-<p>(2) Add in bulk with or without specifying column names</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># adds data one row at a time. Takes longer than bulk version</span>
-<span class="n">start</span> <span class="o">=</span> <span class="n">timer</span><span class="p">()</span>
-
-<span class="k">for</span> <span class="n">ind</span><span class="p">,</span><span class="n">dat</span> <span class="ow">in</span> <span class="n">ddf</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-    <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;file_id&#39;</span><span class="p">:</span><span class="nb">int</span><span class="p">(</span><span class="n">dat</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]),</span> <span class="s1">&#39;category&#39;</span><span class="p">:</span><span class="n">dat</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">],</span> <span class="s1">&#39;raw_text&#39;</span><span class="p">:</span><span class="n">dat</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]}</span>
-    <span class="n">sng</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">((</span><span class="n">timer</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="s1">&#39;mil sec.&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">sng</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>2366.1215798929334 mil sec.
-&lt;Documents ct: 11314&gt;
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># adds tuple data in bulk by specifying columns we are adding</span>
-<span class="n">start</span> <span class="o">=</span> <span class="n">timer</span><span class="p">()</span>
-
-<span class="n">col_order</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;file_id&#39;</span><span class="p">,</span><span class="s1">&#39;category&#39;</span><span class="p">,</span><span class="s1">&#39;raw_text&#39;</span><span class="p">)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="p">[(</span><span class="n">dat</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">],</span><span class="n">dat</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">],</span><span class="n">dat</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">ind</span><span class="p">,</span><span class="n">dat</span> <span class="ow">in</span> <span class="n">ddf</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()]</span>
-<span class="n">sng</span><span class="o">.</span><span class="n">addmany</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">keys</span><span class="o">=</span><span class="n">col_order</span><span class="p">,</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">((</span><span class="n">timer</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="s1">&#39;mil sec.&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">sng</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>1893.8379744067788 mil sec.
-&lt;Documents ct: 22628&gt;
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Querying-Data">Querying Data<a class="anchor-link" href="#Querying-Data">&#182;</a></h2><p>There are two primary ways of querying data from a DocTable:</p>
-<p>(1) retrieve one-by-one from generator using ".get()" function.
-(2) retrieve all data in Pandas DataFrame suing ".getdf()" function.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">sng</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-    <span class="n">sel</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;file_id&#39;</span><span class="p">,</span><span class="s1">&#39;raw_text&#39;</span><span class="p">),</span> 
-    <span class="n">where</span><span class="o">=</span><span class="s1">&#39;category == &quot;rec.motorcycles&quot;&#39;</span><span class="p">,</span> 
-    <span class="n">orderby</span><span class="o">=</span><span class="s1">&#39;file_id ASC&#39;</span><span class="p">,</span> 
-    <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;age&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">),</span>
 <span class="p">)</span>
-<span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;file_id&#39;</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;raw_text&#39;</span><span class="p">][:</span><span class="mi">50</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">new_db</span><span class="p">():</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="s1">&#39;mydocuments&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">age</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="c1"># number in [0,1]</span>
+        <span class="n">is_old</span> <span class="o">=</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;user_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="n">age</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">:</span><span class="n">is_old</span><span class="p">},</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">db</span>
+
+<span class="n">db</span> <span class="o">=</span> <span class="n">new_db</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13422,12 +13130,10 @@ In moving your data from DataFrame to DocTable, you should consider column data 
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>72052: From: ivan@erich.triumf.ca (Ivan D. Reid)
-Subject:
-72052: From: ivan@erich.triumf.ca (Ivan D. Reid)
-Subject:
-101725: Subject: Re: Lexan Polish?
-From: jeff@mri.com (Jon
+<pre>DocTable2 Query: SELECT count() AS count_1 
+FROM mydocuments
+ LIMIT :param_1
+&lt;DocTable2::mydocuments ct: 10&gt;
 </pre>
 </div>
 </div>
@@ -13438,16 +13144,10 @@ From: jeff@mri.com (Jon
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">result_df</span> <span class="o">=</span> <span class="n">sng</span><span class="o">.</span><span class="n">getdf</span><span class="p">(</span>
-    <span class="n">sel</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;file_id&#39;</span><span class="p">,</span><span class="s1">&#39;raw_text&#39;</span><span class="p">),</span> 
-    <span class="n">where</span><span class="o">=</span><span class="s1">&#39;category == &quot;rec.motorcycles&quot;&#39;</span><span class="p">,</span> 
-    <span class="n">orderby</span><span class="o">=</span><span class="s1">&#39;file_id ASC&#39;</span><span class="p">,</span> 
-    <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">result_df</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13460,98 +13160,20 @@ From: jeff@mri.com (Jon
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[9]:</div>
+    <div class="prompt"></div>
 
 
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>file_id</th>
-      <th>raw_text</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>72052</td>
-      <td>From: ivan@erich.triumf.ca (Ivan D. Reid)\nSub...</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>72052</td>
-      <td>From: ivan@erich.triumf.ca (Ivan D. Reid)\nSub...</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>101725</td>
-      <td>Subject: Re: Lexan Polish?\nFrom: jeff@mri.com...</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>101725</td>
-      <td>Subject: Re: Lexan Polish?\nFrom: jeff@mri.com...</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>102616</td>
-      <td>From: blgardne@javelin.sim.es.com (Dances With...</td>
-    </tr>
-  </tbody>
-</table>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
+FROM mydocuments
+ LIMIT :param_1
+</pre>
 </div>
 </div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Updating-Data-in-DocTable">Updating Data in DocTable<a class="anchor-link" href="#Updating-Data-in-DocTable">&#182;</a></h2><p>The ".update()" function will change entries in the DocTable.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sng</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;category&#39;</span><span class="p">:</span><span class="s1">&#39;nevermind&#39;</span><span class="p">,},</span><span class="n">where</span><span class="o">=</span><span class="s1">&#39;file_id == &quot;103121&quot;&#39;</span><span class="p">)</span>
-<span class="n">sng</span><span class="o">.</span><span class="n">getdf</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="s1">&#39;file_id == &quot;103121&quot;&#39;</span><span class="p">)</span> <span class="c1"># to see update, look at &quot;category&quot; column entry</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[10]:</div>
+    <div class="prompt output_prompt">Out[3]:</div>
 
 
 
@@ -13575,25 +13197,534 @@ From: jeff@mri.com (Jon
     <tr style="text-align: right;">
       <th></th>
       <th>id</th>
-      <th>file_id</th>
-      <th>category</th>
-      <th>raw_text</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>0</td>
-      <td>395</td>
-      <td>103121</td>
-      <td>nevermind</td>
-      <td>From: MJMUISE@1302.watstar.uwaterloo.ca (Mike ...</td>
+      <td>1</td>
+      <td>user_0</td>
+      <td>0.156287</td>
+      <td>False</td>
     </tr>
     <tr>
       <td>1</td>
-      <td>11709</td>
-      <td>103121</td>
-      <td>nevermind</td>
-      <td>From: MJMUISE@1302.watstar.uwaterloo.ca (Mike ...</td>
+      <td>2</td>
+      <td>user_1</td>
+      <td>0.770439</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>3</td>
+      <td>user_2</td>
+      <td>0.889879</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Single-Update">Single Update<a class="anchor-link" href="#Single-Update">&#182;</a></h2><p>Update multiple (or single) rows with same values.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">new_db</span><span class="p">()</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[4]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>3</td>
+      <td>user_2</td>
+      <td>0.563325</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>5</td>
+      <td>user_4</td>
+      <td>0.829197</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>6</td>
+      <td>user_5</td>
+      <td>0.817841</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">new_db</span><span class="p">()</span>
+<span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">},</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]</span><span class="o">==</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>DocTable2 Query: UPDATE mydocuments SET age=:age WHERE mydocuments.is_old = true
+DocTable2 Query: UPDATE mydocuments SET age=:age WHERE mydocuments.is_old = false
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[5]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1</td>
+      <td>user_0</td>
+      <td>1</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>2</td>
+      <td>user_1</td>
+      <td>0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>3</td>
+      <td>user_2</td>
+      <td>0</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Apply-as-Map-Function">Apply as Map Function<a class="anchor-link" href="#Apply-as-Map-Function">&#182;</a></h2><p>This feature allows you to update columns based on the values of old columns.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">new_db</span><span class="p">()</span>
+<span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]:</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;th&#39;</span><span class="p">,</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]:</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]:</span><span class="kc">True</span><span class="p">}</span>
+<span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>DocTable2 Query: UPDATE mydocuments SET name=(mydocuments.name || :name_1), age=(mydocuments.age + :age_1), is_old=:is_old
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[6]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1</td>
+      <td>user_0th</td>
+      <td>1.926072</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>2</td>
+      <td>user_1th</td>
+      <td>1.440472</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>3</td>
+      <td>user_2th</td>
+      <td>1.875261</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Apply-as-Set-of-Ordered-Map-Functions">Apply as Set of Ordered Map Functions<a class="anchor-link" href="#Apply-as-Set-of-Ordered-Map-Functions">&#182;</a></h2><p>This is useful for when the updating of one column might change the value of another, depending on the order in which it was applied.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">new_db</span><span class="p">()</span>
+<span class="n">values</span> <span class="o">=</span> <span class="p">[(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">),]</span>
+<span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>DocTable2 Query: UPDATE mydocuments SET name=(mydocuments.age - :age_1), age=(mydocuments.age + :age_2)
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[7]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.557324771408994</td>
+      <td>1.442675</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>2</td>
+      <td>-0.720820415168971</td>
+      <td>1.279180</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>3</td>
+      <td>-0.000447943230516556</td>
+      <td>1.999552</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Update-Using-SQL-WHERE-String">Update Using SQL WHERE String<a class="anchor-link" href="#Update-Using-SQL-WHERE-String">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">new_db</span><span class="p">()</span>
+<span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="mf">1.00</span><span class="p">},</span><span class="n">whrstr</span><span class="o">=</span><span class="s1">&#39;is_old==true&#39;</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>DocTable2 Query: UPDATE mydocuments SET age=:age WHERE is_old==true
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[8]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1</td>
+      <td>user_0</td>
+      <td>1.000000</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>2</td>
+      <td>user_1</td>
+      <td>0.415172</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>3</td>
+      <td>user_2</td>
+      <td>0.131622</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>4</td>
+      <td>user_3</td>
+      <td>0.193966</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>5</td>
+      <td>user_4</td>
+      <td>1.000000</td>
+      <td>True</td>
     </tr>
   </tbody>
 </table>

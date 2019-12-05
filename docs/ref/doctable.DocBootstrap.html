@@ -10,15 +10,17 @@
     
 <tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
-<dl><dt><a name="DocBootstrap-__init__"><strong>__init__</strong></a>(self, docs)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+<dl><dt><a name="DocBootstrap-__init__"><strong>__init__</strong></a>(self, docs, n=None)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
 
-<dl><dt><a name="DocBootstrap-draw_sample"><strong>draw_sample</strong></a>(self, n)</dt><dd><tt>Set&nbsp;random&nbsp;sample&nbsp;in&nbsp;bootstrap&nbsp;object.</tt></dd></dl>
+<dl><dt><a name="DocBootstrap-__iter__"><strong>__iter__</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="DocBootstrap-get_doc_sample"><strong>get_doc_sample</strong></a>(self, n)</dt><dd><tt>Get&nbsp;list&nbsp;of&nbsp;bootstrapped&nbsp;sentences&nbsp;(doesn't&nbsp;make&nbsp;copy&nbsp;of&nbsp;bs&nbsp;sent&nbsp;ids).</tt></dd></dl>
+<dl><dt><a name="DocBootstrap-sample"><strong>sample</strong></a>(self, n=None, with_ids=False)</dt><dd><tt>Extract&nbsp;new&nbsp;sample&nbsp;if&nbsp;given&nbsp;n&nbsp;else&nbsp;return&nbsp;old&nbsp;sample.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;n&nbsp;(int):&nbsp;number&nbsp;of&nbsp;new&nbsp;samples&nbsp;to&nbsp;draw.&nbsp;If&nbsp;None,&nbsp;will&nbsp;draw&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sample&nbsp;from&nbsp;ids&nbsp;set&nbsp;by&nbsp;.<a href="#doctable.DocBootstrap-set_sample">set_sample</a>().<br>
+&nbsp;&nbsp;&nbsp;&nbsp;with_ids&nbsp;(bool):&nbsp;return&nbsp;(id,doc)&nbsp;tuples&nbsp;or&nbsp;just&nbsp;docs.</tt></dd></dl>
 
-<dl><dt><a name="DocBootstrap-get_docs"><strong>get_docs</strong></a>(self)</dt><dd><tt>Returns&nbsp;sents&nbsp;which&nbsp;are&nbsp;sampled&nbsp;from&nbsp;ids&nbsp;drawn&nbsp;in&nbsp;.set_sample()</tt></dd></dl>
-
-<dl><dt><a name="DocBootstrap-get_sample"><strong>get_sample</strong></a>(self, n)</dt><dd><tt>Randomly&nbsp;sample&nbsp;ids.</tt></dd></dl>
+<dl><dt><a name="DocBootstrap-set_sample"><strong>set_sample</strong></a>(self, n=None)</dt></dl>
 
 <hr>
 Data descriptors defined here:<br>

@@ -20,61 +20,38 @@ all: docs build
 	git add Makefile
 
 final_check: docs build test
-	@echo "running final check"
+	@echo "ran final check"
 
 
-PACKAGE_NAME = doctable
-PACKAGE_FOLDER = $(PACKAGE_NAME)/
+################################# CREATE DOCUMENTATION ##############################
 
-
-
-EXAMPLES_FOLDER = examples/
-TESTS_FOLDER = tests/
-
-DOCS_FOLDER = docs/
 docs: example_html pydoc
 	git add README.md
 
-
+DOCS_FOLDER = docs/
+EXAMPLES_FOLDER = examples/
 DOCS_EXAMPLES_FOLDER = $(DOCS_FOLDER)/examples/
 example_html:
-	#jupyter nbconvert --to markdown $(EXAMPLES_FOLDER)/*.ipynb
-	#mv $(EXAMPLES_FOLDER)/*.md $(DOCS_FOLDER)
 	jupyter nbconvert --to html $(EXAMPLES_FOLDER)/*.ipynb
+	
 	mv $(EXAMPLES_FOLDER)/*.html $(DOCS_EXAMPLES_FOLDER)
 	git add --all $(DOCS_EXAMPLES_FOLDER)*.html
 
-# use pydoc to generate documentation
+
 DOCS_REF_FOLDER = $(DOCS_FOLDER)/ref/
 pydoc:
-	pydoc -w doctable.DocTable doctable.DocTable2 doctable.DocParser doctable.ParseTree doctable.ParseNode doctable.DocBootstrap
+	pydoc -w doctable.DocTableLegacy doctable.DocTable doctable.DocParser doctable.ParseTree doctable.ParseNode doctable.DocBootstrap
 	mv *.html $(DOCS_REF_FOLDER)
 	git add --all $(DOCS_REF_FOLDER)*.html
 
+clean_docs:
+	-rm $(DOCS_REF_FOLDER)*.html
+	-rm $(DOCS_EXAMPLES_FOLDER)*.html
 
-build:
-	# install latest version of compiler software
-	pip install --user --upgrade setuptools wheel
-	
-	# actually set up package
-	python setup.py sdist bdist_wheel
-	
-	git add setup.cfg setup.py LICENSE.txt 
-	
-	
-deploy: build
-	# mostly pulled from https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56
-	#also this: https://packaging.python.org/tutorials/packaging-projects/
-	
-	# first make sure deploy package is activated
-	pip install --user --upgrade twine
-	
-	# create a source distribution
-	python setup.py sdist
-	
-	# here we go now upload
-	python -m twine upload dist/*
 
+######################################## RUN TESTS ########################################
+
+TESTS_FOLDER = tests/
 pytest:
 	# tests from tests folder
 	pytest $(TESTS_FOLDER)/test_dt1_*.py
@@ -99,18 +76,45 @@ test: pytest
 	# cleanup temp folder
 	rm -r $(TMP_TEST_FOLDER)
 	
-
-clean:
-	# leftover files from experimentation
+clean_tests:
 	-rm $(EXAMPLES_FOLDER)*.db
 	-rm $(TESTS_FOLDER)*.db
 	
-	# from building documents
-	-rm $(DOCS_FOLDER)/*.md
-	-rm $(DOCS_FOLDER)/*.html
+########################################## BUILD AND DEPLOY ################################
+
+PACKAGE_NAME = doctable
+PACKAGE_FOLDER = $(PACKAGE_NAME)/
+build:
+	# install latest version of compiler software
+	pip install --user --upgrade setuptools wheel
 	
-	# from building python package
+	# actually set up package
+	python setup.py sdist bdist_wheel
+	
+	git add setup.cfg setup.py LICENSE.txt 
+	
+	
+deploy: build
+	# mostly pulled from https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56
+	#also this: https://packaging.python.org/tutorials/packaging-projects/
+	
+	# first make sure deploy package is activated
+	pip install --user --upgrade twine
+	
+	# create a source distribution
+	python setup.py sdist
+	
+	# here we go now upload
+	python -m twine upload dist/*
+	
+clean_deploy:
 	-rm -r $(PACKAGE_NAME).egg-info
 	-rm -r dist
 	-rm -r build
+	
+################################ CLEAN ####################################
+
+clean: clean_tests clean_docs clean_deploy
+
+
 	

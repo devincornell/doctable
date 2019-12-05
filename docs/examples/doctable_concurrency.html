@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>dt2_specialtypes</title>
+<title>doctable_concurrency</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13074,15 +13074,23 @@ div#notebook {
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
 
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Concurrency">Concurrency<a class="anchor-link" href="#Concurrency">&#182;</a></h1><p>Databases are able to handle concurrency easily. The best way to use concurrent connections is to set the timeout parameter passed to the sqlalchemy.engine function as an extra argument to the constructure (captured by <code>**engine_args</code>). Note that while the <code>persistent_conn</code> constructor argument may have other uses, it does not have much of an effect on concurrent operations in this version of DocTable2.</p>
+<p>Here I'll set up a simple test case for concurrent operations, where I run two threads simultaneously inserting many large data rows. We will see that when timeouts are set to be large, the threads take turns in inserting data.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sqlalchemy</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Process</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">doctable</span> <span class="k">as</span> <span class="nn">dt</span>
@@ -13093,50 +13101,22 @@ div#notebook {
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="tokens-and-subdocs-Custom-Types"><code>tokens</code> and <code>subdocs</code> Custom Types<a class="anchor-link" href="#tokens-and-subdocs-Custom-Types">&#182;</a></h2><p><code>tokens</code> is used to store a sequence of tokens and <code>subdocs</code> is used to store a sequence of a sequence of tokens (think list of tokenized sentences). Simply specify these columns as their appropriate type and it will automatically convert these tokenized objects to formatted strings for database storage.</p>
-
-</div>
-</div>
-</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;bag_of_words&#39;</span><span class="p">,</span><span class="s1">&#39;tokens&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;tokenized_sentences&#39;</span><span class="p">,</span> <span class="s1">&#39;tokens&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;paragraphs&#39;</span><span class="p">,</span> <span class="s1">&#39;tokens&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;cpickle&#39;</span><span class="p">),</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># define database schema to be sent to processes</span>
+<span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;tmp_connections2.db&#39;</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s1">&#39;pickle&#39;</span><span class="p">,</span><span class="s1">&#39;data&#39;</span><span class="p">,),</span>
+    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;procname&#39;</span><span class="p">)</span>
 <span class="p">)</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable2</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+<span class="n">big_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)]</span> <span class="c1"># create big data object</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>&lt;DocTable2::_documents_ ct: 0&gt;
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -13146,10 +13126,75 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;this&#39;</span><span class="p">,</span> <span class="s1">&#39;is&#39;</span><span class="p">,</span> <span class="s1">&#39;the&#39;</span><span class="p">,</span> <span class="s1">&#39;happiest&#39;</span><span class="p">,</span> <span class="s1">&#39;day&#39;</span><span class="p">,</span> <span class="s1">&#39;of&#39;</span><span class="p">,</span> <span class="s1">&#39;my&#39;</span><span class="p">,</span> <span class="s1">&#39;life&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">]</span>
-<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;title&#39;</span><span class="p">:</span><span class="s1">&#39;Happy sentence&#39;</span><span class="p">,</span> <span class="s1">&#39;bag_of_words&#39;</span><span class="p">:</span><span class="n">tokens</span><span class="p">})</span>
-<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;title&#39;</span><span class="p">:</span><span class="s1">&#39;Happy nothing&#39;</span><span class="p">})</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;title&#39;</span><span class="p">,</span><span class="s1">&#39;bag_of_words&#39;</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># define a thread that takes a schema and inserts three big rows</span>
+<span class="k">def</span> <span class="nf">thread_writer</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">procname</span><span class="p">):</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">persistent_conn</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span> <span class="n">connect_args</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;timeout&#39;</span><span class="p">:</span> <span class="n">timeout</span><span class="p">})</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="n">data</span><span class="p">,</span><span class="s1">&#39;procname&#39;</span><span class="p">:</span><span class="n">procname</span><span class="p">})</span>
+        <span class="k">except</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">exc</span><span class="o">.</span><span class="n">OperationalError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Raised the &quot;(sqlite3.OperationalError) database is locked&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># function to run the processes defined by thread_writer</span>
+<span class="k">def</span> <span class="nf">run_processes</span><span class="p">(</span><span class="n">timeout_sec</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">big_data</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    
+    <span class="n">baseargs</span> <span class="o">=</span> <span class="p">(</span><span class="n">timeout_sec</span><span class="p">,</span><span class="n">schema</span><span class="p">,</span><span class="n">fname</span><span class="p">,</span><span class="n">big_data</span><span class="p">)</span>
+    <span class="n">p1</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">thread_writer</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="o">*</span><span class="n">baseargs</span><span class="p">,</span><span class="s1">&#39;p1&#39;</span><span class="p">))</span>
+    <span class="n">p2</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">thread_writer</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="o">*</span><span class="n">baseargs</span><span class="p">,</span><span class="s1">&#39;p2&#39;</span><span class="p">))</span>
+    
+    <span class="n">p1</span><span class="o">.</span><span class="n">start</span><span class="p">(),</span> <span class="n">p2</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="c1"># start the processes</span>
+    <span class="n">p1</span><span class="o">.</span><span class="n">join</span><span class="p">(),</span> <span class="n">p2</span><span class="o">.</span><span class="n">join</span><span class="p">()</span> <span class="c1"># wait for processes to finish</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Correct-Example">Correct Example<a class="anchor-link" href="#Correct-Example">&#182;</a></h2><p>First we show a correctly working version with a sufficiently large timeout. Each thread will attempt to insert three large pickled objects (big lists) into the database. Because the timeout is sufficiently long, the processes will take turns in inserting data. You can see that effect by looking at the select statement below. The two threads have two different names that they inserted in the database, "p1" and "p2". The rows alternate.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">timeout</span> <span class="o">=</span> <span class="mi">10</span> <span class="c1"># seconds</span>
+<span class="n">run_processes</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">big_data</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;procname&#39;</span><span class="p">])</span>
 </pre></div>
 
     </div>
@@ -13162,14 +13207,24 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[3]:</div>
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>&lt;DocTable2::_documents_ ct: 6&gt;
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[6]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(&#39;Happy sentence&#39;, (&#39;this&#39;, &#39;is&#39;, &#39;the&#39;, &#39;happiest&#39;, &#39;day&#39;, &#39;of&#39;, &#39;my&#39;, &#39;life&#39;, &#39;.&#39;)),
- (&#39;Happy nothing&#39;, None)]</pre>
+<pre>[(1, &#39;p1&#39;), (2, &#39;p2&#39;), (3, &#39;p1&#39;), (4, &#39;p2&#39;), (5, &#39;p1&#39;), (6, &#39;p2&#39;)]</pre>
 </div>
 
 </div>
@@ -13181,179 +13236,18 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Under the hood, DocTable2 stores a <code>tokens</code> column as a set of strings separated by newlines. This is more efficient than storing a pickled list or other sequence because large files can compress text data efficiently.</p>
+<h2 id="Failure-Example">Failure Example<a class="anchor-link" href="#Failure-Example">&#182;</a></h2><p>We can induce a failure case by setting the timeout to 0. Because the threads are inserting large python objects, one thread does not finish writing before the other attempts to write. When the insertion fails, it will give the python exception <code>sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) database is locked</code>.</p>
 
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sentences</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;am&#39;</span><span class="p">,</span> <span class="s1">&#39;happy&#39;</span><span class="p">,</span><span class="s1">&#39;.&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;the&#39;</span><span class="p">,</span><span class="s1">&#39;sky&#39;</span><span class="p">,</span><span class="s1">&#39;is&#39;</span><span class="p">,</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span><span class="s1">&#39;.&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;sun&#39;</span><span class="p">,</span> <span class="s1">&#39;is&#39;</span><span class="p">,</span> <span class="s1">&#39;shining&#39;</span><span class="p">,</span><span class="s1">&#39;.&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;what&#39;</span><span class="p">,</span> <span class="s1">&#39;more&#39;</span><span class="p">,</span> <span class="s1">&#39;can&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;ask&#39;</span><span class="p">,</span> <span class="s1">&#39;for&#39;</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">),</span>
-<span class="p">)</span>
-
-<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;title&#39;</span><span class="p">:</span><span class="s1">&#39;Happy sentences&#39;</span><span class="p">,</span> <span class="s1">&#39;tokenized_sentences&#39;</span><span class="p">:</span><span class="n">sentences</span><span class="p">})</span>
-<span class="k">for</span> <span class="n">title</span><span class="p">,</span><span class="n">sents</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;title&#39;</span><span class="p">,</span><span class="s1">&#39;tokenized_sentences&#39;</span><span class="p">]):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-    <span class="n">pprint</span><span class="p">(</span><span class="n">sents</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Happy sentence
-None
-
-Happy nothing
-None
-
-Happy sentences
-((&#39;i&#39;, &#39;am&#39;, &#39;happy&#39;, &#39;.&#39;),
- (&#39;the&#39;, &#39;sky&#39;, &#39;is&#39;, &#39;blue&#39;, &#39;.&#39;),
- (&#39;sun&#39;, &#39;is&#39;, &#39;shining&#39;, &#39;.&#39;),
- (&#39;what&#39;, &#39;more&#39;, &#39;can&#39;, &#39;i&#39;, &#39;ask&#39;, &#39;for&#39;, &#39;?&#39;))
-
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">paragraphs</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span>
-        <span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;am&#39;</span><span class="p">,</span> <span class="s1">&#39;happy&#39;</span><span class="p">,</span><span class="s1">&#39;.&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;the&#39;</span><span class="p">,</span><span class="s1">&#39;sky&#39;</span><span class="p">,</span><span class="s1">&#39;is&#39;</span><span class="p">,</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span><span class="s1">&#39;.&#39;</span><span class="p">),</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="p">(</span><span class="s1">&#39;sun&#39;</span><span class="p">,</span> <span class="s1">&#39;is&#39;</span><span class="p">,</span> <span class="s1">&#39;shining&#39;</span><span class="p">,</span><span class="s1">&#39;.&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;what&#39;</span><span class="p">,</span> <span class="s1">&#39;more&#39;</span><span class="p">,</span> <span class="s1">&#39;can&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;ask&#39;</span><span class="p">,</span> <span class="s1">&#39;for&#39;</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">),</span>
-    <span class="p">)</span>
-<span class="p">)</span>
-
-<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;title&#39;</span><span class="p">:</span><span class="s1">&#39;Happy paragraphs&#39;</span><span class="p">,</span> <span class="s1">&#39;paragraphs&#39;</span><span class="p">:</span><span class="n">paragraphs</span><span class="p">},</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">title</span><span class="p">,</span><span class="n">paragraphs</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;title&#39;</span><span class="p">,</span><span class="s1">&#39;paragraphs&#39;</span><span class="p">]):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-    <span class="n">pprint</span><span class="p">(</span><span class="n">paragraphs</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Happy sentence
-None
-
-Happy nothing
-None
-
-Happy sentences
-None
-
-Happy paragraphs
-(((&#39;i&#39;, &#39;am&#39;, &#39;happy&#39;, &#39;.&#39;), (&#39;the&#39;, &#39;sky&#39;, &#39;is&#39;, &#39;blue&#39;, &#39;.&#39;)),
- ((&#39;sun&#39;, &#39;is&#39;, &#39;shining&#39;, &#39;.&#39;),
-  (&#39;what&#39;, &#39;more&#39;, &#39;can&#39;, &#39;i&#39;, &#39;ask&#39;, &#39;for&#39;, &#39;?&#39;)))
-
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;hello&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;world&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
-<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;title&#39;</span><span class="p">:</span><span class="s1">&#39;my data&#39;</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="n">data</span><span class="p">},</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">title</span><span class="p">,</span><span class="n">data</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;title&#39;</span><span class="p">,</span><span class="s1">&#39;data&#39;</span><span class="p">]):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-    <span class="n">pprint</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Happy sentence
-None
-
-Happy nothing
-None
-
-Happy sentences
-None
-
-Happy paragraphs
-None
-
-my data
-{&#39;hello&#39;: 0, &#39;world&#39;: 1}
-
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">timeout</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># seconds</span>
+<span class="n">run_processes</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">big_data</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13366,86 +13260,67 @@ my data
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[7]:</div>
+    <div class="prompt"></div>
 
 
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>title</th>
-      <th>bag_of_words</th>
-      <th>tokenized_sentences</th>
-      <th>paragraphs</th>
-      <th>data</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>1</td>
-      <td>Happy sentence</td>
-      <td>(this, is, the, happiest, day, of, my, life, .)</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2</td>
-      <td>Happy nothing</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>3</td>
-      <td>Happy sentences</td>
-      <td>None</td>
-      <td>((i, am, happy, .), (the, sky, is, blue, .), (...</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>4</td>
-      <td>Happy paragraphs</td>
-      <td>None</td>
-      <td>None</td>
-      <td>(((i, am, happy, .), (the, sky, is, blue, .)),...</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>5</td>
-      <td>my data</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>{'hello': 0, 'world': 1}</td>
-    </tr>
-  </tbody>
-</table>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Raised the &#34;(sqlite3.OperationalError) database is locked
+Raised the &#34;(sqlite3.OperationalError) database is locked
+Raised the &#34;(sqlite3.OperationalError) database is locked
+</pre>
 </div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Because the exception was caught, the threads continued to run. The results of an error means it will simply skip the given insert, but the behavior is in general undefined in this case.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;procname&#39;</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>&lt;DocTable2::_documents_ ct: 3&gt;
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[8]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(1, &#39;p2&#39;), (2, &#39;p1&#39;), (3, &#39;p2&#39;)]</pre>
 </div>
 
 </div>

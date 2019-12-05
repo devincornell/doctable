@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>dt2_basics</title>
+<title>doctable_bootstrap</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13092,35 +13092,18 @@ div#notebook {
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>More details about the schema creation can be found in the folder examples/dt2_schema.py</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Init-DocTable2-Object">Init DocTable2 Object<a class="anchor-link" href="#Init-DocTable2-Object">&#182;</a></h1><p>A DocTable2 instance maintains reference to a database. When constructing, you will typically specify a database file name, a table name, and a database engine (or <a href="https://docs.sqlalchemy.org/en/13/dialects/">dialect - sqlite, mysql, etc</a>). The default database name (<code>fname</code>) is ":memory:", a special keyword that will create a database in memory. I use that for most of the examples. The default <code>tabname</code> is "<em>documents</em>", and unless your applications require multiple tables in the same database, specifying one may not be useful. The default <code>engine</code> is sqlite, and that may be the easiest to work with most of the time. The <code>persistent_conn</code> parameter will choose whether your application should maintain an open connection to the database (use this if you want to call <code>.update()</code> in a <code>.select()</code> loop), or make a new connection every time you attempt to execute a query (use this if multiple threads might try to access the database at the same time). The <code>new_db</code> flag should be set to False if you are attempting to access a database but do not want to create one if it does not already exist. This prevents the accidental creation of a new database with no rows if it can't find the one you intended to specify. The <code>verbose</code> flag might be used for demonstration or debugging: it simply requests that sql commands are printed before being executed. This can also be overridden on a per-transaction basis.</p>
-<p>Now, let's create a simple schema and doctable:</p>
-
-</div>
-</div>
-</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">,</span><span class="s1">&#39;integer&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;is_old&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;age&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">),</span>
 <span class="p">)</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable2</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
 </pre></div>
 
@@ -13147,21 +13130,12 @@ div#notebook {
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>You can see from the above that we created a new doctable instance with the specified schema. By printing the object, we can see that the table has no entries. Now, we add some rows one at a time using the <code>.insert()</code> method.</p>
-
-</div>
-</div>
-</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">5</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
     <span class="n">age</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="c1"># number in [0,1]</span>
     <span class="n">is_old</span> <span class="o">=</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
     <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;user_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="n">age</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">:</span><span class="n">is_old</span><span class="p">}</span>
@@ -13192,20 +13166,13 @@ div#notebook {
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Now you can see the doctable has 5 entries. Let's see what they look like. We use the <code>.select()</code> method with no arguments to retrieve all rows of the table.</p>
-
-</div>
-</div>
-</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13218,31 +13185,38 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[4]:</div>
+    <div class="prompt"></div>
 
 
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;, 0.8476935147306451, True),
- (2, &#39;user_1&#39;, 0.7260777383869824, True),
- (3, &#39;user_2&#39;, 0.7778160218481746, True),
- (4, &#39;user_3&#39;, 0.6031477136002875, True),
- (5, &#39;user_4&#39;, 0.29258596671901227, False)]</pre>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(1, &#39;user_0&#39;, 0.0903606780594799, False)
+(2, &#39;user_1&#39;, 0.1936026672500093, False)
+(3, &#39;user_2&#39;, 0.7179026106618069, True)
+(4, &#39;user_3&#39;, 0.07015109876076597, False)
+(5, &#39;user_4&#39;, 0.9055454699822891, True)
+</pre>
 </div>
-
 </div>
 
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The <code>.bootstrap()</code> method will return a DocBootstrap object.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">()</span>
+<span class="nb">type</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13261,7 +13235,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[&#39;user_0&#39;, &#39;user_1&#39;, &#39;user_2&#39;, &#39;user_3&#39;, &#39;user_4&#39;]</pre>
+<pre>doctable.bootstrap.DocBootstrap</pre>
 </div>
 
 </div>
@@ -13269,690 +13243,22 @@ div#notebook {
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>There are three ways to use this object: (1) as an iterator directly, (2) using a stateful sample, or (3) using the .sample() to draw new samples.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[6]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;), (2, &#39;user_1&#39;), (3, &#39;user_2&#39;), (4, &#39;user_3&#39;), (5, &#39;user_4&#39;)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[7]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[3.247320955285102]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">])</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[8]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(3.247320955285102, 5)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Alternatively, to see the results as a pandas dataframe, we can use <code>.select_df()</code>.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[9]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>name</th>
-      <th>age</th>
-      <th>is_old</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>1</td>
-      <td>user_0</td>
-      <td>0.847694</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2</td>
-      <td>user_1</td>
-      <td>0.726078</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>3</td>
-      <td>user_2</td>
-      <td>0.777816</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>4</td>
-      <td>user_3</td>
-      <td>0.603148</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>5</td>
-      <td>user_4</td>
-      <td>0.292586</td>
-      <td>False</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Now we can select specific elements of the db using the <code>where</code> argument of the <code>.select()</code> method.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[10]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;, 0.8476935147306451, True),
- (2, &#39;user_1&#39;, 0.7260777383869824, True),
- (3, &#39;user_2&#39;, 0.7778160218481746, True),
- (4, &#39;user_3&#39;, 0.6031477136002875, True)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[11]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(3, &#39;user_2&#39;, 0.7778160218481746, True)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>We can update the results in a similar way, using the <code>where</code> argument.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;smartypants&#39;</span><span class="p">},</span> <span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[12]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;, 0.8476935147306451, True),
- (2, &#39;user_1&#39;, 0.7260777383869824, True),
- (3, &#39;smartypants&#39;, 0.7778160218481746, True),
- (4, &#39;user_3&#39;, 0.6031477136002875, True),
- (5, &#39;user_4&#39;, 0.29258596671901227, False)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">})</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[13]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;, 84.76935147306452, True),
- (2, &#39;user_1&#39;, 72.60777383869824, True),
- (3, &#39;smartypants&#39;, 77.78160218481746, True),
- (4, &#39;user_3&#39;, 60.31477136002875, True),
- (5, &#39;user_4&#39;, 29.258596671901227, False)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>And we can delete elements using the <code>.delete()</code> method.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[14]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;, 84.76935147306452, True),
- (2, &#39;user_1&#39;, 72.60777383869824, True),
- (4, &#39;user_3&#39;, 60.31477136002875, True),
- (5, &#39;user_4&#39;, 29.258596671901227, False)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Notes-on-DB-Interface">Notes on DB Interface<a class="anchor-link" href="#Notes-on-DB-Interface">&#182;</a></h1><p>DocTable2 allows you to access columns through direct subscripting, then relies on the power of sqlalchemy column objects to do most of the work of constructing queries. Here are a few notes on their use. For more demonstration, see the example in examples/dt2_select.ipynb</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># subscript is used to access underlying sqlalchemy column reference (without querying data)</span>
-<span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[15]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False)</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># conditionals are applied directly to the column objects (as we&#39;ll see with &quot;where&quot; clause)</span>
-<span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[16]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;sqlalchemy.sql.elements.BinaryExpression object at 0x7fdab5ad7828&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># can also access using .col() method</span>
-<span class="n">db</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[17]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False)</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to access all column objects (only useful for working directly with sql info)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">columns</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[18]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;sqlalchemy.sql.base.ImmutableColumnCollection at 0x7fdab5b4b1f8&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to access more detailed schema information</span>
-<span class="n">db</span><span class="o">.</span><span class="n">schemainfo</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[19]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[{&#39;name&#39;: &#39;id&#39;,
-  &#39;type&#39;: INTEGER(),
-  &#39;nullable&#39;: False,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 1},
- {&#39;name&#39;: &#39;name&#39;,
-  &#39;type&#39;: VARCHAR(),
-  &#39;nullable&#39;: False,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 0},
- {&#39;name&#39;: &#39;age&#39;,
-  &#39;type&#39;: INTEGER(),
-  &#39;nullable&#39;: True,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 0},
- {&#39;name&#39;: &#39;is_old&#39;,
-  &#39;type&#39;: BOOLEAN(),
-  &#39;nullable&#39;: True,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 0}]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># If needed, you can also access the sqlalchemy table object using the .table property.</span>
-<span class="n">db</span><span class="o">.</span><span class="n">table</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[20]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>Table(&#39;_documents_&#39;, MetaData(bind=None), Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False), Column(&#39;name&#39;, String(), table=&lt;_documents_&gt;, nullable=False), Column(&#39;age&#39;, Integer(), table=&lt;_documents_&gt;), Column(&#39;is_old&#39;, Boolean(), table=&lt;_documents_&gt;), schema=None)</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the count method is also an easy way to count rows in the database</span>
-<span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[21]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>4</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the print method makes it easy to see the table name and total row count</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span> <span class="c1"># use directly</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13969,7 +13275,120 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>&lt;DocTable2::_documents_ ct: 4&gt;
+<pre>(4, &#39;user_3&#39;, 0.07015109876076597, False)
+(1, &#39;user_0&#39;, 0.0903606780594799, False)
+(5, &#39;user_4&#39;, 0.9055454699822891, True)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">()</span> <span class="c1"># use the stateful approach</span>
+<span class="n">bs</span><span class="o">.</span><span class="n">set_sample</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">ids</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">sample</span><span class="p">():</span> <span class="c1"># here equivalent to for doc in bs</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[2 1 2]
+(3, &#39;user_2&#39;, 0.7179026106618069, True)
+(2, &#39;user_1&#39;, 0.1936026672500093, False)
+(3, &#39;user_2&#39;, 0.7179026106618069, True)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span> <span class="c1"># non-stateful sample</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(2, &#39;user_1&#39;, 0.1936026672500093, False)
+(5, &#39;user_4&#39;, 0.9055454699822891, True)
+(5, &#39;user_4&#39;, 0.9055454699822891, True)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span> <span class="c1"># ignores n=3 to make new one-off bootstrap</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(2, &#39;user_1&#39;, 0.1936026672500093, False)
+(4, &#39;user_3&#39;, 0.07015109876076597, False)
+(3, &#39;user_2&#39;, 0.7179026106618069, True)
+(3, &#39;user_2&#39;, 0.7179026106618069, True)
 </pre>
 </div>
 </div>
@@ -13981,18 +13400,18 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Type-Mappings">Type Mappings<a class="anchor-link" href="#Type-Mappings">&#182;</a></h1><p>DocTable2 provides a simplified interface into the <a href="https://docs.sqlalchemy.org/en/13/core/">SQLAlchemy core</a> package component (not the object-relational mapping component). With this interface DocTable2 is able to provide an object-oriented interface to execute SQL commands. This package simplifies that interface by working with the various objects within the class, allowing the user to create schemas and perform queries without working with the hundreds of classes required by SQLAlchemy core.</p>
-<p>Because of this, it is important to note the interface between them. The first is the type map used to set up the schema. The DocTable2 constructor provides a schema interface which accepts strings as types, so the type map appears here:</p>
+<p>Because args and kwargs passed to .bootstrap are passed directly to .select() (with the exception of n), you can specify any other details. Note that using limit will reduce the number of rows initially queried then draw a bootstrap sample of the requested size from that subset.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dt</span><span class="o">.</span><span class="n">DocTable2</span><span class="o">.</span><span class="n">_type_map</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="s1">&#39;is_old&#39;</span><span class="p">],</span> <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span> <span class="c1"># use directly</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -14005,78 +13424,17 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[23]:</div>
+    <div class="prompt"></div>
 
 
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>{&#39;biginteger&#39;: sqlalchemy.sql.sqltypes.BigInteger,
- &#39;boolean&#39;: sqlalchemy.sql.sqltypes.Boolean,
- &#39;date&#39;: sqlalchemy.sql.sqltypes.Date,
- &#39;datetime&#39;: sqlalchemy.sql.sqltypes.DateTime,
- &#39;enum&#39;: sqlalchemy.sql.sqltypes.Enum,
- &#39;float&#39;: sqlalchemy.sql.sqltypes.Float,
- &#39;integer&#39;: sqlalchemy.sql.sqltypes.Integer,
- &#39;interval&#39;: sqlalchemy.sql.sqltypes.Interval,
- &#39;largebinary&#39;: sqlalchemy.sql.sqltypes.LargeBinary,
- &#39;numeric&#39;: sqlalchemy.sql.sqltypes.Numeric,
- &#39;pickle&#39;: sqlalchemy.sql.sqltypes.PickleType,
- &#39;smallinteger&#39;: sqlalchemy.sql.sqltypes.SmallInteger,
- &#39;string&#39;: sqlalchemy.sql.sqltypes.String,
- &#39;text&#39;: sqlalchemy.sql.sqltypes.Text,
- &#39;time&#39;: sqlalchemy.sql.sqltypes.Time,
- &#39;unicode&#39;: sqlalchemy.sql.sqltypes.Unicode,
- &#39;unicodetext&#39;: sqlalchemy.sql.sqltypes.UnicodeText,
- &#39;tokens&#39;: doctable.coltypes.TokensType,
- &#39;cpickle&#39;: doctable.coltypes.CpickleType}</pre>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(&#39;user_0&#39;, False)
+(&#39;user_1&#39;, False)
+(&#39;user_1&#39;, False)
+(&#39;user_1&#39;, False)
+(&#39;user_1&#39;, False)
+</pre>
 </div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>It is often also important to add constraints to schemas, and I've also provided a string-mapping for each constraint type.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[24]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dt</span><span class="o">.</span><span class="n">DocTable2</span><span class="o">.</span><span class="n">_constraint_map</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[24]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>{&#39;unique_constraint&#39;: sqlalchemy.sql.schema.UniqueConstraint,
- &#39;check_constraint&#39;: sqlalchemy.sql.schema.CheckConstraint,
- &#39;primarykey_constraint&#39;: sqlalchemy.sql.schema.PrimaryKeyConstraint,
- &#39;foreignkey_constraint&#39;: sqlalchemy.sql.schema.ForeignKeyConstraint,
- &#39;index&#39;: sqlalchemy.sql.schema.Index}</pre>
-</div>
-
 </div>
 
 </div>

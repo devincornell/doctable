@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>dt2_select</title>
+<title>doctable_basics</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13074,14 +13074,25 @@ div#notebook {
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
 
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="The-DocTable-Object">The DocTable Object<a class="anchor-link" href="#The-DocTable-Object">&#182;</a></h1><p>A DocTable instance maintains reference to a database. When constructing, you will typically specify a database file name, a table name, and a database engine (or <a href="https://docs.sqlalchemy.org/en/13/dialects/">dialect - sqlite, mysql, etc</a>). The default database name (<code>fname</code>) is ":memory:", a special keyword that will create a database in memory. I use that for most of the examples. The default <code>tabname</code> is "<em>documents</em>", and unless your applications require multiple tables in the same database, specifying one may not be useful. The default <code>engine</code> is sqlite, and that may be the easiest to work with most of the time. The <code>persistent_conn</code> parameter will choose whether your application should maintain an open connection to the database (use this if you want to call <code>.update()</code> in a <code>.select()</code> loop), or make a new connection every time you attempt to execute a query (use this if multiple threads might try to access the database at the same time). The <code>new_db</code> flag should be set to False if you are attempting to access a database but do not want to create one if it does not already exist. This prevents the accidental creation of a new database with no rows if it can't find the one you intended to specify. The <code>verbose</code> flag might be used for demonstration or debugging: it simply requests that sql commands are printed before being executed. This can also be overridden on a per-transaction basis.</p>
+<p>Now, let's create a simple schema and doctable:</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">doctable</span> <span class="k">as</span> <span class="nn">dt</span>
@@ -13092,20 +13103,26 @@ div#notebook {
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>More details about the schema creation can be found in the folder examples/dt2_schema.py</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">,</span><span class="s1">&#39;integer&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;is_old&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;age&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">),</span>
 <span class="p">)</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable2</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="s1">&#39;mydocuments&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="c1"># defaults: #fname=&#39;:memory:&#39;, engine=&#39;sqlite&#39;, persistent_conn=True, new_db=True</span>
-<span class="c1"># fname=&#39;:memory:&#39; is special - it loads database into memory</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
 </pre></div>
 
@@ -13123,49 +13140,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT count() AS count_1 
-FROM mydocuments
- LIMIT :param_1
-&lt;DocTable2::mydocuments ct: 0&gt;
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
-    <span class="n">age</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="c1"># number in [0,1]</span>
-    <span class="n">is_old</span> <span class="o">=</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;user_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="n">age</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">:</span><span class="n">is_old</span><span class="p">},</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT count() AS count_1 
-FROM mydocuments
- LIMIT :param_1
-&lt;DocTable2::mydocuments ct: 10&gt;
+<pre>&lt;DocTable2::_documents_ ct: 0&gt;
 </pre>
 </div>
 </div>
@@ -13177,20 +13152,22 @@ FROM mydocuments
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Regular-Selects">Regular Selects<a class="anchor-link" href="#Regular-Selects">&#182;</a></h2><p>These functions all return lists of ResultProxy objects. As such, they can be accessed using numerical indices or keyword indices. For instance, if one select output row is <code>row=(1, 'user_0')</code> (after selecting "id" and "user"), it can be accessed such that <code>row[0]==row['id']</code> and <code>row[1]==row['user']</code>.</p>
+<p>You can see from the above that we created a new doctable instance with the specified schema. By printing the object, we can see that the table has no entries. Now, we add some rows one at a time using the <code>.insert()</code> method.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the limit argument means the result will only return some rows.</span>
-<span class="c1"># I&#39;ll use it for convenience in these examples.</span>
-<span class="c1"># this selects all rows</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">age</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="c1"># number in [0,1]</span>
+    <span class="n">is_old</span> <span class="o">=</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;user_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="n">age</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">:</span><span class="n">is_old</span><span class="p">}</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13207,12 +13184,30 @@ FROM mydocuments
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments
- LIMIT :param_1
+<pre>&lt;DocTable2::_documents_ ct: 5&gt;
 </pre>
 </div>
 </div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
 
 <div class="output_area">
 
@@ -13222,8 +13217,7 @@ FROM mydocuments
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;, 0.3164412298275918, False),
- (2, &#39;user_1&#39;, 0.16846270602459934, False)]</pre>
+<pre>(5, 3)</pre>
 </div>
 
 </div>
@@ -13231,13 +13225,21 @@ FROM mydocuments
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now you can see the doctable has 5 entries. Let's see what they look like. We use the <code>.select()</code> method with no arguments to retrieve all rows of the table.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13250,26 +13252,17 @@ FROM mydocuments
 
 <div class="output_area">
 
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name 
-FROM mydocuments
- LIMIT :param_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
     <div class="prompt output_prompt">Out[5]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;)]</pre>
+<pre>[(1, &#39;user_0&#39;, 0.8444218515250481, True),
+ (2, &#39;user_1&#39;, 0.7579544029403025, True),
+ (3, &#39;user_2&#39;, 0.420571580830845, False),
+ (4, &#39;user_3&#39;, 0.25891675029296335, False),
+ (5, &#39;user_4&#39;, 0.5112747213686085, True)]</pre>
 </div>
 
 </div>
@@ -13283,9 +13276,7 @@ FROM mydocuments
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># can also select by accessing the column object (db[&#39;id&#39;]) itself</span>
-<span class="c1"># this will be useful later with more complex queries</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13295,115 +13286,10 @@ FROM mydocuments
 <div class="output_wrapper">
 <div class="output">
 
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name 
-FROM mydocuments
- LIMIT :param_1
-</pre>
-</div>
-</div>
 
 <div class="output_area">
 
     <div class="prompt output_prompt">Out[6]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments
- LIMIT :param_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[7]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(1, &#39;user_0&#39;, 0.3164412298275918, False)</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.name 
-FROM mydocuments
- LIMIT :param_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[8]:</div>
 
 
 
@@ -13420,10 +13306,10 @@ FROM mydocuments
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
 </pre></div>
 
     </div>
@@ -13436,16 +13322,69 @@ FROM mydocuments
 
 <div class="output_area">
 
-    <div class="prompt"></div>
+    <div class="prompt output_prompt">Out[7]:</div>
 
 
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
- LIMIT :param_1
-</pre>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(1, &#39;user_0&#39;), (2, &#39;user_1&#39;), (3, &#39;user_2&#39;), (4, &#39;user_3&#39;), (5, &#39;user_4&#39;)]</pre>
+</div>
+
+</div>
+
 </div>
 </div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[8]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[2.7931393069577677]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
 
 <div class="output_area">
 
@@ -13455,7 +13394,7 @@ FROM mydocuments
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>0.3164412298275918</pre>
+<pre>[(2.7931393069577677, 5)]</pre>
 </div>
 
 </div>
@@ -13467,7 +13406,8 @@ FROM mydocuments
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Conditional-Selects">Conditional Selects<a class="anchor-link" href="#Conditional-Selects">&#182;</a></h2>
+<p>Alternatively, to see the results as a pandas dataframe, we can use <code>.select_df()</code>.</p>
+
 </div>
 </div>
 </div>
@@ -13476,7 +13416,7 @@ FROM mydocuments
 <div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13486,19 +13426,6 @@ FROM mydocuments
 <div class="output_wrapper">
 <div class="output">
 
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id = :id_1
-</pre>
-</div>
-</div>
 
 <div class="output_area">
 
@@ -13506,9 +13433,70 @@ WHERE mydocuments.id = :id_1
 
 
 
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-<div class="output_text output_subarea output_execute_result">
-<pre>[(2, &#39;user_1&#39;, 0.16846270602459934, False)]</pre>
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1</td>
+      <td>user_0</td>
+      <td>0.844422</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>2</td>
+      <td>user_1</td>
+      <td>0.757954</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>3</td>
+      <td>user_2</td>
+      <td>0.420572</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>4</td>
+      <td>user_3</td>
+      <td>0.258917</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>5</td>
+      <td>user_4</td>
+      <td>0.511275</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 </div>
 
 </div>
@@ -13516,13 +13504,21 @@ WHERE mydocuments.id = :id_1
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now we can select specific elements of the db using the <code>where</code> argument of the <code>.select()</code> method.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;</span><span class="mi">3</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13532,19 +13528,6 @@ WHERE mydocuments.id = :id_1
 <div class="output_wrapper">
 <div class="output">
 
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id &lt; :id_1
-</pre>
-</div>
-</div>
 
 <div class="output_area">
 
@@ -13554,8 +13537,9 @@ WHERE mydocuments.id &lt; :id_1
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;, 0.3164412298275918, False),
- (2, &#39;user_1&#39;, 0.16846270602459934, False)]</pre>
+<pre>[(1, &#39;user_0&#39;, 0.8444218515250481, True),
+ (2, &#39;user_1&#39;, 0.7579544029403025, True),
+ (5, &#39;user_4&#39;, 0.5112747213686085, True)]</pre>
 </div>
 
 </div>
@@ -13569,8 +13553,7 @@ WHERE mydocuments.id &lt; :id_1
 <div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># mod operator works too</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">%</span><span class="k">2</span>)==0, limit=2)
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13580,20 +13563,6 @@ WHERE mydocuments.id &lt; :id_1
 <div class="output_wrapper">
 <div class="output">
 
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id % :id_1 = :param_1
- LIMIT :param_2
-</pre>
-</div>
-</div>
 
 <div class="output_area">
 
@@ -13603,8 +13572,7 @@ WHERE mydocuments.id % :id_1 = :param_1
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(2, &#39;user_1&#39;, 0.16846270602459934, False),
- (4, &#39;user_3&#39;, 0.8760700109368977, True)]</pre>
+<pre>[(3, &#39;user_2&#39;, 0.420571580830845, False)]</pre>
 </div>
 
 </div>
@@ -13612,14 +13580,22 @@ WHERE mydocuments.id % :id_1 = :param_1
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can update the results in a similar way, using the <code>where</code> argument.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># note parantheses to handle order of ops with overloaded bitwise ops</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span> <span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">!=</span><span class="s1">&#39;user_2&#39;</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;smartypants&#39;</span><span class="p">},</span> <span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13632,27 +13608,17 @@ WHERE mydocuments.id % :id_1 = :param_1
 
 <div class="output_area">
 
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id &gt;= :id_1 AND mydocuments.id &lt;= :id_2 AND mydocuments.name != :name_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
     <div class="prompt output_prompt">Out[13]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(2, &#39;user_1&#39;, 0.16846270602459934, False),
- (4, &#39;user_3&#39;, 0.8760700109368977, True)]</pre>
+<pre>[(1, &#39;user_0&#39;, 0.8444218515250481, True),
+ (2, &#39;user_1&#39;, 0.7579544029403025, True),
+ (3, &#39;smartypants&#39;, 0.420571580830845, False),
+ (4, &#39;user_3&#39;, 0.25891675029296335, False),
+ (5, &#39;user_4&#39;, 0.5112747213686085, True)]</pre>
 </div>
 
 </div>
@@ -13666,7 +13632,8 @@ WHERE mydocuments.id &gt;= :id_1 AND mydocuments.id &lt;= :id_2 AND mydocuments.
 <div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">in_</span><span class="p">((</span><span class="s1">&#39;user_2&#39;</span><span class="p">,</span><span class="s1">&#39;user_3&#39;</span><span class="p">)))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">})</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13676,19 +13643,6 @@ WHERE mydocuments.id &gt;= :id_1 AND mydocuments.id &lt;= :id_2 AND mydocuments.
 <div class="output_wrapper">
 <div class="output">
 
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.name IN (:name_1, :name_2)
-</pre>
-</div>
-</div>
 
 <div class="output_area">
 
@@ -13698,8 +13652,11 @@ WHERE mydocuments.name IN (:name_1, :name_2)
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(3, &#39;user_2&#39;, 0.5487944288357308, True),
- (4, &#39;user_3&#39;, 0.8760700109368977, True)]</pre>
+<pre>[(1, &#39;user_0&#39;, 84.4421851525048, True),
+ (2, &#39;user_1&#39;, 75.79544029403024, True),
+ (3, &#39;smartypants&#39;, 42.0571580830845, False),
+ (4, &#39;user_3&#39;, 25.891675029296334, False),
+ (5, &#39;user_4&#39;, 51.12747213686085, True)]</pre>
 </div>
 
 </div>
@@ -13707,13 +13664,22 @@ WHERE mydocuments.name IN (:name_1, :name_2)
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>And we can delete elements using the <code>.delete()</code> method.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13723,19 +13689,6 @@ WHERE mydocuments.name IN (:name_1, :name_2)
 <div class="output_wrapper">
 <div class="output">
 
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id BETWEEN :id_1 AND :id_2
-</pre>
-</div>
-</div>
 
 <div class="output_area">
 
@@ -13745,9 +13698,10 @@ WHERE mydocuments.id BETWEEN :id_1 AND :id_2
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(2, &#39;user_1&#39;, 0.16846270602459934, False),
- (3, &#39;user_2&#39;, 0.5487944288357308, True),
- (4, &#39;user_3&#39;, 0.8760700109368977, True)]</pre>
+<pre>[(1, &#39;user_0&#39;, 84.4421851525048, True),
+ (2, &#39;user_1&#39;, 75.79544029403024, True),
+ (4, &#39;user_3&#39;, 25.891675029296334, False),
+ (5, &#39;user_4&#39;, 51.12747213686085, True)]</pre>
 </div>
 
 </div>
@@ -13755,14 +13709,22 @@ WHERE mydocuments.id BETWEEN :id_1 AND :id_2
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Notes-on-DB-Interface">Notes on DB Interface<a class="anchor-link" href="#Notes-on-DB-Interface">&#182;</a></h1><p>DocTable2 allows you to access columns through direct subscripting, then relies on the power of sqlalchemy column objects to do most of the work of constructing queries. Here are a few notes on their use. For more demonstration, see the example in examples/dt2_select.ipynb</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># use of logical not operator &quot;~&quot;</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span> <span class="o">~</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">in_</span><span class="p">((</span><span class="s1">&#39;user_2&#39;</span><span class="p">,</span><span class="s1">&#39;user_3&#39;</span><span class="p">)))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># subscript is used to access underlying sqlalchemy column reference (without querying data)</span>
+<span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
 </pre></div>
 
     </div>
@@ -13775,27 +13737,13 @@ WHERE mydocuments.id BETWEEN :id_1 AND :id_2
 
 <div class="output_area">
 
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.name NOT IN (:name_1, :name_2) AND mydocuments.id &lt; :id_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
     <div class="prompt output_prompt">Out[16]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;, 0.3164412298275918, False),
- (2, &#39;user_1&#39;, 0.16846270602459934, False)]</pre>
+<pre>Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False)</pre>
 </div>
 
 </div>
@@ -13809,8 +13757,8 @@ WHERE mydocuments.name NOT IN (:name_1, :name_2) AND mydocuments.id &lt; :id_1
 <div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># more verbose operators .and_, .or_, and .not_ are bound to the doctable package</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">or_</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">not_</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">4</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># conditionals are applied directly to the column objects (as we&#39;ll see with &quot;where&quot; clause)</span>
+<span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span>
 </pre></div>
 
     </div>
@@ -13823,27 +13771,13 @@ WHERE mydocuments.name NOT IN (:name_1, :name_2) AND mydocuments.id &lt; :id_1
 
 <div class="output_area">
 
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id != :id_1 AND mydocuments.id &lt;= :id_2
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
     <div class="prompt output_prompt">Out[17]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;, 0.3164412298275918, False),
- (2, &#39;user_1&#39;, 0.16846270602459934, False)]</pre>
+<pre>&lt;sqlalchemy.sql.elements.BinaryExpression object at 0x7f80aca62710&gt;</pre>
 </div>
 
 </div>
@@ -13857,10 +13791,8 @@ WHERE mydocuments.id != :id_1 AND mydocuments.id &lt;= :id_2
 <div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># now with simple computation</span>
-<span class="n">ages</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span>
-<span class="n">mean_age</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ages</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">ages</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="n">mean_age</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># can also access using .col() method</span>
+<span class="n">db</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13873,29 +13805,13 @@ WHERE mydocuments.id != :id_1 AND mydocuments.id &lt;= :id_2
 
 <div class="output_area">
 
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
-DocTable2 Query: SELECT mydocuments.name 
-FROM mydocuments 
-WHERE mydocuments.age &gt; :age_1
- LIMIT :param_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
     <div class="prompt output_prompt">Out[18]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[&#39;user_3&#39;, &#39;user_5&#39;]</pre>
+<pre>Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False)</pre>
 </div>
 
 </div>
@@ -13909,8 +13825,8 @@ WHERE mydocuments.age &gt; :age_1
 <div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># apply .label() method to columns</span>
-<span class="nb">dict</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;myage&#39;</span><span class="p">),</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;myname&#39;</span><span class="p">)]))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to access all column objects (only useful for working directly with sql info)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">columns</span>
 </pre></div>
 
     </div>
@@ -13920,19 +13836,6 @@ WHERE mydocuments.age &gt; :age_1
 <div class="output_wrapper">
 <div class="output">
 
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.age AS myage, mydocuments.name AS myname 
-FROM mydocuments
- LIMIT :param_1
-</pre>
-</div>
-</div>
 
 <div class="output_area">
 
@@ -13942,7 +13845,7 @@ FROM mydocuments
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>{&#39;myage&#39;: 0.3164412298275918, &#39;myname&#39;: &#39;user_0&#39;}</pre>
+<pre>&lt;sqlalchemy.sql.base.ImmutableColumnCollection at 0x7f80acad5990&gt;</pre>
 </div>
 
 </div>
@@ -13950,21 +13853,14 @@ FROM mydocuments
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Column-Operators">Column Operators<a class="anchor-link" href="#Column-Operators">&#182;</a></h2><p>I bind the .min, .max, .count, .sum, and .mode methods to the column objects. Additionally, I move the .count method to a separate DocTable2 method.</p>
-
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to access more detailed schema information</span>
+<span class="n">db</span><span class="o">.</span><span class="n">schemainfo</span>
 </pre></div>
 
     </div>
@@ -13977,26 +13873,36 @@ FROM mydocuments
 
 <div class="output_area">
 
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT sum(mydocuments.age) AS sum_1, count(mydocuments.age) AS count_1, mydocuments.age 
-FROM mydocuments
- LIMIT :param_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
     <div class="prompt output_prompt">Out[20]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>(5.5745842928905915, 10, 0.3164412298275918)</pre>
+<pre>[{&#39;name&#39;: &#39;id&#39;,
+  &#39;type&#39;: INTEGER(),
+  &#39;nullable&#39;: False,
+  &#39;default&#39;: None,
+  &#39;autoincrement&#39;: &#39;auto&#39;,
+  &#39;primary_key&#39;: 1},
+ {&#39;name&#39;: &#39;name&#39;,
+  &#39;type&#39;: VARCHAR(),
+  &#39;nullable&#39;: False,
+  &#39;default&#39;: None,
+  &#39;autoincrement&#39;: &#39;auto&#39;,
+  &#39;primary_key&#39;: 0},
+ {&#39;name&#39;: &#39;age&#39;,
+  &#39;type&#39;: INTEGER(),
+  &#39;nullable&#39;: True,
+  &#39;default&#39;: None,
+  &#39;autoincrement&#39;: &#39;auto&#39;,
+  &#39;primary_key&#39;: 0},
+ {&#39;name&#39;: &#39;is_old&#39;,
+  &#39;type&#39;: BOOLEAN(),
+  &#39;nullable&#39;: True,
+  &#39;default&#39;: None,
+  &#39;autoincrement&#39;: &#39;auto&#39;,
+  &#39;primary_key&#39;: 0}]</pre>
 </div>
 
 </div>
@@ -14010,8 +13916,8 @@ FROM mydocuments
 <div class="prompt input_prompt">In&nbsp;[21]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># with labels now</span>
-<span class="nb">dict</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;sum&#39;</span><span class="p">),</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;ct&#39;</span><span class="p">)]))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># If needed, you can also access the sqlalchemy table object using the .table property.</span>
+<span class="n">db</span><span class="o">.</span><span class="n">table</span>
 </pre></div>
 
     </div>
@@ -14021,19 +13927,6 @@ FROM mydocuments
 <div class="output_wrapper">
 <div class="output">
 
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT sum(mydocuments.age) AS sum, count(mydocuments.age) AS ct 
-FROM mydocuments
- LIMIT :param_1
-</pre>
-</div>
-</div>
 
 <div class="output_area">
 
@@ -14043,7 +13936,7 @@ FROM mydocuments
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>{&#39;sum&#39;: 5.5745842928905915, &#39;ct&#39;: 10}</pre>
+<pre>Table(&#39;_documents_&#39;, MetaData(bind=None), Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False), Column(&#39;name&#39;, String(), table=&lt;_documents_&gt;, nullable=False), Column(&#39;age&#39;, Integer(), table=&lt;_documents_&gt;), Column(&#39;is_old&#39;, Boolean(), table=&lt;_documents_&gt;), schema=None)</pre>
 </div>
 
 </div>
@@ -14051,22 +13944,14 @@ FROM mydocuments
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="ORDER-BY,-GROUP-BY,-LIMIT">ORDER BY, GROUP BY, LIMIT<a class="anchor-link" href="#ORDER-BY,-GROUP-BY,-LIMIT">&#182;</a></h2><p>These additional arguments have also been provided.</p>
-
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[22]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the limit is obvious - it has been used throughout these examples</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the count method is also an easy way to count rows in the database</span>
+<span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -14079,27 +13964,13 @@ FROM mydocuments
 
 <div class="output_area">
 
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments
- LIMIT :param_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
     <div class="prompt output_prompt">Out[22]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;, 0.3164412298275918, False),
- (2, &#39;user_1&#39;, 0.16846270602459934, False)]</pre>
+<pre>4</pre>
 </div>
 
 </div>
@@ -14113,8 +13984,8 @@ FROM mydocuments
 <div class="prompt input_prompt">In&nbsp;[23]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># orderby clause</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">orderby</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">desc</span><span class="p">(),</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the print method makes it easy to see the table name and total row count</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -14131,87 +14002,30 @@ FROM mydocuments
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments ORDER BY mydocuments.age DESC
- LIMIT :param_1
+<pre>&lt;DocTable2::_documents_ ct: 4&gt;
 </pre>
 </div>
 </div>
 
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[23]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(4, &#39;user_3&#39;, 0.8760700109368977, True),
- (9, &#39;user_8&#39;, 0.8706290541203731, True)]</pre>
-</div>
-
-</div>
-
 </div>
 </div>
 
 </div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[24]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># compound orderby</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">orderby</span><span class="o">=</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">desc</span><span class="p">(),</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">asc</span><span class="p">()),</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments ORDER BY mydocuments.age DESC, mydocuments.is_old ASC
- LIMIT :param_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[24]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(4, &#39;user_3&#39;, 0.8760700109368977, True),
- (9, &#39;user_8&#39;, 0.8706290541203731, True)]</pre>
-</div>
-
-</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Type-Mappings">Type Mappings<a class="anchor-link" href="#Type-Mappings">&#182;</a></h1><p>DocTable2 provides a simplified interface into the <a href="https://docs.sqlalchemy.org/en/13/core/">SQLAlchemy core</a> package component (not the object-relational mapping component). With this interface DocTable2 is able to provide an object-oriented interface to execute SQL commands. This package simplifies that interface by working with the various objects within the class, allowing the user to create schemas and perform queries without working with the hundreds of classes required by SQLAlchemy core.</p>
+<p>Because of this, it is important to note the interface between them. The first is the type map used to set up the schema. The DocTable2 constructor provides a schema interface which accepts strings as types, so the type map appears here:</p>
 
 </div>
 </div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[25]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># can also use column name directly</span>
-<span class="c1"># can only use ascending and can use only one col</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">orderby</span><span class="o">=</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="o">.</span><span class="n">_type_map</span>
 </pre></div>
 
     </div>
@@ -14221,19 +14035,6 @@ FROM mydocuments ORDER BY mydocuments.age DESC, mydocuments.is_old ASC
 <div class="output_wrapper">
 <div class="output">
 
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments ORDER BY mydocuments.age
- LIMIT :param_1
-</pre>
-</div>
-</div>
 
 <div class="output_area">
 
@@ -14243,1344 +14044,24 @@ FROM mydocuments ORDER BY mydocuments.age
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(5, &#39;user_4&#39;, 0.050003572489580095, False),
- (2, &#39;user_1&#39;, 0.16846270602459934, False)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># groupby clause</span>
-<span class="c1"># returns first row of each group without any aggregation functions</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">groupby</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">])</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments GROUP BY mydocuments.is_old
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[26]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;, 0.3164412298275918, False),
- (3, &#39;user_2&#39;, 0.5487944288357308, True)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[27]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># compound groupby (weird example bc name is unique - have only one cat var in this demo)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">groupby</span><span class="o">=</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]),</span> <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments GROUP BY mydocuments.is_old, mydocuments.name
- LIMIT :param_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[27]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;user_0&#39;, 0.3164412298275918, False),
- (2, &#39;user_1&#39;, 0.16846270602459934, False),
- (5, &#39;user_4&#39;, 0.050003572489580095, False)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># groupby clause using max aggregation function</span>
-<span class="c1"># gets match age for both old and young groups</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">])</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT max(mydocuments.age) AS max_1 
-FROM mydocuments GROUP BY mydocuments.is_old
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[28]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[0.3164412298275918, 0.8760700109368977]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="SQL-String-Commands-and-Additional-Clauses">SQL String Commands and Additional Clauses<a class="anchor-link" href="#SQL-String-Commands-and-Additional-Clauses">&#182;</a></h2><p>For cases where DocTable2 does not provide a convenient interface, you may submit raw SQL commands. These may be a bit more unwieldly, but they offer maximum flexibility. They may be used either as simply an addition to the WHERE or arbitrary end clauses, or accessed in totality.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[29]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">qstr</span> <span class="o">=</span> <span class="s1">&#39;SELECT age,name FROM </span><span class="si">{}</span><span class="s1"> WHERE id==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">tabname</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qstr</span><span class="p">)</span>
-<span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT age,name FROM mydocuments WHERE id==&#34;1&#34;
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[29]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>{&#39;age&#39;: 0.3164412298275918, &#39;name&#39;: &#39;user_0&#39;}</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[30]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">whrstr</span> <span class="o">=</span> <span class="s1">&#39;is_old==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">whrstr</span><span class="o">=</span><span class="n">whrstr</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE is_old==&#34;1&#34;
- LIMIT :param_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[30]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(3, &#39;user_2&#39;, 0.5487944288357308, True),
- (4, &#39;user_3&#39;, 0.8760700109368977, True)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[31]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># combine whrstr with structured query where clause</span>
-<span class="n">whrstr</span> <span class="o">=</span> <span class="s1">&#39;is_old==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">,</span> <span class="n">whrstr</span><span class="o">=</span><span class="n">whrstr</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id &lt;= :id_1 AND is_old==&#34;1&#34;
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[31]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(3, &#39;user_2&#39;, 0.5487944288357308, True),
- (4, &#39;user_3&#39;, 0.8760700109368977, True)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[32]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># combine whrstr with structured query where clause</span>
-<span class="n">whrstr</span> <span class="o">=</span> <span class="s1">&#39;is_old==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">,</span> <span class="n">whrstr</span><span class="o">=</span><span class="n">whrstr</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id &lt;= :id_1 AND is_old==&#34;1&#34;
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[32]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(3, &#39;user_2&#39;, 0.5487944288357308, True),
- (4, &#39;user_3&#39;, 0.8760700109368977, True)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Count-Method-and-Get-Next-ID">Count Method and Get Next ID<a class="anchor-link" href="#Count-Method-and-Get-Next-ID">&#182;</a></h2><p><code>.count()</code> is a convenience method. Mostly the same could be accomplished by <code>db.select_first(db['id'].count)</code>, but this requires no reference to a specific column.</p>
-<p><code>.next_id()</code> is especially useful if one hopes to enter the id (or any primary key column) into new rows manually. Especially useful because SQL engines don't provide new ids except when a single insert is performed.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[33]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT count() AS count_1 
-FROM mydocuments
- LIMIT :param_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[33]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>10</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[34]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT count() AS count_1 
-FROM mydocuments 
-WHERE mydocuments.age &lt; :age_1
- LIMIT :param_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[34]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>3</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[35]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">next_id</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT max(mydocuments.id) AS max_1 
-FROM mydocuments
- LIMIT :param_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[35]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>11</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[36]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># weird (but possible) with &#39;age&#39; because it&#39;s not an actual primary key</span>
-<span class="n">db</span><span class="o">.</span><span class="n">next_id</span><span class="p">(</span><span class="n">idcol</span><span class="o">=</span><span class="s1">&#39;age&#39;</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT max(mydocuments.age) AS max_1 
-FROM mydocuments
- LIMIT :param_1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[36]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>1.8760700109368977</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Select-as-Pandas-Series-and-DataFrame">Select as Pandas Series and DataFrame<a class="anchor-link" href="#Select-as-Pandas-Series-and-DataFrame">&#182;</a></h2><p>These are especially useful when working with metadata because Pandas provides robust descriptive and plotting features than SQL alone. Good for generating sample information.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[37]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># must provide only a single column</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select_series</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[37]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>0    0.316441
-1    0.168463
-dtype: float64</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[38]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_series</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">quantile</span><span class="p">([</span><span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.985</span><span class="p">])</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[38]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>0.025    0.076657
-0.985    0.875335
-dtype: float64</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[39]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.age 
-FROM mydocuments
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[39]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>age</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>1</td>
-      <td>0.316441</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2</td>
-      <td>0.168463</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[40]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[40]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>age</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>0.316441</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>0.168463</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[41]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># must provide list of cols (even for one col)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.age 
-FROM mydocuments
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[41]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>age</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>id</td>
-      <td>1.000000</td>
-      <td>0.579989</td>
-    </tr>
-    <tr>
-      <td>age</td>
-      <td>0.579989</td>
-      <td>1.000000</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[42]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.age 
-FROM mydocuments
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[42]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>count</th>
-      <th>mean</th>
-      <th>std</th>
-      <th>min</th>
-      <th>25%</th>
-      <th>50%</th>
-      <th>75%</th>
-      <th>max</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>id</td>
-      <td>10.0</td>
-      <td>5.500000</td>
-      <td>3.02765</td>
-      <td>1.000000</td>
-      <td>3.25000</td>
-      <td>5.500000</td>
-      <td>7.750000</td>
-      <td>10.00000</td>
-    </tr>
-    <tr>
-      <td>age</td>
-      <td>10.0</td>
-      <td>0.557458</td>
-      <td>0.28826</td>
-      <td>0.050004</td>
-      <td>0.37453</td>
-      <td>0.625552</td>
-      <td>0.748219</td>
-      <td>0.87607</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[43]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">mean_age</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_series</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span>
-<span class="n">df</span><span class="p">[</span><span class="s1">&#39;old_grp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">mean_age</span>
-<span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;old_grp&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
-DocTable2 Query: SELECT mydocuments.id, mydocuments.age 
-FROM mydocuments
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[43]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead tr th {
-        text-align: left;
-    }
-
-    .dataframe thead tr:last-of-type th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr>
-      <th></th>
-      <th colspan="8" halign="left">id</th>
-      <th colspan="8" halign="left">age</th>
-    </tr>
-    <tr>
-      <th></th>
-      <th>count</th>
-      <th>mean</th>
-      <th>std</th>
-      <th>min</th>
-      <th>25%</th>
-      <th>50%</th>
-      <th>75%</th>
-      <th>max</th>
-      <th>count</th>
-      <th>mean</th>
-      <th>std</th>
-      <th>min</th>
-      <th>25%</th>
-      <th>50%</th>
-      <th>75%</th>
-      <th>max</th>
-    </tr>
-    <tr>
-      <th>old_grp</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>False</td>
-      <td>4.0</td>
-      <td>2.750000</td>
-      <td>1.707825</td>
-      <td>1.0</td>
-      <td>1.75</td>
-      <td>2.5</td>
-      <td>3.50</td>
-      <td>5.0</td>
-      <td>4.0</td>
-      <td>0.270925</td>
-      <td>0.214933</td>
-      <td>0.050004</td>
-      <td>0.138848</td>
-      <td>0.242452</td>
-      <td>0.374530</td>
-      <td>0.548794</td>
-    </tr>
-    <tr>
-      <td>True</td>
-      <td>6.0</td>
-      <td>7.333333</td>
-      <td>2.160247</td>
-      <td>4.0</td>
-      <td>6.25</td>
-      <td>7.5</td>
-      <td>8.75</td>
-      <td>10.0</td>
-      <td>6.0</td>
-      <td>0.748480</td>
-      <td>0.111277</td>
-      <td>0.610373</td>
-      <td>0.666343</td>
-      <td>0.746540</td>
-      <td>0.840446</td>
-      <td>0.876070</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[44]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># more complicated groupby aggregation.</span>
-<span class="c1"># calculates the variance both for entries above and below average age</span>
-<span class="n">mean_age</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_series</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span>
-<span class="n">df</span><span class="p">[</span><span class="s1">&#39;old_grp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="n">mean_age</span>
-<span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;old_grp&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
-    <span class="s1">&#39;first_name&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">NamedAgg</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">aggfunc</span><span class="o">=</span><span class="s1">&#39;first&#39;</span><span class="p">),</span>
-    <span class="s1">&#39;var_age&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">NamedAgg</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="n">aggfunc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">),</span>
-<span class="p">})</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
-DocTable2 Query: SELECT mydocuments.name, mydocuments.age 
-FROM mydocuments
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[44]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>first_name</th>
-      <th>var_age</th>
-    </tr>
-    <tr>
-      <th>old_grp</th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>False</td>
-      <td>user_0</td>
-      <td>0.046196</td>
-    </tr>
-    <tr>
-      <td>True</td>
-      <td>user_3</td>
-      <td>0.012383</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Select-with-Buffer">Select with Buffer<a class="anchor-link" href="#Select-with-Buffer">&#182;</a></h1><p>In cases where you have many rows or each row contains a lot of data, you may want to perform a select query which makes requests in chunks. This is performed using the SQL OFFSET command, and querying up to buffsize while yielding each returned row. This system is designed this way because the underlying sql engine buffers all rows retreived from a query, and thus there is no way to stream data into memory without this system.</p>
-<p>NOTE: The limit keyword is incompatible with this method - it will return all results. A workaround is to use the approx_max_rows param, which will return at minimum this number of rows, at max the specified number of rows plus buffsize.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[45]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select_chunk</span><span class="p">(</span><span class="n">chunksize</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_rows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">%</span><span class="k">2</span>)==0):
-    <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id % :id_1 = :param_1
- LIMIT :param_2 OFFSET :param_3
-(2, &#39;user_1&#39;, 0.16846270602459934, False)
-(4, &#39;user_3&#39;, 0.8760700109368977, True)
-DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id % :id_1 = :param_1
- LIMIT :param_2 OFFSET :param_3
-(6, &#39;user_5&#39;, 0.7431812816282332, True)
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Bootstrap-Select">Bootstrap Select<a class="anchor-link" href="#Bootstrap-Select">&#182;</a></h1><p>Often it is desirable to bootstrap select (sample with replacement) from a document sample. DocTable2 includes this feature.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[46]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_bootstrap</span><span class="p">(</span><span class="n">nsamp</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: SELECT mydocuments.id 
-FROM mydocuments
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[46]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(2, &#39;user_1&#39;, 0.16846270602459934, False),
- (3, &#39;user_2&#39;, 0.5487944288357308, True),
- (6, &#39;user_5&#39;, 0.7431812816282332, True),
- (7, &#39;user_6&#39;, 0.6407300749770457, True),
- (8, &#39;user_7&#39;, 0.6103732528229019, True),
- (9, &#39;user_8&#39;, 0.8706290541203731, True),
- (2, &#39;user_1&#39;, 0.16846270602459934, False),
- (3, &#39;user_2&#39;, 0.5487944288357308, True),
- (8, &#39;user_7&#39;, 0.6103732528229019, True),
- (2, &#39;user_1&#39;, 0.16846270602459934, False)]</pre>
+<pre>{&#39;biginteger&#39;: sqlalchemy.sql.sqltypes.BigInteger,
+ &#39;boolean&#39;: sqlalchemy.sql.sqltypes.Boolean,
+ &#39;date&#39;: sqlalchemy.sql.sqltypes.Date,
+ &#39;datetime&#39;: sqlalchemy.sql.sqltypes.DateTime,
+ &#39;enum&#39;: sqlalchemy.sql.sqltypes.Enum,
+ &#39;float&#39;: sqlalchemy.sql.sqltypes.Float,
+ &#39;integer&#39;: sqlalchemy.sql.sqltypes.Integer,
+ &#39;interval&#39;: sqlalchemy.sql.sqltypes.Interval,
+ &#39;largebinary&#39;: sqlalchemy.sql.sqltypes.LargeBinary,
+ &#39;numeric&#39;: sqlalchemy.sql.sqltypes.Numeric,
+ &#39;smallinteger&#39;: sqlalchemy.sql.sqltypes.SmallInteger,
+ &#39;string&#39;: sqlalchemy.sql.sqltypes.String,
+ &#39;text&#39;: sqlalchemy.sql.sqltypes.Text,
+ &#39;time&#39;: sqlalchemy.sql.sqltypes.Time,
+ &#39;unicode&#39;: sqlalchemy.sql.sqltypes.Unicode,
+ &#39;unicodetext&#39;: sqlalchemy.sql.sqltypes.UnicodeText,
+ &#39;pickle&#39;: doctable.coltypes.CpickleType,
+ &#39;parsetree&#39;: doctable.coltypes.ParseTreeType}</pre>
 </div>
 
 </div>
