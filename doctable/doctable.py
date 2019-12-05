@@ -204,23 +204,6 @@ class DocTable:
         cter = func.count(self._table)
         ct = self.select_first(cter, where=where, whrstr=whrstr, **kwargs)
         return ct
-    
-    def next_id(self, idcol='id', **kwargs):
-        '''Returns the highest value in idcol plus one.
-        Args:
-            idcol (str): column name to look up.
-        Returns:
-            int: next id to be assigned by autoincrement.
-        '''
-        # use the results object .inserted_primary_key to get after 
-        # inserting. Here is the object returned by insert:
-        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
-        
-        mx = self.select_first(func.max(self[idcol]), **kwargs)
-        if mx is None:
-            return 1 # (usually first entry in sql table)
-        else:
-            return mx + 1
         
     @property
     def columns(self):
