@@ -246,33 +246,6 @@ class DocTable:
         inspector = sa.inspect(self._engine)
         return inspector.get_columns(self._tabname)
     
-    def schemainfo_long(self):
-        '''Get custom-selected schema information.
-        Notes:
-            This method is similar to schemainfo, but includes
-                more hand-selected information. Likeley to be 
-                removed in future versions.
-        Returns:
-            dict<dict>: info about each column, more info than 
-                .schemainfo() provides.
-        '''
-        info = dict()
-        for col in self._table.c:
-            ci = dict(
-                name=col.name,
-                type=col.type,
-                comment=col.comment,
-                constraints=col.constraints,
-                expression=col.expression,
-                foreign_keys=col.foreign_keys,
-                index=col.index,                
-                nullable=col.nullable,
-                primary_key=col.primary_key,
-                onupdate=col.onupdate,
-                default=col.default,
-            )
-            info[col.name] = ci
-        return info
     
     @property
     def primary_key(self):
