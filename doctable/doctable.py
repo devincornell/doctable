@@ -229,22 +229,6 @@ class DocTable:
                 object.
         '''
         return self._table.c
-	
-    def count(self, where=None, whrstr=None, **kwargs):
-        '''Count number of rows which match where condition.
-        Notes:
-            Calls select_first under the hood.
-        Args:
-            where (sqlalchemy condition): filter rows before counting.
-            whrstr (str): filter rows before counting.
-        Returns:
-            int: number of rows that match "where" and "whrstr" criteria.
-        '''
-        cter = func.count(self._table)
-        ct = self.select_first(cter, where=where, whrstr=whrstr, **kwargs)
-        return ct
-        
-
     
     @property
     def schemainfo(self):
@@ -289,6 +273,62 @@ class DocTable:
         return r
     
     ################# SELECT METHODS ##################
+	
+	
+    def count(self, where=None, whrstr=None, **kwargs):
+        '''Count number of rows which match where condition.
+        Notes:
+            Calls select_first under the hood.
+        Args:
+            where (sqlalchemy condition): filter rows before counting.
+            whrstr (str): filter rows before counting.
+        Returns:
+            int: number of rows that match "where" and "whrstr" criteria.
+        '''
+        cter = func.count(self._table)
+        ct = self.select_first(cter, where=where, whrstr=whrstr, **kwargs)
+        return ct
+	
+    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, offset=None, **kwargs):
+        '''Perform select query, yield result for each row.
+        
+        Description: Because output must be iterable, returns special column results 
+            by performing one query per row. Can be inefficient for many smaller 
+            special data information.
+        
+        Args:
+            cols: list of sqlalchemy datatypes created from calling .col() method.
+            where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
+            orderby: sqlalchemy orderby directive
+            groupby: sqlalchemy gropuby directive
+            limit (int): number of entries to return before stopping
+            whrstr (str): raw sql "where" conditionals to add to where input
+        Yields:
+            sqlalchemy result object: row data
+        '''
+        return_single = False
+        if cols is None:
+            cols = list(self._table.columns)
+        else:
+            if not is_sequence(cols):
+                return_single = True
+                cols = [cols]
+        cols = [c if not isinstance(c,str) else self[c] for c in cols]
+                
+        # query colunmns in main table
+        result = self._exec_select_query(cols,where,orderby,groupby,limit,whrstr,offset,**kwargs)
+        # this is the result object:
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
+        
+        # NOTE: I USE LIST RETURN BECAUSE UNDERLYING SQL ENGINE
+        # WILL LOAD THE DATA INTO MEMORY ANYWAYS. THIS JUST PRESENTS
+        # A MORE FLEXIBLE INTERFACE TO THE USER.
+        # row is an object that can be accessed by col keyword
+        # i.e. row['id'] or num index, i.e. row[0].
+        if return_single:
+            return [row[0] for row in result]
+        else:
+            return [row for row in result]
     
     def select_first(self, *args, **kwargs):
         '''Perform regular select query returning only the first result.
@@ -349,49 +389,6 @@ class DocTable:
         sel = self.select(col, *args, **kwargs)
         return pd.Series(sel)
     
-    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, offset=None, **kwargs):
-        '''Perform select query, yield result for each row.
-        
-        Description: Because output must be iterable, returns special column results 
-            by performing one query per row. Can be inefficient for many smaller 
-            special data information.
-        
-        Args:
-            cols: list of sqlalchemy datatypes created from calling .col() method.
-            where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
-            orderby: sqlalchemy orderby directive
-            groupby: sqlalchemy gropuby directive
-            limit (int): number of entries to return before stopping
-            whrstr (str): raw sql "where" conditionals to add to where input
-        Yields:
-            sqlalchemy result object: row data
-        '''
-        return_single = False
-        if cols is None:
-            cols = list(self._table.columns)
-        else:
-            if not is_sequence(cols):
-                return_single = True
-                cols = [cols]
-        cols = [c if not isinstance(c,str) else self[c] for c in cols]
-                
-        # query colunmns in main table
-        result = self._exec_select_query(cols,where,orderby,groupby,limit,whrstr,offset,**kwargs)
-        # this is the result object:
-        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
-        
-        # NOTE: I USE LIST RETURN BECAUSE UNDERLYING SQL ENGINE
-        # WILL LOAD THE DATA INTO MEMORY ANYWAYS. THIS JUST PRESENTS
-        # A MORE FLEXIBLE INTERFACE TO THE USER.
-        # row is an object that can be accessed by col keyword
-        # i.e. row['id'] or num index, i.e. row[0].
-        if return_single:
-            return [row[0] for row in result]
-        else:
-            return [row for row in result]
-                
-    
-                
     def _exec_select_query(self, cols, where, orderby, groupby, limit, whrstr, offset,**kwargs):
         
         q = sa.sql.select(cols)
@@ -468,8 +465,6 @@ class DocTable:
         '''
             
         # update the main column values
-        
-        
         if isinstance(values,list) or isinstance(values,tuple):
             q = sa.sql.update(self._table, preserve_parameter_order=True)
             q = q.values(values)
@@ -548,9 +543,6 @@ class DocTable:
         return r
     
     
-
-    
-    
     #################### Bootstrapping Methods ###################    
     
     def get_bootstrap(self, *args, **kwargs):
@@ -566,8 +558,6 @@ class DocTable:
         '''
         docs = self.select(*args, **kwargs)
         return DocBootstrap(docs)
-    
-
     
 
 def is_sequence(obj):
