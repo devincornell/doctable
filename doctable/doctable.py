@@ -104,8 +104,6 @@ class DocTable:
         '''Closes database connection to prevent locking.'''
         self.close_conn()
             
-    def __str__(self):
-        return '<DocTable2::{} ct: {}>'.format(self._tabname, self.count())
     
     def close_conn(self):
         '''Closes connection to db (if one exists).
@@ -191,20 +189,32 @@ class DocTable:
     
     #################### Convenience Methods ###################
     
-    def count(self, where=None, whrstr=None, **kwargs):
-        '''Count number of rows which match where condition.
-        Notes:
-            Calls select_first under the hood.
+    def __str__(self):
+        return '<DocTable2::{} ct: {}>'.format(self._tabname, self.count())
+	
+    def __getitem__(self, colname):
+        '''Accesses a column object by calling .col().'''
+        return self.col(colname)
+	
+    def col(self,name):
+        '''Accesses a column object. Equivalent to table.c[name].
         Args:
-            where (sqlalchemy condition): filter rows before counting.
-            whrstr (str): filter rows before counting.
-        Returns:
-            int: number of rows that match "where" and "whrstr" criteria.
+            Name of column to access. Applied as subscript to 
+                sqlalchemy columns object.
         '''
-        cter = func.count(self._table)
-        ct = self.select_first(cter, where=where, whrstr=whrstr, **kwargs)
-        return ct
+        return self._table.c[name]
         
+    @property
+    def table(self):
+        '''Returns underlying sqlalchemy table object for manual manipulation.
+        '''
+        return self._table
+    
+    @property
+    def tabname(self):
+        '''Gets name of table for this connection.'''
+        return self._tabname
+	
     @property
     def columns(self):
         '''Exposes SQLAlchemy core table columns object.
@@ -219,6 +229,22 @@ class DocTable:
                 object.
         '''
         return self._table.c
+	
+    def count(self, where=None, whrstr=None, **kwargs):
+        '''Count number of rows which match where condition.
+        Notes:
+            Calls select_first under the hood.
+        Args:
+            where (sqlalchemy condition): filter rows before counting.
+            whrstr (str): filter rows before counting.
+        Returns:
+            int: number of rows that match "where" and "whrstr" criteria.
+        '''
+        cter = func.count(self._table)
+        ct = self.select_first(cter, where=where, whrstr=whrstr, **kwargs)
+        return ct
+        
+
     
     @property
     def schemainfo(self):
@@ -535,30 +561,7 @@ class DocTable:
         return r
     
     
-    #################### Accessor Methods ###################
-    
-    def col(self,name):
-        '''Accesses a column object. Equivalent to table.c[name].
-        Args:
-            Name of column to access. Applied as subscript to 
-                sqlalchemy columns object.
-        '''
-        return self._table.c[name]
-    
-    def __getitem__(self, colname):
-        '''Accesses a column object by calling .col().'''
-        return self.col(colname)
-        
-    @property
-    def table(self):
-        '''Returns underlying sqlalchemy table object for manual manipulation.
-        '''
-        return self._table
-    
-    @property
-    def tabname(self):
-        '''Gets name of table for this connection.'''
-        return self._tabname
+
     
     
     #################### Bootstrapping Methods ###################    
