@@ -114,7 +114,7 @@ class DocTable:
         if self._conn is not None:
             self._conn.close()
         self._conn = None
-		
+        
     def open_conn(self):
         '''Opens connection to db (if one does not exist).
         Notes:
@@ -127,53 +127,53 @@ class DocTable:
         
         
     ################# INITIALIZATION METHODS ##################
-	
+    
     def _parse_column_schema(self,schema):
         columns = list()
         for colinfo in schema:
-			n = len(colinfo)
+            n = len(colinfo)
             if n not in (2,3,4):
                 raise ValueError('A schema entry must have 2+ arguments: (type,name,..)')
 
-			# column is regular type
-			if colinfo[0] in self._type_map:
-				coltype, colname = colinfo[:2]
-				colargs = colinf[2] if n > 2 else dict()
-				coltypeargs = colinfo[3] if n > 3 else dict()
+            # column is regular type
+            if colinfo[0] in self._type_map:
+                coltype, colname = colinfo[:2]
+                colargs = colinfo[2] if n > 2 else dict()
+                coltypeargs = colinfo[3] if n > 3 else dict()
                 col = sa.Column(colname, self._type_map[coltype](**coltypeargs), **colargs)
                 columns.append(col)
-			else:
-				if colinfo[0] == 'index':
-					# ('index', 'ind0', ('name','address'),dict(unique=True)),
-					indargs = colinfo[2] if n > 2 else dict()
-					indkwargs = colinfo[3] if n > 3 else dict()
-					ind = sa.Index(colinfo[1], *indargs, **indkwargs)
-					columns.append(ind)
-				elif colinfo[0] == 'check_constraint':
-					# ('check_constraint','age >= 0 AND age < 120',, dict(name='age')),
-					kwargs = colinfo[2] if n > 2 else dict()
-					const = sa.CheckConstraint(colinfo[1], **kwargs)
-					columns.append(const)
-				elif colinfo[0] == 'unique_constraint':
-					# ('unique_constraint', ('name','address'), dict(name='name_addr')),
-					kwargs = colinfo[2] if n > 2 else dict()
-					const = sa.UniqueConstraint(*colinfo[1], **kwargs)
-					columns.append(const)
-				elif colinfo[0] == 'primarykey_constraint':
-					# ('primarykey_constraint', ('name','address'),dict(unique=True)),
-					kwargs = colinfo[2] if n > 2 else dict()
-					const = sa.PrimaryKeyConstraint(*colinfo[1], **kwargs)
-					columns.append(const)
-				elif colinfo[0] == 'foreignkey_constraint':
-					# ('foreignkey_constraint', 
-					# [('othertab_name','othertab_address'),('othertab.name', 'othertab.address')])
-					kwargs = colinfo[2] if n > 2 else dict()
-					const = sa.ForeignKeyConstraint(*colinfo[1], **kwargs)
-					columns.append(const)
-				else:
-					raise ValueError('Column or constraint type "{}" was not recognized.'
-									''.format(colinfo[0]))
-				
+            else:
+                if colinfo[0] == 'index':
+                    # ('index', 'ind0', ('name','address'),dict(unique=True)),
+                    indargs = colinfo[2] if n > 2 else dict()
+                    indkwargs = colinfo[3] if n > 3 else dict()
+                    ind = sa.Index(colinfo[1], *indargs, **indkwargs)
+                    columns.append(ind)
+                elif colinfo[0] == 'check_constraint':
+                    # ('check_constraint','age >= 0 AND age < 120',, dict(name='age')),
+                    kwargs = colinfo[2] if n > 2 else dict()
+                    const = sa.CheckConstraint(colinfo[1], **kwargs)
+                    columns.append(const)
+                elif colinfo[0] == 'unique_constraint':
+                    # ('unique_constraint', ('name','address'), dict(name='name_addr')),
+                    kwargs = colinfo[2] if n > 2 else dict()
+                    const = sa.UniqueConstraint(*colinfo[1], **kwargs)
+                    columns.append(const)
+                elif colinfo[0] == 'primarykey_constraint':
+                    # ('primarykey_constraint', ('name','address'),dict(unique=True)),
+                    kwargs = colinfo[2] if n > 2 else dict()
+                    const = sa.PrimaryKeyConstraint(*colinfo[1], **kwargs)
+                    columns.append(const)
+                elif colinfo[0] == 'foreignkey_constraint':
+                    # ('foreignkey_constraint', 
+                    # [('othertab_name','othertab_address'),('othertab.name', 'othertab.address')])
+                    kwargs = colinfo[2] if n > 2 else dict()
+                    const = sa.ForeignKeyConstraint(*colinfo[1], **kwargs)
+                    columns.append(const)
+                else:
+                    raise ValueError('Column or constraint type "{}" was not recognized.'
+                                    ''.format(colinfo[0]))
+                
         return columns
 
     
@@ -191,11 +191,11 @@ class DocTable:
     
     def __str__(self):
         return '<DocTable2::{} ct: {}>'.format(self._tabname, self.count())
-	
+    
     def __getitem__(self, colname):
         '''Accesses a column object by calling .col().'''
         return self.col(colname)
-	
+    
     def col(self,name):
         '''Accesses a column object. Equivalent to table.c[name].
         Args:
@@ -214,7 +214,7 @@ class DocTable:
     def tabname(self):
         '''Gets name of table for this connection.'''
         return self._tabname
-	
+    
     @property
     def columns(self):
         '''Exposes SQLAlchemy core table columns object.
@@ -273,8 +273,8 @@ class DocTable:
         return r
     
     ################# SELECT METHODS ##################
-	
-	
+    
+    
     def count(self, where=None, whrstr=None, **kwargs):
         '''Count number of rows which match where condition.
         Notes:
@@ -288,7 +288,7 @@ class DocTable:
         cter = func.count(self._table)
         ct = self.select_first(cter, where=where, whrstr=whrstr, **kwargs)
         return ct
-	
+    
     def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, offset=None, **kwargs):
         '''Perform select query, yield result for each row.
         
@@ -365,8 +365,9 @@ class DocTable:
                 key or otherwise. Call .set_index('id') on the
                 dataframe to envoke this behavior.
         '''
-        
-        if not is_sequence(cols):
+        if cols is None:
+            cols = list(self._table.columns)
+        elif not is_sequence(cols):
             cols = [cols]
         
         sel = self.select(cols, *args, **kwargs)

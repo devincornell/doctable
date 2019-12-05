@@ -4,7 +4,7 @@ name = "doctable"
 from sqlalchemy.sql import and_, or_, not_
 
 from .doctable import DocTable
-from .doctable2 import DocTable2
+from .doctablelegacy import DocTableLegacy
 from .docparser import DocParser
 from .parsetree import ParseTree, ParseNode
 from .bootstrap import DocBootstrap

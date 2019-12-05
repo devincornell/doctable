@@ -3,7 +3,7 @@
 This file contains functions for migrating database tables.
 This means adding or removing columns, etc.
 '''
-from .doctable2 import DocTable2
+from .doctable import DocTable
 
 def migrate_db(oldfname, newfname, newschema, newcolmap={}, delcols=[]):
     '''Moves old database to db with new schema.
@@ -19,10 +19,10 @@ def migrate_db(oldfname, newfname, newschema, newcolmap={}, delcols=[]):
     '''
     # connects to db without providing a schema, so will 
     # infer
-    odb = DocTable2(fname=oldfname)
+    odb = DocTable(fname=oldfname)
     oldcols = set(odb.schemainfo.keys())
     
-    ndb = DocTable2(newschema, fname=newfname)
+    ndb = DocTable(newschema, fname=newfname)
     newcols = set(ndb.schemainfo.keys())
     if ndb.count() > 0 and not append:
         raise ValueError('The new database target already has '
