@@ -42,13 +42,13 @@
           </li>
 		  <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Documentation
+                Reference
               </a>
               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="ref/doctable.DocTable2.html">DocTable2</a>
+                <a class="dropdown-item" href="ref/doctable.DocTable.html">DocTable</a>
+                <a class="dropdown-item" href="ref/doctable.DocBootstrap.html">DocBootstrap</a>
                 <a class="dropdown-item" href="ref/doctable.DocParser.html">DocParser</a>
 				<a class="dropdown-item" href="ref/doctable.ParseTree.html">ParseTree</a>
-				  <a class="dropdown-item" href="ref/doctable.DocBootstrap.html">DocBootstrap</a>
                 <!--<div class="dropdown-divider"></div>-->
                 <!--<a class="dropdown-item" href="#">Something else here</a>-->
               </div>
@@ -64,7 +64,7 @@
       <div class="row h-100 align-items-center">
         <div class="col-lg-12">
           <h1 class="display-4 text-white mt-5 mb-2">Databases for text analysis</h1>
-          <p class="lead mb-5 text-white-50">DocTable is a Python package for parsing, storing, and accessing text documents and models for large scale text analysis.</p>
+          <p class="lead mb-5 text-white-50">DocTable is a Python package for parsing, storing, and accessing text documents and models for large scale analysis.</p>
 			<img src="diagram.svg" style="width:80%"/>
         </div>
       </div>
@@ -76,13 +76,19 @@
 
     <div class="row">
       <div class="col-md-8 mb-5">
-        <h2>Here's the scenario:</h2>
+        <h2>Here's the thing:</h2>
         <hr>
-        <p>You're starting a new text analysis project. You need to take raw text and convert it into a format which can be used for your analysis. The data is big. It may require preprocessing, tokenization, or parsetree extraction, and all needs to be stored and accessed efficiently in a single file. Databases may be your best option, but SQL is a pain. In this case, DocTable could be a good way to work with your data.</p>
-          <p><b>AND/OR:</b> Your text analysis algorithms produce large models, and you may need to generate several of them with different parameter configurations. DocTable is good for that too. DocTable2 is equipped with custom column types for storing pickled python objects, including ones optimized for parsed document objects.</p>
-        <h2>What's in it:</h2>
+        <p>Every text analysis project is different, but they almost always share the first few steps: preprocessing, parsing/tokenization, and storage into a format that can be used for analysis. DocTable is designed to facilitate these steps by providing a series of small decisions which are common to most applications. The package consists primarily of <b>two Python classes:</b></p>
+          
+        <h3>DocParser</h3>
         <hr>
-          <p>DocTable is composed of two Python classes: <b>DocTable2</b> for creating and manipulating database tables, and <b>DocParser</b> for tokenizing and extracting parsetrees. See the documenation below for examples and references.</p>
+        <p>This class provides static methods for tokenizing and creating parsetrees using the <a href="https://spacy.io/">SpaCy text analysis package</a>. It includes methods to assist with largely parallel text preprocessing and processing for storage into a DocTable database.</p>
+        
+        <h3>DocTable</h3>
+        <hr>
+        <p>This class provides a Python object-oriented database interface so you can create and manipulate new document databases.</p>
+                      
+        
 		  
         <a class="btn btn-primary btn-lg" href="examples/dt2_basics.html">See Overview &raquo;</a>
       </div>
@@ -102,20 +108,20 @@
         <div class="card h-100">
           <!--<img class="card-img-top" src="http://placehold.it/300x200" alt="">-->
           <div class="card-body">
-            <h4 class="card-title">DocTable2</h4>
-            <p class="card-text">Core python class for working with databases.</p>
+            <h4 class="card-title">DocTable</h4>
+            <p class="card-text">Core python class for interfacing with databases.</p>
             <h5>Examples:</h5>
 			<ul>
-                <li><a href="examples/dt2_basics.html">Overview</a></li>
-                <li><a href="examples/dt2_insert_delete.html">Insert/Delete Rows</a></li>
-                <li><a href="examples/dt2_select.html">Select Rows</a></li>
-                <li><a href="examples/dt2_update.html">Update Rows</a></li>
-                <li><a href="examples/dt2_bootstrap.html">Bootstrap Documents</a></li>
-                <li><a href="examples/dt2_concurrency.html">Concurrent Connections</a></li>
+                <li><a href="examples/doctable_basics.html">Overview</a></li>
+                <li><a href="examples/doctable_insert_delete.html">Insert/Delete Rows</a></li>
+                <li><a href="examples/doctable_select.html">Select Rows</a></li>
+                <li><a href="examples/doctable_update.html">Update Rows</a></li>
+                <li><a href="examples/doctable_bootstrap.html">Bootstrap Documents</a></li>
+                <li><a href="examples/doctable_concurrency.html">Concurrent Connections</a></li>
               </ul>
           </div>
           <div class="card-footer">
-			  <a href="ref/doctable.DocTable2.html" class="btn btn-primary">Reference</a>
+			  <a href="ref/doctable.DocTable.html" class="btn btn-primary">Reference</a>
           </div>
 			
         </div>
@@ -127,8 +133,9 @@
             <h4 class="card-title">DocParser</h4>
             <p class="card-text">Tokenize and extract parsetrees for database storage.</p>
 			<ul>
-                <li><a href="examples/parser_basics.html">Tokenize</a></li>
-                <li><a href="examples/parser_parsetrees.html">Extract & Manipulate Parsetrees</a></li>
+                <li><a href="examples/docparser_basics.html">Overview</a></li>
+                <li><a href="examples/docparser_tokenizing.html">Tokenize</a></li>
+                <li><a href="examples/docparser_parsetrees.html">Extract & Manipulate Parsetrees</a></li>
                 <li><a href="examples/parser_pipeline.html">Full Pipeline</a></li>
               </ul>
           </div>
@@ -141,15 +148,15 @@
         <div class="card h-100">
           <!--<img class="card-img-top" src="http://placehold.it/300x200" alt="">-->
           <div class="card-body">
-            <h4 class="card-title">Original DocTable (Depreciated)</h4>
-            <p class="card-text">The old version of doctable.</p>
+            <h4 class="card-title">DocTableLegacy (Depreciated)</h4>
+            <p class="card-text">Previous version of doctable.</p>
             <ul>
-                <li><a href="examples/dt1_simple.html">Basic Example</a></li>
-                <li><a href="examples/dt1_advanced.html">NewsGroup Example</a></li>
+                <li><a href="examples/legacy_simple.html">Basic Example</a></li>
+                <li><a href="examples/legacy_adv.html">NewsGroup Example</a></li>
               </ul>
           </div>
           <div class="card-footer">
-            <a href="ref/doctable.DocTable.html" class="btn btn-primary">Reference</a>
+            <a href="ref/doctable.DocTableLegacy.html" class="btn btn-primary">Reference</a>
           </div>
         </div>
       </div>
