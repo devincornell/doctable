@@ -577,70 +577,7 @@ class DocTable:
         docs = self.select(*args, **kwargs)
         return DocBootstrap(docs)
     
-    def select_bootstrap(self, *args, **kwargs):
-        ''' Performs select statement by bootstrapping output.
-        Notes:
-            This is a simple wrapper over .select_bootstrap_iter(),
-                simply casting to a list before returning.
-        Args:
-            *args: passed to .select_bootstrap_iter() method.
-            **kwargs: passed to .select_bootstrap_iter() method.
-        Returns:
-            list: result rows
-        '''
-        return list(self.select_bootstrap_iter(*args, **kwargs))
-    
-    def select_bootstrap_iter(self, cols=None, nsamp=None, where=None, idcol=None, whrstr=None, **kwargs):
-        '''Bootstrap (sample with replacement) from database.
-        Notes:
-            This should be used in cases where the order of returned elements
-                does not matter. It works internally by selecting primary key
-                (idcol), sampling with replacement using python, and then performing
-                select queries where idcol in (selected ids). Number of queries varies
-                by the maximum count of ids which were sampled.
-        Args:
-            cols (sqlalchemy column names or objects): passed directly to 
-                .select().
-            nsamp (int): number of rows to sample with replacement.
-            where (sqlalchemy condition): where criteria.
-            whrstr (str): SQL command to conditionally select
-            idcol (col name or object): Must be unique id assigned to each
-                column. Extracts first primary key by default.
-        Yields:
-            sqlalchemy row objects: bootstrapped rows (order not gauranteed).
-        '''
-        if idcol is None:
-            idcol = self.primary_key
-            if idcol is None:
-                raise ValueError('A primary key must exist or unique column '
-                    'specified in "key" param to use bootstrapping.')
-        if nsamp == None:
-            nsamp = self.count()
-        
-        idwaves = self._bs_sampids(nsamp, idcol, where=where)
-        results = list()
-        for idwave in idwaves:
-            for row in self.select(cols, where=self[idcol].in_(idwave), **kwargs):
-                yield row
-                
-            
-    def _bs_sampids(self,nsamp,idcol,**kwargs):
-        ids = self.select(self[idcol], **kwargs) # includes WHERE clause args
-        cts = collections.Counter(random.choices(ids,k=nsamp))
-        
-        idwaves = list()
-        for i in range(max(cts.values())):
-            ids = [idx for idx,ct in cts.items() if ct > i]
-            idwaves.append(ids)
-        return idwaves
 
-    
-
-coltype_error_str = ('Provided column schema must '
-                    'be a two-tuple (colname, coltype), three-tuple '
-                    '(colname,coltype,{sqlalchemy type data}), or '
-                    'four-tuple (colname, coltype, sqlalchemy type data, '
-                    '{sqlalchemy column arguments}).')
     
 
 def is_sequence(obj):
