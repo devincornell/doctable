@@ -19,8 +19,13 @@ class ParseTree:
         nodes = self.bubble_accum(lambda n: [n])
         self.nodes = list(sorted(nodes,key=lambda n:n.i))
         
+    @property
+    def toks(self):
+        return [n.tok for n in self.nodes]
+        
     def __str__(self):
-        return 'ParseTree({})'.format(len(self.nodes))
+        return 'ParseTree({})'.format(self.toks)
+    
     def __repr__(self):
         return str(self)
         

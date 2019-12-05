@@ -9,6 +9,29 @@ class DocParser:
     '''Class that maintains convenient functions for parsing Spacy doc objects.'''
     
     re_url = re.compile(r'http\S+', flags=re.MULTILINE)
+    re_xml_tag = re.compile('<[^<]+>', flags=re.MULTILINE)
+    re_digits = re.compile("\d*[-\./,]*\d+")
+    
+    @classmethod
+    def preprocess(cls, text, replace_url=None, replace_xml=None, replace_digits=None):
+        '''Apply preprocessing step, modifies and returns text.
+        Args:
+            text (str): document as a text string
+            replace_url (str or None): if not None, replace url with string
+            replace_xml (str or None): if not None, replace xml tags with string
+            replace_digits (str or None): if not None, replace digits with string
+        '''
+        
+        if replace_url is not None:
+            text = re.sub(cls.re_url, replace_url, text)
+            
+        if replace_xml is not None:
+            text = re.sub(cls.re_xml_tag, replace_xml, text)
+            
+        if replace_digits is not None:
+            text = re.sub(cls.re_digits, replace_digits, text)
+            
+        return text
     
     
     @classmethod
@@ -85,12 +108,12 @@ class DocParser:
     
     
     @classmethod
-    def get_parsetrees(cls, doc, tok_parse_func=None, info_func_map=dict(), merge_ents=False, 
+    def get_parsetrees(cls, doc, parse_tok_func=None, info_func_map=dict(), merge_ents=False, 
             spacy_ngram_matcher=None, merge_noun_chunks=False):
         '''Extracts parsetree from spacy doc objects.
         Args:
             doc (spacy.Doc object): doc to generate parsetree from.
-            tok_parse_func (func): function used to convert token to 
+            parse_tok_func (func): function used to convert token to 
                 a string representation. Usually a lambda function 
                 wrapping some variant of self.parse_tok().
             info_func_map (dict<str->func>): attribute to function 
@@ -101,8 +124,8 @@ class DocParser:
                 with Spacy. Powerful wildcards etc.
             merge_noun_chunks (bool): merge noun chunks or not.
         '''
-        if tok_parse_func is None:
-            tok_parse_func = cls.parse_tok
+        if parse_tok_func is None:
+            parse_tok_func = cls.parse_tok
         
         # apply ngram merges to doc object (permanently modifies doc object)
         cls.apply_ngram_merges(
@@ -113,7 +136,7 @@ class DocParser:
         )
         
         sent_trees = [
-            ParseTree(sent.root, tok_parse_func, info_func_map=info_func_map)
+            ParseTree(sent.root, parse_tok_func, info_func_map=info_func_map)
             for sent in doc.sents
         ]
         return sent_trees
@@ -178,7 +201,7 @@ class DocParser:
         
     @staticmethod
     def parse_tok(tok, replace_num=None, replace_digit=None, lemmatize=False, normal_convert=None, 
-            format_ents=True, ent_convert=None):
+            format_ents=False, ent_convert=None):
         '''Convert spacy token object to string.
         Args:
             tok (spacy token or span): token object to convert to string.
@@ -251,16 +274,6 @@ class DocParser:
             
         return do_use_tok
     
-    @classmethod
-    def preprocess(cls, text, remove_url=False):
-        '''Apply preprocessing step before parsing.
-        Args:
-            text (str): document as a text string
-            remove_url (bool): choose to remove url
-        '''
-        if remove_url:
-            text = re.sub(cls.re_url, '', text)
-        return text
     
     @staticmethod
     def apply_ngram_merges(doc, merge_ents=True, spacy_ngram_matcher=None, merge_noun_chunks=False):
@@ -283,21 +296,24 @@ class DocParser:
     
     @staticmethod
     def merge_ngrams(toks, ngrams, ngram_sep=' '):
-        '''Merges consecutive strings (tokenized n-grams) into single tokens.
+        '''Merges specified consecutive tokens into single tokens.
         '''
         new_toks = list()
         ngram_starts = [ng[0] for ng in ngrams] # first word of every ngram
         i = 0
         while i < len(toks):
             if toks[i] in ngram_starts: # match is possible
+                found_match = False
                 for ng in ngrams:
                     zip_rng = zip(range(len(ng)), range(i,len(toks)))
                     if all([ng[j]==toks[k] for j,k in zip_rng]):
                         new_toks.append(ngram_sep.join(ng))
                         i += len(ng)
+                        found_match = True
                         break
-                new_toks.append(toks[i])
-                i += 1
+                if not found_match:
+                    new_toks.append(toks[i])
+                    i += 1
             else: # match is impossible
                 new_toks.append(toks[i])
                 i += 1
