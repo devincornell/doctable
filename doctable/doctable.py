@@ -256,19 +256,6 @@ class DocTable:
         return inspector.get_columns(self._tabname)
     
     
-    @property
-    def primary_key(self):
-        '''Returns primary key col name.
-        Notes:
-            Returns first primary key where multiple primary
-                keys exist (should be updated in future).
-        '''
-        for ci in self.schemainfo:
-            if ci['primary_key']:
-                return ci['name']
-        return None
-    
-    
     ################# INSERT METHODS ##################
     
     def insert(self, rowdat, ifnotunique='fail', **kwargs):
