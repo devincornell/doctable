@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>parser_parsetrees</title>
+<title>docparser_basics</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13082,9 +13082,10 @@ div#notebook {
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">doctable</span> <span class="k">as</span> <span class="nn">dt</span>
+<span class="kn">from</span> <span class="nn">spacy</span> <span class="k">import</span> <span class="n">displacy</span>
 <span class="kn">import</span> <span class="nn">spacy</span>
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
-<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en&#39;</span><span class="p">)</span><span class="c1">#, disable=[&#39;ner&#39;])</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">spacy.matcher</span> <span class="k">import</span> <span class="n">Matcher</span>
 </pre></div>
 
     </div>
@@ -13097,7 +13098,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exstr</span> <span class="o">=</span> <span class="s1">&#39;Hat is red. He is tall for a dude.&#39;</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exstr</span> <span class="o">=</span> <span class="s1">&#39;James said he will paint the house red for $20 (twenty dollars). He is such a rule-breaker.&#39;</span>
 <span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">exstr</span><span class="p">)</span>
 <span class="n">doc</span>
 </pre></div>
@@ -13118,7 +13119,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>Hat is red. He is tall for a dude.</pre>
+<pre>James said he will paint the house red for $20 (twenty dollars). He is such a rule-breaker.</pre>
 </div>
 
 </div>
@@ -13130,8 +13131,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Making-Parsetrees">Making Parsetrees<a class="anchor-link" href="#Making-Parsetrees">&#182;</a></h2><p>By default, <code>parse_tok_func=None</code> means it will use the vanilla <code>dt.DocParser.parse_tok()</code> method. Often times you may want to pass a lambda function specifying some of the parameters of that function, since it has a number of useful features.</p>
-<p>You can also add additional token properties to the parsetree nodes by setting dictionary values attrname-&gt;func in the <code>info_func_map</code> parameter.</p>
+<h2 id="Document-Parsing">Document Parsing<a class="anchor-link" href="#Document-Parsing">&#182;</a></h2><p>Header: <code>def tokenize_doc(cls, doc, split_sents=False, merge_ents=False, merge_noun_chunks=False, ngrams=list(), spacy_ngram_matcher=None, ngram_sep=' ', use_tok_args=dict(), parse_tok_args=dict())</code></p>
 
 </div>
 </div>
@@ -13141,43 +13141,8 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">parsetrees</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">get_parsetrees</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">merge_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">parsetrees</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[3]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[ParseTree(4), ParseTree(7)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">parsetrees</span><span class="p">:</span>
-    <span class="n">pt</span><span class="o">.</span><span class="n">print_ascii_tree</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the most basic version performs tokenizing with all default settings</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">)])</span>
 </pre></div>
 
     </div>
@@ -13194,15 +13159,39 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>├─ (ROOT) is
-|  ├─ (nsubj) hat
-|  ├─ (acomp) red
+<pre>[&#39;James&#39;, &#39;said&#39;, &#39;he&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the&#39;, &#39;house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;Twenty&#39;, &#39;Dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he&#39;, &#39;is&#39;, &#39;such&#39;, &#39;a&#39;, &#39;rule&#39;, &#39;-&#39;, &#39;breaker&#39;, &#39;.&#39;]
+</pre>
+</div>
+</div>
 
-├─ (ROOT) is
-|  ├─ (nsubj) he
-|  ├─ (acomp) tall
-|  ├─ (prep) for
+</div>
+</div>
 
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># split into sentences (list of lists)</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">split_sents</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[[&#39;James&#39;, &#39;said&#39;, &#39;he&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the&#39;, &#39;house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;Twenty&#39;, &#39;Dollars&#39;, &#39;)&#39;, &#39;.&#39;], [&#39;he&#39;, &#39;is&#39;, &#39;such&#39;, &#39;a&#39;, &#39;rule&#39;, &#39;-&#39;, &#39;breaker&#39;, &#39;.&#39;]]
 </pre>
 </div>
 </div>
@@ -13216,13 +13205,8 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">([</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">parsetrees</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-<span class="nb">print</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">i</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">parsetrees</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="c1"># these five properties are inherent</span>
-<span class="nb">print</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">tok</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">parsetrees</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-<span class="nb">print</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">dep</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">parsetrees</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-<span class="nb">print</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">parsetrees</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-<span class="nb">print</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">pos</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">parsetrees</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-<span class="nb">print</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">info</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">parsetrees</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="c1"># info is empty here</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">merge_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">exstr</span><span class="p">)</span> <span class="c1"># reverts doc back to original because adding the match (called in .tokenize_doc()) modified it</span>
 </pre></div>
 
     </div>
@@ -13239,13 +13223,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>[ParseNode(hat), ParseNode(is), ParseNode(red), ParseNode(.)]
-[0, 1, 2, 3]
-[&#39;hat&#39;, &#39;is&#39;, &#39;red&#39;, &#39;.&#39;]
-[&#39;nsubj&#39;, &#39;ROOT&#39;, &#39;acomp&#39;, &#39;punct&#39;]
-[&#39;NNP&#39;, &#39;VBZ&#39;, &#39;JJ&#39;, &#39;.&#39;]
-[&#39;PROPN&#39;, &#39;AUX&#39;, &#39;ADJ&#39;, &#39;PUNCT&#39;]
-[{}, {}, {}, {}]
+<pre>[&#39;James&#39;, &#39;said&#39;, &#39;he&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the&#39;, &#39;house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;Twenty Dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he&#39;, &#39;is&#39;, &#39;such&#39;, &#39;a&#39;, &#39;rule&#39;, &#39;-&#39;, &#39;breaker&#39;, &#39;.&#39;]
 </pre>
 </div>
 </div>
@@ -13259,10 +13237,8 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># can also apply information to be added to the .info property of nodes</span>
-<span class="n">fm</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ent&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">tok</span><span class="p">:</span> <span class="n">tok</span><span class="o">.</span><span class="n">ent_type_</span><span class="p">}</span>
-<span class="n">parsetrees</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">get_parsetrees</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">merge_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">info_func_map</span><span class="o">=</span><span class="n">fm</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">([(</span><span class="n">node</span><span class="o">.</span><span class="n">tok</span><span class="p">,</span><span class="n">node</span><span class="o">.</span><span class="n">info</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">parsetrees</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">merge_noun_chunks</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">exstr</span><span class="p">)</span> <span class="c1"># reverts doc back to original because adding the match (called in .tokenize_doc()) modified it</span>
 </pre></div>
 
     </div>
@@ -13279,7 +13255,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>[(&#39;he&#39;, {&#39;ent&#39;: &#39;&#39;}), (&#39;is&#39;, {&#39;ent&#39;: &#39;&#39;}), (&#39;tall&#39;, {&#39;ent&#39;: &#39;&#39;}), (&#39;for&#39;, {&#39;ent&#39;: &#39;&#39;}), (&#39;a&#39;, {&#39;ent&#39;: &#39;&#39;}), (&#39;dude&#39;, {&#39;ent&#39;: &#39;&#39;}), (&#39;.&#39;, {&#39;ent&#39;: &#39;&#39;})]
+<pre>[&#39;James&#39;, &#39;said&#39;, &#39;he&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;Twenty Dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he&#39;, &#39;is&#39;, &#39;such a rule-breaker&#39;, &#39;.&#39;]
 </pre>
 </div>
 </div>
@@ -13287,22 +13263,13 @@ div#notebook {
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Storing-ParseTrees">Storing ParseTrees<a class="anchor-link" href="#Storing-ParseTrees">&#182;</a></h3><p>For various reasons, you may want to work with parsetrees without the ParseTree object. To do that, you can use the <code>.asdict()</code> and <code>.from_dict()</code> methods.</p>
-
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">d</span> <span class="o">=</span> <span class="n">parsetrees</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">)])</span>
 </pre></div>
 
     </div>
@@ -13319,37 +13286,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>{&#39;childs&#39;: [{&#39;childs&#39;: [],
-             &#39;dep&#39;: &#39;nsubj&#39;,
-             &#39;ent&#39;: &#39;&#39;,
-             &#39;i&#39;: 0,
-             &#39;info&#39;: {&#39;ent&#39;: &#39;&#39;},
-             &#39;pos&#39;: &#39;PROPN&#39;,
-             &#39;tag&#39;: &#39;NNP&#39;,
-             &#39;tok&#39;: &#39;hat&#39;},
-            {&#39;childs&#39;: [],
-             &#39;dep&#39;: &#39;acomp&#39;,
-             &#39;ent&#39;: &#39;&#39;,
-             &#39;i&#39;: 2,
-             &#39;info&#39;: {&#39;ent&#39;: &#39;&#39;},
-             &#39;pos&#39;: &#39;ADJ&#39;,
-             &#39;tag&#39;: &#39;JJ&#39;,
-             &#39;tok&#39;: &#39;red&#39;},
-            {&#39;childs&#39;: [],
-             &#39;dep&#39;: &#39;punct&#39;,
-             &#39;ent&#39;: &#39;&#39;,
-             &#39;i&#39;: 3,
-             &#39;info&#39;: {&#39;ent&#39;: &#39;&#39;},
-             &#39;pos&#39;: &#39;PUNCT&#39;,
-             &#39;tag&#39;: &#39;.&#39;,
-             &#39;tok&#39;: &#39;.&#39;}],
- &#39;dep&#39;: &#39;ROOT&#39;,
- &#39;ent&#39;: &#39;&#39;,
- &#39;i&#39;: 1,
- &#39;info&#39;: {&#39;ent&#39;: &#39;&#39;},
- &#39;pos&#39;: &#39;AUX&#39;,
- &#39;tag&#39;: &#39;VBZ&#39;,
- &#39;tok&#39;: &#39;is&#39;}
+<pre>[&#39;James&#39;, &#39;said&#39;, &#39;he&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the&#39;, &#39;house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;Twenty&#39;, &#39;Dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he&#39;, &#39;is&#39;, &#39;such&#39;, &#39;a&#39;, &#39;rule&#39;, &#39;-&#39;, &#39;breaker&#39;, &#39;.&#39;]
 </pre>
 </div>
 </div>
@@ -13357,14 +13294,31 @@ div#notebook {
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Merging-N-Grams">Merging N-Grams<a class="anchor-link" href="#Merging-N-Grams">&#182;</a></h3><p>DocParser offers two convenient ways to work with n-grams: (1) using the spacy matcher and (2) using the post-processed multi-token matcher. The first method is applied after normal spacy processing is finished. It involves passing a tuple of ngrams as tuples to apply after all parsing has completed. The good thing about this approach is that it doesn't require much code. The unfortunate thing is that it can only access the tokens after normal parsing. If you would like to merge tokens with hyphens between them or currency symbols to their numbers, you should use the pre-processing method.</p>
+<p>The pre-processing spacy.Matcher functionality is used to create ngrams which access certain underlying spacy components like IS_DIGIT etc. See <a href="https://spacy.io/usage/rule-based-matching">Spacy Matcher documention for more details for that</a>. The basic workflow is to create a matcher object, add patterns, and then pass matcher to .tokenize_doc(). Note that since the doc object itself is modified, python must be restarted to revert back to other tokenization method.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">d</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">ParseTree</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># post-parsing ngram merging</span>
+<span class="n">ngrams</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s1">&#39;the&#39;</span><span class="p">,</span> <span class="s1">&#39;house&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;rule&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;breaker&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;he&#39;</span><span class="p">,</span> <span class="s1">&#39;is&#39;</span><span class="p">,</span> <span class="s1">&#39;such&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="c1"># first using previously tokenized doc (was modified by )</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">ngrams</span><span class="o">=</span><span class="n">ngrams</span><span class="p">)])</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">ngrams</span><span class="o">=</span><span class="n">ngrams</span><span class="p">,</span> <span class="n">ngram_sep</span><span class="o">=</span><span class="s1">&#39;_&#39;</span><span class="p">)])</span>
 </pre></div>
 
     </div>
@@ -13381,37 +13335,9 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>{&#39;childs&#39;: [{&#39;childs&#39;: [],
-             &#39;dep&#39;: &#39;nsubj&#39;,
-             &#39;ent&#39;: &#39;&#39;,
-             &#39;i&#39;: 0,
-             &#39;info&#39;: {&#39;ent&#39;: &#39;&#39;},
-             &#39;pos&#39;: &#39;PROPN&#39;,
-             &#39;tag&#39;: &#39;NNP&#39;,
-             &#39;tok&#39;: &#39;hat&#39;},
-            {&#39;childs&#39;: [],
-             &#39;dep&#39;: &#39;acomp&#39;,
-             &#39;ent&#39;: &#39;&#39;,
-             &#39;i&#39;: 2,
-             &#39;info&#39;: {&#39;ent&#39;: &#39;&#39;},
-             &#39;pos&#39;: &#39;ADJ&#39;,
-             &#39;tag&#39;: &#39;JJ&#39;,
-             &#39;tok&#39;: &#39;red&#39;},
-            {&#39;childs&#39;: [],
-             &#39;dep&#39;: &#39;punct&#39;,
-             &#39;ent&#39;: &#39;&#39;,
-             &#39;i&#39;: 3,
-             &#39;info&#39;: {&#39;ent&#39;: &#39;&#39;},
-             &#39;pos&#39;: &#39;PUNCT&#39;,
-             &#39;tag&#39;: &#39;.&#39;,
-             &#39;tok&#39;: &#39;.&#39;}],
- &#39;dep&#39;: &#39;ROOT&#39;,
- &#39;ent&#39;: &#39;&#39;,
- &#39;i&#39;: 1,
- &#39;info&#39;: {&#39;ent&#39;: &#39;&#39;},
- &#39;pos&#39;: &#39;AUX&#39;,
- &#39;tag&#39;: &#39;VBZ&#39;,
- &#39;tok&#39;: &#39;is&#39;}
+<pre>[&#39;James&#39;, &#39;said&#39;, &#39;he&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;Twenty&#39;, &#39;Dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he is such&#39;, &#39;a&#39;, &#39;rule - breaker&#39;, &#39;.&#39;]
+
+[&#39;James&#39;, &#39;said&#39;, &#39;he&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the_house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;Twenty&#39;, &#39;Dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he_is_such&#39;, &#39;a&#39;, &#39;rule_-_breaker&#39;, &#39;.&#39;]
 </pre>
 </div>
 </div>
@@ -13419,31 +13345,29 @@ div#notebook {
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Because we want to make the pos tags and ner optional, we throw an error when they are accessed but weren't originally included in the parsing.</p>
-
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">nlp2</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en&#39;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ner&#39;</span><span class="p">,</span> <span class="s1">&#39;tagger&#39;</span><span class="p">])</span>
-<span class="n">doc2</span> <span class="o">=</span> <span class="n">nlp2</span><span class="p">(</span><span class="n">exstr</span><span class="p">)</span>
-<span class="n">parsetrees</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">get_parsetrees</span><span class="p">(</span><span class="n">doc2</span><span class="p">,</span> <span class="n">merge_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">info_func_map</span><span class="o">=</span><span class="n">fm</span><span class="p">)</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">parsetrees</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ent</span>
-<span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;couldn</span><span class="se">\&#39;</span><span class="s1">t access .ent&#39;</span><span class="p">)</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">parsetrees</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pos</span>
-<span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;couldn</span><span class="se">\&#39;</span><span class="s1">t access .pos&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># spacy matcher object (will be passed to docparser)</span>
+<span class="n">matcher</span> <span class="o">=</span> <span class="n">Matcher</span><span class="p">(</span><span class="n">nlp</span><span class="o">.</span><span class="n">vocab</span><span class="p">)</span>
+
+<span class="c1"># matches currency numbers</span>
+<span class="n">pattern</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;TEXT&#39;</span><span class="p">:</span><span class="s1">&#39;$&#39;</span><span class="p">},{</span><span class="s1">&#39;IS_DIGIT&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}]</span>
+<span class="n">matcher</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;currency&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)</span>
+
+<span class="c1"># matches the phrase &quot;he will&quot; or &quot;He Will&quot; or &quot;HE WILL&quot;</span>
+<span class="n">pattern2</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;LOWER&#39;</span><span class="p">:</span><span class="s1">&#39;he&#39;</span><span class="p">},{</span><span class="s1">&#39;LOWER&#39;</span><span class="p">:</span><span class="s1">&#39;will&#39;</span><span class="p">}]</span>
+<span class="n">matcher</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;he_will&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pattern2</span><span class="p">)</span>
+
+<span class="c1"># matches hyphens</span>
+<span class="n">pattern3</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;IS_SPACE&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">},{</span><span class="s1">&#39;TEXT&#39;</span><span class="p">:</span><span class="s1">&#39;-&#39;</span><span class="p">},{</span><span class="s1">&#39;IS_SPACE&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">}]</span>
+<span class="n">matcher</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;he_will&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pattern3</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">spacy_ngram_matcher</span><span class="o">=</span><span class="n">matcher</span><span class="p">)])</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">exstr</span><span class="p">)</span> <span class="c1"># reverts doc back to original because adding the match (called in .tokenize_doc()) modified it</span>
 </pre></div>
 
     </div>
@@ -13460,8 +13384,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>couldn&#39;t access .ent
-couldn&#39;t access .pos
+<pre>[&#39;James&#39;, &#39;said&#39;, &#39;he will&#39;, &#39;paint&#39;, &#39;the&#39;, &#39;house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$20&#39;, &#39;(&#39;, &#39;Twenty&#39;, &#39;Dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he&#39;, &#39;is&#39;, &#39;such&#39;, &#39;a&#39;, &#39;rule-breaker&#39;, &#39;.&#39;]
 </pre>
 </div>
 </div>
@@ -13473,11 +13396,8 @@ couldn&#39;t access .pos
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Working-With-ParseTree-Objects:-Iterative-and-Recursive">Working With ParseTree Objects: Iterative and Recursive<a class="anchor-link" href="#Working-With-ParseTree-Objects:-Iterative-and-Recursive">&#182;</a></h2><p>There are two pimary ways to manipulate ParseTree objects: iteratively and recursively. They can be used iteratively using indexing, slicing, and iterating as one would do with a regular list. The ParseTree object iterates through a list of ParseNode objects which have access to a number of built-in node attributes like .tag, .dep, .tok, and .ent and .pos if NER or tagging were used to parse the spacy doc object.</p>
-<p>Alternatively, one can work with parsetrees recursively. This may be useful if your methods require you to follow chains of tokens. There are two useful built-in methods for working recursively with ParseTree objects: <code>.bubble_reduce()</code>, and <code>.bubble_accum()</code>.</p>
-<p><strong><code>.bubble_accum()</code></strong>: allows you to provide a function that takes a ParseNode and returns a list of objects that will be accumulated after going through the entire parsetree.</p>
-<p><strong><code>.bubble_reduce()</code></strong>: allows you to provide a function that takes a ParseNode and an input object and returns an output object. A simple token-counting example is provided below.</p>
-<p>While these methods are useful, you will probably work with ParseNodes directly when writing recursive functions. To do that, access the root-level ParseNode using the <code>.root</code> property of the ParseTree object.</p>
+<h2 id="Token-Parsing">Token Parsing<a class="anchor-link" href="#Token-Parsing">&#182;</a></h2><p>An essential element of any spacy tokenization process is to convert Spacy token objects into strings.</p>
+<p>Full function header: <code>def parse_tok(tok, replace_num=None, replace_digit=None, lemmatize=False, normal_convert=None, format_ents=True, ent_convert=None)</code></p>
 
 </div>
 </div>
@@ -13487,10 +13407,8 @@ couldn&#39;t access .pos
 <div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sent</span> <span class="o">=</span> <span class="s1">&#39;Barak Obama is the coolest cat out there.&#39;</span>
-<span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">sent</span><span class="p">)</span>
-<span class="n">parsetree</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">get_parsetrees</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">merge_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">merge_noun_chunks</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">parsetree</span><span class="p">,</span> <span class="n">parsetree</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># by default this method includes everything</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">parse_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">])</span>
 </pre></div>
 
     </div>
@@ -13503,36 +13421,26 @@ couldn&#39;t access .pos
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[10]:</div>
+    <div class="prompt"></div>
 
 
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(ParseTree(6), ParseNode(Barak Obama))</pre>
-</div>
-
-</div>
-
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;James&#39;, &#39;said&#39;, &#39;he&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the&#39;, &#39;house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;Twenty&#39;, &#39;Dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he&#39;, &#39;is&#39;, &#39;such&#39;, &#39;a&#39;, &#39;rule&#39;, &#39;-&#39;, &#39;breaker&#39;, &#39;.&#39;]
+</pre>
 </div>
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>First let's try to get a list of named entities we applied earlier through the <code>info_func_map</code> argument of <code>get_parsetrees()</code>, both iteratively and recursively.</p>
+</div>
 
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># list of ents iteratively</span>
-<span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">parsetree</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">ent</span><span class="p">]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># numbers include anything that looks like a number</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">parse_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">replace_num</span><span class="o">=</span><span class="s1">&#39;__NUM__&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">])</span>
 </pre></div>
 
     </div>
@@ -13545,15 +13453,13 @@ couldn&#39;t access .pos
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[11]:</div>
+    <div class="prompt"></div>
 
 
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[ParseNode(Barak Obama)]</pre>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;James&#39;, &#39;said&#39;, &#39;he&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the&#39;, &#39;house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, &#39;__NUM__&#39;, &#39;(&#39;, &#39;__NUM__&#39;, &#39;Dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he&#39;, &#39;is&#39;, &#39;such&#39;, &#39;a&#39;, &#39;rule&#39;, &#39;-&#39;, &#39;breaker&#39;, &#39;.&#39;]
+</pre>
 </div>
-
 </div>
 
 </div>
@@ -13565,251 +13471,8 @@ couldn&#39;t access .pos
 <div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># get a list of entities recursively</span>
-<span class="k">def</span> <span class="nf">get_ents</span><span class="p">(</span><span class="n">pnode</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">pnode</span><span class="o">.</span><span class="n">ent</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">pnode</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
-<span class="n">parsetree</span><span class="o">.</span><span class="n">bubble_accum</span><span class="p">(</span><span class="n">get_ents</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[12]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[ParseNode(Barak Obama)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>In that case, the iterative appears to be easier.</p>
-<p>Now we'll try to identify subject-verb-object triplets both iteratively and recursively.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># convenience function to help</span>
-<span class="k">def</span> <span class="nf">child_dep</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">dep_type</span><span class="p">):</span> <span class="c1"># gets first child where node.dep==dep_type.</span>
-    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">childs</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">dep</span> <span class="o">==</span> <span class="n">dep_type</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">c</span>
-    <span class="k">return</span> <span class="kc">None</span>
-
-<span class="k">def</span> <span class="nf">get_triplets</span><span class="p">(</span><span class="n">parsetree</span><span class="p">):</span>
-    <span class="n">triplets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">parsetree</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">pos</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;AUX&#39;</span><span class="p">]:</span>
-            <span class="n">rel</span> <span class="o">=</span> <span class="p">(</span><span class="n">child_dep</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="s1">&#39;nsubj&#39;</span><span class="p">),</span> <span class="n">node</span><span class="p">,</span> <span class="n">child_dep</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="s1">&#39;attr&#39;</span><span class="p">))</span>
-            <span class="n">triplets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rel</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">pos</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;VERB&#39;</span><span class="p">]:</span>
-            <span class="n">rel</span> <span class="o">=</span> <span class="p">(</span><span class="n">child_dep</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="s1">&#39;nsubj&#39;</span><span class="p">),</span> <span class="n">node</span><span class="p">,</span> <span class="n">child_dep</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="s1">&#39;dobj&#39;</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">triplets</span>
-<span class="n">get_triplets</span><span class="p">(</span><span class="n">parsetree</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[13]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(ParseNode(Barak Obama), ParseNode(is), ParseNode(the coolest cat))]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># convenience function to help</span>
-<span class="k">def</span> <span class="nf">child_dep</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">dep_type</span><span class="p">):</span> <span class="c1"># gets first child where node.dep==dep_type.</span>
-    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">childs</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">dep</span> <span class="o">==</span> <span class="n">dep_type</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">c</span>
-    <span class="k">return</span> <span class="kc">None</span>
-
-<span class="k">def</span> <span class="nf">get_triplets</span><span class="p">(</span><span class="n">pnode</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">pnode</span><span class="o">.</span><span class="n">pos</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;AUX&#39;</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">[(</span><span class="n">child_dep</span><span class="p">(</span><span class="n">pnode</span><span class="p">,</span><span class="s1">&#39;nsubj&#39;</span><span class="p">),</span> <span class="n">pnode</span><span class="p">,</span> <span class="n">child_dep</span><span class="p">(</span><span class="n">pnode</span><span class="p">,</span><span class="s1">&#39;attr&#39;</span><span class="p">))]</span>
-    <span class="k">elif</span> <span class="n">pnode</span><span class="o">.</span><span class="n">pos</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;VERB&#39;</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">[(</span><span class="n">child_dep</span><span class="p">(</span><span class="n">pnode</span><span class="p">,</span><span class="s1">&#39;nsubj&#39;</span><span class="p">),</span> <span class="n">pnode</span><span class="p">,</span> <span class="n">child_dep</span><span class="p">(</span><span class="n">pnode</span><span class="p">,</span><span class="s1">&#39;dobj&#39;</span><span class="p">))]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
-<span class="n">parsetree</span><span class="o">.</span><span class="n">bubble_accum</span><span class="p">(</span><span class="n">get_triplets</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[14]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(ParseNode(Barak Obama), ParseNode(is), ParseNode(the coolest cat))]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>These two approaches yielded the exact same result with similar code requirements. Here are a few examples of <code>.bubble_agg()</code>, a method used to aggregate parsetree info.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Aggregate-Method">Aggregate Method<a class="anchor-link" href="#Aggregate-Method">&#182;</a></h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># simply count number of nodes</span>
-<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">pn</span><span class="p">,</span><span class="n">ct</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">ct</span> <span class="o">+</span> <span class="mi">1</span>
-<span class="n">parsetree</span><span class="o">.</span><span class="n">bubble_reduce</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[15]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>6</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># simply accumulate a list of all tokens (same functionality as .accum)</span>
-<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">pn</span><span class="p">,</span><span class="n">l</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">l</span> <span class="o">+</span> <span class="p">[</span><span class="n">pn</span><span class="o">.</span><span class="n">tok</span><span class="p">]</span>
-<span class="n">parsetree</span><span class="o">.</span><span class="n">bubble_reduce</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">[])</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[16]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[&#39;is&#39;, &#39;Barak Obama&#39;, &#39;the coolest cat&#39;, &#39;there&#39;, &#39;out&#39;, &#39;.&#39;]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Custom-Recursion-Function">Custom Recursion Function<a class="anchor-link" href="#Custom-Recursion-Function">&#182;</a></h3><p>To work directly on the parsetree object, use the <code>.root</code> property.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">printnodes</span><span class="p">(</span><span class="n">pnode</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">pnode</span><span class="o">.</span><span class="n">tok</span><span class="p">,</span> <span class="n">pnode</span><span class="o">.</span><span class="n">dep</span><span class="p">,</span> <span class="n">pnode</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">pnode</span><span class="p">:</span>
-        <span class="n">printnodes</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
-
-<span class="n">printnodes</span><span class="p">(</span><span class="n">parsetree</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># digits include 5 but not five</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">parse_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">replace_digit</span><span class="o">=</span><span class="s1">&#39;__DIGIT__&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">])</span>
 </pre></div>
 
     </div>
@@ -13826,14 +13489,465 @@ couldn&#39;t access .pos
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>is ROOT AUX
-Barak Obama nsubj PROPN
-the coolest cat attr NOUN
-there advmod ADV
-out advmod ADV
-. punct PUNCT
+<pre>[&#39;James&#39;, &#39;said&#39;, &#39;he&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the&#39;, &#39;house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, &#39;__DIGIT__&#39;, &#39;(&#39;, &#39;Twenty&#39;, &#39;Dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he&#39;, &#39;is&#39;, &#39;such&#39;, &#39;a&#39;, &#39;rule&#39;, &#39;-&#39;, &#39;breaker&#39;, &#39;.&#39;]
 </pre>
 </div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># returns spacy lemmas</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">parse_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">lemmatize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;James&#39;, &#39;say&#39;, &#39;-pron-&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the&#39;, &#39;house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;Twenty&#39;, &#39;Dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;-pron-&#39;, &#39;be&#39;, &#39;such&#39;, &#39;a&#39;, &#39;rule&#39;, &#39;-&#39;, &#39;breaker&#39;, &#39;.&#39;]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># additionally you can choose to format ents. This is often used so that named entities </span>
+<span class="c1"># with slightly different whitespaces (newlines or just spaces) can be considered as the same.</span>
+<span class="c1"># note that both &quot;Twenty&quot; and &quot;Dollars&quot; start with capital letters even though original sentence</span>
+<span class="c1"># does not have them capitalized. Essentially this process involves splitting and joining back with spaces,</span>
+<span class="c1"># then converting the strings to lower case and calling .capitalize() to convert the first letter of each </span>
+<span class="c1"># word to upper-case. Note that you can merge entities before parsing as well.</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">parse_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">format_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;James&#39;, &#39;said&#39;, &#39;he&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the&#39;, &#39;house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;Twenty&#39;, &#39;Dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he&#39;, &#39;is&#39;, &#39;such&#39;, &#39;a&#39;, &#39;rule&#39;, &#39;-&#39;, &#39;breaker&#39;, &#39;.&#39;]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># can provide additional post-processing that applies to only entities or normal tokens</span>
+<span class="c1"># (often they should be treated separately)</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">parse_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">normal_convert</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="s1">&#39;_normtok_&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">parse_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">normal_convert</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">text_with_ws</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">])</span> <span class="c1"># includes whitespace</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">parse_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">normal_convert</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">lower_</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">t</span><span class="o">.</span><span class="n">pos_</span><span class="p">))</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">])</span> <span class="c1"># includes part of speech</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;James&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;20&#39;, &#39;_normtok_&#39;, &#39;Twenty&#39;, &#39;Dollars&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;, &#39;_normtok_&#39;]
+
+[&#39;James&#39;, &#39;said &#39;, &#39;he &#39;, &#39;will &#39;, &#39;paint &#39;, &#39;the &#39;, &#39;house &#39;, &#39;red &#39;, &#39;for &#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;Twenty&#39;, &#39;Dollars&#39;, &#39;)&#39;, &#39;. &#39;, &#39;He &#39;, &#39;is &#39;, &#39;such &#39;, &#39;a &#39;, &#39;rule&#39;, &#39;-&#39;, &#39;breaker&#39;, &#39;.&#39;]
+
+[&#39;James&#39;, (&#39;said&#39;, &#39;VERB&#39;), (&#39;he&#39;, &#39;PRON&#39;), (&#39;will&#39;, &#39;AUX&#39;), (&#39;paint&#39;, &#39;VERB&#39;), (&#39;the&#39;, &#39;DET&#39;), (&#39;house&#39;, &#39;NOUN&#39;), (&#39;red&#39;, &#39;NOUN&#39;), (&#39;for&#39;, &#39;ADP&#39;), (&#39;$&#39;, &#39;SYM&#39;), &#39;20&#39;, (&#39;(&#39;, &#39;PUNCT&#39;), &#39;Twenty&#39;, &#39;Dollars&#39;, (&#39;)&#39;, &#39;PUNCT&#39;), (&#39;.&#39;, &#39;PUNCT&#39;), (&#39;he&#39;, &#39;PRON&#39;), (&#39;is&#39;, &#39;AUX&#39;), (&#39;such&#39;, &#39;DET&#39;), (&#39;a&#39;, &#39;DET&#39;), (&#39;rule&#39;, &#39;NOUN&#39;), (&#39;-&#39;, &#39;PUNCT&#39;), (&#39;breaker&#39;, &#39;NOUN&#39;), (&#39;.&#39;, &#39;PUNCT&#39;)]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># and can provide basically the same thing with named entities (while keeping normal token processing the same)</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">parse_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">ent_convert</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">ent_type_</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">parse_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">ent_convert</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">lower_</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">t</span><span class="o">.</span><span class="n">ent_type_</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">pos_</span><span class="p">))</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;ORG&#39;, &#39;said&#39;, &#39;he&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the&#39;, &#39;house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, &#39;MONEY&#39;, &#39;(&#39;, &#39;MONEY&#39;, &#39;MONEY&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he&#39;, &#39;is&#39;, &#39;such&#39;, &#39;a&#39;, &#39;rule&#39;, &#39;-&#39;, &#39;breaker&#39;, &#39;.&#39;]
+
+[(&#39;james&#39;, &#39;ORG&#39;, &#39;PROPN&#39;), &#39;said&#39;, &#39;he&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the&#39;, &#39;house&#39;, &#39;red&#39;, &#39;for&#39;, &#39;$&#39;, (&#39;20&#39;, &#39;MONEY&#39;, &#39;NUM&#39;), &#39;(&#39;, (&#39;twenty&#39;, &#39;MONEY&#39;, &#39;NUM&#39;), (&#39;dollars&#39;, &#39;MONEY&#39;, &#39;NOUN&#39;), &#39;)&#39;, &#39;.&#39;, &#39;he&#39;, &#39;is&#39;, &#39;such&#39;, &#39;a&#39;, &#39;rule&#39;, &#39;-&#39;, &#39;breaker&#39;, &#39;.&#39;]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># can use both to similar effect</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">parse_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">normal_convert</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">pos_</span><span class="p">,</span> <span class="n">ent_convert</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">pos_</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;PROPN&#39;, &#39;VERB&#39;, &#39;PRON&#39;, &#39;AUX&#39;, &#39;VERB&#39;, &#39;DET&#39;, &#39;NOUN&#39;, &#39;NOUN&#39;, &#39;ADP&#39;, &#39;SYM&#39;, &#39;NUM&#39;, &#39;PUNCT&#39;, &#39;NUM&#39;, &#39;NOUN&#39;, &#39;PUNCT&#39;, &#39;PUNCT&#39;, &#39;PRON&#39;, &#39;AUX&#39;, &#39;DET&#39;, &#39;DET&#39;, &#39;NOUN&#39;, &#39;PUNCT&#39;, &#39;NOUN&#39;, &#39;PUNCT&#39;]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Token-Filtering">Token Filtering<a class="anchor-link" href="#Token-Filtering">&#182;</a></h2><p>As part of the DocParser pipeline, it is often useful to filter out tokens that are not useful. There are several useful options in <code>.use_tok()</code> for this. Note that this method can be overridden for use in other DocParser methods.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># by default, all tokens except whitespace are included</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">use_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">])</span>
+<span class="c1"># to turn whitespace filtering off, use filter_whitespace=False (no whitespace is in this example so can&#39;t show example)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># filter </span>
+<span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">if</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">use_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">filter_punct</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[James, said, he, will, paint, the, house, red, for, $, 20, twenty, dollars, He, is, such, a, rule, breaker]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># filter stopwords (according to spacy). To modify stopwords: https://stackoverflow.com/questions/41170726/add-remove-stop-words-with-spacy </span>
+<span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">if</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">use_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">filter_stop</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[James, said, paint, house, red, $, 20, (, dollars, ), ., rule, -, breaker, .]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># filter both</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">if</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">use_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">filter_stop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">filter_punct</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[James, said, paint, house, red, $, 20, dollars, rule, breaker]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># filter_number would filter &quot;twenty&quot; wheras filter_digit would not</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">if</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">use_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">filter_digit</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">if</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">use_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">filter_num</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[James, said, he, will, paint, the, house, red, for, $, (, twenty, dollars, ), ., He, is, such, a, rule, -, breaker, .]
+[James, said, he, will, paint, the, house, red, for, $, (, dollars, ), ., He, is, such, a, rule, -, breaker, .]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># filter named entities</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">if</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">use_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">filter_all_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[said, he, will, paint, the, house, red, for, $, (, ), ., He, is, such, a, rule, -, breaker, .]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># filter only numbers. See this page for details on named entity types: https://spacy.io/api/annotation#named-entities</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">if</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">use_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">filter_ent_types</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MONEY&#39;</span><span class="p">,])])</span>
+<span class="c1"># filters &quot;twenty dollars&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[James, said, he, will, paint, the, house, red, for, $, (, ), ., He, is, such, a, rule, -, breaker, .]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Document-Preprocessing">Document Preprocessing<a class="anchor-link" href="#Document-Preprocessing">&#182;</a></h2><p>A common step taken prior to using the spacy parser is to remove objects you don't want to be tokenized. So far this function is quite simple but more features may be added later.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exstr</span> <span class="o">=</span> <span class="s1">&#39;To search the web, see http://google.com&#39;</span>
+<span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">exstr</span><span class="p">,</span> <span class="n">remove_url</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[25]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;To search the web, see &#39;</pre>
+</div>
+
 </div>
 
 </div>
