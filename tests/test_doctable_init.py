@@ -24,10 +24,10 @@ def test_init_errors():
     # trying to create new file but didn't provide a column schema
     with pytest.raises(ValueError):
         dt.DocTable(fname=randdbname)
-    
-    # set to check schema without providing a colschema
+        
     with pytest.raises(ValueError):
-        dt.DocTable(check_schema=True)
+        db = dt.DocTable()
+        print(db)
     
 
 if __name__ == '__main__':

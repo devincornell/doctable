@@ -70,41 +70,55 @@ class DocTable:
         # in cases where user did not want to create new db but a db does not 
         # exist
         if fname != ':memory:' and not os.path.exists(fname) and not make_new_db:
-            raise ValueError('new_db is set to true and the database does not '
+            raise FileNotFoundError('make_new_db is set to true but the database does not '
                              'exist yet.')
+        elif schema is None and (fname == ':memory:' or not os.path.exists(fname)):
+            raise ValueError('Schema must be provided if using memory database or '
+                             'database file does not exist yet.')
         
         # separate tables for custom data types and main table
         self._fname = fname
         self._tabname = tabname
         self.verbose = verbose
         
-        connstr = '{}:///{}'.format(engine,fname)
-        self._engine = sa.create_engine(connstr, **engine_args)
+        # create database engine
         self._schema = schema
-        
-        # make table if needed
-        self._metadata = sa.MetaData()
-        if self._schema is not None:
-            columns = self._parse_column_schema(schema)
-            self._table = sa.Table(self._tabname, self._metadata, *columns)
-            self._metadata.create_all(self._engine)
-        else:
-            self._table = sa.Table(self._tabname, self._metadata, 
-                                   autoload=True, autoload_with=self._engine)
+        self._connstr = '{}:///{}'.format(engine,fname)
+        self._engine_args = engine_args
+        self._conn = None
+        self.open_engine(open_conn=persistent_conn)
         
         # bind .min(), .max(), and .count() to col objects themselves.
         self._bind_functions()
-            
-        # connect with database engine
-        self._conn = None
-        if persistent_conn:
-            self.open_conn()
+
     
     def __delete__(self):
         '''Closes database connection to prevent locking.'''
         self.close_conn()
             
+    def close_engine(self):
+        self.close_conn()
+        self._engine = None
     
+    def open_engine(self, open_conn=True):
+        '''Open engine manually (esp when concurrency applications).'''
+        
+        # make new engine
+        self._engine = sa.create_engine(self._connstr, **self._engine_args)
+    
+        # make table if needed
+        self._metadata = sa.MetaData()
+        if self._schema is not None:
+            columns = self._parse_column_schema(self._schema)
+            self._table = sa.Table(self._tabname, self._metadata, *columns)
+            self._metadata.create_all(self._engine)
+        else:
+            self._table = sa.Table(self._tabname, self._metadata, 
+                                   autoload=True, autoload_with=self._engine)
+        if open_conn:
+            self.open_conn()
+            
+            
     def close_conn(self):
         '''Closes connection to db (if one exists).
         Notes:
@@ -122,6 +136,10 @@ class DocTable:
                 to false in constructor, but user wants to create.
         
         '''
+        if self._engine is None:
+            raise ValueError('Need to create engine using .open_engine() '
+                             'before trying to open connection.')
+        
         if self._conn is None:
             self._conn = self._engine.connect()
         

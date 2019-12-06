@@ -7,10 +7,10 @@ sys.path.append('..')
 import doctable as dt
 
 def new_db():
-    db = dt.DocTable2((
-        ('id','integer',dict(primary_key=True)),
-        ('title','string', dict(unique=True)),
-        ('year','integer'),
+    db = dt.DocTable((
+        ('integer', 'id',dict(primary_key=True)),
+        ('string', 'title', dict(unique=True)),
+        ('integer', 'year'),
     ))
     return db
 

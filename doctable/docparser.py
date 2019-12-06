@@ -33,6 +33,21 @@ class DocParser:
             
         return text
     
+    @classmethod
+    def distribute_parse_insert(cls, texts, spacynlp, dt_inst, parse_func, n_cores):
+        '''Distributes document parsing to eventually store in doctable.
+        Args:
+            texts (list<str>): list of texts to parse
+            spacynlp (spacy parser object): parser object applied to texts
+            dt_inst (DocTable): doctable instance to insert docs into
+            parse_func (fun): function to take raw text and insert into doctable.
+        Returns:
+            None
+        '''
+    
+    
+
+            
     
     @classmethod
     def distribute_parse(cls, texts, spacynlp, parsefunc=None, preprocessfunc=None, 
@@ -62,14 +77,12 @@ class DocParser:
         if paragraph_sep is not None:
             texts, ind = list(zip(*[(par.strip(),i) for i,text in enumerate(texts) 
                               for par in text.split(paragraph_sep)]))
-            if verbose: print('split into {} paragraphs'.format(len(texts)))
                 
         # decide on number of cores
         if n_cores is None:
             n_cores = min([os.cpu_count(), len(texts)])
         else:
             n_cores = min([os.cpu_count(), len(texts), n_cores])
-                
                 
         # start parallel processing. Keep inside Pool() to get number of used processes
         with Pool(processes=n_cores) as p:
@@ -81,7 +94,7 @@ class DocParser:
 
             parsed = [d for docs in p.map(cls._distribute_parse_thread, chunks) 
                     for d in docs]
-            if verbose: print('returned {} parsed docs or paragraphs'.format(len(parsed)))
+            if verbose: print('returned {} parsed docs or paragraphs'.format(len(parsed)))            
             
             if paragraph_sep is None:
                 parsed_docs = parsed
@@ -89,13 +102,14 @@ class DocParser:
                 parsed_docs = list()
                 last_i, last_ind = 0, 0
                 for i in range(len(ind)):
-                    if ind[i] != last_ind or i == len(ind)-1:
+                    if ind[i] != last_ind:
                         parsed_docs.append(parsed[last_i:i])
                         last_ind = ind[i]
                         last_i = i
+                    elif i == len(ind)-1:
+                        parsed_docs.append(parsed[last_i:])
         
         return parsed_docs
-    
     
     @staticmethod
     def _distribute_parse_thread(args):
@@ -318,6 +332,84 @@ class DocParser:
                 new_toks.append(toks[i])
                 i += 1
         return new_toks
+    
+    
+    #################### DISTRIBUTED PARSING/STORING METHODS #######################
+    
+    @classmethod
+    def _distribute_chunk_process_store(cls, elements, parse_func, dt_inst, 
+                                        *parse_static_args,n_cores=None):
+        '''Distributes parse_func to store in dt_inst across multiple processes.
+        Description: This method is needed so it can maintain a separate db connection
+            in each process. Be sure to set timeout in DocTable constructor using
+            connect_args={'timeout': timeout}, where timeout is a large number 
+            (in seconds). Large enough that it can wait for other processes to 
+            insert before inserting.
+        '''
+        
+        # close conn to reconnect in thread
+        conn_was_open = dt_inst._conn is not None
+        dt_inst.close_engine()
+        
+        # wrap dt_inst into elements for extraction in _distribute_chunk_process_store_thread
+        #elements = [(el,'shit') for el in elements]
+        res = cls._distribute_chunk_process(elements, parse_func, dt_inst, 
+            *parse_static_args, n_cores=n_cores, thread_func= cls._distribute_chunk_process_store_thread)
+        
+        # restore connection to db
+        dt_inst.open_engine(open_conn=conn_was_open)
+            
+        return res
+        
+    @staticmethod
+    def _distribute_chunk_process_store_thread(args):
+        '''Passes elements and doctable instance to store in doctable.'''
+        
+        # thread for parsing chunks with distinct connection to database
+        element_chunk, parse_func, dt_inst, static_args = args[0], args[1], args[2], args[3:]
+        
+        # open a connection in this process
+        dt_inst.open_engine(open_conn=True)
+        
+        parsed = list()
+        for el in element_chunk:
+            parsed.append(parse_func(el, dt_inst, *static_args))
+        return parsed
+    
+    
+    @classmethod
+    def _distribute_chunk_process(cls, elements, parse_func, *parse_static_args, n_cores=None, thread_func=None):
+        '''Applies parse_func to elements distributed to processes in chunks.'''
+        
+        if thread_func is None:
+            thread_func = cls._distribute_chunk_process_thread
+        
+        # decide on number of cores
+        if n_cores is None:
+            n_cores = min([os.cpu_count(), len(elements)])
+        else:
+            n_cores = min([os.cpu_count(), len(elements), n_cores])
+        
+        with Pool(processes=n_cores) as p:
+            # break into chunks
+            chunk_size = math.ceil(len(elements)/p._processes)
+            chunks = [(elements[i*chunk_size:(i+1)*chunk_size], parse_func, *parse_static_args)
+                        for i in range(p._processes)]
+                      
+            # map parse_func and then unchunk
+            parsed = [el for parsed_chunk in p.map(thread_func, chunks) 
+                      for el in parsed_chunk]
+        return parsed
+    
+    @staticmethod
+    def _distribute_chunk_process_thread(args):
+        # thread for parsing distributed processes
+        element_chunk, parse_func, static_args = args[0], args[1], args[2:]
+        
+        parsed = list()
+        for el in element_chunk:
+            parsed.append(parse_func(el, *static_args))
+        return parsed
         
 
 

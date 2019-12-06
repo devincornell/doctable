@@ -5,16 +5,15 @@ from time import time
 
 import sys
 sys.path.append('..')
-#from doctable import DocTable2, func, op
 import doctable as dt
 
 
 ################## Basic Schemas to Test ######################
 
 schema1 = (
-    ('id','integer',dict(primary_key=True)),
-    ('title','string', dict(unique=True)),
-    ('year','integer'),
+    ('integer','id',dict(primary_key=True)),
+    ('string', 'title',dict(unique=True)),
+    ('integer', 'year',),
 )
 
 def gen_data_iter1(n=20):
@@ -44,7 +43,7 @@ def check_db(rows, db, filt_func=lambda x: True, show=True):
 
 def test_insert_single1(n=20):
     rows = gen_data1(n)
-    db = dt.DocTable2(schema1)
+    db = dt.DocTable(schema1)
     for r in rows:
         db.insert(r)
     
@@ -52,7 +51,7 @@ def test_insert_single1(n=20):
 
 def test_insert_many1(n=20):
     rows = gen_data1(n)
-    db = dt.DocTable2(schema1)
+    db = dt.DocTable(schema1)
     db.insert(rows)
     assert(check_db(rows,db,show=False))
 

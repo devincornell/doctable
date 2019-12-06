@@ -8,7 +8,7 @@ import random
 
 import sys
 sys.path.append('..')
-#from doctable import DocTable2, func, op
+#from doctable import DocTable, func, op
 import doctable as dt
 import pytest
 

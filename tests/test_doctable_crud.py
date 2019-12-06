@@ -9,16 +9,16 @@ import doctable as dt
 
 def make_dt(schema, fname):
     if fname is None:
-        db = dt.DocTable2(schema, verbose=False)
+        db = dt.DocTable(schema, verbose=False)
     else:
-        db = dt.DocTable2(schema, verbose=False, fname=fname)
+        db = dt.DocTable(schema, verbose=False, fname=fname)
     return db
 
 def dt_basic(fname=None):
     schema = (
-        ('id','integer',dict(primary_key=True)),
-        ('title','string', dict(unique=True)),
-        ('age','float'),
+        ('integer','id',dict(primary_key=True)),
+        ('string', 'title',dict(unique=True)),
+        ('float', 'age'),
     )
     return make_dt(schema,fname)
     
