@@ -34,8 +34,8 @@ class DocParser:
         return text
     
     @classmethod
-    def distribute_parse_insert(cls, texts, spacynlp, dt_inst, parse_func, n_cores):
-        '''Distributes document parsing to eventually store in doctable.
+    def distribute_parse_insert(cls, texts, spacynlp, dt_inst, parse_func, n_cores=None):
+        '''Distributes document parsing to store in doctable.
         Args:
             texts (list<str>): list of texts to parse
             spacynlp (spacy parser object): parser object applied to texts
@@ -43,11 +43,11 @@ class DocParser:
             parse_func (fun): function to take raw text and insert into doctable.
         Returns:
             None
+        Sets:
+            stores data into database (parse_func is supposed to anyways)
         '''
-    
-    
-
-            
+        
+        
     
     @classmethod
     def distribute_parse(cls, texts, spacynlp, parsefunc=None, preprocessfunc=None, 
@@ -65,6 +65,8 @@ class DocParser:
                 paragraphs before parsing with spacy if needed. This will 
                 distribute paragraph parsing across processes which is more
                 balanced than distributing at document level.
+        Returns:
+            list of parsed documents
         '''
         if parsefunc is None:
             parsefunc = cls.tokenize_doc
