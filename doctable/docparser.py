@@ -332,37 +332,77 @@ class DocParser:
         
         return parsed_docs
     
-    @staticmethod
-    def _distribute_parse_thread(args):
-        texts, nlp, parsefunc, preprocessfunc = args
-        parsed_docs = list()
-        for doc in nlp.pipe(map(preprocessfunc,texts)):
-            parsed_docs.append(parsefunc(doc))
-        return parsed_docs
+
+    
+
     
     
+    #################### DISTRIBUTED PARSING METHODS #######################
     @classmethod
-    def distribute_parse(cls, texts, spacynlp=None, dt_inst=None, parsefunc=None, preprocessfunc=None, 
-        paragraph_sep=None, n_cores=None, verbose=False):
-        '''Distributes text processing for doctable storage.'''
+    def distribute_parse(cls, texts, spacynlp, parsefunc=None, preprocessfunc=None, 
+        dt_inst=None, paragraph_sep=None, n_cores=None):
         
+        # default parse functions
         if parsefunc is None:
             parsefunc = cls.tokenize_doc
         if preprocessfunc is None:
             preprocessfunc = cls.preprocess
+        
+        # split into paragraphs
+        if paragraph_sep is not None:
+            texts, ind = list(zip(*[(par.strip(),i) for i,text in enumerate(texts) 
+                            for par in text.split(paragraph_sep)]))
+        
+        # perform actual parsing
+        thread_args = (spacynlp, parsefunc, preprocessfunc, dt_inst)
+        cls._distribute_chunk(cls._distribute_parse_thread, texts, *thread_args, 
+                             n_cores=n_cores)
+            
+        # fold paragraphs back into document list
+        if paragraph_sep is not None
+            parsed_docs = list()
+            last_i, last_ind = 0, 0
+            for i in range(len(ind)):
+                if ind[i] != last_ind:
+                    parsed_docs.append(parsed[last_i:i])
+                    last_ind = ind[i]
+                    last_i = i
+                elif i == len(ind)-1:
+                    parsed_docs.append(parsed[last_i:])
+            parsed = parsed_docs
+        
+        return parsed_docs
             
     @staticmethod
-    def distribute_parse_store_thread
+    def _distribute_parse_thread(args):
+        texts, nlp, parsefunc, preprocessfunc, dt_inst = args
+        
+        addtnl_args = list()
+        if dt_inst is not None:
+            dt_inst.open_engine(open_conn=True)
+            addtnl_args.append(dt_inst)
+        
+        parsed_docs = list()
+        for doc in nlp.pipe(map(preprocessfunc,texts)):
+            parsed_docs.append(parsefunc(doc, *addtnl_args))
+        return parsed_docs
     
+    #################### DISTRIBUTED ALGORITHM METHODS #####################
+    #? not sure if this is a thing
     
+            
     #################### GENERAL DISTRIBUTE METHODS #######################
     
     @classmethod
-    def _distribute_base(cls, elements, parse_func, *parse_static_args, n_cores=None, thread_func=None):
-        '''Applies parse_func to elements distributed to processes in chunks.'''
-        
-        if thread_func is None:
-            thread_func = cls._distribute_chunk_process_thread
+    def _distribute_chunk(cls, chunk_thread_func, elements, *thread_args, n_cores=None):
+        '''Base distribute function. Splits elements into chunks and passes to threads.
+        Args:
+            elements (list): set of elements to divide into chunks for processing.
+            chunk_thread_func (func): function to parse each chunk - also passed *thread_args
+            thread_args (args): args to pass to chunk_thread_func
+        Returns:
+            unchunked parsed elements
+        '''
         
         # decide on number of cores
         if n_cores is None:
@@ -370,16 +410,23 @@ class DocParser:
         else:
             n_cores = min([os.cpu_count(), len(elements), n_cores])
         
+        # spin up processes
         with Pool(processes=n_cores) as p:
-            # break into chunks
+            
+            # break into chunks (depends on num processes)
             chunk_size = math.ceil(len(elements)/p._processes)
-            chunks = [(elements[i*chunk_size:(i+1)*chunk_size], parse_func, *parse_static_args)
+            chunks = [(elements[i*chunk_size:(i+1)*chunk_size], *thread_args)
                         for i in range(p._processes)]
                       
             # map parse_func and then unchunk
-            parsed = [el for parsed_chunk in p.map(thread_func, chunks) 
+            parsed = [el for parsed_chunk in p.map(chunk_thread_func, chunks) 
                       for el in parsed_chunk]
         return parsed
+    
+    
+    #################### GENERAL DISTRIBUTE METHODS #######################
+    
+
     
     @staticmethod
     def _distribute_chunk_process_thread(args):
