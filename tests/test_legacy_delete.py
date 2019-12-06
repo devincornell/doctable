@@ -22,7 +22,7 @@ def test_init_errors():
     if os.path.exists(fname):
         os.remove(fname)
     
-    db = dt.DocTable(fname=fname, colschema=(
+    db = dt.DocTableLegacy(fname=fname, colschema=(
         'id integer primary key autoincrement',
         'number integer',
     ))

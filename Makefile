@@ -54,9 +54,9 @@ clean_docs:
 TESTS_FOLDER = tests/
 pytest:
 	# tests from tests folder
-	#pytest $(TESTS_FOLDER)/test_dt1_*.py
-	#pytest $(TESTS_FOLDER)/test_dt2_*.py
 	pytest $(TESTS_FOLDER)/test_doctable_*.py
+	pytest $(TESTS_FOLDER)/test_docparser_*.py
+	pytest $(TESTS_FOLDER)/test_legacy_*.py
 
 
 TMP_TEST_FOLDER = tmp_test_deleteme
