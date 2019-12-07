@@ -330,6 +330,10 @@ class DocParser:
         parsed_docs = list()
         for doc in nlp.pipe(map(preprocessfunc, texts_chunk)):
             parsed_docs.append(parsefunc(doc, *addtnl_args))
+            
+        if dt_inst is not None:
+            dt_inst.close_engine()
+            
         return parsed_docs
     
     #################### DISTRIBUTED FUNCTION METHODS #######################
@@ -374,6 +378,9 @@ class DocParser:
         results = list()
         for element in el_chunk:
             results.append(thread_func(element, *thread_args, *static_args))
+            
+        if dt_inst is not None:
+            dt_inst.close_engine()
         
         return results
     
