@@ -24,7 +24,7 @@ def test_distribute_chunks():
     true_parsed = divide_by_two_multi(elements, dividend)
 
     # run distributed parser
-    parsed = dt.DocParser.distribute_chunks(divide_by_two_multi, elements, dividend, n_cores=4)
+    parsed = dt.DocParser.distribute_chunks(divide_by_two_multi, elements, dividend, workers=4)
     assert(all([elt==el for elt,el in zip(true_parsed,parsed)]))
     
     
@@ -41,7 +41,7 @@ def test_distribute_process():
     true_parsed = [divide_by_two(el,dividend) for el in elements]
 
     # run distributed parser
-    parsed = dt.DocParser.distribute_process(divide_by_two, elements, dividend, n_cores=4)
+    parsed = dt.DocParser.distribute_process(divide_by_two, elements, dividend, workers=4)
     assert(all([elt==el for elt,el in zip(true_parsed,parsed)]))
     
 
@@ -67,7 +67,7 @@ def test_distribute_process_store():
     true_parsed_cts = Counter(true_parsed)
 
     # run distributed parser
-    parsed = dt.DocParser.distribute_process(divide_and_insert, elements, dividend, dt_inst=db, n_cores=3)
+    parsed = dt.DocParser.distribute_process(divide_and_insert, elements, dividend, dt_inst=db, workers=3)
     parsed = db.select('result')
     parsed_cts = Counter(parsed)
     
@@ -102,7 +102,7 @@ def test_distribute_parse():
     nlp = spacy.load('en', disable=['ner','tagger'])
     
     print('starting parsing (actually takes a long time)')
-    parsed = dt.DocParser.distribute_parse(texts, nlp, n_cores=2, dt_inst=db, parsefunc=tokenize_and_insert)
+    parsed = dt.DocParser.distribute_parse(texts, nlp, workers=2, dt_inst=db, parsefunc=tokenize_and_insert)
     
     parsed = db.select('result')
     parsed_cts = Counter(map(tuple,parsed))

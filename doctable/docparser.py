@@ -1,5 +1,5 @@
 import re
-from multiprocessing import Pool
+from multiprocessing import Pipe, Process
 import math
 import os
 
@@ -8,6 +8,7 @@ from .parsetree import ParseTree
 class DocParser:
     '''Class that maintains convenient functions for parsing Spacy doc objects.'''
     
+    #CLOSE_SIGNAL = (math.pi + math.e)/3 # random number to indicate close
     re_url = re.compile(r'http\S+', flags=re.MULTILINE)
     re_xml_tag = re.compile('<[^<]+>', flags=re.MULTILINE)
     re_digits = re.compile("\d*[-\./,]*\d+")
@@ -253,7 +254,7 @@ class DocParser:
     #################### DISTRIBUTED PARSING METHODS #######################
     @classmethod
     def distribute_parse(cls, texts, spacynlp, parsefunc=None, preprocessfunc=None, 
-        dt_inst=None, paragraph_sep=None, n_cores=None):
+        dt_inst=None, paragraph_sep=None, workers=None):
         '''Distributes text parsing across multiple processes in chunks.
         Args:
             texts (list): list of raw texts to process
@@ -268,7 +269,7 @@ class DocParser:
                 calls dt_inst.insert() to place in database.
             paragraph_sep (str or None): if defined, will distribute parsing across
                 paragraphs and leave paragraph structure of docs in nested lists.
-            n_cores (int): number of processes to create.
+            workers (int): number of processes to create.
         Returns:
             output of parsing
         '''
@@ -299,7 +300,7 @@ class DocParser:
         # perform actual parsing
         thread_args = (spacynlp, parsefunc, preprocessfunc, dt_inst)
         parsed = cls.distribute_chunks(cls._distribute_parse_thread, texts, 
-                                       *thread_args, n_cores=n_cores)
+                                       *thread_args, workers=workers)
         
         if was_connected:
             dt_inst.open_engine(open_conn=had_conn)
@@ -338,7 +339,7 @@ class DocParser:
     
     #################### DISTRIBUTED FUNCTION METHODS #######################
     @classmethod
-    def distribute_process(cls, thread_func, elements, *thread_args, dt_inst=None, n_cores=None):
+    def distribute_process(cls, thread_func, elements, *thread_args, dt_inst=None, workers=None):
         '''Processes and stores objects into database in parallel.
         Description: This method can be used to read/parse text documents or 
             train large algorithms and store into database.
@@ -348,7 +349,7 @@ class DocParser:
                 insert element(s) into the doctable instance.
             elements (list): elements to distribute processing on.
             dt_inst (doctable instance or None): doctable to insert data into.
-            n_cores (int): number of cores to use. None means all cores.
+            workers (int): number of cores to use. None means all cores.
         '''
         was_connected = dt_inst is not None
         had_conn = False
@@ -358,7 +359,7 @@ class DocParser:
         
         results = cls.distribute_chunks(cls._distribute_store_thread, 
                     elements, thread_func, dt_inst, *thread_args, 
-                    n_cores=n_cores)
+                    workers=workers)
         
         if was_connected:
             dt_inst.open_engine(open_conn=had_conn)
@@ -388,25 +389,25 @@ class DocParser:
     #################### BASE DISTRIBUTE METHODS #######################
     
     @staticmethod
-    def distribute_chunks(chunk_thread_func, elements, *thread_args, n_cores=None):
+    def distribute_chunks_old(chunk_thread_func, elements, *thread_args, workers=None):
         '''Base distribute function. Splits elements into chunks and passes to threads.
         Args:
             chunk_thread_func (func): function to parse each chunk - also passed *thread_args
             elements (list): set of elements to divide into chunks for processing.
             thread_args (args): args to pass to chunk_thread_func
-            n_cores (int): number of cores to use
+            workers (int): number of cores to use
         Returns:
             unchunked parsed elements
         '''
         
         # decide on number of cores
-        if n_cores is None:
-            n_cores = min([os.cpu_count(), len(elements)])
+        if workers is None:
+            workers = min([os.cpu_count(), len(elements)])
         else:
-            n_cores = min([os.cpu_count(), len(elements), n_cores])
+            workers = min([os.cpu_count(), len(elements), workers])
         
         # spin up processes
-        with Pool(processes=n_cores) as p:
+        with Pool(processes=workers) as p:
             
             # break into chunks (depends on num processes)
             chunk_size = math.ceil(len(elements)/p._processes)
@@ -417,6 +418,58 @@ class DocParser:
                       for el in parsed_chunk]
         return parsed
     
+    @classmethod
+    def distribute_chunks(cls, chunk_thread_func, elements, *thread_args, workers=None):
         
+        # decide on number of cores
+        if workers is None:
+            workers = min([os.cpu_count(), len(elements)])
+        else:
+            workers = min([os.cpu_count(), len(elements), workers])
         
+        chunk_size = math.ceil(len(elements)/workers)
+        chunks = [elements[i*chunk_size:(i+1)*chunk_size]
+                        for i in range(workers)]
+        
+        # queue so process can send its result
+        queues = [Pipe(False) for i in range(workers)]
+        # Pipe returns tuple (receive, send)
+        
+        try:
+            pool = [Process(target=cls._distribute_chunks_thread_wrap, 
+                args=(chunk_thread_func, queues[i][1], chunks[i], thread_args)) 
+                for i in range(workers)]
+
+            # init processes
+            for i in range(workers):
+                pool[i].start()
+
+            # get data from queues
+            results = list()
+            for i in range(workers):
+                results.append(queues[i][0].recv())
+                
+            # wait for processes to close
+            for i in range(workers):
+                pool[i].join()
+
+        except:
+            # close all explicitly
+            for i in range(workers):
+                pool[i].terminate()
+
+            raise RuntimeError('There was a problem with the chunk_thread_func.')
+        
+        # close all explicitly
+        for i in range(workers):
+            pool[i].terminate()
+            
+        # unchunk the data
+        results = [r for chunk_results in results for r in chunk_results]
+        
+        return results
+    
+    @staticmethod
+    def _distribute_chunks_thread_wrap(func, pipe, chunk, staticdata):
+        pipe.send(func(chunk, *staticdata))
         
