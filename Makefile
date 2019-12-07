@@ -58,10 +58,8 @@ pytest:
 	pytest $(TESTS_FOLDER)/test_docparser_*.py
 	pytest $(TESTS_FOLDER)/test_legacy_*.py
 
-
 TMP_TEST_FOLDER = tmp_test_deleteme
-test: pytest
-	
+test_examples:
 	# make temporary testing folder and copy files into it
 	-rm -r $(TMP_TEST_FOLDER)
 	mkdir $(TMP_TEST_FOLDER)
@@ -76,6 +74,10 @@ test: pytest
 	
 	# cleanup temp folder
 	rm -r $(TMP_TEST_FOLDER)
+
+test: pytest test_examples
+	
+
 	
 clean_tests:
 	-rm $(EXAMPLES_FOLDER)*.db
