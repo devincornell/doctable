@@ -388,36 +388,6 @@ class DocParser:
 
     #################### BASE DISTRIBUTE METHODS #######################
     
-    @staticmethod
-    def distribute_chunks_old(chunk_thread_func, elements, *thread_args, workers=None):
-        '''Base distribute function. Splits elements into chunks and passes to threads.
-        Args:
-            chunk_thread_func (func): function to parse each chunk - also passed *thread_args
-            elements (list): set of elements to divide into chunks for processing.
-            thread_args (args): args to pass to chunk_thread_func
-            workers (int): number of cores to use
-        Returns:
-            unchunked parsed elements
-        '''
-        
-        # decide on number of cores
-        if workers is None:
-            workers = min([os.cpu_count(), len(elements)])
-        else:
-            workers = min([os.cpu_count(), len(elements), workers])
-        
-        # spin up processes
-        with Pool(processes=workers) as p:
-            
-            # break into chunks (depends on num processes)
-            chunk_size = math.ceil(len(elements)/p._processes)
-            chunks = [(elements[i*chunk_size:(i+1)*chunk_size], *thread_args)
-                        for i in range(p._processes)]
-            # map parse_func and then unchunk
-            parsed = [el for parsed_chunk in p.starmap(chunk_thread_func, chunks) 
-                      for el in parsed_chunk]
-        return parsed
-    
     @classmethod
     def distribute_chunks(cls, chunk_thread_func, elements, *thread_args, workers=None):
         
