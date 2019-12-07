@@ -12,19 +12,34 @@
 <td colspan=2><tt>Class&nbsp;that&nbsp;maintains&nbsp;convenient&nbsp;functions&nbsp;for&nbsp;parsing&nbsp;Spacy&nbsp;doc&nbsp;objects.<br>&nbsp;</tt></td></tr>
 <tr><td>&nbsp;</td>
 <td width="100%">Class methods defined here:<br>
-<dl><dt><a name="DocParser-distribute_parse"><strong>distribute_parse</strong></a>(texts, spacynlp, parsefunc=None, preprocessfunc=None, paragraph_sep=None, n_cores=None, verbose=False)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Will&nbsp;distribute&nbsp;document&nbsp;parsing&nbsp;tasks&nbsp;across&nbsp;multiple&nbsp;processors.<br>
+<dl><dt><a name="DocParser-distribute_parse"><strong>distribute_parse</strong></a>(texts, spacynlp, parsefunc=None, preprocessfunc=None, dt_inst=None, paragraph_sep=None, n_cores=None)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Distributes&nbsp;text&nbsp;parsing&nbsp;across&nbsp;multiple&nbsp;processes&nbsp;in&nbsp;chunks.<br>
 Args:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;texts&nbsp;(list&lt;str&gt;):&nbsp;list&nbsp;of&nbsp;document&nbsp;strings&nbsp;to&nbsp;parse<br>
-&nbsp;&nbsp;&nbsp;&nbsp;spacynlp&nbsp;(spacy&nbsp;Lanugage&nbsp;model):&nbsp;i.e.&nbsp;nlp&nbsp;=&nbsp;spacy.load('en')<br>
-&nbsp;&nbsp;&nbsp;&nbsp;parsefunc&nbsp;(func):&nbsp;function&nbsp;accepting&nbsp;a&nbsp;single&nbsp;spacy&nbsp;doc&nbsp;object<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;as&nbsp;an&nbsp;argument,&nbsp;and&nbsp;ouputting&nbsp;the&nbsp;desired&nbsp;parsed&nbsp;document.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Defaults&nbsp;to&nbsp;DocParser.<a href="#doctable.DocParser-tokenize_doc">tokenize_doc</a>()&nbsp;with&nbsp;defaults<br>
-&nbsp;&nbsp;&nbsp;&nbsp;preprocessfunc&nbsp;(func):&nbsp;function&nbsp;used&nbsp;to&nbsp;process&nbsp;text&nbsp;before&nbsp;parsing<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with&nbsp;spacy.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;paragraph_sep&nbsp;(str&nbsp;or&nbsp;None):&nbsp;used&nbsp;to&nbsp;separate&nbsp;documents&nbsp;into&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;paragraphs&nbsp;before&nbsp;parsing&nbsp;with&nbsp;spacy&nbsp;if&nbsp;needed.&nbsp;This&nbsp;will&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;distribute&nbsp;paragraph&nbsp;parsing&nbsp;across&nbsp;processes&nbsp;which&nbsp;is&nbsp;more<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;balanced&nbsp;than&nbsp;distributing&nbsp;at&nbsp;document&nbsp;level.</tt></dd></dl>
+&nbsp;&nbsp;&nbsp;&nbsp;texts&nbsp;(list):&nbsp;list&nbsp;of&nbsp;raw&nbsp;texts&nbsp;to&nbsp;process<br>
+&nbsp;&nbsp;&nbsp;&nbsp;spacynlp&nbsp;(spacy&nbsp;nlp&nbsp;object):&nbsp;for&nbsp;applying&nbsp;.pipe()&nbsp;to&nbsp;doc&nbsp;chunks<br>
+&nbsp;&nbsp;&nbsp;&nbsp;parsefunc&nbsp;(func):&nbsp;convert&nbsp;spacy&nbsp;doc&nbsp;object&nbsp;to&nbsp;storage&nbsp;represenation<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;By&nbsp;defaut&nbsp;uses&nbsp;DocParser.<a href="#doctable.DocParser-tokenize_doc">tokenize_doc</a>().<br>
+&nbsp;&nbsp;&nbsp;&nbsp;preprocessfunc&nbsp;(func):&nbsp;process&nbsp;text&nbsp;before&nbsp;parsing.&nbsp;Uses&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DocParser.<a href="#doctable.DocParser-preprocess">preprocess</a>()&nbsp;by&nbsp;default.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dt_inst&nbsp;(doctable&nbsp;instance):&nbsp;if&nbsp;included,&nbsp;will&nbsp;pass&nbsp;to&nbsp;parsefunc&nbsp;as<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second&nbsp;argument.&nbsp;Usually&nbsp;to&nbsp;do&nbsp;this,&nbsp;you'll&nbsp;create&nbsp;a&nbsp;function<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;which&nbsp;calls&nbsp;some&nbsp;overloaded&nbsp;version&nbsp;of&nbsp;.<a href="#doctable.DocParser-tokenize_doc">tokenize_doc</a>()&nbsp;and&nbsp;then<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;calls&nbsp;dt_inst.insert()&nbsp;to&nbsp;place&nbsp;in&nbsp;database.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;paragraph_sep&nbsp;(str&nbsp;or&nbsp;None):&nbsp;if&nbsp;defined,&nbsp;will&nbsp;distribute&nbsp;parsing&nbsp;across<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;paragraphs&nbsp;and&nbsp;leave&nbsp;paragraph&nbsp;structure&nbsp;of&nbsp;docs&nbsp;in&nbsp;nested&nbsp;lists.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;n_cores&nbsp;(int):&nbsp;number&nbsp;of&nbsp;processes&nbsp;to&nbsp;create.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;of&nbsp;parsing</tt></dd></dl>
+
+<dl><dt><a name="DocParser-distribute_process"><strong>distribute_process</strong></a>(thread_func, elements, *thread_args, dt_inst=None, n_cores=None)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Processes&nbsp;and&nbsp;stores&nbsp;objects&nbsp;into&nbsp;database&nbsp;in&nbsp;parallel.<br>
+Description:&nbsp;This&nbsp;method&nbsp;can&nbsp;be&nbsp;used&nbsp;to&nbsp;read/parse&nbsp;text&nbsp;documents&nbsp;or&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;train&nbsp;large&nbsp;algorithms&nbsp;and&nbsp;store&nbsp;into&nbsp;database.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;thread_func&nbsp;(func):&nbsp;accepts&nbsp;an&nbsp;element&nbsp;(and&nbsp;a&nbsp;doctable&nbsp;instance<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;dt_inst&nbsp;is&nbsp;not&nbsp;None.&nbsp;Parses&nbsp;a&nbsp;single&nbsp;element,&nbsp;might&nbsp;also<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;insert&nbsp;element(s)&nbsp;into&nbsp;the&nbsp;doctable&nbsp;instance.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;elements&nbsp;(list):&nbsp;elements&nbsp;to&nbsp;distribute&nbsp;processing&nbsp;on.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dt_inst&nbsp;(doctable&nbsp;instance&nbsp;or&nbsp;None):&nbsp;doctable&nbsp;to&nbsp;insert&nbsp;data&nbsp;into.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;n_cores&nbsp;(int):&nbsp;number&nbsp;of&nbsp;cores&nbsp;to&nbsp;use.&nbsp;None&nbsp;means&nbsp;all&nbsp;cores.</tt></dd></dl>
 
 <dl><dt><a name="DocParser-get_parsetrees"><strong>get_parsetrees</strong></a>(doc, parse_tok_func=None, info_func_map={}, merge_ents=False, spacy_ngram_matcher=None, merge_noun_chunks=False)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Extracts&nbsp;parsetree&nbsp;from&nbsp;spacy&nbsp;doc&nbsp;objects.<br>
 Args:<br>
@@ -64,6 +79,15 @@ Args:<br>
 <hr>
 Static methods defined here:<br>
 <dl><dt><a name="DocParser-apply_ngram_merges"><strong>apply_ngram_merges</strong></a>(doc, merge_ents=True, spacy_ngram_matcher=None, merge_noun_chunks=False)</dt><dd><tt>Apply&nbsp;merges&nbsp;to&nbsp;doc&nbsp;object&nbsp;including&nbsp;entities,&nbsp;normal&nbsp;ngrams,&nbsp;and&nbsp;noun&nbsp;chunks.</tt></dd></dl>
+
+<dl><dt><a name="DocParser-distribute_chunks"><strong>distribute_chunks</strong></a>(chunk_thread_func, elements, *thread_args, n_cores=None)</dt><dd><tt>Base&nbsp;distribute&nbsp;function.&nbsp;Splits&nbsp;elements&nbsp;into&nbsp;chunks&nbsp;and&nbsp;passes&nbsp;to&nbsp;threads.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;chunk_thread_func&nbsp;(func):&nbsp;function&nbsp;to&nbsp;parse&nbsp;each&nbsp;chunk&nbsp;-&nbsp;also&nbsp;passed&nbsp;*thread_args<br>
+&nbsp;&nbsp;&nbsp;&nbsp;elements&nbsp;(list):&nbsp;set&nbsp;of&nbsp;elements&nbsp;to&nbsp;divide&nbsp;into&nbsp;chunks&nbsp;for&nbsp;processing.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;thread_args&nbsp;(args):&nbsp;args&nbsp;to&nbsp;pass&nbsp;to&nbsp;chunk_thread_func<br>
+&nbsp;&nbsp;&nbsp;&nbsp;n_cores&nbsp;(int):&nbsp;number&nbsp;of&nbsp;cores&nbsp;to&nbsp;use<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;unchunked&nbsp;parsed&nbsp;elements</tt></dd></dl>
 
 <dl><dt><a name="DocParser-merge_ngrams"><strong>merge_ngrams</strong></a>(toks, ngrams, ngram_sep=' ')</dt><dd><tt>Merges&nbsp;specified&nbsp;consecutive&nbsp;tokens&nbsp;into&nbsp;single&nbsp;tokens.</tt></dd></dl>
 

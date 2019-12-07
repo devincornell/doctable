@@ -59,6 +59,8 @@ Notes:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Primarily&nbsp;to&nbsp;be&nbsp;used&nbsp;if&nbsp;persistent_conn&nbsp;flag&nbsp;was&nbsp;set<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;true&nbsp;in&nbsp;constructor,&nbsp;but&nbsp;user&nbsp;wants&nbsp;to&nbsp;close.</tt></dd></dl>
 
+<dl><dt><a name="DocTable-close_engine"><strong>close_engine</strong></a>(self)</dt></dl>
+
 <dl><dt><a name="DocTable-col"><strong>col</strong></a>(self, name)</dt><dd><tt>Accesses&nbsp;a&nbsp;column&nbsp;object.&nbsp;Equivalent&nbsp;to&nbsp;table.c[name].<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;column&nbsp;to&nbsp;access.&nbsp;Applied&nbsp;as&nbsp;subscript&nbsp;to&nbsp;<br>
@@ -103,6 +105,8 @@ Returns:<br>
 Notes:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Primarily&nbsp;to&nbsp;be&nbsp;used&nbsp;if&nbsp;persistent_conn&nbsp;flag&nbsp;was&nbsp;set<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;false&nbsp;in&nbsp;constructor,&nbsp;but&nbsp;user&nbsp;wants&nbsp;to&nbsp;create.</tt></dd></dl>
+
+<dl><dt><a name="DocTable-open_engine"><strong>open_engine</strong></a>(self, open_conn=True)</dt><dd><tt>Open&nbsp;engine&nbsp;manually&nbsp;(esp&nbsp;when&nbsp;concurrency&nbsp;applications).</tt></dd></dl>
 
 <dl><dt><a name="DocTable-select"><strong>select</strong></a>(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, offset=None, **kwargs)</dt><dd><tt>Perform&nbsp;select&nbsp;query,&nbsp;yield&nbsp;result&nbsp;for&nbsp;each&nbsp;row.<br>
 &nbsp;<br>
