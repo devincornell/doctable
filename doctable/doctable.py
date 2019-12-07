@@ -551,6 +551,11 @@ class DocTable:
         return result
     
     def _execute(self, query, conn=None):
+        if self._engine is None:
+            raise AttributeError('DocTable does not have an engine '
+                'connection. Use .open_engine() to make new engine '
+                'connection.')
+        
         # takes raw query object
         if conn is not None:
             r = conn.execute(query)
