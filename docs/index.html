@@ -76,19 +76,20 @@
 
     <div class="row">
       <div class="col-md-8 mb-5">
-          <code>pip install doctable</code>
-        <h2>Here's the thing.</h2>
+        <pre><code>pip install doctable</code></pre>
+        <!--<h2>Here's the thing.</h2>-->
+        
+        <p>Every text analysis project is different, but they almost always share the first few steps: preprocessing, parsing/tokenization, and storage into a format that can be used for analysis. doctable is designed to facilitate these steps by providing a series of small decisions which are common to most applications. The package consists primarily of two Python classes: <b>DocTable</b> and <b>DocParser</b>. We've created some demonstrations so you can see how we use it:</p>
         <hr>
-        <p>Every text analysis project is different, but they almost always share the first few steps: preprocessing, parsing/tokenization, and storage into a format that can be used for analysis. doctable is designed to facilitate these steps by providing a series of small decisions which are common to most applications. The package consists primarily of <b>two Python classes:</b></p>
           
-        <h3>DocTable</h3>
+        <h3>US National Security Strategy Documents.</h3>
         <hr>
-        <p>This class provides a Python object-oriented database interface so you can create and manipulate new document databases.</p>
-        <a class="btn btn-primary btn-lg" href="examples/doctable_basics.html">DocTable Overview &raquo;</a><br/><br/><br/>
+        <p>This demonstration shows a typical workflow using DocTable and DocParser. We use DocParser to download, tokenize, and create parsetrees for 17 national security strategy documents. We take advantage of DocParser to create a parallelized workflow for parsing, and a custom DocTable class for efficient storage.</p>
+        <a class="btn btn-primary btn-lg" href="examples/ex_nss.html">See NSS Example &raquo;</a><br/><br/><br/>
           
-        <h3>DocParser</h3>
+        <h3>Gutenberg Texts</h3>
         <hr>
-        <p>This class provides static methods for tokenizing and creating parsetrees using the <a href="https://spacy.io/">SpaCy text analysis package</a>. It includes methods to assist with largely parallel text preprocessing and processing for storage into a DocTable database.</p>
+        <p>Here we show how to parse a large corpus of more than 60 thousand books.</p>
         <a class="btn btn-primary btn-lg" href="examples/docparser_basics.html">DocParser Overview &raquo;</a>
         
       </div>
@@ -109,8 +110,8 @@
         <div class="card h-100">
           <!--<img class="card-img-top" src="http://placehold.it/300x200" alt="">-->
           <div class="card-body">
-            <h4 class="card-title">DocTable Examples</h4>
-            <p class="card-text">Core python class for interfacing with databases.</p>
+            <h4 class="card-title">DocTable Class Examples</h4>
+            <p class="card-text">Class for creating and manipulating document databases.</p>
             <!--<h5>Examples:</h5>-->
 			<ul>
                 <li><a href="examples/doctable_basics.html">Overview</a></li>
@@ -132,8 +133,8 @@
         <div class="card h-100">
           <!--<img class="card-img-top" src="http://placehold.it/300x200" alt="">-->
           <div class="card-body">
-            <h4 class="card-title">DocParser Examples</h4>
-            <p class="card-text">Tokenize and extract parsetrees for database storage.</p>
+            <h4 class="card-title">DocParser Class Examples</h4>
+            <p class="card-text">static methods for tokenizing and creating parsetrees using the <a href="https://spacy.io/">SpaCy text analysis package</a>. It includes methods to assist with largely parallel text preprocessing and processing for storage into a DocTable database.</p>
 			<ul>
                 <li><a href="examples/docparser_basics.html">Overview</a></li>
                 <li><a href="examples/docparser_tokenizing.html">Tokenize</a></li>
