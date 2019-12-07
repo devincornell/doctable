@@ -441,5 +441,12 @@ class DocParser:
     
     @staticmethod
     def _distribute_chunks_thread_wrap(func, pipe, chunk, staticdata):
-        pipe.send(func(chunk, *staticdata))
+        res = func(chunk, *staticdata)
+        if isinstance(res, list) or isinstance(res, tuple):
+            pipe.send(res)
+        else:
+            pipe.send([res]*len(chunk))
+        
+def is_sequence(o):
+    return 
         
