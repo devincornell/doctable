@@ -4,7 +4,7 @@ from setuptools import setup
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-version = '0.5'
+version = '0.5.1'
 setup(name='doctable',
     version='{}'.format(version),
     description='Simple database interface for text analysis applications.',
@@ -18,6 +18,6 @@ setup(name='doctable',
     requires=['sqlalchemy', 'pickle', 'pandas', 'sqlite3', 'numpy'],
     zip_safe=False,
     download_url='https://github.com/devincornell/doctable/archive/v{}.tar.gz'.format(version)
-     )
+)
 
 
