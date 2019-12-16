@@ -8,7 +8,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>DocTable Python Package</title>
+  <title>doctable Python Package</title>
 
   <!-- Bootstrap core CSS -->
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -23,7 +23,7 @@
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="container">
-      <a class="navbar-brand" href="#">doctable Python Package</a>
+      <a class="navbar-brand" href="#"><span style='font-family: "Lucida Console", Monaco, monospace;'>doctable</span> Python Package</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -64,7 +64,7 @@
       <div class="row h-100 align-items-center">
         <div class="col-lg-12">
           <h1 class="display-4 text-white mt-5 mb-2">Databases for text analysis</h1>
-          <p class="lead mb-5 text-white-50">doctable is a python package for parsing, storing, and accessing text documents and models for large scale analysis.</p>
+          <p class="lead mb-5 text-white-50"><span style='font-family: "Lucida Console", Monaco, monospace;'>doctable</span> is a python package for parsing, storing, and accessing text documents and models in databases.</p>
 			<img src="diagram.svg" style="width:80%"/>
         </div>
       </div>
@@ -82,12 +82,12 @@
         <p>Every text analysis project is different, but they almost always share the first few steps: preprocessing, parsing/tokenization, and storage into a format that can be used for analysis. doctable is designed to facilitate these steps by providing a series of small decisions which are common to most applications. The package consists primarily of two Python classes: <b>DocTable</b> and <b>DocParser</b>. We've created some demonstrations so you can see how we use it:</p>
         <hr>
           
-        <h3>US National Security Strategy Documents.</h3>
+        <h3>Example: US National Security Strategy Documents</h3>
         <hr>
         <p>This demonstration shows a typical workflow using DocTable and DocParser. We use DocParser to download, tokenize, and create parsetrees for 17 national security strategy documents. We take advantage of DocParser to create a parallelized workflow for parsing, and a custom DocTable class for efficient storage.</p>
         <a class="btn btn-primary btn-lg" href="examples/ex_nss.html">See NSS Example &raquo;</a><br/><br/><br/>
           
-        <h3>Gutenberg Texts</h3>
+        <h3>Example: Gutenberg Texts</h3>
         <hr>
         <p>Here we show how to parse a large corpus of more than 60 thousand books.</p>
         <a class="btn btn-primary btn-lg" href="examples/docparser_basics.html">DocParser Overview &raquo;</a>
