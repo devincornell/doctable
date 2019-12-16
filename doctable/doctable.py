@@ -169,7 +169,7 @@ class DocTable:
                 columns.append(col)
             else:
                 if colinfo[0] == 'idcol': #shortcut for typical id integer primary key etc
-                    col = sa.Column(colinfo[1], Integer, primary_key=True, autoincrement=True)
+                    col = sa.Column(colinfo[1], sa.Integer, primary_key=True, autoincrement=True)
                     columns.append(col)
                 elif colinfo[0] == 'index':
                     # ('index', 'ind0', ('name','address'),dict(unique=True)),
@@ -215,45 +215,36 @@ class DocTable:
             col.count = func.count(col)
             col.sum = func.sum(col)
             
-    def clean_picklefiles(self, col, ignore_missing=False, ignore_extraneous=False):
+    def clean_picklefiles(self, col, check_missing=True, delete_extraneous=True):
         '''Make sure there is a 1-1 mapping between files listed in db and files in folder.
         Args:
             col (str or Column object): column to clean picklefiles for.
             ignore_missing (bool): if False, throw an error when a db file doesn't exist.
         '''
+        col = self.col(col)
+        if not isinstance(self.col(col).type, PickleFileType):
+            raise ValueError('Only call clean_picklefiles for a "picklefile" column type.')
+        if not (check_missing or delete_extraneous):
+            raise ValueError('Either check_missing or delete_extraneous should be set to true, '
+                             'or else this method does nothing.')
         
-        if isinstance(col,str):
-            col = self.col(col)#self.col(col)
-        if not isinstance(col.type, PickleFileType):
-            raise('Only call clean_picklefiles for a "picklefile" column type.')
+        # get column filenames
+        db = DocTable(fname=self._fname)
+        db_fnames = {col.type.fpath+fn for fn in db.select(col.name)}
         
-        # enable raw_fname_mode and select raw column values
-        print('typer', type(col.type), hex(id(col.type)))
-        col.type.set_raw_fname_mode(True)
-        db_fnames = set(self.select(col))
-        col.type.set_raw_fname_mode(False)
-        print('dbfnames:', db_fnames)
-        exit()
-        
+        # get existing files from filesystem
         exist_fnames = set(glob(col.type.fpath+'*.pic'))
         intersect = db_fnames & exist_fnames
-        print(db_fnames)
-        print(exist_fnames)
-        print(intersect)
-        print(col.type.fpath+'*.pic')
-        
-        col.type.raw_fname_mode
-        
         
         # throw error if filesystem is missing some files
         miss_fnames = db_fnames-intersect
-        if not ignore_missing and len(miss_fnames) > 0:
+        if check_missing and len(miss_fnames) > 0:
             raise FileNotFoundError('These files were not found while cleaning: {}'
                 ''.format(miss_fnames))
         
         # remove files not listed in db
         extraneous_fnames = exist_fnames - intersect
-        if not ignore_extraneous and len(extraneous_fnames) > 0:
+        if delete_extraneous and len(extraneous_fnames) > 0:
             for rm_fname in extraneous_fnames:
                 os.remove(rm_fname)
                 
@@ -275,6 +266,8 @@ class DocTable:
             Name of column to access. Applied as subscript to 
                 sqlalchemy columns object.
         '''
+        if isinstance(name, sa.Column):
+            return name
         return self._table.c[name]
         
     @property

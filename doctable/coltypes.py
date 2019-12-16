@@ -8,15 +8,11 @@ import os
 from .parsetree import ParseTree
 
 
-class PickleFileType(types.UserDefinedType):
+class PickleFileType(types.TypeDecorator):
+    impl = types.String
     
-    # activate to return raw fname instead of file data
-    _raw_fname_mode = False
-    def set_raw_fname_mode(self, val=True):
-        self._raw_fname_mode = val
-    
-    def __init__(self, fpath=None):
-        print(hex(id(self)))
+    def __init__(self, *arg, fpath=None, **kw):
+        '''Define init to store fpath.'''
         if fpath is None:
             raise Exception('fpath must be defined when '
                 'initializing PickleFileType.')
@@ -26,40 +22,27 @@ class PickleFileType(types.UserDefinedType):
         if not os.path.exists(fpath):
             os.mkdir(fpath)
         
-    def get_col_spec(self, **kw):
-        return "VARCHAR"
-    
-    def bind_processor(self, dialect):
-        self_fpath = self.fpath
-        def process_bind_param(value):
-            if value is not None:
-                while True:
-                    fname = self_fpath + '/{}.pic'.format(randrange(10**11))
-                    if not os.path.exists(fname):
-                        break # after this, fname doesn't exist
-                with open(fname, 'wb') as f:
-                    cPickle.dump(value,f)
-                return os.path.basename(fname)
-            else:
-                return None
-        return process_bind_param
-    
+        types.TypeDecorator.__init__(self, *arg, **kw)
 
-    def result_processor(self, dialect, coltype):
-        self_fpath = self.fpath
-        self_raw_fname_mode = self._raw_fname_mode
-        print('fname isnt none', self_raw_fname_mode, hex(id(self)))
-        def process_result_value(fname):
-            if fname is not None:
-                if self_raw_fname_mode:
-                    print('raw file mode')
-                    return fname
-                with open(self_fpath+'/'+fname, 'rb') as f:
-                    obj = cPickle.load(f)
-                return obj
-            else:
-                return None
-        return process_result_value
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            while True:
+                fname = os.path.join(self.fpath, '{}.pic'.format(randrange(10**11)))
+                if not os.path.exists(fname):
+                    break # after this, fname doesn't exist
+            with open(fname, 'wb') as f:
+                cPickle.dump(value,f)
+            return os.path.basename(fname)
+        else:
+            return None
+
+    def process_result_value(self, fname, dialect):
+        if fname is not None:
+            with open(os.path.join(self.fpath, fname), 'rb') as f:
+                obj = cPickle.load(f)
+            return obj
+        else:
+            return None
 
 
 
