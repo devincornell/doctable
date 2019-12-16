@@ -10,7 +10,7 @@ from .parsetree import ParseTree
 
 class PickleFileType(types.TypeDecorator):
     impl = types.String
-    
+    fname_num_size = 10**12
     def __init__(self, *arg, fpath=None, **kw):
         '''Define init to store fpath.'''
         if fpath is None:
@@ -27,7 +27,7 @@ class PickleFileType(types.TypeDecorator):
     def process_bind_param(self, value, dialect):
         if value is not None:
             while True:
-                fname = os.path.join(self.fpath, '{}.pic'.format(randrange(10**11)))
+                fname = os.path.join(self.fpath, '{}.pic'.format(randrange(self.fname_num_size)))
                 if not os.path.exists(fname):
                     break # after this, fname doesn't exist
             with open(fname, 'wb') as f:

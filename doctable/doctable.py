@@ -236,17 +236,17 @@ class DocTable:
         exist_fnames = set(glob(col.type.fpath+'*.pic'))
         intersect = db_fnames & exist_fnames
         
-        # throw error if filesystem is missing some files
-        miss_fnames = db_fnames-intersect
-        if check_missing and len(miss_fnames) > 0:
-            raise FileNotFoundError('These files were not found while cleaning: {}'
-                ''.format(miss_fnames))
-        
         # remove files not listed in db
         extraneous_fnames = exist_fnames - intersect
         if delete_extraneous and len(extraneous_fnames) > 0:
             for rm_fname in extraneous_fnames:
                 os.remove(rm_fname)
+        
+        # throw error if filesystem is missing some files
+        miss_fnames = db_fnames-intersect
+        if check_missing and len(miss_fnames) > 0:
+            raise FileNotFoundError('These files were not found while cleaning: {}'
+                ''.format(miss_fnames))
                 
     
     #################### Convenience Methods ###################
