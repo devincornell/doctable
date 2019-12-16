@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>ex_nss</title>
+<title>doctable_picklefile</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13074,14 +13074,6 @@ div#notebook {
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
 
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="doctable-Demo:-US-National-Security-Strategy-Documents">doctable Demo: US National Security Strategy Documents<a class="anchor-link" href="#doctable-Demo:-US-National-Security-Strategy-Documents">&#182;</a></h1><p>This example shows a full example of a doctable workflow designed to parse texts end-to-end, using the NSS documents for demonstation.</p>
-
-</div>
-</div>
-</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
@@ -13090,125 +13082,68 @@ div#notebook {
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">doctable</span> <span class="k">as</span> <span class="nn">dt</span>
-<span class="kn">import</span> <span class="nn">spacy</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
-<span class="kn">import</span> <span class="nn">urllib.request</span> <span class="c1"># used for downloading nss docs</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Intro-to-Dataset">Intro to Dataset<a class="anchor-link" href="#Intro-to-Dataset">&#182;</a></h2><p>This dataset is the plain text version of the US National Security Strategy documents. During the parsing process, all plain text files will be downloaded from my <a href="https://github.com/devincornell/nssdocs">github project hosting the nss docs</a>. I compiled the metadata you see below from <a href="https://history.defense.gov/Historical-Sources/National-Security-Strategy/">a page hosted by the historical dept of the secretary's office</a>. In short, each US President must release at least one NSS per term, with some (namely Clinton) producing more than one per term.</p>
-<p>In this example, I'll show how to create a database for document + metadata storage using the <code>DocTable</code> class, and a parser class using <code>DocParser</code>. We will store the metadata you see below in addition to the formatted document text.</p>
-
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">nss_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1993</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;H.W. Bush&#39;</span><span class="p">},</span> 
-            <span class="mi">2002</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;W. Bush&#39;</span><span class="p">},</span> 
-            <span class="mi">2015</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Obama&#39;</span><span class="p">},</span> 
-            <span class="mi">1994</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span> 
-            <span class="mi">1990</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;H.W. Bush&#39;</span><span class="p">},</span> 
-            <span class="mi">1991</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;H.W. Bush&#39;</span><span class="p">},</span> 
-            <span class="mi">2006</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;W. Bush&#39;</span><span class="p">},</span> 
-            <span class="mi">1997</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span> 
-            <span class="mi">1995</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span> 
-            <span class="mi">1987</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Reagan&#39;</span><span class="p">},</span> 
-            <span class="mi">1988</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Reagan&#39;</span><span class="p">},</span> 
-            <span class="mi">2017</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Trump&#39;</span><span class="p">},</span> 
-            <span class="mi">1996</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span> 
-            <span class="mi">2010</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Obama&#39;</span><span class="p">},</span> 
-            <span class="mi">1999</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span> 
-            <span class="mi">1998</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span> 
-            <span class="mi">2000</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">}</span>
-<span class="p">}</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;tst3.db&#39;</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),(</span><span class="s1">&#39;picklefile&#39;</span><span class="p">,</span> <span class="s1">&#39;pic&#39;</span><span class="p">)],</span> <span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span>
+<span class="n">dbchecker</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span> <span class="c1"># schema is inferred from db file</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Create-a-DocTable-based-Class">Create a DocTable-based Class<a class="anchor-link" href="#Create-a-DocTable-based-Class">&#182;</a></h2><p>This class inherits from DocTable and will typically store schema and other static inforamtion about the database. This is the most common way to work with DocTable. You can see we keep two class member variables to store the database table name and the schema. See the <a href="examples/doctable_schema.html">schema guide</a> for more schema examples.</p>
-<p>We also create a <code>.insert_nssdoc()</code> method which wraps the <code>DocTable.insert()</code> method to make insertion easier by counting paragraphs, sentences, and tokens to insert. A <code>.print_doctable()</code> static method is created so we can print the contents of a NSSDocs database later.</p>
-
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">NSSDocs</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
-    <span class="n">tabname</span> <span class="o">=</span> <span class="s1">&#39;nssdocs&#39;</span>
-    <span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
-        <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;president&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;party&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;check_constraint&#39;</span><span class="p">,</span> <span class="s1">&#39;party in (&quot;R&quot;,&quot;D&quot;)&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;num_pars&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;num_sents&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;num_toks&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;pickle&#39;</span><span class="p">,</span><span class="s1">&#39;par_sents&#39;</span><span class="p">),</span> <span class="c1"># nested tokens within sentences within paragraphs</span>
-        <span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;ind_yr&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>        
-    <span class="p">)</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tabname</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        
-    <span class="k">def</span> <span class="nf">insert_nssdoc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">par_sents</span><span class="p">,</span> <span class="n">prez</span><span class="p">,</span> <span class="n">party</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span>
-            <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="n">year</span><span class="p">,</span>
-            <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="n">prez</span><span class="p">,</span>
-            <span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="n">party</span><span class="p">,</span>
-            <span class="s1">&#39;num_pars&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">par_sents</span><span class="p">),</span>
-            <span class="s1">&#39;num_sents&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">([</span><span class="n">s</span> <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">par_sents</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">par</span><span class="p">]),</span>
-            <span class="s1">&#39;num_toks&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">([</span><span class="n">t</span> <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">par_sents</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">par</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]),</span>
-            <span class="s1">&#39;par_sents&#39;</span><span class="p">:</span> <span class="n">par_sents</span><span class="p">,</span>
-        <span class="p">},</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">print_doctable</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Simple method for printing contents of a doctable.&#39;&#39;&#39;</span>
-        <span class="n">db</span> <span class="o">=</span> <span class="n">NSSDocs</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">43</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;pic&#39;</span><span class="p">:</span><span class="n">a</span><span class="p">})</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[3]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;sqlalchemy.engine.result.ResultProxy at 0x7f16caa4d438&gt;</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>We can then create a connection to a database by instantiating. Since the fname parameter was not provided, this doctable exists only in memory using sqlite. Our other examples will use files, but instantiating in memory first is a good way to check that the schema is valid. We can check the sqlite table schema using the <code>.schemainfo</code> property. You can see that the 'pickle' datatype we chose above is represented as a BLOB column. This is because DocTable, using SQLAlchemy core, creates an interface on top of sqlite to handle the data conversion.</p>
+
+</div>
 
 </div>
 </div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">NSSDocs</span><span class="p">()</span>
-<span class="n">db</span><span class="o">.</span><span class="n">schemainfo</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span> <span class="c1"># regular select using the picklefile datatype</span>
 </pre></div>
 
     </div>
@@ -13227,54 +13162,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[{&#39;name&#39;: &#39;id&#39;,
-  &#39;type&#39;: INTEGER(),
-  &#39;nullable&#39;: False,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 1},
- {&#39;name&#39;: &#39;year&#39;,
-  &#39;type&#39;: INTEGER(),
-  &#39;nullable&#39;: False,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 0},
- {&#39;name&#39;: &#39;president&#39;,
-  &#39;type&#39;: VARCHAR(),
-  &#39;nullable&#39;: True,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 0},
- {&#39;name&#39;: &#39;party&#39;,
-  &#39;type&#39;: VARCHAR(),
-  &#39;nullable&#39;: True,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 0},
- {&#39;name&#39;: &#39;num_pars&#39;,
-  &#39;type&#39;: INTEGER(),
-  &#39;nullable&#39;: True,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 0},
- {&#39;name&#39;: &#39;num_sents&#39;,
-  &#39;type&#39;: INTEGER(),
-  &#39;nullable&#39;: True,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 0},
- {&#39;name&#39;: &#39;num_toks&#39;,
-  &#39;type&#39;: INTEGER(),
-  &#39;nullable&#39;: True,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 0},
- {&#39;name&#39;: &#39;par_sents&#39;,
-  &#39;type&#39;: BLOB(),
-  &#39;nullable&#39;: True,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 0}]</pre>
+<pre>[(1, (1, 2, 43, 4, 5)), (2, (1, 2, 43, 4, 5))]</pre>
 </div>
 
 </div>
@@ -13282,126 +13170,65 @@ div#notebook {
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Create-a-Parser-Class">Create a Parser Class<a class="anchor-link" href="#Create-a-Parser-Class">&#182;</a></h2><p>Now we create a parser class NSSParser which inherits from DocParser. This class will handle parsing the text data and inserting it into the DocTable. This is the most common way to use the DocParser class; it allows our NSSParser to have access to the flexible functions. You can see more of these methods in the <a href="ref/doctable.DocParser.html">DocParser reference</a> or the <a href="examples/docparser_basics.html">overview examples</a>.</p>
-<p>The <code>parse_nss_docs()</code> method we created here shows the use of the <code>DocParser.distribute_chunks()</code> method which can take an input sequence, in our case a list of years as integers, and break it up into chunks to send to a user-provided function, in this case our <code>.parse_nss_chunk()</code>. This function handles a batch of years and for each year will download the texts (from my <a href="https://github.com/devincornell/nssdocs">nssdocs github repo</a>), split them into paragraphs, parse them using spacy, and tokenize or convert to parsetrees using the <code>DocParser.tokenize_doc()</code> and <code>DocParser.get_parsetree()</code> methods respectively. Note that we can see the <code>DocParser.preprocess()</code> method used for preprocessing and the <code>DocParser.use_tok()</code> and <code>DocParser.parse_tok()</code> methods, wrapped in lambda functions, passed to <code>DocParser.tokenize_doc()</code> method for extra control over the parsing.</p>
-
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">NSSParser</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;&#39;&#39;&#39;</span>
-    <span class="n">years_default</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1987</span><span class="p">,</span> <span class="mi">1988</span><span class="p">,</span> <span class="mi">1990</span><span class="p">,</span> <span class="mi">1991</span><span class="p">,</span> <span class="mi">1993</span><span class="p">,</span> <span class="mi">1994</span><span class="p">,</span> <span class="mi">1995</span><span class="p">,</span> 
-                     <span class="mi">1996</span><span class="p">,</span> <span class="mi">1997</span><span class="p">,</span> <span class="mi">1998</span><span class="p">,</span> <span class="mi">1999</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">2002</span><span class="p">,</span> <span class="mi">2006</span><span class="p">,</span> 
-                     <span class="mi">2010</span><span class="p">,</span> <span class="mi">2015</span><span class="p">,</span> <span class="mi">2017</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbfname</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dbfname</span> <span class="o">=</span> <span class="n">dbfname</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
-        
-    <span class="k">def</span> <span class="nf">parse_nss_docs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">years</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_parsetree</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Parse and store nss docs into a doctable.</span>
-<span class="sd">        Args:</span>
-<span class="sd">            years (list): years to request from the nss corpus</span>
-<span class="sd">            dbfname (str): fname for DocTable to initialize in each process.</span>
-<span class="sd">            as_parsetree (bool): store parsetrees (True) or tokens (False)</span>
-<span class="sd">            workers (int or None): number of processes to create for parsing.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">years</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">years</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">years_default</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">distribute_chunks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parse_nss_chunk</span><span class="p">,</span> <span class="n">years</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbfname</span><span class="p">,</span> 
-                               <span class="n">as_parsetree</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">)</span>
-    
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">parse_nss_chunk</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">years</span><span class="p">,</span> <span class="n">nlp</span><span class="p">,</span> <span class="n">dbfname</span><span class="p">,</span> <span class="n">as_parsetree</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Runs in separate process for each chunk of nss docs.</span>
-<span class="sd">        Description: each </span>
-<span class="sd">        Args:</span>
-<span class="sd">            years (list&lt;int&gt;): years of nss to download and parse</span>
-<span class="sd">            nlp (spacy parser object): process documents using nlp.pipe()</span>
-<span class="sd">            dbfname (str): filename of NSSDocs database to open</span>
-<span class="sd">            as_parsetree (bool): parse into parsetree or just tokens.</span>
-<span class="sd">                storing parsetrees is much more (~6x) expensive than</span>
-<span class="sd">                just storing tokens.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        
-        <span class="c1"># create a new database connection</span>
-        <span class="n">db</span> <span class="o">=</span> <span class="n">NSSDocs</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">dbfname</span><span class="p">)</span>
-        
-        <span class="c1"># download, preprocess, and break texts into paragraphs</span>
-        <span class="n">preprocess</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">text</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">replace_xml</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="n">texts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">preprocess</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">download_nss</span><span class="p">,</span> <span class="n">years</span><span class="p">))))</span>
-        <span class="n">pars</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span><span class="n">par</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">text</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span> 
-                      <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">par</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-        <span class="n">ind</span><span class="p">,</span> <span class="n">pars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pars</span><span class="p">))</span>
-        
-        <span class="n">use_tok</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">tok</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">use_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">filter_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">parse_tok</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">tok</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">parse_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">replace_num</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">format_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        
-        <span class="c1"># choose to create either token sequences or parsetrees</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">as_parsetree</span><span class="p">:</span>
-            <span class="n">tokenize</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">doc</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">merge_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">split_sents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parse_tok_func</span><span class="o">=</span><span class="n">parse_tok</span><span class="p">,</span> <span class="n">use_tok_func</span><span class="o">=</span><span class="n">use_tok</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">tokenize</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">doc</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_parsetrees</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">merge_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parse_tok_func</span><span class="o">=</span><span class="n">parse_tok</span><span class="p">)</span>
-        
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;starting&#39;</span><span class="p">,</span> <span class="n">years</span><span class="p">)</span>
-        <span class="c1"># process documents</span>
-        <span class="n">pp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">nlp</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pars</span><span class="p">):</span>
-            <span class="n">toks</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
-            <span class="n">pp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">toks</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;about to insert&#39;</span><span class="p">,</span> <span class="n">years</span><span class="p">)</span>
-        <span class="c1"># merge paragraphs back into docs and insert into db</span>
-        <span class="n">doc_pars</span> <span class="o">=</span> <span class="p">[[</span><span class="n">p</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span><span class="n">pp</span><span class="p">)</span> <span class="k">if</span> <span class="n">idx</span><span class="o">==</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
-        <span class="k">for</span> <span class="n">yr</span><span class="p">,</span><span class="n">dp</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">years</span><span class="p">,</span><span class="n">doc_pars</span><span class="p">):</span>
-            <span class="n">prez</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">yr</span><span class="p">][</span><span class="s1">&#39;president&#39;</span><span class="p">]</span>
-            <span class="n">party</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">yr</span><span class="p">][</span><span class="s1">&#39;party&#39;</span><span class="p">]</span>
-            <span class="n">db</span><span class="o">.</span><span class="n">insert_nssdoc</span><span class="p">(</span><span class="n">yr</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">prez</span><span class="p">,</span> <span class="n">party</span><span class="p">,</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;inserted&#39;</span><span class="p">,</span> <span class="n">years</span><span class="p">)</span>
-
-            
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">download_nss</span><span class="p">(</span><span class="n">year</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Simple helper function for downloading texts from my nssdocs repo.&#39;&#39;&#39;</span>
-        <span class="n">baseurl</span> <span class="o">=</span> <span class="s1">&#39;https://raw.githubusercontent.com/devincornell/nssdocs/master/docs/</span><span class="si">{}</span><span class="s1">.txt&#39;</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="n">baseurl</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">text</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dbchecker</span><span class="o">.</span><span class="n">select</span><span class="p">()</span> <span class="c1"># this version without the doctable wrapper</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[5]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(1, &#39;68698313068.pic&#39;), (2, &#39;203570774203.pic&#39;)]</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Run-the-Parser">Run the Parser<a class="anchor-link" href="#Run-the-Parser">&#182;</a></h2><p>Now we run the parsing algorithm by instantiating NSSParser (which simply loads a spacy module) and parse the documents using the method we created <code>.parse_nss_docs()</code>. From looking at the <code>.parse_nss_chunk()</code> method above, you can see that each process is passed only a year and a doctable filename, and each process will download a copy of the given document, process the document, and insert the document into its own DocTable connection.</p>
-<p>In this first example you can see the print output from each of the processes as they act simultaneously and then insert their results into their doctable.</p>
+
+</div>
 
 </div>
 </div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># instantiate parser (loads spacy model) and call .parse_nss_docs() to parse and store the docs</span>
-<span class="n">fname_tokens</span> <span class="o">=</span> <span class="s1">&#39;exdb/ex_workflow_tokens.db&#39;</span>
-<span class="n">parser</span> <span class="o">=</span> <span class="n">NSSParser</span><span class="p">(</span><span class="n">fname_tokens</span><span class="p">,</span> <span class="n">nss_metadata</span><span class="p">)</span>
-<span class="o">%</span><span class="k">time</span> parser.parse_nss_docs(as_parsetree=False, workers=4, verbose=True)
-<span class="n">NSSDocs</span><span class="o">.</span><span class="n">print_doctable</span><span class="p">(</span><span class="n">fname_tokens</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># deletes files not in db and raise error if some db files not in filesystem</span>
+<span class="n">db</span><span class="o">.</span><span class="n">clean_picklefiles</span><span class="p">(</span><span class="s1">&#39;pic&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># now specify fpath in column type arguments.</span>
+<span class="n">db2</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),(</span><span class="s1">&#39;picklefile&#39;</span><span class="p">,</span> <span class="s1">&#39;pic&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fpath</span><span class="o">=</span><span class="s1">&#39;special_junk&#39;</span><span class="p">))],</span> <span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">db2</span><span class="o">.</span><span class="n">clean_picklefiles</span><span class="p">(</span><span class="s1">&#39;pic&#39;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;threw error because no files were found in the special_junk folder, even though the db has a record.&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13418,28 +13245,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>starting (2015, 2017)
-starting (1999, 2000, 2002, 2006, 2010)
-starting (1994, 1995, 1996, 1997, 1998)
-starting (1987, 1988, 1990, 1991, 1993)
-about to insert (2015, 2017)
-inserted (2015, 2017)
-about to insert (1987, 1988, 1990, 1991, 1993)
-inserted (1987, 1988, 1990, 1991, 1993)
-about to insert (1994, 1995, 1996, 1997, 1998)
-inserted (1994, 1995, 1996, 1997, 1998)
-about to insert (1999, 2000, 2002, 2006, 2010)
-inserted (1999, 2000, 2002, 2006, 2010)
-CPU times: user 21.2 ms, sys: 50.2 ms, total: 71.4 ms
-Wall time: 42.2 s
-&lt;DocTable::nssdocs ct: 17&gt;
-   id  year president party  num_pars  num_sents  num_toks  \
-0   1  2015     Obama     D       150        659     16108   
-1   2  2017     Trump     R       400       1170     23587   
-
-                                           par_sents  
-0  [[[Today, ,, The United States, is, stronger, ...  
-1  [[[an, America, that, is, safe, ,, prosperous,...  
+<pre>threw error because no files were found in the special_junk folder, even though the db has a record.
 </pre>
 </div>
 </div>
@@ -13450,619 +13256,16 @@ Wall time: 42.2 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># by omitting the &quot;workers&quot; parameter, DocParser will use all the cores the machine has</span>
-<span class="o">%</span><span class="k">time</span> parser.parse_nss_docs(as_parsetree=False)
-<span class="n">NSSDocs</span><span class="o">.</span><span class="n">print_doctable</span><span class="p">(</span><span class="n">fname_tokens</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span> 
 </pre></div>
 
     </div>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>CPU times: user 31.4 ms, sys: 254 ms, total: 285 ms
-Wall time: 20.6 s
-&lt;DocTable::nssdocs ct: 17&gt;
-   id  year president party  num_pars  num_sents  num_toks  \
-0   1  2015     Obama     D       150        659     16108   
-1   2  2017     Trump     R       400       1170     23587   
-
-                                           par_sents  
-0  [[[Today, ,, The United States, is, stronger, ...  
-1  [[[an, America, that, is, safe, ,, prosperous,...  
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># now we set &quot;as_parsetree&quot; to true so it will store the docs as parstrees instead of tokens.</span>
-<span class="n">fname_parsetrees</span> <span class="o">=</span> <span class="s1">&#39;exdb/ex_workflow_parsetrees.db&#39;</span>
-<span class="n">parser</span> <span class="o">=</span> <span class="n">NSSParser</span><span class="p">(</span><span class="n">fname_parsetrees</span><span class="p">,</span> <span class="n">nss_metadata</span><span class="p">)</span>
-<span class="o">%</span><span class="k">time</span> parser.parse_nss_docs(as_parsetree=True)
-<span class="n">NSSDocs</span><span class="o">.</span><span class="n">print_doctable</span><span class="p">(</span><span class="n">fname_parsetrees</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>CPU times: user 26.5 ms, sys: 264 ms, total: 290 ms
-Wall time: 22.7 s
-&lt;DocTable::nssdocs ct: 17&gt;
-   id  year  president party  num_pars  num_sents  num_toks  \
-0  34  2002    W. Bush     R       199        652     13917   
-1  35  1993  H.W. Bush     R       125        578     13134   
-
-                                           par_sents  
-0  [[(ParseNode(the), ParseNode(great), ParseNode...  
-1  [[(ParseNode(preface))], [(ParseNode(American)...  
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Filesize-Comparison">Filesize Comparison<a class="anchor-link" href="#Filesize-Comparison">&#182;</a></h3><p>While the timed performance of generating parsetrees vs tokens is relatively insignificant, we see a huge difference in the resulting database file sizes. Wheras the tokens database took about 6 MB, the parsetree database took about 40 MB. A significant difference worth consideration in your analyses.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">fname_tokens</span><span class="p">)</span><span class="o">/</span><span class="mf">1e6</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">fname_parsetrees</span><span class="p">)</span><span class="o">/</span><span class="mf">1e6</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[18]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(6.643712, 40.656896)</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Read-Database">Read Database<a class="anchor-link" href="#Read-Database">&#182;</a></h2><p>Now we can use DocTable to view and manipulate the stored documents.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">NSSDocs</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname_tokens</span><span class="p">)</span>
-<span class="n">db</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[19]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;DocTable::nssdocs ct: 17&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># here we show some metatadat from the new corpus</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="s1">&#39;year&#39;</span><span class="p">,</span><span class="s1">&#39;president&#39;</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">,</span> <span class="s1">&#39;num_pars&#39;</span><span class="p">,</span> <span class="s1">&#39;num_sents&#39;</span><span class="p">,</span> <span class="s1">&#39;num_toks&#39;</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This corpus consists of </span><span class="si">{}</span><span class="s1"> documents, </span><span class="si">{}</span><span class="s1"> paragraphs, </span><span class="si">{}</span><span class="s1"> sentences, and </span><span class="si">{}</span><span class="s1"> tokens.&#39;</span>
-      <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;num_pars&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;num_sents&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;num_toks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
-<span class="n">df</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>This corpus consists of 17 documents, 5028 paragraphs, 17448 sentences, and 418921 tokens.
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[20]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>year</th>
-      <th>president</th>
-      <th>party</th>
-      <th>num_pars</th>
-      <th>num_sents</th>
-      <th>num_toks</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>2015</td>
-      <td>Obama</td>
-      <td>D</td>
-      <td>150</td>
-      <td>659</td>
-      <td>16108</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2017</td>
-      <td>Trump</td>
-      <td>R</td>
-      <td>400</td>
-      <td>1170</td>
-      <td>23587</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>1987</td>
-      <td>Reagan</td>
-      <td>R</td>
-      <td>263</td>
-      <td>1091</td>
-      <td>25349</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>1988</td>
-      <td>Reagan</td>
-      <td>R</td>
-      <td>156</td>
-      <td>1142</td>
-      <td>26521</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>1990</td>
-      <td>H.W. Bush</td>
-      <td>R</td>
-      <td>294</td>
-      <td>787</td>
-      <td>16979</td>
-    </tr>
-    <tr>
-      <td>5</td>
-      <td>1991</td>
-      <td>H.W. Bush</td>
-      <td>R</td>
-      <td>290</td>
-      <td>826</td>
-      <td>19289</td>
-    </tr>
-    <tr>
-      <td>6</td>
-      <td>1993</td>
-      <td>H.W. Bush</td>
-      <td>R</td>
-      <td>125</td>
-      <td>578</td>
-      <td>13091</td>
-    </tr>
-    <tr>
-      <td>7</td>
-      <td>1994</td>
-      <td>Clinton</td>
-      <td>D</td>
-      <td>223</td>
-      <td>789</td>
-      <td>18731</td>
-    </tr>
-    <tr>
-      <td>8</td>
-      <td>1995</td>
-      <td>Clinton</td>
-      <td>D</td>
-      <td>294</td>
-      <td>989</td>
-      <td>22051</td>
-    </tr>
-    <tr>
-      <td>9</td>
-      <td>1996</td>
-      <td>Clinton</td>
-      <td>D</td>
-      <td>315</td>
-      <td>1238</td>
-      <td>33587</td>
-    </tr>
-    <tr>
-      <td>10</td>
-      <td>1997</td>
-      <td>Clinton</td>
-      <td>D</td>
-      <td>212</td>
-      <td>811</td>
-      <td>21635</td>
-    </tr>
-    <tr>
-      <td>11</td>
-      <td>1998</td>
-      <td>Clinton</td>
-      <td>D</td>
-      <td>418</td>
-      <td>1503</td>
-      <td>36540</td>
-    </tr>
-    <tr>
-      <td>12</td>
-      <td>1999</td>
-      <td>Clinton</td>
-      <td>D</td>
-      <td>338</td>
-      <td>1244</td>
-      <td>32096</td>
-    </tr>
-    <tr>
-      <td>13</td>
-      <td>2000</td>
-      <td>Clinton</td>
-      <td>D</td>
-      <td>566</td>
-      <td>1786</td>
-      <td>47644</td>
-    </tr>
-    <tr>
-      <td>14</td>
-      <td>2002</td>
-      <td>W. Bush</td>
-      <td>R</td>
-      <td>199</td>
-      <td>652</td>
-      <td>13854</td>
-    </tr>
-    <tr>
-      <td>15</td>
-      <td>2006</td>
-      <td>W. Bush</td>
-      <td>R</td>
-      <td>468</td>
-      <td>1034</td>
-      <td>20755</td>
-    </tr>
-    <tr>
-      <td>16</td>
-      <td>2010</td>
-      <td>Obama</td>
-      <td>D</td>
-      <td>317</td>
-      <td>1149</td>
-      <td>31104</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_sents</span><span class="p">(</span><span class="n">db</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;par_sents&#39;</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">sent</span> <span class="ow">in</span> <span class="n">par</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">sent</span>
-<span class="n">sents</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">get_sents</span><span class="p">(</span><span class="n">db</span><span class="p">))</span>
-<span class="n">sents</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">5</span><span class="p">],</span> <span class="n">sents</span><span class="p">[</span><span class="mi">1</span><span class="p">][:</span><span class="mi">5</span><span class="p">]</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[21]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>([&#39;Today&#39;, &#39;,&#39;, &#39;The United States&#39;, &#39;is&#39;, &#39;stronger&#39;],
- [&#39;americas&#39;, &#39;growing&#39;, &#39;economic&#39;, &#39;strength&#39;, &#39;is&#39;])</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Conclusions">Conclusions<a class="anchor-link" href="#Conclusions">&#182;</a></h3><p>This example shows a very common way of working with the doctable package. Wheras the DocTable class provides a simple interface for storing and accessing databases, DocParser provides convenient methods for processing texts in parallel.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Training-Models-in-Parallel">Training Models in Parallel<a class="anchor-link" href="#Training-Models-in-Parallel">&#182;</a></h1><p>Now we want to train several ml models on the data, one for each parmeter configuration. We can train multiple models in the same way that we parse text by using the <code>.DocParser.distribute_process()</code> method, where we provide a function that takes the input data and trains a model and then stores the result in a database. This will allow you to take full advantage of your computing machinery.</p>
-<p>Our example will be in measuring classification accuracy for predicting the document from which a given NSS paragraph was drawn. To do this, we extract all paragraphs from the documents, train a model pipeline including TF-IDF, SVD, and an SVM classifier to predict the nss document given a set of paragraph tokens, and report cross-validation results.</p>
-<p>First we create a new ModelDB class which inherits from DocTable, then we create a <code>train_model()</code> function which takes the number of features as a parameter. The function trains a model and saves the number of features used as well as the result metrics to the database. Because we use <code>DocTable.distribute_process()</code>, these models are all trained in parallel and saved to the db when finished.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># extracts a list of paragraph tokens from all docs, records year from which each par came</span>
-<span class="n">pars</span> <span class="o">=</span> <span class="p">[(</span><span class="n">pty</span><span class="p">,</span><span class="n">par</span><span class="p">)</span> <span class="k">for</span> <span class="n">pty</span><span class="p">,</span><span class="n">doc</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;party&#39;</span><span class="p">,</span><span class="s1">&#39;par_sents&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">]</span>
-<span class="n">party</span><span class="p">,</span> <span class="n">paragraphs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pars</span><span class="p">))</span>
-<span class="n">paragraphs</span> <span class="o">=</span> <span class="p">[[</span><span class="n">tok</span> <span class="k">for</span> <span class="n">sent</span> <span class="ow">in</span> <span class="n">par</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">sent</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span><span class="nb">str</span><span class="p">)]</span> <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">paragraphs</span><span class="p">]</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># create a new database to store the models</span>
-<span class="k">class</span> <span class="nc">ModelDB</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
-    <span class="n">tabname</span> <span class="o">=</span> <span class="s1">&#39;modeldb&#39;</span>
-    <span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;num_feat&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-        <span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;train_time&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;av_train&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;av_test&#39;</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tabname</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<span class="n">fname_models</span> <span class="o">=</span> <span class="s1">&#39;exdb/nss_models.db&#39;</span>
-<span class="n">modeldb</span> <span class="o">=</span> <span class="n">ModelDB</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname_models</span><span class="p">)</span>
-<span class="n">modeldb</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-<span class="n">modeldb</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[25]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;DocTable::modeldb ct: 0&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># sklearn imports</span>
-<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="k">import</span> <span class="n">Pipeline</span>
-<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="k">import</span> <span class="n">CountVectorizer</span><span class="p">,</span> <span class="n">TfidfTransformer</span>
-<span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="k">import</span> <span class="n">MultinomialNB</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="k">import</span> <span class="n">SGDClassifier</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">cross_validate</span>
-<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="k">import</span> <span class="n">PCA</span><span class="p">,</span> <span class="n">SparsePCA</span><span class="p">,</span> <span class="n">TruncatedSVD</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[27]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">num_feat</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="n">party</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Function to train a single model.&#39;&#39;&#39;</span>
-    <span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
-        <span class="p">(</span><span class="s1">&#39;vect&#39;</span><span class="p">,</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">,</span> <span class="n">preprocessor</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">10</span><span class="p">)),</span>
-        <span class="p">(</span><span class="s1">&#39;tfidf&#39;</span><span class="p">,</span> <span class="n">TfidfTransformer</span><span class="p">()),</span>
-        <span class="p">(</span><span class="s1">&#39;svd&#39;</span><span class="p">,</span> <span class="n">TruncatedSVD</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">num_feat</span><span class="p">)),</span>
-        <span class="p">(</span><span class="s1">&#39;clf&#39;</span><span class="p">,</span> <span class="n">SGDClassifier</span><span class="p">()),</span>
-    <span class="p">])</span>
-    
-    <span class="n">scores</span> <span class="o">=</span> <span class="n">cross_validate</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="n">party</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">return_train_score</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">db</span> <span class="o">=</span> <span class="n">ModelDB</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span>
-        <span class="s1">&#39;num_feat&#39;</span><span class="p">:</span> <span class="n">num_feat</span><span class="p">,</span>
-        <span class="s1">&#39;train_time&#39;</span><span class="p">:</span> <span class="n">scores</span><span class="p">[</span><span class="s1">&#39;fit_time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
-        <span class="s1">&#39;av_train&#39;</span><span class="p">:</span> <span class="n">scores</span><span class="p">[</span><span class="s1">&#39;train_score&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
-        <span class="s1">&#39;av_test&#39;</span><span class="p">:</span> <span class="n">scores</span><span class="p">[</span><span class="s1">&#39;test_score&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
-    <span class="p">},</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">scores</span><span class="p">[</span><span class="s1">&#39;test_score&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[30]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">num_feat_list</span> <span class="o">=</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
-
-<span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">distribute_process</span><span class="p">(</span><span class="n">train_model</span><span class="p">,</span> <span class="n">num_feat_list</span><span class="p">,</span> <span class="n">paragraphs</span><span class="p">,</span> <span class="n">party</span><span class="p">,</span> <span class="n">fname_models</span><span class="p">)</span>
-<span class="n">modeldb</span><span class="o">.</span><span class="n">select_df</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[30]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[0.6901276915620704,
- 0.7062340385547412,
- 0.7133970307508185,
- 0.7078270674460698]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Conclusions">Conclusions<a class="anchor-link" href="#Conclusions">&#182;</a></h2><p>This example shows how we can use DocTable for parsing texts and for training models in parallel. Databases make it easy to parallelize tasks across processes because the results can be stored in a table that is thread-safe.</p>
-
-</div>
-</div>
 </div>
     </div>
   </div>
