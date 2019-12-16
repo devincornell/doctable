@@ -3,14 +3,15 @@ from time import time
 import pprint
 import random
 import pandas as pd
-import os.path
+import os
+from glob import glob
 
 # operators like and_, or_, and not_, functions like sum, min, max, etc
 import sqlalchemy.sql as op
 from sqlalchemy.sql import func
 import sqlalchemy as sa
 
-from .coltypes import CpickleType, ParseTreeType
+from .coltypes import CpickleType, ParseTreeType, PickleFileType
 from .bootstrap import DocBootstrap
 
 class DocTable:
@@ -34,6 +35,7 @@ class DocTable:
         'unicodetext':sa.UnicodeText,
         'pickle': CpickleType, # custom datatype
         'parsetree': ParseTreeType, # custom datatype
+        'picklefile': PickleFileType,
     }
     
 
@@ -158,10 +160,18 @@ class DocTable:
                 coltype, colname = colinfo[:2]
                 colargs = colinfo[2] if n > 2 else dict()
                 coltypeargs = colinfo[3] if n > 3 else dict()
+                if coltype == 'picklefile' and self._fname != ':memory:':
+                    if 'fpath' not in coltypeargs:
+                        path = os.path.split(self._fname)[0]
+                        coltypeargs['fpath'] = path+'_'+self._tabname+'_'+colname
+                
                 col = sa.Column(colname, self._type_map[coltype](**coltypeargs), **colargs)
                 columns.append(col)
             else:
-                if colinfo[0] == 'index':
+                if colinfo[0] == 'idcol': #shortcut for typical id integer primary key etc
+                    col = sa.Column(colinfo[1], Integer, primary_key=True, autoincrement=True)
+                    columns.append(col)
+                elif colinfo[0] == 'index':
                     # ('index', 'ind0', ('name','address'),dict(unique=True)),
                     indargs = colinfo[2] if n > 2 else dict()
                     indkwargs = colinfo[3] if n > 3 else dict()
@@ -204,6 +214,49 @@ class DocTable:
             col.min = func.min(col)
             col.count = func.count(col)
             col.sum = func.sum(col)
+            
+    def clean_picklefiles(self, col, ignore_missing=False, ignore_extraneous=False):
+        '''Make sure there is a 1-1 mapping between files listed in db and files in folder.
+        Args:
+            col (str or Column object): column to clean picklefiles for.
+            ignore_missing (bool): if False, throw an error when a db file doesn't exist.
+        '''
+        
+        if isinstance(col,str):
+            col = self.col(col)#self.col(col)
+        if not isinstance(col.type, PickleFileType):
+            raise('Only call clean_picklefiles for a "picklefile" column type.')
+        
+        # enable raw_fname_mode and select raw column values
+        print('typer', type(col.type), hex(id(col.type)))
+        col.type.set_raw_fname_mode(True)
+        db_fnames = set(self.select(col))
+        col.type.set_raw_fname_mode(False)
+        print('dbfnames:', db_fnames)
+        exit()
+        
+        exist_fnames = set(glob(col.type.fpath+'*.pic'))
+        intersect = db_fnames & exist_fnames
+        print(db_fnames)
+        print(exist_fnames)
+        print(intersect)
+        print(col.type.fpath+'*.pic')
+        
+        col.type.raw_fname_mode
+        
+        
+        # throw error if filesystem is missing some files
+        miss_fnames = db_fnames-intersect
+        if not ignore_missing and len(miss_fnames) > 0:
+            raise FileNotFoundError('These files were not found while cleaning: {}'
+                ''.format(miss_fnames))
+        
+        # remove files not listed in db
+        extraneous_fnames = exist_fnames - intersect
+        if not ignore_extraneous and len(extraneous_fnames) > 0:
+            for rm_fname in extraneous_fnames:
+                os.remove(rm_fname)
+                
     
     #################### Convenience Methods ###################
     
