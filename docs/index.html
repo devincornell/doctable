@@ -79,11 +79,11 @@
         <pre><code>pip install doctable</code></pre>
         <!--<h2>Here's the thing.</h2>-->
         
-        <p>Every text analysis project is different, but they almost always share the first few steps: preprocessing, parsing/tokenization, and storage into a format that can be used for analysis. doctable is designed to facilitate these steps by providing a series of small decisions which are common to most applications. The package consists primarily of two Python classes: <b>DocTable</b> and <b>DocParser</b>. We've created some demonstrations so you can see how we use it:</p>
-        <hr>
+          <p><pre>doctable</pre> consists of two Python classes: <b>DocTable</b> and <b>DocParser</b>. <b>DocTable</b> is an object-oriented interface for working with SQL tables. Instantiate a doctable object to create or connect to an existing database table and use <pre>.insert()</pre>, <pre>.select()</pre>, <pre>.update()</pre>, and <pre>.delete()</pre> methods to manipulate its contents. The class also includes special column types to store extracted parsetrees (in a custom doctable format) and large files (like ML models). <b>DocParser</b> is a class with static methods to be inherited or used directly for parsing corpora. The methods fall into two categories: convenient methods for tokenization and parsetree extraction with <pre>spaCy</pre>, and methods to distribute parsing for insertion into a DocTable (or other format).</p>
+        <hr/>
           
         <h3>Example: US National Security Strategy Documents</h3>
-        <hr>
+        <hr/>
         <p>This demonstration shows a typical workflow using DocTable and DocParser. We use DocParser to download, tokenize, and create parsetrees for 17 national security strategy documents. We take advantage of DocParser to create a parallelized workflow for parsing, and a custom DocTable class for efficient storage.</p>
         <a class="btn btn-primary btn-lg" href="examples/ex_nss.html">See NSS Example &raquo;</a><br/><br/><br/>
           
