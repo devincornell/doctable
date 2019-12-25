@@ -3,6 +3,7 @@ from glob import glob
 import os
 import zipfile
 import re
+from tqdm import tqdm
 
 class GutenParser(doctable.DocParser):
     ''''''
@@ -50,8 +51,9 @@ class GutenParser(doctable.DocParser):
         tokenize = lambda doc: cls.tokenize_doc(doc, merge_ents=True, 
                 split_sents=True, parse_tok_func=parse_tok, use_tok_func=use_tok)
         
+        n = len(fnames)
         empty_ct, read_ct = 0, 0
-        for i, fname in enumerate(fnames):
+        for i, row in tqdm(enumerate(fnames), total=n, ncols=50):
             text_pars = cls.read_file(fname, re_start)
             if text_pars is None:
                 empty_ct += 1
@@ -61,13 +63,9 @@ class GutenParser(doctable.DocParser):
                 for text_par,doc in zip(text_pars,nlp.pipe(text_pars)):
                     parsed = tokenize(doc)
                     parsed_pars.append(parsed)
-                
-                db.insert()
-                
-                
-                
+                db.insert_doc(fname, parsed_pars)
+        print(f'thread finished parsing {read_ct} with {empty_ct} empty.')
 
-            
     @staticmethod
     def read_file(fname, re_start):
         base = os.path.basename(fname)
@@ -82,7 +80,7 @@ class GutenParser(doctable.DocParser):
 
         match = re.search(re_start, text)
         if text_was_found and match is not None:
-            text_pars = [par.strip() for par in text[:match.end()].split('\n') 
+            text_pars = [par.strip() for par in text[:match.end()].split('\n\n') 
                          if len(par.strip()) > 0]
             return text_pars
         else:
@@ -91,5 +89,5 @@ class GutenParser(doctable.DocParser):
 
 
 if __name__ == '__main__':
-    
+    parser = GutenParser('gutenberg.db')
     
