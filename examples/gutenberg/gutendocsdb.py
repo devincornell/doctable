@@ -1,7 +1,8 @@
 
 import sys
-sys.path.append('....')
+sys.path.append('../..')
 import doctable
+#import ..doctable
 
 class GutenDocsDB(doctable.DocTable):
     tabname = 'gutendocs'

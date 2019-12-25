@@ -8,7 +8,7 @@ import spacy
 from gutendocsdb import GutenDocsDB
 
 import sys
-sys.path.append('....')
+sys.path.append('...')
 import doctable
 
 class GutenParser(doctable.DocParser):
@@ -93,6 +93,6 @@ class GutenParser(doctable.DocParser):
 
 
 if __name__ == '__main__':
-    parser = GutenParser('gutenberg.db')
+    parser = GutenParser('gutenberg2.db')
     parser.parse_gutenberg(verbose=True)
     
