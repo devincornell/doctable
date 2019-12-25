@@ -11,7 +11,7 @@ import sqlalchemy.sql as op
 from sqlalchemy.sql import func
 import sqlalchemy as sa
 
-from .coltypes import CpickleType, ParseTreeType, PickleFileType
+from .coltypes import CpickleType, ParseTreeType, PickleFileType, TextFileType, FileTypeBase
 from .bootstrap import DocBootstrap
 
 class DocTable:
@@ -36,6 +36,7 @@ class DocTable:
         'pickle': CpickleType, # custom datatype
         'parsetree': ParseTreeType, # custom datatype
         'picklefile': PickleFileType,
+        'textfile': TextFileType,
     }
     
 
@@ -160,7 +161,7 @@ class DocTable:
                 coltype, colname = colinfo[:2]
                 colargs = colinfo[2] if n > 2 else dict()
                 coltypeargs = colinfo[3] if n > 3 else dict()
-                if coltype == 'picklefile' and self._fname != ':memory:':
+                if coltype in ('picklefile','textfile') and self._fname != ':memory:':
                     if 'fpath' not in coltypeargs:
                         path = os.path.split(self._fname)[0]
                         coltypeargs['fpath'] = path+'_'+self._tabname+'_'+colname
@@ -215,15 +216,15 @@ class DocTable:
             col.count = func.count(col)
             col.sum = func.sum(col)
             
-    def clean_picklefiles(self, col, check_missing=True, delete_extraneous=True):
+    def clean_col_files(self, col, check_missing=True, delete_extraneous=True):
         '''Make sure there is a 1-1 mapping between files listed in db and files in folder.
         Args:
             col (str or Column object): column to clean picklefiles for.
             ignore_missing (bool): if False, throw an error when a db file doesn't exist.
         '''
         col = self.col(col)
-        if not isinstance(self.col(col).type, PickleFileType):
-            raise ValueError('Only call clean_picklefiles for a "picklefile" column type.')
+        if not isinstance(self.col(col).type, FileTypeBase):
+            raise ValueError('Only call clean_col_files for a file column types.')
         if not (check_missing or delete_extraneous):
             raise ValueError('Either check_missing or delete_extraneous should be set to true, '
                              'or else this method does nothing.')
@@ -233,7 +234,7 @@ class DocTable:
         db_fnames = {col.type.fpath+fn for fn in db.select(col.name)}
         
         # get existing files from filesystem
-        exist_fnames = set(glob(col.type.fpath+'*.pic'))
+        exist_fnames = set(glob(col.type.fpath+'*'+col.type.file_ext))
         intersect = db_fnames & exist_fnames
         
         # remove files not listed in db

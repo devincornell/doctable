@@ -8,8 +8,9 @@ import os
 from .parsetree import ParseTree
 
 
-class PickleFileType(types.TypeDecorator):
-    impl = types.String
+class FileTypeBase(types.TypeDecorator):
+    file_ext = None # needs to be overloaded
+    impl = types.String # just stores filename
     fname_num_size = 10**12
     def __init__(self, *arg, fpath=None, **kw):
         '''Define init to store fpath.'''
@@ -23,26 +24,55 @@ class PickleFileType(types.TypeDecorator):
             os.mkdir(fpath)
         
         types.TypeDecorator.__init__(self, *arg, **kw)
-
+        
+    # NEEDS TO BE DEFINED IN INHERITING CLASS
+    @classmethod
+    def dump_data(cls, f, value, dialect):
+        raise NotImplementedError
+    @classmethod
+    def load_data(cls, f, dialect):
+        raise NotImplementedError
+    
     def process_bind_param(self, value, dialect):
         if value is not None:
             while True:
-                fname = os.path.join(self.fpath, '{}.pic'.format(randrange(self.fname_num_size)))
+                fname = os.path.join(self.fpath, '{}{}'
+                    ''.format(randrange(self.fname_num_size), self.file_ext))
                 if not os.path.exists(fname):
                     break # after this, fname doesn't exist
             with open(fname, 'wb') as f:
-                cPickle.dump(value,f)
+                self.dump_data(f, value, dialect)
             return os.path.basename(fname)
         else:
             return None
-
+    
     def process_result_value(self, fname, dialect):
         if fname is not None:
             with open(os.path.join(self.fpath, fname), 'rb') as f:
-                obj = cPickle.load(f)
+                obj = self.load_data(f, dialect)
             return obj
         else:
             return None
+
+
+class PickleFileType(FileTypeBase):
+    file_ext = '.pic'
+    @classmethod
+    def dump_data(cls, f, value, dialect): # used in FileTypeBase.process_bind_param()
+        return cPickle.dump(value, f)
+    @classmethod
+    def load_data(cls, f, dialect):
+        return cPickle.load(f)
+
+class TextFileType(FileTypeBase):
+    file_ext = '.txt'
+    @classmethod
+    def dump_data(cls, f, text, dialect): # used in FileTypeBase.process_bind_param()
+        return f.write(text.encode())
+    
+    @classmethod
+    def load_data(cls, f, dialect):
+        return f.read().decode()
 
 
 
