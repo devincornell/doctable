@@ -1,9 +1,9 @@
 
 import sys
-os.path.append('....')
+sys.path.append('....')
 import doctable
 
-class GutenDocs(doctable.DocTable):
+class GutenDocsDB(doctable.DocTable):
     tabname = 'gutendocs'
     schema = (
         ('integer', 'id', dict(primary_key=True, autoincrement=True)),

@@ -4,11 +4,17 @@ import os
 import zipfile
 import re
 from tqdm import tqdm
+import spacy
+from gutendocsdb import GutenDocsDB
+
+import sys
+sys.path.append('....')
+import doctable
 
 class GutenParser(doctable.DocParser):
     ''''''
     
-    def __init__(self, dbfname, data_folder='data/aleph.gutenberg.org/', 
+    def __init__(self, dbfname, metadata=None, data_folder='data/aleph.gutenberg.org/', 
                  *args, **kwargs):
         self.nlp = spacy.load('en')
         self.dbfname = dbfname
@@ -24,8 +30,6 @@ class GutenParser(doctable.DocParser):
             as_parsetree (bool): store parsetrees (True) or tokens (False)
             workers (int or None): number of processes to create for parsing.
         '''
-        if years is None:
-            years = self.years_default
         self.distribute_chunks(self.parse_guten_chunk, self.fnames, self.nlp, self.dbfname, 
                                verbose, self.metadata, workers=workers)
     
@@ -42,7 +46,7 @@ class GutenParser(doctable.DocParser):
         '''
         
         # create a new database connection
-        db = NSSDocs(fname=dbfname)
+        db = GutenDocsDB(fname=dbfname)
         
         # define parsing functions and regex
         re_start = re.compile('\n\*\*\*.*START OF .* GUTENBERG .*\n')
@@ -53,7 +57,7 @@ class GutenParser(doctable.DocParser):
         
         n = len(fnames)
         empty_ct, read_ct = 0, 0
-        for i, row in tqdm(enumerate(fnames), total=n, ncols=50):
+        for i, fname in tqdm(enumerate(fnames), total=n, ncols=50):
             text_pars = cls.read_file(fname, re_start)
             if text_pars is None:
                 empty_ct += 1
@@ -63,7 +67,7 @@ class GutenParser(doctable.DocParser):
                 for text_par,doc in zip(text_pars,nlp.pipe(text_pars)):
                     parsed = tokenize(doc)
                     parsed_pars.append(parsed)
-                db.insert_doc(fname, parsed_pars)
+                db.insert_doc(fname, parsed_pars, ifnotunique='replace')
         print(f'thread finished parsing {read_ct} with {empty_ct} empty.')
 
     @staticmethod
@@ -77,17 +81,18 @@ class GutenParser(doctable.DocParser):
                 text_was_found = True
             except KeyError:
                 text_was_found = False
-
-        match = re.search(re_start, text)
-        if text_was_found and match is not None:
-            text_pars = [par.strip() for par in text[:match.end()].split('\n\n') 
-                         if len(par.strip()) > 0]
-            return text_pars
-        else:
-            return None
+        if text_was_found:
+            match = re.search(re_start, text)
+            if match is not None:
+                text_pars = [par.strip() for par in text[:match.end()].split('\n\n') 
+                             if len(par.strip()) > 0]
+                return text_pars
+            else:
+                return None
         
 
 
 if __name__ == '__main__':
     parser = GutenParser('gutenberg.db')
+    parser.parse_gutenberg(verbose=True)
     
