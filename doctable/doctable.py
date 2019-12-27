@@ -230,7 +230,7 @@ class DocTable:
                              'or else this method does nothing.')
         
         # get column filenames
-        db = DocTable(fname=self._fname)
+        db = DocTable(fname=self._fname, tabname=self._tabname)
         db_fnames = {col.type.fpath+fn for fn in db.select(col.name)}
         
         # get existing files from filesystem

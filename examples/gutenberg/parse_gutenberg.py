@@ -15,15 +15,22 @@ class GutenParser(doctable.DocParser):
     ''''''
     
     def __init__(self, dbfname, metadata=None, data_folder='data/aleph.gutenberg.org/', 
-                 *args, **kwargs):
-        self.nlp = spacy.load('en')
+                 as_parsetree=False, **kwargs):
+        
+        self.as_parsetree = as_parsetree
+        if as_parsetree:
+            self.nlp = spacy.load('en')
+        else:
+            self.nlp = spacy.load('en', disable=['parser', 'tagger'])
+            self.nlp.add_pipe(self.nlp.create_pipe('sentencizer'))
+            
         self.dbfname = dbfname
         self.metadata = metadata
         
         self.fnames = glob(data_folder+'/**/*.zip', recursive=True)
         
         
-    def parse_gutenberg(self, as_parsetree=False, workers=None, verbose=False):
+    def parse_gutenberg(self, workers=None, verbose=False):
         '''Parse and store nss docs into a doctable.
         Args:
             years (list): years to request from the nss corpus
@@ -31,10 +38,12 @@ class GutenParser(doctable.DocParser):
             as_parsetree (bool): store parsetrees (True) or tokens (False)
             workers (int or None): number of processes to create for parsing.
         '''
-        db = GutenDocsDB(fname=dbfname) # create database file and table and folders
+        db = GutenDocsDB(fname=self.dbfname) # create database file and table and folders
+        db.clean_col_files('text')
+        db.clean_col_files('par_sents')
         
         self.distribute_chunks(self.parse_guten_chunk, self.fnames, self.nlp, self.dbfname, 
-                               as_parsetree, verbose, self.metadata, workers=workers)
+                               self.as_parsetree, verbose, self.metadata, workers=workers)
     
     @classmethod
     def parse_guten_chunk(cls, fnames, nlp, dbfname, as_parsetree, verbose, metadata):
@@ -66,19 +75,26 @@ class GutenParser(doctable.DocParser):
         
         n = len(fnames)
         empty_ct, read_ct = 0, 0
-        for i, fname in tqdm(enumerate(fnames), total=n, ncols=50):
+        
+        if verbose:
+            it = tqdm(enumerate(fnames), total=n, ncols=50)
+        else:
+            it = enumerate(fnames)
+        
+        for i, fname in it:
             text_pars = cls.read_file(fname, re_start)
             if text_pars is None:
                 empty_ct += 1
             else:
                 read_ct += 1
                 parsed_pars = list()
-                for text_par,doc in zip(text_pars,nlp.pipe(text_pars)):
+                for text_par,doc in zip(text_pars, nlp.pipe(text_pars)):
+                    #doc = nlp(text_par)
                     parsed = parse_func(doc)
                     parsed_pars.append(parsed)
                 text = '\n\n'.join(text_pars)
                 db.insert_doc(fname, parsed_pars, text, ifnotunique='replace')
-        print(f'thread finished parsing {read_ct} with {empty_ct} empty.')
+        if verbose: print(f'thread finished parsing {read_ct} with {empty_ct} empty.')
 
     @staticmethod
     def read_file(fname, re_start):
@@ -94,13 +110,14 @@ class GutenParser(doctable.DocParser):
         if text_was_found:
             match = re.search(re_start, text)
             if match is not None:
-                text_pars = [par.strip() for par in text[match.end():].split('\n\n') 
+                #print('*****', (text[match.end():1000].split('\r\n\r\n')), '_*_*_*')
+                text_pars = [par.strip() for par in text[match.end():].split('\r\n\r\n') 
                              if len(par.strip()) > 0]
                 return text_pars
             else:
                 return None
         
 if __name__ == '__main__':
-    parser = GutenParser('gutenberg_trees.db')
-    parser.parse_gutenberg(as_parsetree=True, verbose=True)
+    parser = GutenParser('gutenberg_toks.db', as_parsetree=False)
+    parser.parse_gutenberg(workers=None, verbose=True)
     
