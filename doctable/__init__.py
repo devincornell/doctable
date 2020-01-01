@@ -8,6 +8,8 @@ from .doctablelegacy import DocTableLegacy
 from .docparser import DocParser
 from .parsetree import ParseTree, ParseNode
 from .bootstrap import DocBootstrap
+from .distribute import Distribute
 
 from .migration import migrate_db
 
+from .util import list_tables
