@@ -13,6 +13,7 @@ import sqlalchemy as sa
 
 from .coltypes import CpickleType, ParseTreeType, PickleFileType, TextFileType, FileTypeBase
 from .bootstrap import DocBootstrap
+from .util import list_tables
 
 class DocTable:
     _type_map = {
@@ -116,6 +117,7 @@ class DocTable:
             self._table = sa.Table(self._tabname, self._metadata, *columns)
             self._metadata.create_all(self._engine)
         else:
+            # NOTE: use list_tables to list available tables upon failure!
             self._table = sa.Table(self._tabname, self._metadata, 
                                    autoload=True, autoload_with=self._engine)
         if open_conn:
