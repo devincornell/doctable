@@ -4,20 +4,27 @@ sys.path.append('..')
 import doctable
 
 def chunk_thread(elchunk):
-    for i in elchunk:
-        print(i)
+    #print('this thread has {} elements ({} are first)'.format(len(elchunk), elchunk[:3]))
+    return [i*2 for i in elchunk]
+
 def thread_func(i):
-    print(i)
-    if i == 5:
-        raise KeyError()
+    return i * 2
+
+def test_basic():
+    elements = list(range(100))
+    res = [i*2 for i in elements]
+    
+    for NCORES in (1,3):
+        with doctable.Distribute(NCORES) as d:
+            el1 = d.map_chunk(chunk_thread, elements)
+            el2 = d.map_insert(thread_func, elements)
+
+        assert(len(elements) == len(el1))
+        assert(len(elements) == len(el2))
+        assert(all([r==e for r,e in zip(res,el1)]))
+        assert(all([r==e for r,e in zip(res,el2)]))
 
 if __name__ == '__main__':
-    elements = list(range(10))
-    with doctable.Distribute(2) as d:
-        d.map_chunk(chunk_thread, elements)
-        print('--------')
-        d.map_insert(thread_func, elements)
-        
-    print('finished.')
+    test_basic()
     
     
