@@ -7,8 +7,7 @@ import doctable
 class GutenDocsDB(doctable.DocTable):
     tabname = 'gutendocs'
     def __init__(self, fname, **kwargs):
-        bn = os.path.basename(fname)
-        dbname = os.path.splitext(bn)[0]
+        basename = os.path.splitext(fname)[0]
         self.schema = (
             ('idcol', 'id'),
             #('string', 'fname', dict(nullable=False)),
@@ -21,9 +20,9 @@ class GutenDocsDB(doctable.DocTable):
             ('string', 'subject'),
             
             # book text data
-            ('picklefile', 'par_ptrees', {}, {'fpath': dbname+'_ptrees'}),
-            ('picklefile', 'par_toks', {}, {'fpath': dbname+'_toks'}),
-            ('textfile','text', {}, {'fpath': dbname+'_texts'}),
+            ('picklefile', 'par_ptrees', {}, {'fpath': basename+'_ptrees'}),
+            ('picklefile', 'par_toks', {}, {'fpath': basename+'_toks'}),
+            ('textfile','text', {}, {'fpath': basename+'_texts'}),
             
             # convenient metadata
             ('integer', 'num_pars'),
@@ -37,6 +36,7 @@ class GutenDocsDB(doctable.DocTable):
     def insert_doc(self, gutenid, par_toks, par_ptrees, full_text, title, 
         author, formaturi, language, rights, subject, **kwargs):
         self.insert({
+            # gutenberg metadata
             'gutenid': gutenid,
             'title': title,
             'author': author,
@@ -45,13 +45,20 @@ class GutenDocsDB(doctable.DocTable):
             'rights': rights,
             'subject': subject,
             
+            # actual data payload
             'par_toks': par_toks,
-            'par_toks': par_ptrees,
-            'full_text': text,
-            'num_pars': len(par_sents),
-            'num_sents': len([s for par in par_sents for s in par]),
-            'num_toks': len([t for par in par_sents for s in par for t in s]),
+            'par_ptrees': par_ptrees,
+            'text': full_text,
+            
+            # data info
+            'num_pars': len(par_toks),
+            'num_sents': len([s for par in par_toks for s in par]),
+            'num_toks': len([t for par in par_toks for s in par for t in s]),
         }, **kwargs)
+        
+    def select_doc_toks():
+        par_toks = self.select(['id', 'par_toks'])
+        return [tok for par in par_toks for sent in par for tok in sent]
     
 
 
