@@ -1,4 +1,4 @@
-
+import math
 from glob import glob
 import os
 import zipfile
@@ -71,7 +71,6 @@ class GutenParser(doctable.DocParser):
         cache = SleepycatMetadataCache('guten_cache.sqlite')
         set_metadata_cache(cache)
         
-        
         # define parsing functions and regex
         re_start = re.compile('\n\*\*\*.*START OF .* GUTENBERG .*\n')
         use_tok = lambda tok: cls.use_tok(tok, filter_whitespace=True)
@@ -89,6 +88,10 @@ class GutenParser(doctable.DocParser):
         
         # loop through each potential document
         for i, idx in iter:
+            
+            if i % 100 == 0: # renew parser
+                nlp = spacy.load('en')
+            
             #print('\n--> holding for lang ({})'.format(ids[0]))
             language = get_metadata('language', idx)
             #print('\n--> got lang:', language, '({})'.format(ids[0]))
@@ -119,18 +122,25 @@ class GutenParser(doctable.DocParser):
                     for text_par in text_pars:
                         
                         # split into blocks so nothing too big for spacy
-                        tsplit = text_par.split('.')
-                        chunk_size = 10 # sentences
-                        N = math.ciel(len(tsplit)/chunk_size)
-                        textblocks = ['.'.join(ts[i*N:(i+1)*N])+'.' forts in tsplit]
+                        #tsplit = text_par.split('.')
+                        #chunk_size = 10 # sentences per block
+                        #N = math.ciel(len(tsplit)/chunk_size)
+                        #textblocks = ['.'.join(ts[i*N:(i+1)*N])+'.' forts in tsplit]
+                        sents = re.split('([\?\!\.])', text)
+                        chunk_size = math.ceil(len(sents)/2)
+                        n_chunks = math.ceil(len(sents)/(chunk_size))
+                        textblocks = [''.join(sents[i*chunk_size*2:(i+1)*chunk_size*2]) 
+                                           for i in range(n_chunks)]
+                        print('\n{} split sents, {} chunks size, {} chunks, {} blocks.'
+                             ''.format(len(sents), chunk_size, n_chunks, len(textblocks)))
                         
                         # parse each block and merge back
                         ptok_blocks, ptree_blocks = list(), list()
                         for tblock in textblocks:
                             doc = nlp(tblock)
+                            print('parsed one')
                             ptok_blocks += tokenize(doc)
                             ptree_blocks += parsetrees(doc)
-                            del doc
                         
                         # combine block results into paragraphs
                         par_toks.append(ptok_blocks)
@@ -142,6 +152,6 @@ class GutenParser(doctable.DocParser):
                         language, rights, subject, ifnotunique='replace')
                 
 if __name__ == '__main__':
-    parser = GutenParser('db/gutenberg16.db')
-    parser.parse_gutenberg(workers=None, verbose=True)
+    parser = GutenParser('db/gutenberg_tst.db')
+    parser.parse_gutenberg(workers=1, verbose=True)
     

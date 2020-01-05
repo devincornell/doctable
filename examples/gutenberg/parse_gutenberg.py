@@ -60,8 +60,7 @@ class GutenParser(doctable.DocParser):
         # create a new database connection
         db = GutenDocsDB(fname=dbfname)
         
-        # define parsing functions and regex
-        re_start = re.compile('\n\*\*\*.*START OF .* GUTENBERG .*\n')
+        # define parsing functions inherited from DocParser
         use_tok = lambda tok: cls.use_tok(tok, filter_whitespace=True)
         parse_tok = lambda tok: cls.parse_tok(tok, replace_num=True, format_ents=True)
         tokenize = lambda doc: cls.tokenize_doc(doc, merge_ents=True, 
