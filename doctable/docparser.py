@@ -59,7 +59,7 @@ class DocParser:
             parse_tok_func = cls.parse_tok
         
         # apply ngram merges to doc object (permanently modifies doc object)
-        cls.apply_ngram_merges(
+        cls.apply_doc_transform(
             doc, 
             merge_ents=merge_ents, 
             spacy_ngram_matcher=spacy_ngram_matcher, 
@@ -97,12 +97,11 @@ class DocParser:
         #     because retokenizing only occurs after the block and sometimes
         #     custom matches (provided via matcher) overlap with ents. Easiest
         #     way is to do custom first, then non-overlapping.
-        cls.apply_ngram_merges(doc, 
+        cls.apply_doc_transform(doc, 
                 merge_ents=merge_ents, 
                 spacy_ngram_matcher=spacy_ngram_matcher,
                 merge_noun_chunks=merge_noun_chunks
             )
-                
             
         if parse_tok_func is None:
             parse_tok_func = cls.parse_tok
@@ -208,7 +207,7 @@ class DocParser:
     
     
     @staticmethod
-    def apply_ngram_merges(doc, merge_ents=True, spacy_ngram_matcher=None, merge_noun_chunks=False):
+    def apply_doc_transform(doc, merge_ents=True, spacy_ngram_matcher=None, merge_noun_chunks=False):
         '''Apply merges to doc object including entities, normal ngrams, and noun chunks.'''
         if spacy_ngram_matcher is not None:
             # merge custom matches
@@ -251,6 +250,98 @@ class DocParser:
                 i += 1
         return new_toks
     
+    @classmethod
+    def chunk_parse(cls, text, nlp, parsefuncs, preprocessfunc=None, paragraph_sep=None, max_sent=10):
+        '''Parses a single document by breaking it into chunks for lower memory consumption.
+        '''
+        # split into paragraphs (or simulate)
+        if paragraph_sep is not None:
+            texts = [par.strip() for par in text.split(paragraph_sep) if len(par.strip()) > 0]
+            text_chunks = [cls._split_texts(par, max_sent) for par in texts]
+        else:
+            text_chunks = [cls._split_texts(text, max_sent)]
+        
+        par_dat = list()
+        for par in pars:
+            chunk_dat = list()
+            for tchunk in text_chunks:
+                doc = nlp(tchunk)
+                chunk_dat.append([pfunc(doc) for pfunc in parsefuncs])
+                del doc
+            par_dat.append(list(zip(*chunk_dat)))
+        print('par_dat')
+        
+    @classmethod
+    def parse_text_chunks(cls, text, nlp, parse_funcs={}, doc_transform=None,
+                             paragraph_sep=None, chunk_sents=1000):
+        '''Parse text in paragraph by sentences.
+        Args:
+            text (str): (preprocessed) text document to parse
+            nlp (spaCy parser): with .pipe() method to parse documents
+            parse_funcs (list<func>): convert doc to 
+            chunk_sents (int): number of sentences used in each chunk to 
+                be parsed. Max size for single spacy doc is 1 million 
+                chars. If av num chars per sent is 75-100, a size of
+                3000 means each chunk will have approx 300k characters.
+                Hopefully, on average small enough. Larger value means
+                more memory but faster processing.
+        '''
+        if doc_transform is None:
+            doc_transform = lambda x: x
+        
+        # split into paragraphs and chunks
+        if paragraph_sep is not None:
+            texts = [par.strip() for par in text.split(paragraph_sep) if len(par.strip()) > 0]
+            text_chunks = [cls._split_texts(par, chunk_sents) for par in texts]
+            
+        else:
+            text_chunks = [cls._split_texts(text, chunk_sents)]
+        print(text_chunks)
+        
+        # flatten texts into single list and record paragraph,chunk ids
+        parids = [(i,ch) for i, par in enumerate(text_chunks) for ch in par]
+        parids, allchunks = list(zip(*parids))
+        #ids, texts = list(), list()
+        #for i,par in enumerate(text_chunks):
+        #    for j,ch in enumerate(par):
+        #        ids.append((i,j))
+        #        texts.append(ch)
+                
+        #print('-->', texts)
+        #print('-/->', ids)
+                
+        # parse each document, store in structure
+        last_idx = 0 # i is paragraph, j is chunk
+        parsed_par_chunks = [[]] # list of par->chunks
+        for idx, doc in zip(parids, nlp.pipe(allchunks)):
+            doc = doc_transform(doc)
+            parsed = {k:v(doc) for k,v in parse_funcs.items()}
+            print(idx)
+            if idx != last_idx:
+                parsed_par_chunks.append([])
+                print('adding el', idx)
+            parsed_par_chunks[-1].append(parsed)
+            last_idx = idx
+            
+        # flip parsed and chunk folding
+        #for chunk in par for parsed
+        #parsed_par_chunks = [[[parsed for parsed in chunk] for chunk in par]
+        #    for par in parsed_par_chunks]
+        #parsed_par_chunks = [[[parsed for parsed in chunk]]]
+            #for par in parsed_par_chunks]
+        
+        
+        return parsed_par_chunks
+    
+    @staticmethod
+    def _split_texts(text, chunk_sents, split_re='([\?\!\.])'):
+        sents = [s for s in re.split(split_re, text) if len(s.split())>0]
+        #chunk_size = math.ceil(len(sents)/2)
+        n_chunks = math.ceil(len(sents)/(2*chunk_sents))
+        textblocks = [''.join(sents[i*chunk_sents*2:(i+1)*chunk_sents*2]) 
+                        for i in range(n_chunks)]
+        return textblocks
+        
         
     #################### DISTRIBUTED PARSING METHODS #######################
     @classmethod
@@ -291,20 +382,13 @@ class DocParser:
             texts, ind = list(zip(*[(par.strip(),i) for i,text in enumerate(texts) 
                             for par in text.split(paragraph_sep)]))
         
-        # remove db connection of doctable so it can be distributed
-        was_connected = dt_inst is not None
-        had_conn = False
-        if was_connected:
-            had_conn = dt_inst._conn is not None
-            dt_inst.close_engine()
-        
         # perform actual parsing
         thread_args = (spacynlp, parsefunc, preprocessfunc, dt_inst)
-        parsed = cls.distribute_chunks(cls._distribute_parse_thread, texts, 
-                                       *thread_args, workers=workers)
-        
-        if was_connected:
-            dt_inst.open_engine(open_conn=had_conn)
+        #parsed = cls.distribute_chunks(cls._distribute_parse_thread, texts, 
+        #                               *thread_args, workers=workers)
+        with Distribute(workers) as d:
+            parsed = d.map_insert(cls._distribute_parse_thread, texts,
+                                 *thread_args, dt_inst=dt_inst)
             
         # fold paragraphs back into document list
         if paragraph_sep is not None:
@@ -320,6 +404,11 @@ class DocParser:
             parsed = parsed_docs
         
         return parsed
+    
+    #@staticmethod
+    #def _distribute_parse_thread(text, nlp, parsefunc, preprocessfunc, dt_inst):
+    #    parsed = parsefunc(nlp(preprocessfunc(text)))
+        
             
     @staticmethod
     def _distribute_parse_thread(texts_chunk, nlp, parsefunc, preprocessfunc, dt_inst):
@@ -338,3 +427,15 @@ class DocParser:
             
         return parsed_docs
     
+    @staticmethod
+    def spacy_parse_chunks(text, nlp, parsefuncs=list(), chunk_size=10):
+        '''Parses document in sentence chunks to reduce memory use.
+        '''
+        # sentence is smallest unit spacy analyzes
+        # multiply by two since split includes punctuation too
+        sents = re.split('[\?\!\.]', text)
+        n_chunks = math.ciel(len(sents)/(chunk_size*2))
+        sent_chunks = [sents[i*chunk_size*2:(i+1)*chunk_size*2] 
+                           for i in range(n_chunks)]
+        for sent_chunk in sent_chunks:
+            subdoc = nlp(''.join(sent_chunk))
