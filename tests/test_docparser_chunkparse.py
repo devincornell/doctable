@@ -16,10 +16,27 @@ def test_chunkparse():
         #'toks': lambda doc: ' '.join(t.lower_ for t in doc)
     }
     
+    parsed = doctable.DocParser.parse_text_chunks(texts[0], nlp, parse_funcs=parse_funcs,
+                paragraph_sep='\n\n', chunk_sents=1)
+    pprint(parsed)
+    assert(len(parsed) == 2) # two pararaphs
+    assert(len(parsed[0]) == 2) # first par has two sent (chunk_sents=1)
+    
+    parsed = doctable.DocParser.parse_text_chunks(texts[0], nlp, parse_funcs=parse_funcs,
+                paragraph_sep='\n\n', chunk_sents=2)
+    pprint(parsed)
+    assert(len(parsed) == 2) # two paragraphs
+    assert(len(parsed[0]) == 1) # first par has one sent (chunk_sents=2)
+    
+    parsed = doctable.DocParser.parse_text_chunks(texts[0], nlp, parse_funcs=parse_funcs,
+                paragraph_sep=None, chunk_sents=2)
+    pprint(parsed)
+    assert(len(parsed) == 3) # three chunks of 2 sents (last one has one sent)
+    
     for text in texts:
         #print('starting')
         parsed = doctable.DocParser.parse_text_chunks(text, nlp, parse_funcs=parse_funcs,
-                paragraph_sep='\n\n', chunk_sents=1)
+                paragraph_sep='\n\n', chunk_sents=2)
         pprint(parsed)
         print('----------------------------------')
 

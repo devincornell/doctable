@@ -273,7 +273,7 @@ class DocParser:
         
     @classmethod
     def parse_text_chunks(cls, text, nlp, parse_funcs={}, doc_transform=None,
-                             paragraph_sep=None, chunk_sents=1000):
+                             paragraph_sep=None, chunk_sents=1000, split_re='([\?\!\.]+)(?=[\WA-Z])'):
         '''Parse text in paragraph by sentences.
         Args:
             text (str): (preprocessed) text document to parse
@@ -292,23 +292,13 @@ class DocParser:
         # split into paragraphs and chunks
         if paragraph_sep is not None:
             texts = [par.strip() for par in text.split(paragraph_sep) if len(par.strip()) > 0]
-            text_chunks = [cls._split_texts(par, chunk_sents) for par in texts]
-            
+            text_chunks = [cls._split_texts(par, chunk_sents, split_re) for par in texts]
         else:
-            text_chunks = [cls._split_texts(text, chunk_sents)]
-        print(text_chunks)
+            text_chunks = [cls._split_texts(text, chunk_sents, split_re)]
         
         # flatten texts into single list and record paragraph,chunk ids
         parids = [(i,ch) for i, par in enumerate(text_chunks) for ch in par]
         parids, allchunks = list(zip(*parids))
-        #ids, texts = list(), list()
-        #for i,par in enumerate(text_chunks):
-        #    for j,ch in enumerate(par):
-        #        ids.append((i,j))
-        #        texts.append(ch)
-                
-        #print('-->', texts)
-        #print('-/->', ids)
                 
         # parse each document, store in structure
         last_idx = 0 # i is paragraph, j is chunk
@@ -316,27 +306,21 @@ class DocParser:
         for idx, doc in zip(parids, nlp.pipe(allchunks)):
             doc = doc_transform(doc)
             parsed = {k:v(doc) for k,v in parse_funcs.items()}
-            print(idx)
+            #print(idx)
             if idx != last_idx:
                 parsed_par_chunks.append([])
-                print('adding el', idx)
+                #print('adding el', idx)
             parsed_par_chunks[-1].append(parsed)
             last_idx = idx
-            
-        # flip parsed and chunk folding
-        #for chunk in par for parsed
-        #parsed_par_chunks = [[[parsed for parsed in chunk] for chunk in par]
-        #    for par in parsed_par_chunks]
-        #parsed_par_chunks = [[[parsed for parsed in chunk]]]
-            #for par in parsed_par_chunks]
         
+        if paragraph_sep is None:
+            parsed_par_chunks = parsed_par_chunks[0]
         
         return parsed_par_chunks
     
     @staticmethod
-    def _split_texts(text, chunk_sents, split_re='([\?\!\.])'):
+    def _split_texts(text, chunk_sents, split_re):
         sents = [s for s in re.split(split_re, text) if len(s.split())>0]
-        #chunk_size = math.ceil(len(sents)/2)
         n_chunks = math.ceil(len(sents)/(2*chunk_sents))
         textblocks = [''.join(sents[i*chunk_sents*2:(i+1)*chunk_sents*2]) 
                         for i in range(n_chunks)]
