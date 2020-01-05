@@ -2,6 +2,7 @@ from multiprocessing import Pipe, Process
 import os
 import math
 
+
 class Distribute:
     def __init__(self, workers=None):
         
@@ -24,6 +25,7 @@ class Distribute:
                 self.pool[i].terminate()
         
         if not self.finished:
+            print('thread exception traceback:', type, value, traceback)
             raise RuntimeError('There was a problem with the chunk_thread.')
     
     
@@ -77,14 +79,15 @@ class Distribute:
     def map_chunk(self, chunk_thread, elements, *thread_args):
         '''Applies chunk_thread to chunks of elements.
         '''
-        # mark as in-progress
-        self.finished = False
         
         # set number of workers as minimum
         self.workers = min([len(elements), self.workers_og])
         if self.workers <= 1:
             return chunk_thread(elements, *thread_args)
-
+        else:
+            # prepare to open processes
+            self.finished = False
+        
         # chunk up elements
         chunk_size = math.ceil(len(elements)/self.workers)
         chunks = [elements[i*chunk_size:(i+1)*chunk_size]
