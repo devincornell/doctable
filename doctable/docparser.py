@@ -102,7 +102,7 @@ class DocParser:
                 spacy_ngram_matcher=spacy_ngram_matcher,
                 merge_noun_chunks=merge_noun_chunks
             )
-            
+                        
         if parse_tok_func is None:
             parse_tok_func = cls.parse_tok
         if use_tok_func is None:
@@ -131,7 +131,7 @@ class DocParser:
             return toks
         
     @staticmethod
-    def parse_tok(tok, replace_num=None, replace_digit=None, lemmatize=False, normal_convert=None, 
+    def parse_tok(tok, num_replacement=None, digit_replacement=None, lemmatize=False, normal_convert=None, 
             format_ents=False, ent_convert=None):
         '''Convert spacy token object to string.
         Args:
@@ -149,11 +149,13 @@ class DocParser:
                 for entities. This way can keep all other functionality.
         '''
         
+        # catch issues with 
+        
         # replace characters
-        if replace_digit is not None and tok.is_digit:
-            return replace_digit
-        if replace_num is not None and tok.like_num:
-            return replace_num
+        if digit_replacement is not None and tok.is_digit:
+            return digit_replacement
+        if num_replacement is not None and tok.like_num:
+            return num_replacement
         
         if tok.ent_type_ == '': # non-entity token
             if lemmatize:
@@ -224,10 +226,11 @@ class DocParser:
             with doc.retokenize() as retokenizer:
                 for nc in doc.noun_chunks:
                     retokenizer.merge(nc)
+        return doc # just in case user tries to assign
     
     @staticmethod
     def merge_ngrams(toks, ngrams, ngram_sep=' '):
-        '''Merges specified consecutive tokens into single tokens.
+        '''Merges manually specified consecutive tokens into single tokens.
         '''
         new_toks = list()
         ngram_starts = [ng[0] for ng in ngrams] # first word of every ngram
@@ -250,26 +253,7 @@ class DocParser:
                 i += 1
         return new_toks
     
-    @classmethod
-    def chunk_parse(cls, text, nlp, parsefuncs, preprocessfunc=None, paragraph_sep=None, max_sent=10):
-        '''Parses a single document by breaking it into chunks for lower memory consumption.
-        '''
-        # split into paragraphs (or simulate)
-        if paragraph_sep is not None:
-            texts = [par.strip() for par in text.split(paragraph_sep) if len(par.strip()) > 0]
-            text_chunks = [cls._split_texts(par, max_sent) for par in texts]
-        else:
-            text_chunks = [cls._split_texts(text, max_sent)]
-        
-        par_dat = list()
-        for par in pars:
-            chunk_dat = list()
-            for tchunk in text_chunks:
-                doc = nlp(tchunk)
-                chunk_dat.append([pfunc(doc) for pfunc in parsefuncs])
-                del doc
-            par_dat.append(list(zip(*chunk_dat)))
-        print('par_dat')
+
         
     @classmethod
     def parse_text_chunks(cls, text, nlp, parse_funcs={}, doc_transform=None,
@@ -312,6 +296,7 @@ class DocParser:
                 #print('adding el', idx)
             parsed_par_chunks[-1].append(parsed)
             last_idx = idx
+            del doc
         
         if paragraph_sep is None:
             parsed_par_chunks = parsed_par_chunks[0]

@@ -6,6 +6,7 @@ import re
 from tqdm import tqdm
 import spacy
 from gutendocsdb import GutenDocsDB
+from pprint import pprint
 
 from gutenberg.acquire.metadata import SleepycatMetadataCache
 #from gutenberg.acquire.metadata import SqliteMetadataCache
@@ -68,33 +69,41 @@ class GutenParser(doctable.DocParser):
         db = GutenDocsDB(fname=dbfname)
         
         # set up gutenberg cache
-        cache = SleepycatMetadataCache('guten_cache.sqlite')
+        cache = SleepycatMetadataCache('guten_cache2.db')
         set_metadata_cache(cache)
         
         # define parsing functions and regex
         re_start = re.compile('\n\*\*\*.*START OF .* GUTENBERG .*\n')
         use_tok = lambda tok: cls.use_tok(tok, filter_whitespace=True)
-        parse_tok = lambda tok: cls.parse_tok(tok, replace_num=True, format_ents=True)
-        tokenize = lambda doc: cls.tokenize_doc(doc, merge_ents=True, 
-                split_sents=True, parse_tok_func=parse_tok, use_tok_func=use_tok)
-        parsetrees = lambda doc: cls.get_parsetrees(doc, merge_ents=True, parse_tok_func=parse_tok)
+        parse_tok = lambda tok: cls.parse_tok(tok, num_replacement='XXNUMXX', format_ents=True)
+        tokenize = lambda doc: cls.tokenize_doc(doc, split_sents=True,
+                                parse_tok_func=parse_tok, use_tok_func=use_tok)
+        parsetrees = lambda doc: cls.get_parsetrees(doc, merge_ents=False, 
+                                parse_tok_func=parse_tok)
+        parse_funcs = {
+            'toks': tokenize,
+            'ptrees': parsetrees,
+        }
+        doc_tform = lambda doc: doctable.DocParser.apply_doc_transform(doc, merge_ents=True)
         
         # use loading bar or not
-        if verbose:
-            n = len(ids)
-            iter = tqdm(enumerate(ids), total=n, ncols=50)
-        else:
-            iter = enumerate(ids)
+        #if verbose:
+        #    n = len(ids)
+        #    iter = tqdm(enumerate(ids), total=n, ncols=50)
+        #else:
+        #    iter = enumerate(ids)
+        
         
         # loop through each potential document
-        for i, idx in iter:
+        n = len(ids)
+        for i, idx in tqdm(enumerate(ids), total=n, ncols=50):
             
             if i % 100 == 0: # renew parser
                 nlp = spacy.load('en')
             
-            #print('\n--> holding for lang ({})'.format(ids[0]))
+            if verbose: print('\n--> holding for lang ({})'.format(ids[0]))
             language = get_metadata('language', idx)
-            #print('\n--> got lang:', language, '({})'.format(ids[0]))
+            if verbose: print('\n--> got lang:', language, '({})'.format(ids[0]))
             if 'en' in language:
                 valid_etext = True
                 try:
@@ -113,45 +122,22 @@ class GutenParser(doctable.DocParser):
                     language = '\n'.join(get_metadata('language', idx))
                     rights = '\n'.join(get_metadata('rights', idx))
                     formaturi = '\n'.join(get_metadata('formaturi', idx))
-
-                    text_pars = [par.strip() for par in text.split('\n\n') 
-                                    if len(par.strip()) > 0]
-
-                    # parse by paragraph
-                    par_toks, par_ptrees = list(), list()
-                    for text_par in text_pars:
-                        
-                        # split into blocks so nothing too big for spacy
-                        #tsplit = text_par.split('.')
-                        #chunk_size = 10 # sentences per block
-                        #N = math.ciel(len(tsplit)/chunk_size)
-                        #textblocks = ['.'.join(ts[i*N:(i+1)*N])+'.' forts in tsplit]
-                        sents = re.split('([\?\!\.])', text)
-                        chunk_size = math.ceil(len(sents)/2)
-                        n_chunks = math.ceil(len(sents)/(chunk_size))
-                        textblocks = [''.join(sents[i*chunk_size*2:(i+1)*chunk_size*2]) 
-                                           for i in range(n_chunks)]
-                        print('\n{} split sents, {} chunks size, {} chunks, {} blocks.'
-                             ''.format(len(sents), chunk_size, n_chunks, len(textblocks)))
-                        
-                        # parse each block and merge back
-                        ptok_blocks, ptree_blocks = list(), list()
-                        for tblock in textblocks:
-                            doc = nlp(tblock)
-                            print('parsed one')
-                            ptok_blocks += tokenize(doc)
-                            ptree_blocks += parsetrees(doc)
-                        
-                        # combine block results into paragraphs
-                        par_toks.append(ptok_blocks)
-                        par_ptrees.append(ptree_blocks)
-                        
-                    full_text = '\n\n'.join(text_pars)
-
-                    db.insert_doc(idx, par_toks, par_ptrees, full_text, title, author, formaturi, 
+                    
+                    parsed_pars = doctable.DocParser.parse_text_chunks(text, nlp, 
+                            parse_funcs=parse_funcs, doc_transform=doc_tform, 
+                            paragraph_sep='\n\n', chunk_sents=1000)
+                    
+                    # parsed pars is a list of paragraphs as lists of chunks
+                    par_ptrees = [[s for ch in par for s in ch['ptrees']] for par in parsed_pars]
+                    par_toks = [[s for ch in par for s in ch['toks']] for par in parsed_pars]
+                    
+                    #pprint(par_ptrees)
+                    #print(text[-5000:])
+                    #exit()
+                    db.insert_doc(idx, par_toks, par_ptrees, text, title, author, formaturi, 
                         language, rights, subject, ifnotunique='replace')
                 
 if __name__ == '__main__':
-    parser = GutenParser('db/gutenberg_tst.db')
-    parser.parse_gutenberg(workers=1, verbose=True)
+    parser = GutenParser('db/gutenberg_17.db')
+    parser.parse_gutenberg(workers=20, verbose=False)
     
