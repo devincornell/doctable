@@ -5,6 +5,7 @@ import random
 import pandas as pd
 import os
 from glob import glob
+from datetime import datetime
 
 # operators like and_, or_, and not_, functions like sum, min, max, etc
 import sqlalchemy.sql as op
@@ -165,7 +166,7 @@ class DocTable:
                 coltypeargs = colinfo[3] if n > 3 else dict()
                 if coltype in ('picklefile','textfile') and self._fname != ':memory:':
                     if 'fpath' not in coltypeargs:
-                        path = os.path.split(self._fname)[0]
+                        path = os.path.splitext(self._fname)[0]
                         coltypeargs['fpath'] = path+'_'+self._tabname+'_'+colname
                 
                 col = sa.Column(colname, self._type_map[coltype](**coltypeargs), **colargs)
@@ -173,6 +174,12 @@ class DocTable:
             else:
                 if colinfo[0] == 'idcol': #shortcut for typical id integer primary key etc
                     col = sa.Column(colinfo[1], sa.Integer, primary_key=True, autoincrement=True)
+                    columns.append(col)
+                if colinfo[0] == 'date_added': #shortcut for typical id integer primary key etc
+                    col = sa.Column(colinfo[1], sa.DateTime, default=datetime.now)
+                    columns.append(col)
+                if colinfo[0] == 'date_updated': #shortcut for typical id integer primary key etc
+                    col = sa.Column(colinfo[1], sa.DateTime, default=datetime.now, onupdate=datetime.now)
                     columns.append(col)
                 elif colinfo[0] == 'index':
                     # ('index', 'ind0', ('name','address'),dict(unique=True)),
