@@ -1,4 +1,4 @@
-
+examples/exdb/*
 *.db
 *.csv
 misc/*
