@@ -13102,6 +13102,7 @@ div#notebook {
     <span class="c1"># standard id column</span>
     <span class="c1">#SQLAlchemy: Column(&#39;id&#39;, Integer, primary_key = True, autoincrement=True), </span>
     <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
+    <span class="c1"># short form (can&#39;t provide any additional args though): (&#39;idcol&#39;, &#39;id&#39;)</span>
 
     <span class="c1"># make a category column with two options: &quot;FICTION&quot; and &quot;NONFICTION&quot;</span>
     <span class="c1">#SQLAlchemy: Column(&#39;title&#39;, String,)</span>
@@ -13120,11 +13121,22 @@ div#notebook {
     <span class="c1"># make an age column where age must be greater than zero</span>
     <span class="c1">#SQLAlchemy: Column(&#39;abstract&#39;, Integer)</span>
     <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">),</span>
- 
+    
+    <span class="c1"># file column types</span>
+    <span class="c1"># fpath dictates where the files will be stored</span>
+    <span class="p">(</span><span class="s1">&#39;picklefile&#39;</span><span class="p">,</span> <span class="s1">&#39;pickle_obj&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fpath</span><span class="o">=</span><span class="s1">&#39;folder_for_picklefiles&#39;</span><span class="p">))</span>
+    
+    <span class="c1"># by not specifying fpath, will create a folder in same path as db with </span>
+    <span class="c1">#   &lt;tabname&gt;_&lt;colname&gt; format.</span>
+    <span class="p">(</span><span class="s1">&#39;textfile&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">)</span> <span class="c1"># similar to above</span>
 
     <span class="c1"># make a column that keeps track of column updates</span>
     <span class="c1">#SQLAlchemy: Column(&#39;updated_on&#39;, DateTime(), default=datetime.now, onupdate=datetime.now)</span>
     <span class="p">(</span><span class="s1">&#39;datetime&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_on&#39;</span><span class="p">,</span>  <span class="nb">dict</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)),</span>
+    <span class="c1"># short form: (&#39;date_updated&#39;, &#39;updated_on&#39;)</span>
+    
+    <span class="p">(</span><span class="s1">&#39;datetime&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_on&#39;</span><span class="p">,</span>  <span class="nb">dict</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)),</span>
+    <span class="c1"># short form: (&#39;date_added&#39;, &#39;updated_on&#39;)</span>
 
     <span class="c1"># make a string column with max of 500 characters</span>
     <span class="c1">#SQLAlchemy: Column(&#39;abstract&#39;, String, default=&#39;&#39;)</span>
