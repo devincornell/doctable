@@ -82,7 +82,9 @@ test: pytest test_examples
 	
 clean_tests:
 	-rm $(EXAMPLES_FOLDER)*.db
+	-rm $(EXAMPLES_FOLDER)/exdb/*.db
 	-rm $(TESTS_FOLDER)*.db
+	-rm *.db
 	
 ########################################## BUILD AND DEPLOY ################################
 
