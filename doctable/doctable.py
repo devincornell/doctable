@@ -175,10 +175,10 @@ class DocTable:
                 if colinfo[0] == 'idcol': #shortcut for typical id integer primary key etc
                     col = sa.Column(colinfo[1], sa.Integer, primary_key=True, autoincrement=True)
                     columns.append(col)
-                if colinfo[0] == 'date_added': #shortcut for typical id integer primary key etc
+                elif colinfo[0] == 'date_added': #shortcut for typical id integer primary key etc
                     col = sa.Column(colinfo[1], sa.DateTime, default=datetime.now)
                     columns.append(col)
-                if colinfo[0] == 'date_updated': #shortcut for typical id integer primary key etc
+                elif colinfo[0] == 'date_updated': #shortcut for typical id integer primary key etc
                     col = sa.Column(colinfo[1], sa.DateTime, default=datetime.now, onupdate=datetime.now)
                     columns.append(col)
                 elif colinfo[0] == 'index':
