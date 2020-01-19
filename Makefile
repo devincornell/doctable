@@ -56,6 +56,7 @@ pytest:
 	# tests from tests folder
 	pytest $(TESTS_FOLDER)/test_doctable_*.py
 	pytest $(TESTS_FOLDER)/test_docparser_*.py
+	pytest $(TESTS_FOLDER)/test_distribute*.py
 	pytest $(TESTS_FOLDER)/test_legacy_*.py
 
 TMP_TEST_FOLDER = tmp_test_deleteme
@@ -69,8 +70,8 @@ test_examples:
 	# convert notebooks to .py scripts
 	jupyter nbconvert --to script $(TMP_TEST_FOLDER)/*.ipynb
 	
-	# run regular python
-	cd $(TMP_TEST_FOLDER); python ./*.py
+	# run ipython so it will test out "%time " statements etc.
+	cd $(TMP_TEST_FOLDER); ipython ./*.py
 	
 	# cleanup temp folder
 	rm -r $(TMP_TEST_FOLDER)
