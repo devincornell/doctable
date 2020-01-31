@@ -166,8 +166,9 @@ class DocTable:
                 coltypeargs = colinfo[3] if n > 3 else dict()
                 if coltype in ('picklefile','textfile') and self._fname != ':memory:':
                     if 'fpath' not in coltypeargs:
-                        path = os.path.splitext(self._fname)[0]
-                        coltypeargs['fpath'] = path+'_'+self._tabname+'_'+colname
+                        #path = os.path.splitext(self._fname)[0]
+                        #coltypeargs['fpath'] = path+'_'+self._tabname+'_'+colname
+                        coltypeargs['fpath'] = self._fname+'_'+self._tabname+'_'+colname
                 
                 col = sa.Column(colname, self._type_map[coltype](**coltypeargs), **colargs)
                 columns.append(col)
