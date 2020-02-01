@@ -169,7 +169,7 @@ class DocParser:
             if ent_convert is not None:
                 return ent_convert(tok)
             elif format_ents:
-                return ' '.join([t.lower().capitalize() for t in tok.text.split()])
+                return ' '.join([t.strip().lower() for t in tok.text.split()]).capitalize()
             else:
                 return tok.text.strip()
         
