@@ -4,12 +4,15 @@ import math
 
 
 class Distribute:
-    def __init__(self, workers=None):
+    def __init__(self, workers=None, override_maxcores=False):
         
         if workers is None:
             self.workers_og = os.cpu_count()
         else:
-            self.workers_og = min([os.cpu_count(), workers])
+            if override_maxcores: # in case where user really wantes more workers than cores
+                self.workers_og = workers
+            else:
+                self.workers_og = min([os.cpu_count(), workers])
         
         self.pool = None
         self.finished = True
@@ -82,6 +85,7 @@ class Distribute:
         
         # set number of workers as minimum
         self.workers = min([len(elements), self.workers_og])
+        
         if self.workers <= 1:
             return chunk_thread(elements, *thread_args)
         else:
