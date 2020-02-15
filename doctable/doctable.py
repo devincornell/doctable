@@ -241,7 +241,8 @@ class DocTable:
         
         # get column filenames
         db = DocTable(fname=self._fname, tabname=self._tabname)
-        db_fnames = {col.type.fpath+fn for fn in db.select(col.name)}
+        dbcol = db[col.name]
+        db_fnames = {col.type.fpath+fn for fn in db.select(dbcol, where=dbcol != None)}
         
         # get existing files from filesystem
         exist_fnames = set(glob(col.type.fpath+'*'+col.type.file_ext))
@@ -496,28 +497,29 @@ class DocTable:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return result
     
-    def select_chunk(self, cols=None, chunksize=1, max_rows=None, **kwargs):
+    def select_chunk(self, cols=None, chunksize=1, limit=None, **kwargs):
         '''Performs select while querying only a subset of the results at a time.
         Args:
             cols (col name(s) or sqlalchemy object(s)): columns to query
             chunksize (int): size of individual queries to be made. Will
                 load this number of rows into memory before yielding.
-            max_rows (int): maximum number of rows to retrieve. Because 
+            limit (int): maximum number of rows to retrieve. Because 
                 the limit argument is being used internally to limit data
                 to smaller chunks, use this argument instead. Internally,
-                this function will load a maximum of max_rows + chunksize 
-                - 1 rows into memory, but yields only max_rows.
+                this function will load a maximum of limit + chunksize 
+                - 1 rows into memory, but yields only limit.
         Yields:
             sqlalchemy result: row data - same as .select() method.
         '''
         offset = 0
         while True:
             rows = self.select(cols, offset=offset, limit=chunksize, **kwargs)
-            for row in rows[:max_rows-offset]:
+            rowiter = rows[:limit-offset] if limit is not None else rows
+            for row in rowiter:
                 yield row
             offset += len(rows)
             
-            if (max_rows is not None and offset >= max_rows) or len(rows) == 0:
+            if (limit is not None and offset >= limit) or len(rows) == 0:
                 break
     
     #################### Update Methods ###################
