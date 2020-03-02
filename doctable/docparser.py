@@ -257,7 +257,7 @@ class DocParser:
         
     @classmethod
     def parse_text_chunks(cls, text, nlp, parse_funcs={}, doc_transform=None,
-                             paragraph_sep=None, chunk_sents=1000, split_re='([\?\!\.]+)(?=[\WA-Z])'):
+                             chunk_sents=1000, split_re='([\?\!\.]+)(?=[\WA-Z])'):
         '''Parse text in paragraph by sentences.
         Args:
             text (str): (preprocessed) text document to parse
@@ -274,11 +274,7 @@ class DocParser:
             doc_transform = lambda x: x
         
         # split into paragraphs and chunks
-        if paragraph_sep is not None:
-            texts = [par.strip() for par in text.split(paragraph_sep) if len(par.strip()) > 0]
-            text_chunks = [cls._split_texts(par, chunk_sents, split_re) for par in texts]
-        else:
-            text_chunks = [cls._split_texts(text, chunk_sents, split_re)]
+        text_chunks = cls._split_texts(text, chunk_sents, split_re)
         
         # flatten texts into single list and record paragraph,chunk ids
         parids = [(i,ch) for i, par in enumerate(text_chunks) for ch in par]
@@ -297,9 +293,6 @@ class DocParser:
             parsed_par_chunks[-1].append(parsed)
             last_idx = idx
             del doc
-        
-        if paragraph_sep is None:
-            parsed_par_chunks = parsed_par_chunks[0]
         
         return parsed_par_chunks
     
