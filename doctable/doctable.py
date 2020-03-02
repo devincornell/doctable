@@ -309,6 +309,10 @@ class DocTable:
         return self._table.c
     
     @property
+    def colnames(self):
+        return [c.name for c in self.columns]
+    
+    @property
     def schemainfo(self):
         '''Get info about each column as a dictionary.
         Returns:
