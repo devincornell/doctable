@@ -1,4 +1,5 @@
-import _pickle as cPickle
+#import _pickle as cPickle
+import pickle
 import sqlalchemy.types as types
 import numpy as np
 from collections import Iterable
@@ -59,10 +60,10 @@ class PickleFileType(FileTypeBase):
     file_ext = '.pic'
     @classmethod
     def dump_data(cls, f, value, dialect): # used in FileTypeBase.process_bind_param()
-        return cPickle.dump(value, f)
+        return pickle.dump(value, f)
     @classmethod
     def load_data(cls, f, dialect):
-        return cPickle.load(f)
+        return pickle.load(f)
 
 class TextFileType(FileTypeBase):
     file_ext = '.txt'
@@ -81,13 +82,13 @@ class CpickleType(types.TypeDecorator):
     
     def process_bind_param(self, value, dialect):
         if value is not None:
-            return cPickle.dumps(value)
+            return pickle.dumps(value)
         else:
             return None
 
     def process_result_value(self, value, dialect):
         if value is not None:
-            return cPickle.loads(value)
+            return pickle.loads(value)
         else:
             return None
 
