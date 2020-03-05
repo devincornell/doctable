@@ -60,7 +60,7 @@ class PickleFileType(FileTypeBase):
     file_ext = '.pic'
     @classmethod
     def dump_data(cls, f, value, dialect): # used in FileTypeBase.process_bind_param()
-        return pickle.dump(value, f)
+        return pickle.dump(value, f, -1) # use highest protocol with negative number
     @classmethod
     def load_data(cls, f, dialect):
         return pickle.load(f)
@@ -82,7 +82,7 @@ class CpickleType(types.TypeDecorator):
     
     def process_bind_param(self, value, dialect):
         if value is not None:
-            return pickle.dumps(value)
+            return pickle.dumps(value, -1) # negative protocol number means highest
         else:
             return None
 
