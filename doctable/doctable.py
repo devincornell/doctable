@@ -371,6 +371,15 @@ class DocTable:
         ct = self.select_first(cter, where=where, whrstr=whrstr, **kwargs)
         return ct
     
+    def head(self, n=5):
+        ''' Return first n rows as dataframe for quick viewing.
+        Args:
+            n (int): number of rows to return in dataframe.
+        Returns:
+            Dataframe of the first n rows of the table.
+        '''
+        return self.select_df(limit=n)
+    
     def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, offset=None, **kwargs):
         '''Perform select query, yield result for each row.
         
