@@ -13,3 +13,6 @@ from .distribute import Distribute
 from .migration import migrate_db
 
 from .util import list_tables
+
+from .parse import Pipeline
+
