@@ -18,6 +18,7 @@ if __name__ == '__main__':
         
         lambda doc: dt.parse.tokenize(doc,
             split_sents=True,
+                                      
             filter_tok_func = lambda tok: dt.parse.filter_tok(tok,
                 punct=True,
                 stop=True, # filter stopwords and punctuation
