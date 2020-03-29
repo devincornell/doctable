@@ -75,12 +75,18 @@ class DocTable:
         
         # in cases where user did not want to create new db but a db does not 
         # exist
+        
         if fname != ':memory:' and not os.path.exists(fname) and not make_new_db:
-            raise FileNotFoundError('make_new_db is set to true but the database does not '
+            raise FileNotFoundError('make_new_db is set to False but the database does not '
                              'exist yet.')
         elif schema is None and (fname == ':memory:' or not os.path.exists(fname)):
             raise ValueError('Schema must be provided if using memory database or '
-                             'database file does not exist yet.')
+                             'database file does not exist yet. Need to provide schema '
+                             'when creating a new table.')
+        elif schema is None and tabname not in list_tables(fname, engine=engine, **engine_args):
+            tables = list_tables(fname, engine=engine, **engine_args)
+            raise ValueError('The requested table was not found in the database! Schema must be '
+                             'provided to create a new table. Existing tables: {tables}')
         
         # separate tables for custom data types and main table
         self._fname = fname
