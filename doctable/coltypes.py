@@ -5,6 +5,7 @@ import numpy as np
 from collections import Iterable
 from random import randrange
 import os
+import json
 
 from .parsetree import ParseTree
 
@@ -91,6 +92,23 @@ class CpickleType(types.TypeDecorator):
             return pickle.loads(value)
         else:
             return None
+        
+        
+class JSONType(types.TypeDecorator):
+    impl = types.String
+    
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            return json.dumps(value, -1) # negative protocol number means highest
+        else:
+            return None
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            return json.loads(value)
+        else:
+            return None
+        
 
         
 class ParseTreeType(types.TypeDecorator):

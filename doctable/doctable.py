@@ -35,6 +35,7 @@ class DocTable:
         'time':sa.Time,
         'unicode':sa.Unicode,
         'unicodetext':sa.UnicodeText,
+        'json': JSONType, # custom datatype
         'pickle': CpickleType, # custom datatype
         'parsetree': ParseTreeType, # custom datatype
         'picklefile': PickleFileType,
