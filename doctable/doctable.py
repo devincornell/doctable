@@ -12,7 +12,7 @@ import sqlalchemy.sql as op
 from sqlalchemy.sql import func
 import sqlalchemy as sa
 
-from .coltypes import CpickleType, ParseTreeType, PickleFileType, TextFileType, FileTypeBase
+from .coltypes import CpickleType, ParseTreeType, PickleFileType, TextFileType, FileTypeBase, JSONType
 from .bootstrap import DocBootstrap
 from .util import list_tables
 
