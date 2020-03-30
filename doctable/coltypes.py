@@ -99,7 +99,7 @@ class JSONType(types.TypeDecorator):
     
     def process_bind_param(self, value, dialect):
         if value is not None:
-            return json.dumps(value, -1) # negative protocol number means highest
+            return json.dumps(value, indent=2, default=str) # coerce unknown types into strings
         else:
             return None
 
