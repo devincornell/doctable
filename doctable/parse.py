@@ -61,7 +61,7 @@ def preprocess(text, replace_url=None, replace_xml=None, replace_digits=None):
 def identity(x):
     return x
 
-def tokenize(doc, split_sents=True, filter_tok_func=None, parse_tok_func=None):
+def tokenize(doc, split_sents=True, keep_tok_func=None, parse_tok_func=None):
     ''' Convert spacy doc into a series of tokens (as sentences or not).
     Args:
         split_sents (bool): parse into list of sentence tokens using doc.sents.
@@ -71,7 +71,7 @@ def tokenize(doc, split_sents=True, filter_tok_func=None, parse_tok_func=None):
             Normally will create using spacy.Matcher(nlp.vocab), see more details
             at https://spacy.io/usage/rule-based-matching And also note that the 
             nlp object must be the one used for parsing.
-        filter_tok_func (func): func used to decide to keep func or not. Default is
+        keep_tok_func (func): func used to decide to keep func or not. Default is
             identity function
         parse_tok_func (func): func used to parse tokens. By default uses 
             identify function.
@@ -79,14 +79,14 @@ def tokenize(doc, split_sents=True, filter_tok_func=None, parse_tok_func=None):
                     
     if parse_tok_func is None:
         parse_tok_func = identity
-    if filter_tok_func is None:
-        filter_tok_func = identity
+    if keep_tok_func is None:
+        keep_tok_func = identity
         
     # sentence parsing mode
     if split_sents:
         sents = [
             [parse_tok_func(tok) 
-             for tok in sent if not filter_tok_func(tok)] 
+             for tok in sent if keep_tok_func(tok)] 
             for sent in doc.sents
         ]
         
@@ -95,7 +95,7 @@ def tokenize(doc, split_sents=True, filter_tok_func=None, parse_tok_func=None):
     # doc parsing mode
     else:
         toks = [parse_tok_func(tok) 
-                for tok in doc if not filter_tok_func(tok)]
+                for tok in doc if keep_tok_func(tok)]
         
         return toks
 
@@ -146,8 +146,8 @@ def parse_tok(tok, num_replacement=None, digit_replacement=None, lemmatize=False
 
 
 
-def filter_tok(tok, whitespace=True, punct=False, stop=False, digit=False, 
-               num=False, ents=False, keep_ent_types=None, rm_ent_types=None):
+def keep_tok(tok, whitespace=False, punct=True, stop=True, digit=True, 
+               num=True, ents=True, keep_ent_types=None, rm_ent_types=None):
     ''' Decide to use token or not (can be overridden).
     Args:
         whitespace (bool): exclude whitespace.
@@ -160,22 +160,22 @@ def filter_tok(tok, whitespace=True, punct=False, stop=False, digit=False,
     '''
     
     
-    if whitespace and (tok.is_space or len(tok.text.strip()) == 0):
+    if not whitespace and (tok.is_space or len(tok.text.strip()) == 0):
         return False
     
-    elif punct and not tok.is_punct:
+    elif not punct and tok.is_punct:
         return False
     
-    elif stop and tok.is_stop:
+    elif not stop and tok.is_stop:
         return False
     
-    elif num and tok.like_num:
+    elif not num and tok.like_num:
         return False
     
-    elif digit and tok.is_digit:
+    elif not digit and tok.is_digit:
         return False
         
-    elif ents and tok.ent_type_ == '':
+    elif not ents and tok.ent_type_ != '':
         return False
     
     elif keep_ent_types is not None and tok.ent_type_ not in keep_ent_types:

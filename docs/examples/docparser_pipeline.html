@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>doctable_multitable</title>
+<title>docparser_pipeline</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13077,102 +13077,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Example:-Multiple-Tables">Example: Multiple Tables<a class="anchor-link" href="#Example:-Multiple-Tables">&#182;</a></h1><p>In this example, I show how doctable can be used with multiple tables. To accomplish this, I first create a new DocTable object named SubTable that stores a single value <code>n</code> in addition to an index column, column recording when item was inserted, and an index to ensure speed and uniqueness of the number <code>n</code>. Next, we create a MainTable object which includes a foreign key constraint, and overloads the <code>DocTable.insert()</code> method to store data into the SubTable transparently.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
-<span class="kn">import</span> <span class="nn">doctable</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>First, we create a simple class SubTable. Nothing special here.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">SubTable</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
-    <span class="n">tabname</span> <span class="o">=</span> <span class="s1">&#39;subtable&#39;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;date_updated&#39;</span><span class="p">,</span> <span class="s1">&#39;updated&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;ind_n&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-        <span class="p">),</span> <span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tabname</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Next, we create a class MainTable with a foreign key constraint. The coreign key points from it's own column subkey to the SubTab <code>id</code> column. Additionally, we overload the MainTable insert method to store the provided <code>n</code> value into the other table and instead insert a reference to the SubTable that stores the actual integer.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">MainTable</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
-    <span class="n">tabname</span> <span class="o">=</span> <span class="s1">&#39;maintable&#39;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subtab</span> <span class="o">=</span> <span class="n">SubTable</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-        <span class="c1">#self.subtab.commit()</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;subkey&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;foreignkey_constraint&#39;</span><span class="p">,</span> <span class="p">[[</span><span class="s1">&#39;subkey&#39;</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">subtab</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]]],</span> <span class="p">{},</span> <span class="nb">dict</span><span class="p">(</span><span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">)),</span>
-            <span class="p">(</span><span class="s1">&#39;date_updated&#39;</span><span class="p">,</span> <span class="s1">&#39;updated&#39;</span><span class="p">),</span>
-        <span class="p">),</span> <span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tabname</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rowdat</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="c1"># add just in case it wasn&#39;t there</span>
-        <span class="k">if</span> <span class="s1">&#39;n&#39;</span> <span class="ow">in</span> <span class="n">rowdat</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">subtab</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;n&#39;</span><span class="p">:</span><span class="n">rowdat</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]},</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
-        
-            <span class="c1"># get id of the right column</span>
-            <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtab</span><span class="o">.</span><span class="n">select_first</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subtab</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">rowdat</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">])</span>
-            <span class="n">rowdat</span><span class="p">[</span><span class="s1">&#39;subkey&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
-            <span class="k">del</span> <span class="n">rowdat</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">rowdat</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Now we test our code by creating a new MainTable object (which also instantiates a SubTable as a member variable), and then inserts two rows with different names and the same number. The result is that two rows have been inserted in MainTable but they contain references to the saim subtable rows.</p>
+<h1 id="DocParserPipeline-Class">DocParserPipeline Class<a class="anchor-link" href="#DocParserPipeline-Class">&#182;</a></h1><p>This example gives an overview of DocParserPipeline functionality. See <a href="https://devincornell.github.io/doctable/ref/doctable.DocParserPipeline.html">reference docs for more detail</a>.</p>
 
 </div>
 </div>
@@ -13182,13 +13087,182 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">MainTable</span><span class="p">(</span><span class="s1">&#39;exdb/multitable0.db&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;devin cornell&#39;</span><span class="p">,</span> <span class="s1">&#39;pierre bourdieu&#39;</span><span class="p">):</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">subtab</span><span class="o">.</span><span class="n">select_df</span><span class="p">())</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">doctable</span> <span class="k">as</span> <span class="nn">dt</span>
+<span class="kn">from</span> <span class="nn">spacy</span> <span class="k">import</span> <span class="n">displacy</span>
+<span class="kn">import</span> <span class="nn">spacy</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ModuleNotFoundError</span>                       Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-5-6c00644bdf5e&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-green-fg">import</span> sys
+<span class="ansi-green-intense-fg ansi-bold">      2</span> sys<span class="ansi-blue-fg">.</span>path<span class="ansi-blue-fg">.</span>append<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#39;..&#39;</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-fg">----&gt; 3</span><span class="ansi-red-fg"> </span><span class="ansi-green-fg">import</span> doctable <span class="ansi-green-fg">as</span> dt
+<span class="ansi-green-intense-fg ansi-bold">      4</span> <span class="ansi-green-fg">from</span> spacy <span class="ansi-green-fg">import</span> displacy
+<span class="ansi-green-intense-fg ansi-bold">      5</span> <span class="ansi-green-fg">import</span> spacy
+
+<span class="ansi-green-fg">/scratch/dc326/code/doctable/doctable/__init__.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">     15</span> <span class="ansi-green-fg">from</span> <span class="ansi-blue-fg">.</span>util <span class="ansi-green-fg">import</span> list_tables
+<span class="ansi-green-intense-fg ansi-bold">     16</span> 
+<span class="ansi-green-fg">---&gt; 17</span><span class="ansi-red-fg"> </span><span class="ansi-green-fg">import</span> parse
+<span class="ansi-green-intense-fg ansi-bold">     18</span> 
+
+<span class="ansi-red-fg">ModuleNotFoundError</span>: No module named &#39;parse&#39;</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exstr</span> <span class="o">=</span> <span class="s1">&#39;James will paint the house for $20 (twenty dollars). He is a rule-breaker&#39;</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">exstr</span><span class="p">)</span>
+<span class="n">doc</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[2]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>James will paint the house for $20 (twenty dollars). He is a rule-breaker</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Pipeline-Components">Pipeline Components<a class="anchor-link" href="#Pipeline-Components">&#182;</a></h2><p>Pipelines are constructed using various components.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocParserPipeline</span><span class="p">({</span>
+    <span class="s1">&#39;preprocessor&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="c1"># do nothing (same as omitting)</span>
+    <span class="s1">&#39;parser&#39;</span><span class="p">:</span> <span class="n">nlp</span><span class="p">,</span>
+    <span class="s1">&#39;token_merger&#39;</span><span class="p">:</span> <span class="p">,</span>
+    <span class="s1">&#39;tokenizer&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">doc</span><span class="p">:</span> <span class="n">DocParser</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
+        <span class="s1">&#39;use_tok_func&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">tok</span><span class="p">:</span> <span class="ow">not</span> <span class="n">tok</span><span class="o">.</span><span class="n">is_num</span><span class="p">,</span>
+        <span class="s1">&#39;parse_tok_func&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">tok</span><span class="p">:</span> <span class="n">tok</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+    <span class="p">}),</span>
+    <span class="s1">&#39;postprocessor&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">tok</span> <span class="k">for</span> <span class="n">sent</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">sent</span><span class="p">],</span> <span class="c1"># flatten out to tokens</span>
+<span class="p">})</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Preprocessing">Preprocessing<a class="anchor-link" href="#Preprocessing">&#182;</a></h2><p>The first step before using spacy to parse a document is to preprocess, which usually means removing artifacts. The <code>.preprocess()</code> method has features for replacing urls, replacing xml tags, and removing digits.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">advstr</span> <span class="o">=</span> <span class="s1">&#39;James said he will paint the house red for $20 (twenty dollars). He is such a &lt;i&gt;rule-breaker&lt;/i&gt;: http://rulebreaking.com&#39;</span>
+<span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">advstr</span><span class="p">,</span> <span class="n">replace_url</span><span class="o">=</span><span class="s1">&#39;URL&#39;</span><span class="p">,</span> <span class="n">replace_xml</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">replace_digits</span><span class="o">=</span><span class="s1">&#39;DIG&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[3]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;James said he will paint the house red for $DIG (twenty dollars). He is such a rule-breaker: URL&#39;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Normally after preprocessing you will then feed into the spacy parser.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Tokenization">Tokenization<a class="anchor-link" href="#Tokenization">&#182;</a></h2><p>Many text analysis applications begin with converting raw text into sequences of tokens. The <code>.tokenize_doc()</code>, <code>.use_tok()</code>, and <code>.parse_tok()</code> methods are convenient tools to assist with this task.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># basic doc tokenizer works like this</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">))</span>
 </pre></div>
 
     </div>
@@ -13205,13 +13279,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>&lt;DocTable::maintable ct: 0&gt;
-&lt;DocTable::maintable ct: 2&gt;
-   id  subkey             name                    updated
-0   1       1    devin cornell 2020-01-31 19:13:15.624948
-1   2       1  pierre bourdieu 2020-01-31 19:13:15.628480
-   id   n                    updated
-0   1  10 2020-01-31 19:13:15.552712
+<pre>[&#39;James&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the&#39;, &#39;house&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;twenty&#39;, &#39;dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he&#39;, &#39;is&#39;, &#39;a&#39;, &#39;rule&#39;, &#39;-&#39;, &#39;breaker&#39;]
 </pre>
 </div>
 </div>
@@ -13220,21 +13288,13 @@ div#notebook {
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Note how the output shows two rows created in the MainTable but only one in the SubTable. According to computational constraints one might choose not to perform the checks for table existance in the insert method, but in this case it is useful.</p>
-<h2 id="Automatically-Join-Using-Select">Automatically Join Using Select<a class="anchor-link" href="#Automatically-Join-Using-Select">&#182;</a></h2><p>The great part about using sqlalchemy core is that you can manipulate multiple tables by accessing their doctable objects. In this case, we perform a join of name to their associated n (stored in the subtable) using the column subscript for the db.subtab member (of type SubTable). By default this does an outer join! Not sure what happens in a many-to-many table.</p>
-
-</div>
-</div>
-</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">subtab</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># and there are a number of options when using this method</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">split_sents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">merge_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">merge_noun_chunks</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </pre></div>
 
     </div>
@@ -13247,15 +13307,488 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[9]:</div>
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[[&#39;James&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the house&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;twenty dollars&#39;, &#39;)&#39;, &#39;.&#39;], [&#39;he&#39;, &#39;is&#39;, &#39;a rule-breaker&#39;]]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># you can override functionality to decide to keep the token and to convert tok object to str</span>
+<span class="n">use_tok</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">tok</span><span class="p">:</span> <span class="ow">not</span> <span class="n">tok</span><span class="o">.</span><span class="n">like_num</span>
+<span class="n">parse_tok</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">tok</span><span class="p">:</span> <span class="n">tok</span><span class="o">.</span><span class="n">lower_</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">use_tok_func</span><span class="o">=</span><span class="n">use_tok</span><span class="p">,</span> <span class="n">parse_tok_func</span><span class="o">=</span><span class="n">parse_tok</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;james&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the house&#39;, &#39;for&#39;, &#39;$&#39;, &#39;(&#39;, &#39;twenty dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;he&#39;, &#39;is&#39;, &#39;a rule-breaker&#39;]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># or use DocParser .use_tok() and .parse_tok() methods for additional features.</span>
+<span class="c1"># this filters out stopwords and converts all number quantities to __NUM__</span>
+<span class="n">use_tok</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">tok</span><span class="p">:</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">use_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">filter_stop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">parse_tok</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">tok</span><span class="p">:</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">parse_tok</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">format_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">replace_num</span><span class="o">=</span><span class="s1">&#39;__NUM__&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">tokenize_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">use_tok_func</span><span class="o">=</span><span class="n">use_tok</span><span class="p">,</span> <span class="n">parse_tok_func</span><span class="o">=</span><span class="n">parse_tok</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;James&#39;, &#39;paint&#39;, &#39;the house&#39;, &#39;$&#39;, &#39;__NUM__&#39;, &#39;(&#39;, &#39;Twenty Dollars&#39;, &#39;)&#39;, &#39;.&#39;, &#39;a rule-breaker&#39;]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Parsetree-Extraction">Parsetree Extraction<a class="anchor-link" href="#Parsetree-Extraction">&#182;</a></h2><p>In cases where you want to keep information about gramattical structure in your parsed document, use the <code>.get_parsetrees()</code> method.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># extracts a parsetree for each sentence in the document</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">get_parsetrees</span><span class="p">(</span><span class="n">doc</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[ParseTree([&#39;James&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the house&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;twenty dollars&#39;, &#39;)&#39;, &#39;.&#39;]), ParseTree([&#39;he&#39;, &#39;is&#39;, &#39;a rule-breaker&#39;])]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># by default this works like .tokenize_doc() except that it doesn&#39;t remove toks</span>
+<span class="c1"># it includes a lot of other information as well</span>
+<span class="c1"># it will include .pos and .ent if they were available in spacy parsing</span>
+<span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">get_parsetrees</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">tok</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">s1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">dep</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">s1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">tag</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">s1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">pos</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">s1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">ent</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">s1</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;James&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the house&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;twenty dollars&#39;, &#39;)&#39;, &#39;.&#39;]
+[&#39;nsubj&#39;, &#39;aux&#39;, &#39;ROOT&#39;, &#39;dobj&#39;, &#39;prep&#39;, &#39;nmod&#39;, &#39;pobj&#39;, &#39;punct&#39;, &#39;appos&#39;, &#39;punct&#39;, &#39;punct&#39;]
+[&#39;NNP&#39;, &#39;MD&#39;, &#39;VB&#39;, &#39;NN&#39;, &#39;IN&#39;, &#39;$&#39;, &#39;CD&#39;, &#39;-LRB-&#39;, &#39;NNS&#39;, &#39;-RRB-&#39;, &#39;.&#39;]
+[&#39;PROPN&#39;, &#39;AUX&#39;, &#39;VERB&#39;, &#39;NOUN&#39;, &#39;ADP&#39;, &#39;SYM&#39;, &#39;NUM&#39;, &#39;PUNCT&#39;, &#39;NOUN&#39;, &#39;PUNCT&#39;, &#39;PUNCT&#39;]
+[&#39;ORG&#39;, &#39;&#39;, &#39;&#39;, &#39;&#39;, &#39;&#39;, &#39;&#39;, &#39;MONEY&#39;, &#39;&#39;, &#39;MONEY&#39;, &#39;&#39;, &#39;&#39;]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># much like .tokenize_doc(), you can specify the parse_token functionality </span>
+<span class="c1">#     that will be applied to the .tok property</span>
+<span class="n">parse_tok</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">tok</span><span class="p">:</span> <span class="n">tok</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+<span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">get_parsetrees</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">parse_tok_func</span><span class="o">=</span><span class="n">parse_tok</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">s1</span><span class="o">.</span><span class="n">toks</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;JAMES&#39;, &#39;WILL&#39;, &#39;PAINT&#39;, &#39;THE HOUSE&#39;, &#39;FOR&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;TWENTY DOLLARS&#39;, &#39;)&#39;, &#39;.&#39;]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to attach additional info to parsetree tokens, use info_func_map</span>
+<span class="n">infomap</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;is_stop&#39;</span><span class="p">:</span><span class="k">lambda</span> <span class="n">tok</span><span class="p">:</span> <span class="n">tok</span><span class="o">.</span><span class="n">is_stop</span><span class="p">,</span> <span class="s1">&#39;like_num&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">tok</span><span class="p">:</span> <span class="n">tok</span><span class="o">.</span><span class="n">like_num</span><span class="p">}</span>
+<span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">get_parsetrees</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">info_func_map</span><span class="o">=</span><span class="n">infomap</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">s1</span><span class="o">.</span><span class="n">toks</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;like_num&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">s1</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;James&#39;, &#39;will&#39;, &#39;paint&#39;, &#39;the house&#39;, &#39;for&#39;, &#39;$&#39;, &#39;20&#39;, &#39;(&#39;, &#39;twenty dollars&#39;, &#39;)&#39;, &#39;.&#39;]
+[False, False, False, False, False, False, True, False, False, False, False]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># we can convert to dict to see tree structure</span>
+<span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">get_parsetrees</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="n">s1</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[28]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(&#39;devin cornell&#39;, 10), (&#39;pierre bourdieu&#39;, 10)]</pre>
+<pre>{&#39;i&#39;: 2,
+ &#39;tok&#39;: &#39;paint&#39;,
+ &#39;tag&#39;: &#39;VB&#39;,
+ &#39;dep&#39;: &#39;ROOT&#39;,
+ &#39;info&#39;: {},
+ &#39;childs&#39;: [{&#39;i&#39;: 0,
+   &#39;tok&#39;: &#39;James&#39;,
+   &#39;tag&#39;: &#39;NNP&#39;,
+   &#39;dep&#39;: &#39;nsubj&#39;,
+   &#39;info&#39;: {},
+   &#39;childs&#39;: [],
+   &#39;pos&#39;: &#39;PROPN&#39;,
+   &#39;ent&#39;: &#39;ORG&#39;},
+  {&#39;i&#39;: 1,
+   &#39;tok&#39;: &#39;will&#39;,
+   &#39;tag&#39;: &#39;MD&#39;,
+   &#39;dep&#39;: &#39;aux&#39;,
+   &#39;info&#39;: {},
+   &#39;childs&#39;: [],
+   &#39;pos&#39;: &#39;AUX&#39;,
+   &#39;ent&#39;: &#39;&#39;},
+  {&#39;i&#39;: 3,
+   &#39;tok&#39;: &#39;the house&#39;,
+   &#39;tag&#39;: &#39;NN&#39;,
+   &#39;dep&#39;: &#39;dobj&#39;,
+   &#39;info&#39;: {},
+   &#39;childs&#39;: [],
+   &#39;pos&#39;: &#39;NOUN&#39;,
+   &#39;ent&#39;: &#39;&#39;},
+  {&#39;i&#39;: 4,
+   &#39;tok&#39;: &#39;for&#39;,
+   &#39;tag&#39;: &#39;IN&#39;,
+   &#39;dep&#39;: &#39;prep&#39;,
+   &#39;info&#39;: {},
+   &#39;childs&#39;: [{&#39;i&#39;: 6,
+     &#39;tok&#39;: &#39;20&#39;,
+     &#39;tag&#39;: &#39;CD&#39;,
+     &#39;dep&#39;: &#39;pobj&#39;,
+     &#39;info&#39;: {},
+     &#39;childs&#39;: [{&#39;i&#39;: 5,
+       &#39;tok&#39;: &#39;$&#39;,
+       &#39;tag&#39;: &#39;$&#39;,
+       &#39;dep&#39;: &#39;nmod&#39;,
+       &#39;info&#39;: {},
+       &#39;childs&#39;: [],
+       &#39;pos&#39;: &#39;SYM&#39;,
+       &#39;ent&#39;: &#39;&#39;},
+      {&#39;i&#39;: 7,
+       &#39;tok&#39;: &#39;(&#39;,
+       &#39;tag&#39;: &#39;-LRB-&#39;,
+       &#39;dep&#39;: &#39;punct&#39;,
+       &#39;info&#39;: {},
+       &#39;childs&#39;: [],
+       &#39;pos&#39;: &#39;PUNCT&#39;,
+       &#39;ent&#39;: &#39;&#39;},
+      {&#39;i&#39;: 8,
+       &#39;tok&#39;: &#39;twenty dollars&#39;,
+       &#39;tag&#39;: &#39;NNS&#39;,
+       &#39;dep&#39;: &#39;appos&#39;,
+       &#39;info&#39;: {},
+       &#39;childs&#39;: [],
+       &#39;pos&#39;: &#39;NOUN&#39;,
+       &#39;ent&#39;: &#39;MONEY&#39;},
+      {&#39;i&#39;: 9,
+       &#39;tok&#39;: &#39;)&#39;,
+       &#39;tag&#39;: &#39;-RRB-&#39;,
+       &#39;dep&#39;: &#39;punct&#39;,
+       &#39;info&#39;: {},
+       &#39;childs&#39;: [],
+       &#39;pos&#39;: &#39;PUNCT&#39;,
+       &#39;ent&#39;: &#39;&#39;}],
+     &#39;pos&#39;: &#39;NUM&#39;,
+     &#39;ent&#39;: &#39;MONEY&#39;}],
+   &#39;pos&#39;: &#39;ADP&#39;,
+   &#39;ent&#39;: &#39;&#39;},
+  {&#39;i&#39;: 10,
+   &#39;tok&#39;: &#39;.&#39;,
+   &#39;tag&#39;: &#39;.&#39;,
+   &#39;dep&#39;: &#39;punct&#39;,
+   &#39;info&#39;: {},
+   &#39;childs&#39;: [],
+   &#39;pos&#39;: &#39;PUNCT&#39;,
+   &#39;ent&#39;: &#39;&#39;}],
+ &#39;pos&#39;: &#39;VERB&#39;,
+ &#39;ent&#39;: &#39;&#39;}</pre>
 </div>
 
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Working-with-ParseTree-objects">Working with ParseTree objects<a class="anchor-link" href="#Working-with-ParseTree-objects">&#182;</a></h4><p>ParseTree objects can be parsed either iteratively (as we showed earlier), or recursively. The <code>.bubble_accum()</code> and <code>.bubble_reduce()</code> methods are convenient ways of using recursive functions on parsetrees. The <code>.root</code> property is also a useful way to write your own recursive functions on the data.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># .bubble_accum() </span>
+<span class="k">def</span> <span class="nf">get_ents</span><span class="p">(</span><span class="n">pnode</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">pnode</span><span class="o">.</span><span class="n">ent</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">pnode</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+<span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">get_parsetrees</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="n">s1</span><span class="o">.</span><span class="n">bubble_accum</span><span class="p">(</span><span class="n">get_ents</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[31]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[ParseNode(James), ParseNode(20), ParseNode(twenty dollars)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># .bubble_reduce() will aggregate data as it performs a DFS</span>
+<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">pn</span><span class="p">,</span><span class="n">ct</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">ct</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">get_parsetrees</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="n">s1</span><span class="o">.</span><span class="n">bubble_reduce</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[34]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>11</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># or write your own recursive functions using s1.root to </span>
+<span class="c1">#     access the root node of the tree</span>
+<span class="k">def</span> <span class="nf">printnodes</span><span class="p">(</span><span class="n">pnode</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">pnode</span><span class="o">.</span><span class="n">tok</span><span class="p">,</span> <span class="n">pnode</span><span class="o">.</span><span class="n">dep</span><span class="p">,</span> <span class="n">pnode</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">pnode</span><span class="p">:</span>
+        <span class="n">printnodes</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+<span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocParser</span><span class="o">.</span><span class="n">get_parsetrees</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="n">printnodes</span><span class="p">(</span><span class="n">s1</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>paint ROOT VERB
+James nsubj PROPN
+will aux AUX
+the house dobj NOUN
+for prep ADP
+20 pobj NUM
+$ nmod SYM
+( punct PUNCT
+twenty dollars appos NOUN
+) punct PUNCT
+. punct PUNCT
+</pre>
+</div>
 </div>
 
 </div>
