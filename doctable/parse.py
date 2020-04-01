@@ -1,35 +1,6 @@
-from .distribute import Distribute
+
 import re
 
-
-class Pipeline:
-    def __init__(self, components):
-        self.components = components
-    
-    def parse(self, doctext):
-        ''' Parses document by applying each component in turn.
-        '''
-        doc = doctext
-        for comp in self.components:
-            doc = comp(doc)
-        return doc
-    
-    def parsemany(self, doctexts, workers=1, override_maxcores=False):
-        ''' Parse multiple documents distributed across workers (or just in a loop).
-        '''
-        with Distribute(workers, override_maxcores=override_maxcores) as d:
-            parsed = d.map_chunk(self.parse_distribute_thread, doctexts, self)
-        return parsed
-        
-    @staticmethod
-    def parse_distribute_thread(doctexts, parser):
-        parsed = list()
-        for doctext in doctexts:
-            parsed.append(parser.parse(doctext))
-        return parsed
-            
-    
-    
 
 
 # xml for removing stuff    
@@ -192,6 +163,12 @@ def keep_tok(tok, whitespace=False, punct=True, stop=True, digit=True,
 
 def merge_tok_spans(doc, merge_ents=True, spacy_ngram_matcher=None, merge_noun_chunks=False):
     ''' Apply merges to doc object including entities, normal ngrams, and noun chunks.
+    Args:
+        doc (Spacy Doc object): doc to merge spans in
+        merge_ents (bool): combine multi-word entities using spacy doc.retokenize()
+        spacy_ngram_matcher (spacy Matcher object): rule-based matching object for 
+            ngrams in Spacy. See https://spacy.io/usage/rule-based-matching
+        merge_noun_chunks (bool): automatically merge noun chunks
     '''
     if spacy_ngram_matcher is not None:
         # merge custom matches
@@ -213,8 +190,13 @@ def merge_tok_spans(doc, merge_ents=True, spacy_ngram_matcher=None, merge_noun_c
 
 
 
-def merge_tok_ngrams(toks, ngrams=tuple(), ngram_sep=' '):
+def merge_tok_ngrams(toks, ngrams=tuple(), ngram_sep='_'):
     '''Merges manually specified consecutive tokens into single tokens.
+    Args:
+        toks (list<str>): token list through which to search for ngrams.
+        ngrams (list<list<str>>): list of ngrams (as sequence of str) to 
+            combine into single tokens.
+        ngram_sep (str): string to join ngram parts with.
     '''
     new_toks = list()
     ngram_starts = [ng[0] for ng in ngrams] # first word of every ngram
