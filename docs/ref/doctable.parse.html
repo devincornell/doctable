@@ -26,7 +26,7 @@
     
 <tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%"><dl><dt><a name="-identity"><strong>identity</strong></a>(x)</dt></dl>
- <dl><dt><a name="-keep_tok"><strong>keep_tok</strong></a>(tok, whitespace=False, punct=True, stop=True, digit=True, num=True, ents=True, keep_ent_types=None, rm_ent_types=None)</dt><dd><tt>Decide&nbsp;to&nbsp;use&nbsp;token&nbsp;or&nbsp;not&nbsp;(can&nbsp;be&nbsp;overridden).<br>
+ <dl><dt><a name="-keep_tok"><strong>keep_tok</strong></a>(tok, keep_whitespace=False, keep_punct=True, keep_stop=True, keep_digit=True, keep_num=True, keep_ents=True, keep_ent_types=None, rm_ent_types=None)</dt><dd><tt>Decide&nbsp;to&nbsp;use&nbsp;token&nbsp;or&nbsp;not&nbsp;(can&nbsp;be&nbsp;overridden).<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;whitespace&nbsp;(bool):&nbsp;exclude&nbsp;whitespace.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;punct&nbsp;(bool):&nbsp;exclude&nbsp;punctuation.<br>
@@ -35,8 +35,19 @@ Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;digit&nbsp;(bool):&nbsp;exclude&nbsp;digits&nbsp;using&nbsp;tok.is_digit.<br>
 Returns:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;False&nbsp;if&nbsp;token&nbsp;should&nbsp;be&nbsp;filtered.</tt></dd></dl>
- <dl><dt><a name="-merge_tok_ngrams"><strong>merge_tok_ngrams</strong></a>(toks, ngrams=(), ngram_sep=' ')</dt><dd><tt>Merges&nbsp;manually&nbsp;specified&nbsp;consecutive&nbsp;tokens&nbsp;into&nbsp;single&nbsp;tokens.</tt></dd></dl>
- <dl><dt><a name="-merge_tok_spans"><strong>merge_tok_spans</strong></a>(doc, merge_ents=True, spacy_ngram_matcher=None, merge_noun_chunks=False)</dt><dd><tt>Apply&nbsp;merges&nbsp;to&nbsp;doc&nbsp;object&nbsp;including&nbsp;entities,&nbsp;normal&nbsp;ngrams,&nbsp;and&nbsp;noun&nbsp;chunks.</tt></dd></dl>
+ <dl><dt><a name="-merge_tok_ngrams"><strong>merge_tok_ngrams</strong></a>(toks, ngrams=(), ngram_sep='_')</dt><dd><tt>Merges&nbsp;manually&nbsp;specified&nbsp;consecutive&nbsp;tokens&nbsp;into&nbsp;single&nbsp;tokens.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;toks&nbsp;(list&lt;str&gt;):&nbsp;token&nbsp;list&nbsp;through&nbsp;which&nbsp;to&nbsp;search&nbsp;for&nbsp;ngrams.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ngrams&nbsp;(list&lt;list&lt;str&gt;&gt;):&nbsp;list&nbsp;of&nbsp;ngrams&nbsp;(as&nbsp;sequence&nbsp;of&nbsp;str)&nbsp;to&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;combine&nbsp;into&nbsp;single&nbsp;tokens.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ngram_sep&nbsp;(str):&nbsp;string&nbsp;to&nbsp;join&nbsp;ngram&nbsp;parts&nbsp;with.</tt></dd></dl>
+ <dl><dt><a name="-merge_tok_spans"><strong>merge_tok_spans</strong></a>(doc, merge_ents=True, spacy_ngram_matcher=None, merge_noun_chunks=False)</dt><dd><tt>Apply&nbsp;merges&nbsp;to&nbsp;doc&nbsp;object&nbsp;including&nbsp;entities,&nbsp;normal&nbsp;ngrams,&nbsp;and&nbsp;noun&nbsp;chunks.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;doc&nbsp;(Spacy&nbsp;Doc&nbsp;object):&nbsp;doc&nbsp;to&nbsp;merge&nbsp;spans&nbsp;in<br>
+&nbsp;&nbsp;&nbsp;&nbsp;merge_ents&nbsp;(bool):&nbsp;combine&nbsp;multi-word&nbsp;entities&nbsp;using&nbsp;spacy&nbsp;doc.retokenize()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;spacy_ngram_matcher&nbsp;(spacy&nbsp;Matcher&nbsp;object):&nbsp;rule-based&nbsp;matching&nbsp;object&nbsp;for&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ngrams&nbsp;in&nbsp;Spacy.&nbsp;See&nbsp;https://spacy.io/usage/rule-based-matching<br>
+&nbsp;&nbsp;&nbsp;&nbsp;merge_noun_chunks&nbsp;(bool):&nbsp;automatically&nbsp;merge&nbsp;noun&nbsp;chunks</tt></dd></dl>
  <dl><dt><a name="-parse_tok"><strong>parse_tok</strong></a>(tok, num_replacement=None, digit_replacement=None, lemmatize=False, normal_tok_parse=None, format_ents=False, ent_convert=None)</dt><dd><tt>Convert&nbsp;spacy&nbsp;token&nbsp;object&nbsp;to&nbsp;string.<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;tok&nbsp;(spacy&nbsp;token&nbsp;or&nbsp;span):&nbsp;token&nbsp;object&nbsp;to&nbsp;convert&nbsp;to&nbsp;string.<br>

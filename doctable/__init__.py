@@ -13,7 +13,7 @@ from .migration import migrate_db
 from .util import list_tables
 
 # for parsing
-from .pipeline import ParsePipeline
+from .pipeline import ParsePipeline, component
 from .parsetree import ParseTree, ParseNode
 
 from .docparser import DocParser # legacy

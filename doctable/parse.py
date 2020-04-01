@@ -117,8 +117,8 @@ def parse_tok(tok, num_replacement=None, digit_replacement=None, lemmatize=False
 
 
 
-def keep_tok(tok, whitespace=False, punct=True, stop=True, digit=True, 
-               num=True, ents=True, keep_ent_types=None, rm_ent_types=None):
+def keep_tok(tok, keep_whitespace=False, keep_punct=True, keep_stop=True, keep_digit=True, 
+               keep_num=True, keep_ents=True, keep_ent_types=None, rm_ent_types=None):
     ''' Decide to use token or not (can be overridden).
     Args:
         whitespace (bool): exclude whitespace.
@@ -131,22 +131,22 @@ def keep_tok(tok, whitespace=False, punct=True, stop=True, digit=True,
     '''
     
     
-    if not whitespace and (tok.is_space or len(tok.text.strip()) == 0):
+    if not keep_whitespace and (tok.is_space or len(tok.text.strip()) == 0):
         return False
     
-    elif not punct and tok.is_punct:
+    elif not keep_punct and tok.is_punct:
         return False
     
-    elif not stop and tok.is_stop:
+    elif not keep_stop and tok.is_stop:
         return False
     
-    elif not num and tok.like_num:
+    elif not keep_num and tok.like_num:
         return False
     
-    elif not digit and tok.is_digit:
+    elif not keep_digit and tok.is_digit:
         return False
         
-    elif not ents and tok.ent_type_ != '':
+    elif not keep_ents and tok.ent_type_ != '':
         return False
     
     elif keep_ent_types is not None and tok.ent_type_ not in keep_ent_types:
