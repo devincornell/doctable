@@ -517,8 +517,11 @@ class DocTable:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return result
     
-    def select_chunk(self, cols=None, chunksize=1, limit=None, **kwargs):
-        '''Performs select while querying only a subset of the results at a time.
+    
+    #################### Select in Chunk Methods ###################
+    
+    def select_chunks(self, cols=None, chunksize=100, limit=None, **kwargs):
+        ''' Performs select while querying only a subset of the results at a time.
         Args:
             cols (col name(s) or sqlalchemy object(s)): columns to query
             chunksize (int): size of individual queries to be made. Will
@@ -534,13 +537,34 @@ class DocTable:
         offset = 0
         while True:
             rows = self.select(cols, offset=offset, limit=chunksize, **kwargs)
-            rowiter = rows[:limit-offset] if limit is not None else rows
-            for row in rowiter:
-                yield row
+            chunk = rows[:limit-offset] if limit is not None else rows
+            
+            yield chunk
+            
             offset += len(rows)
             
             if (limit is not None and offset >= limit) or len(rows) == 0:
                 break
+                
+    def select_iter(self, cols=None, chunksize=1, limit=None, **kwargs):
+        ''' Same as .select except results retrieved from db in chunks.
+        Args:
+            cols (col name(s) or sqlalchemy object(s)): columns to query
+            chunksize (int): size of individual queries to be made. Will
+                load this number of rows into memory before yielding.
+            limit (int): maximum number of rows to retrieve. Because 
+                the limit argument is being used internally to limit data
+                to smaller chunks, use this argument instead. Internally,
+                this function will load a maximum of limit + chunksize 
+                - 1 rows into memory, but yields only limit.
+        Yields:
+            sqlalchemy result: row data - same as .select() method.
+        '''
+        for chunk in self.select_chunks(cols=cols, chunksize=chunksize, 
+                                                    limit=limit, **kwargs):
+            for row in chunk:
+                yield row
+                
     
     #################### Update Methods ###################
     
