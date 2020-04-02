@@ -149,14 +149,16 @@ def keep_tok(tok, keep_whitespace=False, keep_punct=True, keep_stop=True, keep_d
     elif not keep_ents and tok.ent_type_ != '':
         return False
     
-    elif keep_ent_types is not None and tok.ent_type_ not in keep_ent_types:
-        return False
+    # you want to keep entities and this token is some kind of entity
+    elif keep_ents and tok.ent_type_ != '':
     
-    elif rm_ent_types is not None and tok.ent_type_ in rm_ent_types:
-        return False
+        if keep_ent_types is not None and tok.ent_type_ not in keep_ent_types:
+            return False
     
-    else:
-        return True
+        elif rm_ent_types is not None and tok.ent_type_ in rm_ent_types:
+            return False
+        
+    return True
         
 
 
