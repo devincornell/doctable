@@ -137,7 +137,7 @@ Args:<br>
 Yields:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;result&nbsp;object:&nbsp;row&nbsp;data</tt></dd></dl>
 
-<dl><dt><a name="DocTable-select_chunk"><strong>select_chunk</strong></a>(self, cols=None, chunksize=1, limit=None, **kwargs)</dt><dd><tt>Performs&nbsp;select&nbsp;while&nbsp;querying&nbsp;only&nbsp;a&nbsp;subset&nbsp;of&nbsp;the&nbsp;results&nbsp;at&nbsp;a&nbsp;time.<br>
+<dl><dt><a name="DocTable-select_chunks"><strong>select_chunks</strong></a>(self, cols=None, chunksize=100, limit=None, **kwargs)</dt><dd><tt>Performs&nbsp;select&nbsp;while&nbsp;querying&nbsp;only&nbsp;a&nbsp;subset&nbsp;of&nbsp;the&nbsp;results&nbsp;at&nbsp;a&nbsp;time.<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;cols&nbsp;(col&nbsp;name(s)&nbsp;or&nbsp;sqlalchemy&nbsp;object(s)):&nbsp;columns&nbsp;to&nbsp;query<br>
 &nbsp;&nbsp;&nbsp;&nbsp;chunksize&nbsp;(int):&nbsp;size&nbsp;of&nbsp;individual&nbsp;queries&nbsp;to&nbsp;be&nbsp;made.&nbsp;Will<br>
@@ -174,6 +174,19 @@ Raises:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;those&nbsp;could&nbsp;be&nbsp;valid&nbsp;objects&nbsp;in&nbsp;a&nbsp;single-row&nbsp;select&nbsp;query.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;In&nbsp;cases&nbsp;where&nbsp;uncertain&nbsp;if&nbsp;row&nbsp;match&nbsp;exists,&nbsp;use&nbsp;regular&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<a href="#doctable.DocTable-select">select</a>()&nbsp;and&nbsp;count&nbsp;num&nbsp;results,&nbsp;or&nbsp;use&nbsp;try/catch.</tt></dd></dl>
+
+<dl><dt><a name="DocTable-select_iter"><strong>select_iter</strong></a>(self, cols=None, chunksize=1, limit=None, **kwargs)</dt><dd><tt>Same&nbsp;as&nbsp;.select&nbsp;except&nbsp;results&nbsp;retrieved&nbsp;from&nbsp;db&nbsp;in&nbsp;chunks.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;cols&nbsp;(col&nbsp;name(s)&nbsp;or&nbsp;sqlalchemy&nbsp;object(s)):&nbsp;columns&nbsp;to&nbsp;query<br>
+&nbsp;&nbsp;&nbsp;&nbsp;chunksize&nbsp;(int):&nbsp;size&nbsp;of&nbsp;individual&nbsp;queries&nbsp;to&nbsp;be&nbsp;made.&nbsp;Will<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;load&nbsp;this&nbsp;number&nbsp;of&nbsp;rows&nbsp;into&nbsp;memory&nbsp;before&nbsp;yielding.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;limit&nbsp;(int):&nbsp;maximum&nbsp;number&nbsp;of&nbsp;rows&nbsp;to&nbsp;retrieve.&nbsp;Because&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;limit&nbsp;argument&nbsp;is&nbsp;being&nbsp;used&nbsp;internally&nbsp;to&nbsp;limit&nbsp;data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;smaller&nbsp;chunks,&nbsp;use&nbsp;this&nbsp;argument&nbsp;instead.&nbsp;Internally,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this&nbsp;function&nbsp;will&nbsp;load&nbsp;a&nbsp;maximum&nbsp;of&nbsp;limit&nbsp;+&nbsp;chunksize&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;1&nbsp;rows&nbsp;into&nbsp;memory,&nbsp;but&nbsp;yields&nbsp;only&nbsp;limit.<br>
+Yields:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;result:&nbsp;row&nbsp;data&nbsp;-&nbsp;same&nbsp;as&nbsp;.<a href="#doctable.DocTable-select">select</a>()&nbsp;method.</tt></dd></dl>
 
 <dl><dt><a name="DocTable-select_series"><strong>select_series</strong></a>(self, col, *args, **kwargs)</dt><dd><tt>Select&nbsp;returning&nbsp;pandas&nbsp;Series.<br>
 Args:<br>

@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>doctable_schema</title>
+<title>parse_basics</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13074,18 +13074,23 @@ div#notebook {
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
 
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Parser-Pipeline-Basics">Parser Pipeline Basics<a class="anchor-link" href="#Parser-Pipeline-Basics">&#182;</a></h1><p>Parsing texts is usually the same.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># import doctable</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
-<span class="kn">import</span> <span class="nn">doctable</span> <span class="k">as</span> <span class="nn">dt</span>
+<span class="kn">import</span> <span class="nn">doctable</span>
 </pre></div>
 
     </div>
@@ -13098,86 +13103,10 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="c1"># standard id column</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;id&#39;, Integer, primary_key = True, autoincrement=True), </span>
-    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    <span class="c1"># short form (can&#39;t provide any additional args though): (&#39;idcol&#39;, &#39;id&#39;)</span>
-
-    <span class="c1"># make a category column with two options: &quot;FICTION&quot; and &quot;NONFICTION&quot;</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;title&#39;, String,)</span>
-    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
-    
-
-    <span class="c1"># make a non-null title column</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;title&#39;, String,)</span>
-    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
-
-    <span class="c1"># make an abstract where the default is an empty string instead of null</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;abstract&#39;, String, default=&#39;&#39;)</span>
-    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;abstract&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)),</span>
-
-    <span class="c1"># make an age column where age must be greater than zero</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;abstract&#39;, Integer)</span>
-    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">),</span>
-    
-    <span class="c1"># file column types</span>
-    <span class="c1"># fpath dictates where the files will be stored</span>
-    <span class="p">(</span><span class="s1">&#39;picklefile&#39;</span><span class="p">,</span> <span class="s1">&#39;pickle_obj&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fpath</span><span class="o">=</span><span class="s1">&#39;folder_for_picklefiles&#39;</span><span class="p">))</span>
-    
-    <span class="c1"># by not specifying fpath, will create a folder in same path as db with </span>
-    <span class="c1">#   &lt;tabname&gt;_&lt;colname&gt; format.</span>
-    <span class="p">(</span><span class="s1">&#39;textfile&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">)</span> <span class="c1"># similar to above</span>
-
-    <span class="c1"># make a column that keeps track of column updates</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;updated_on&#39;, DateTime(), default=datetime.now, onupdate=datetime.now)</span>
-    <span class="p">(</span><span class="s1">&#39;datetime&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_on&#39;</span><span class="p">,</span>  <span class="nb">dict</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)),</span>
-    <span class="c1"># short form: (&#39;date_updated&#39;, &#39;updated_on&#39;)</span>
-    
-    <span class="p">(</span><span class="s1">&#39;datetime&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_on&#39;</span><span class="p">,</span>  <span class="nb">dict</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)),</span>
-    <span class="c1"># short form: (&#39;date_added&#39;, &#39;updated_on&#39;)</span>
-
-    <span class="c1"># make a string column with max of 500 characters</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;abstract&#39;, String, default=&#39;&#39;)</span>
-    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(),</span><span class="nb">dict</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">500</span><span class="p">)),</span>
-    
-    
-    
-    <span class="c1">##### Constraints #####</span>
-    
-    <span class="c1">#SQLAlchemy: CheckConstraint(&#39;category in (&quot;FICTION&quot;,&quot;NONFICTION&quot;)&#39;, name=&#39;salary_check&#39;)</span>
-    <span class="p">(</span><span class="s1">&#39;check_constraint&#39;</span><span class="p">,</span> <span class="s1">&#39;category in (&quot;FICTION&quot;,&quot;NONFICTION&quot;)&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;salary_check&#39;</span><span class="p">)),</span>
-    
-    <span class="c1">#SQLAlchemy: CheckConstraint(&#39;age &gt; 0&#39;)</span>
-    <span class="p">(</span><span class="s1">&#39;check_constraint&#39;</span><span class="p">,</span> <span class="s1">&#39;age &gt; 0&#39;</span><span class="p">),</span>
-    
-    <span class="c1"># make sure each category/title entry is unique</span>
-    <span class="c1">#SQLAlchemy:  UniqueConstraint(&#39;category&#39;, &#39;title&#39;, name=&#39;work_key&#39;)</span>
-    <span class="p">(</span><span class="s1">&#39;unique_constraint&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">,</span><span class="s1">&#39;title&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;work_key&#39;</span><span class="p">)),</span>
-    
-    
-    <span class="c1">##### Indexes ######</span>
-    
-    <span class="c1"># make index table</span>
-    <span class="c1"># SQLAlchemy: Index(&#39;ind0&#39;, &#39;category&#39;, &#39;title&#39;, unique=True)</span>
-    <span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;ind0&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">,</span><span class="s1">&#39;title&#39;</span><span class="p">),</span><span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    
-    
-    <span class="c1"># make this id a foreign key to another table column (CAN&#39;T SHOW HERE)</span>
-    <span class="c1"># SQLAlchemy: ForeignKeyConstraint([&#39;id&#39;], [&#39;invoice.invoice_id&#39;,], onupdate=&quot;CASCADE&quot;, ondelete=&quot;CASCADE&quot;)</span>
-    <span class="c1">#(([&#39;id&#39;],[&#39;othertablerefid&#39;]), &#39;foreignkey_constraint&#39;,dict(),dict(onupdate=&quot;CASCADE&quot;, ondelete=&quot;CASCADE&quot;)),</span>
-    
-    <span class="c1"># try out custom data types</span>
-    <span class="c1"># TokensType and ParagraphsType are defined in doctable/coltypes.py</span>
-    <span class="c1"># SQLAlchemy: Column(&#39;tokenized&#39;, TokensType), Column(&#39;sentencized&#39;, ParagraphsType)</span>
-    <span class="p">(</span><span class="s1">&#39;pickle&#39;</span><span class="p">,</span><span class="s1">&#39;tokenized&#39;</span><span class="p">),</span>
-    
-    <span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">,</span><span class="s1">&#39;tokenized_json&#39;</span><span class="p">),</span> <span class="c1"># this column is same as pickle but stores as formatted JSON</span>
-    
-<span class="p">)</span>
-<span class="n">md</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="c1">#pprint(md.schemainfo)</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">md</span><span class="o">.</span><span class="n">schemainfo</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># download data for examples</span>
+<span class="kn">from</span> <span class="nn">util</span> <span class="k">import</span> <span class="n">download_nss</span> <span class="c1"># for downloading nss text documents from my github repo</span>
+<span class="n">nss</span> <span class="o">=</span> <span class="n">download_nss</span><span class="p">(</span><span class="n">years</span><span class="o">=</span><span class="p">[</span><span class="mi">1987</span><span class="p">])[</span><span class="mi">1987</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="c1"># download nss and split paragraphs</span>
+<span class="n">nss</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="c1"># list of paragraph strings</span>
 </pre></div>
 
     </div>
@@ -13194,113 +13123,380 @@ div#notebook {
 
 
 
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>name</th>
-      <th>type</th>
-      <th>nullable</th>
-      <th>default</th>
-      <th>autoincrement</th>
-      <th>primary_key</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>id</td>
-      <td>INTEGER</td>
-      <td>False</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>category</td>
-      <td>VARCHAR</td>
-      <td>False</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>title</td>
-      <td>VARCHAR</td>
-      <td>False</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>abstract</td>
-      <td>VARCHAR</td>
-      <td>True</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>age</td>
-      <td>INTEGER</td>
-      <td>True</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>5</td>
-      <td>updated_on</td>
-      <td>DATETIME</td>
-      <td>True</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>6</td>
-      <td>text</td>
-      <td>VARCHAR(500)</td>
-      <td>True</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>7</td>
-      <td>tokenized</td>
-      <td>BLOB</td>
-      <td>True</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
-</div>
+<div class="output_text output_subarea output_execute_result">
+<pre>[&#39;I. An American Perspective &#39;,
+ &#39;In the early days of this Administration we laid the foundation for a more constructive and positive American role in world affairs by clarifying the essential elements of U.S. foreign and defense policy. &#39;,
+ &#34;Over the intervening years, we have looked objectively at our policies and performance on the world scene to ensure they reflect the dynamics of a complex and ever-changing world . Where course adjustments have been required, I have directed changes. But we have not veered and will not veer from the broad aims that guide America&#39;s leadership role in today&#39;s world: &#34;]</pre>
 </div>
 
 </div>
 
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Build-a-ParsePipeline">Build a ParsePipeline<a class="anchor-link" href="#Build-a-ParsePipeline">&#182;</a></h2><p>A pipeline is simply a list of functions (called components) to apply sequentially on each element of your data.</p>
+<p>Pipeline components from doctable are functions that lie in <code>doctable.parse</code>, and can be accessed using <code>doctable.parse.&lt;function_name&gt;</code>. You can also use the <code>doctable.component</code> function as a shortcut to access those functions.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">spacy</span> <span class="c1"># for example text processing</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en&#39;</span><span class="p">)</span> <span class="c1"># nlp is function for parsing with spacy</span>
+
+<span class="kn">from</span> <span class="nn">doctable</span> <span class="k">import</span> <span class="n">component</span> <span class="c1"># shortcut to functions in doctable.parse.&lt;functions&gt;</span>
+
+<span class="n">pipeline</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParsePipeline</span><span class="p">([</span>
+    <span class="n">component</span><span class="p">(</span><span class="s1">&#39;preprocess&#39;</span><span class="p">,</span> <span class="n">replace_xml</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="c1"># preprocess to remove xml tags (doctable.parse.preprocess)</span>
+    <span class="n">nlp</span><span class="p">,</span> <span class="c1"># spacy nlp parser object</span>
+    <span class="n">component</span><span class="p">(</span><span class="s1">&#39;tokenize&#39;</span><span class="p">,</span> <span class="n">split_sents</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="c1"># add tokenizer component (doctable.parse.tokenize)</span>
+<span class="p">])</span>
+<span class="n">pipeline</span><span class="o">.</span><span class="n">components</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[3]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&lt;function doctable.pipeline.component.&lt;locals&gt;.&lt;lambda&gt;(x)&gt;,
+ &lt;spacy.lang.en.English at 0x7f614d07aba8&gt;,
+ &lt;function doctable.pipeline.component.&lt;locals&gt;.&lt;lambda&gt;(x)&gt;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pipeline</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">nss</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[4]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[I., An, American, Perspective]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="More-Components-For-Pipeline">More Components For Pipeline<a class="anchor-link" href="#More-Components-For-Pipeline">&#182;</a></h2><p>Because some of the component functions in <code>doctable.parse</code> take more functions as arguments, these components can be nested. Consider the <code>tokenize</code> function, which takes an argument <code>keep_tok_func</code> for deciding whether to keep a spacy token in the final output and an argument <code>parse_tok_func</code> to convert a Spacy token object into a string. The doctable functions <code>keep_tok</code> and <code>parse_tok</code> have some useful settings that we'll set in this next pipeline exmaple. We'll also use the doctable function <code>merge_tok_spans</code> to combine multi-word entities.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">doctable</span> <span class="k">import</span> <span class="n">component</span> <span class="c1"># shortcut to functions in doctable.parse.&lt;functions&gt;</span>
+
+<span class="n">pipeline</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParsePipeline</span><span class="p">([</span>
+    <span class="n">component</span><span class="p">(</span><span class="s1">&#39;preprocess&#39;</span><span class="p">,</span> <span class="n">replace_xml</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="c1"># preprocess to remove xml tags (doctable.parse.preprocess)</span>
+    <span class="n">nlp</span><span class="p">,</span> <span class="c1"># spacy nlp parser object</span>
+    <span class="n">component</span><span class="p">(</span><span class="s1">&#39;merge_tok_spans&#39;</span><span class="p">,</span> <span class="n">merge_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">merge_noun_chunks</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">component</span><span class="p">(</span><span class="s1">&#39;tokenize&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
+        <span class="s1">&#39;split_sents&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s1">&#39;keep_tok_func&#39;</span><span class="p">:</span> <span class="n">component</span><span class="p">(</span><span class="s1">&#39;keep_tok&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
+            <span class="s1">&#39;keep_whitespace&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># don&#39;t keep whitespace</span>
+            <span class="s1">&#39;keep_punct&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># keep punctuation and stopwords</span>
+            <span class="s1">&#39;keep_stop&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">}),</span>
+        <span class="s1">&#39;parse_tok_func&#39;</span><span class="p">:</span> <span class="n">component</span><span class="p">(</span><span class="s1">&#39;parse_tok&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
+            <span class="s1">&#39;format_ents&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;lemmatize&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;num_replacement&#39;</span><span class="p">:</span> <span class="s1">&#39;NUM&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ent_convert&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="c1"># function to capitalize named entities</span>
+        <span class="p">})</span>
+    <span class="p">})</span>
+<span class="p">])</span>
+<span class="n">pipeline</span><span class="o">.</span><span class="n">components</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[5]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&lt;function doctable.pipeline.component.&lt;locals&gt;.&lt;lambda&gt;(x)&gt;,
+ &lt;spacy.lang.en.English at 0x7f614d07aba8&gt;,
+ &lt;function doctable.pipeline.component.&lt;locals&gt;.&lt;lambda&gt;(x)&gt;,
+ &lt;function doctable.pipeline.component.&lt;locals&gt;.&lt;lambda&gt;(x)&gt;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">nss</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">nss</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Over the intervening years, we have looked objectively at our policies and performance on the world scene to ensure they reflect the dynamics of a complex and ever-changing world . Where course adjustments have been required, I have directed changes. But we have not veered and will not veer from the broad aims that guide America&#39;s leadership role in today&#39;s world: 
+
+[&#39;over&#39;, &#39;THE INTERVENING YEARS&#39;, &#39;,&#39;, &#39;we&#39;, &#39;have&#39;, &#39;looked&#39;, &#39;objectively&#39;, &#39;at&#39;, &#39;our&#39;, &#39;policies&#39;, &#39;and&#39;, &#39;performance&#39;, &#39;on&#39;, &#39;the&#39;, &#39;world&#39;, &#39;scene&#39;, &#39;to&#39;, &#39;ensure&#39;, &#39;they&#39;, &#39;reflect&#39;, &#39;the&#39;, &#39;dynamics&#39;, &#39;of&#39;, &#39;a&#39;, &#39;complex&#39;, &#39;and&#39;, &#39;ever&#39;, &#39;-&#39;, &#39;changing&#39;, &#39;world&#39;, &#39;.&#39;, &#39;where&#39;, &#39;course&#39;, &#39;adjustments&#39;, &#39;have&#39;, &#39;been&#39;, &#39;required&#39;, &#39;,&#39;, &#39;i&#39;, &#39;have&#39;, &#39;directed&#39;, &#39;changes&#39;, &#39;.&#39;, &#39;but&#39;, &#39;we&#39;, &#39;have&#39;, &#39;not&#39;, &#39;veered&#39;, &#39;and&#39;, &#39;will&#39;, &#39;not&#39;, &#39;veer&#39;, &#39;from&#39;, &#39;the&#39;, &#39;broad&#39;, &#39;aims&#39;, &#39;that&#39;, &#39;guide&#39;, &#39;AMERICA&#39;, &#34;&#39;s&#34;, &#39;leadership&#39;, &#39;role&#39;, &#39;in&#39;, &#39;TODAY&#39;, &#34;&#39;s&#34;, &#39;world&#39;, &#39;:&#39;]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Parsing-Using-Multiprocessing">Parsing Using Multiprocessing<a class="anchor-link" href="#Parsing-Using-Multiprocessing">&#182;</a></h3><p>The <code>ParsePipeline</code> class also allows you to parse multiple texts at once in parallel using the <code>doctable.Distribute()</code> module. Simply use the <code>.parsemany()</code> method to access this feature. It can give huge performance gains when used in the right places.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">time</span> parsed = pipeline.parsemany(nss[:100], workers=1)
+<span class="n">parsed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>CPU times: user 2.41 s, sys: 2.49 ms, total: 2.41 s
+Wall time: 2.41 s
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[7]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&#39;I. AN AMERICAN&#39;, &#39;perspective&#39;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># UNDER CERTAIN CONDITIONS THIS FAILS - IT FAILS IN THE FIRST EXAMPLE HERE, but not the last</span>
+<span class="o">%</span><span class="k">time</span> parsed = pipeline.parsemany(nss[:100], workers=5)
+<span class="n">parsed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>CPU times: user 6.71 ms, sys: 33.4 ms, total: 40.1 ms
+Wall time: 556 ms
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[8]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&#39;I. AN AMERICAN&#39;, &#39;perspective&#39;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Custom-Functions-in-Pipeline">Custom Functions in Pipeline<a class="anchor-link" href="#Custom-Functions-in-Pipeline">&#182;</a></h2><p>Because a pipeline is just a list of function components, it's easy to add components after creating a pipeline or simply</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParsePipeline</span><span class="p">([</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span>
+<span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">nss</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;IN&#39;, &#39;THE&#39;, &#39;EARLY&#39;, &#39;DAYS&#39;, &#39;OF&#39;, &#39;THIS&#39;, &#39;ADMINISTRATION&#39;, &#39;WE&#39;, &#39;LAID&#39;, &#39;THE&#39;, &#39;FOUNDATION&#39;, &#39;FOR&#39;, &#39;A&#39;, &#39;MORE&#39;, &#39;CONSTRUCTIVE&#39;, &#39;AND&#39;, &#39;POSITIVE&#39;, &#39;AMERICAN&#39;, &#39;ROLE&#39;, &#39;IN&#39;, &#39;WORLD&#39;, &#39;AFFAIRS&#39;, &#39;BY&#39;, &#39;CLARIFYING&#39;, &#39;THE&#39;, &#39;ESSENTIAL&#39;, &#39;ELEMENTS&#39;, &#39;OF&#39;, &#39;U.S.&#39;, &#39;FOREIGN&#39;, &#39;AND&#39;, &#39;DEFENSE&#39;, &#39;POLICY.&#39;]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="All-Pipeline-Components">All Pipeline Components<a class="anchor-link" href="#All-Pipeline-Components">&#182;</a></h1><p>It would be difficult to keep this section up to date with all changes I make to the available parser components, but here I'll show all the current components with exposed options.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+    </div>
 </div>
 </div>
 
