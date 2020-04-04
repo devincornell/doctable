@@ -21,7 +21,7 @@ class ParseTree:
         
     @property
     def toks(self):
-        return [n.tok for n in self.nodes]
+        return [n.text for n in self.nodes]
         
     def __str__(self):
         return 'ParseTree({})'.format(self.toks)
@@ -43,7 +43,7 @@ class ParseTree:
         return self.root.asdict()
     
     def bubble_accum(self, func):
-        '''Applies func to each node and bubbles up accumulated results.
+        '''Applies func to each node and bubbles up accumulated result (like reduce).
         Args:
             func (function): apply function to an object returning list.
         '''
@@ -77,7 +77,7 @@ class ParseTree:
 
         print(''.join(reduce(update, sup, ['{}  '.format(pipe)] * level)) \
               + (end if last else branch) + '{} '.format(dash) \
-              + '({}) {}'.format(node.dep, node.tok))
+              + '({}) {}'.format(node.dep, node.text))
         if len(node.childs) > 0:
             level += 1
             for node in node.childs[:-1]:
@@ -95,7 +95,7 @@ class ParseNode:
         if isinstance(node, dict):
             ndict = node
             self.i = ndict['i']
-            self.tok = ndict['tok']
+            self.text = ndict['tok']
             self.dep = ndict['dep']
             self.tag = ndict['tag']
             self.info = ndict['info']
@@ -107,7 +107,7 @@ class ParseNode:
         else: # node is spacy token
             tok = node
             self.i = tok.i
-            self.tok = tok_parse_func(tok) if tok_parse_func is not None else tok.lower_
+            self.text = tok_parse_func(tok) if tok_parse_func is not None else tok.text
             self.dep = tok.dep_
             self.tag = tok.tag_
             self.info = {attr:func(tok) for attr,func in info_func_map.items()}
@@ -139,7 +139,7 @@ class ParseNode:
         '''Convert self to a dict.'''
         node = dict(
             i=self.i,
-            tok=self.tok,
+            text=self.text,
             tag=self.tag,
             dep=self.dep,
             info=self.info,
@@ -151,7 +151,7 @@ class ParseNode:
         
             
     def __str__(self):
-        return 'ParseNode({})'.format(self.tok)
+        return 'ParseNode({})'.format(self.text)
     
     def __repr__(self):
         return str(self)

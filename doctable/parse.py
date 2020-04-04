@@ -1,7 +1,7 @@
 
 import re
 
-
+from parsetree import ParseTree
 
 # xml for removing stuff    
 re_url = re.compile(r'http\S+', flags=re.MULTILINE)
@@ -230,7 +230,23 @@ def merge_tok_ngrams(toks, ngrams=tuple(), ngram_sep='_'):
 
 
 
-
+def get_parsetrees(cls, doc, parse_tok_func=None, info_func_map=dict(), merge_ents=False, 
+        spacy_ngram_matcher=None, merge_noun_chunks=False):
+    '''Extracts parsetree from spacy doc objects.
+    Args:
+        doc (spacy.Doc object): doc to generate parsetree from.
+        parse_tok_func (func): function used to convert token to 
+            a string representation. Usually a lambda function 
+            wrapping some variant of self.parse_tok().
+        info_func_map (dict<str->func>): attribute to function 
+            mapping. Functions take a token and output a property
+            that will be stored in each parsetree node.
+    '''
+    sent_trees = [
+        ParseTree(sent.root, parse_tok_func, info_func_map=info_func_map)
+        for sent in doc.sents
+    ]
+    return sent_trees
 
 
 
