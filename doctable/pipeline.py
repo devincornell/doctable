@@ -1,6 +1,6 @@
 
 from .distribute import Distribute
-from .parse import preprocess, tokenize, parse_tok, keep_tok, merge_tok_spans, merge_tok_ngrams
+from .parse import preprocess, tokenize, parse_tok, keep_tok, merge_tok_spans, merge_tok_ngrams, get_parsetrees
 
 
 component_map = {
@@ -10,6 +10,7 @@ component_map = {
     'keep_tok': keep_tok,
     'merge_tok_spans': merge_tok_spans,
     'merge_tok_ngrams': merge_tok_ngrams,
+    'get_parsetrees': get_parsetrees,
 }
 
 

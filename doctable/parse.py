@@ -1,7 +1,7 @@
 
 import re
 
-from parsetree import ParseTree
+from .parsetree import ParseTree
 
 # xml for removing stuff    
 re_url = re.compile(r'http\S+', flags=re.MULTILINE)
@@ -119,16 +119,22 @@ def parse_tok(tok, num_replacement=None, digit_replacement=None, lemmatize=False
 
 def keep_tok(tok, keep_whitespace=False, keep_punct=True, keep_stop=True, keep_digit=True, 
                keep_num=True, keep_ents=True, keep_ent_types=None, rm_ent_types=None, 
-               keep_pos=None, rm_pos=None):
+               keep_pos=None, rm_pos=None, addtnl_func=None):
     ''' Decide to use token or not (can be overridden).
     Args:
-        whitespace (bool): exclude whitespace.
-        punct (bool): exclude punctuation.
-        stop (bool): exclude stopwords.
-        num (bool): exclude numbers using tok.is_num.
-        digit (bool): exclude digits using tok.is_digit.
+        keep_whitespace (bool): keep all-whitespace tokens.
+        keep_punct (bool): keep punctuation.
+        keep_stop (bool): keep stopwords.
+        keep_num (bool): keep numbers using tok.is_num.
+        keep_digit (bool): keep digits using tok.is_digit.
+        keep_ents (bool): keep named entities
+        keep_ent_types (list<str>): keep only these entity types
+        rm_ent_types (list<str>): remove these entity types
+        keep_pos (list<str>): keep only toks with these POS
+        rm_pos (list<str>): remove toks with these POS
+        addtnl_func (func): additional custom criteria to meet
     Returns:
-        False if token should be filtered.
+        True if token should be kept.
     '''
     
     
@@ -163,6 +169,10 @@ def keep_tok(tok, keep_whitespace=False, keep_punct=True, keep_stop=True, keep_d
     
         elif rm_ent_types is not None and tok.ent_type_ in rm_ent_types:
             return False
+        
+    # if all other criteria has been met, apply this one last check
+    if addtnl_func is not None:
+        return addtnl_func(tok)
     
     return True
         
@@ -230,8 +240,7 @@ def merge_tok_ngrams(toks, ngrams=tuple(), ngram_sep='_'):
 
 
 
-def get_parsetrees(cls, doc, parse_tok_func=None, info_func_map=dict(), merge_ents=False, 
-        spacy_ngram_matcher=None, merge_noun_chunks=False):
+def get_parsetrees(doc, parse_tok_func=None, info_func_map=dict()):
     '''Extracts parsetree from spacy doc objects.
     Args:
         doc (spacy.Doc object): doc to generate parsetree from.
