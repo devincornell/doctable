@@ -118,7 +118,8 @@ def parse_tok(tok, num_replacement=None, digit_replacement=None, lemmatize=False
 
 
 def keep_tok(tok, keep_whitespace=False, keep_punct=True, keep_stop=True, keep_digit=True, 
-               keep_num=True, keep_ents=True, keep_ent_types=None, rm_ent_types=None):
+               keep_num=True, keep_ents=True, keep_ent_types=None, rm_ent_types=None, 
+               keep_pos=None, rm_pos=None):
     ''' Decide to use token or not (can be overridden).
     Args:
         whitespace (bool): exclude whitespace.
@@ -134,30 +135,35 @@ def keep_tok(tok, keep_whitespace=False, keep_punct=True, keep_stop=True, keep_d
     if not keep_whitespace and (tok.is_space or len(tok.text.strip()) == 0):
         return False
     
-    elif not keep_punct and tok.is_punct:
+    if not keep_punct and tok.is_punct:
         return False
     
-    elif not keep_stop and tok.is_stop:
+    if not keep_stop and tok.is_stop:
         return False
     
-    elif not keep_num and tok.like_num:
+    if not keep_num and tok.like_num:
         return False
     
-    elif not keep_digit and tok.is_digit:
+    if not keep_digit and tok.is_digit:
         return False
+    
+    if keep_pos is not None and tok.pos_ not in keep_pos:
+        return False
+    
+    elif rm_pos is not None and tok.pos_ in rm_pos:
+        return False
+    
+    if tok.ent_type_ != '': # if token is named entity
         
-    elif not keep_ents and tok.ent_type_ != '':
-        return False
-    
-    # you want to keep entities and this token is some kind of entity
-    elif keep_ents and tok.ent_type_ != '':
+        if not keep_ents: # remove the named entity
+            return False
     
         if keep_ent_types is not None and tok.ent_type_ not in keep_ent_types:
             return False
     
         elif rm_ent_types is not None and tok.ent_type_ in rm_ent_types:
             return False
-        
+    
     return True
         
 
