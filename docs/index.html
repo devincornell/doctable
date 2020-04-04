@@ -46,10 +46,14 @@
               </a>
               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="ref/doctable.DocTable.html">DocTable</a>
-                <a class="dropdown-item" href="ref/doctable.DocParser.html">DocParser</a>
+                <a class="dropdown-item" href="ref/doctable.parse.html">Parsing</a>
+                <a class="dropdown-item" href="ref/doctable.pipeline.html">Parsing Pipeline</a>
+                
                 <a class="dropdown-item" href="ref/doctable.Distribute.html">Distribute</a>
                 <a class="dropdown-item" href="ref/doctable.DocBootstrap.html">DocBootstrap</a>
-				<a class="dropdown-item" href="ref/doctable.ParseTree.html">ParseTree</a>
+				<a class="dropdown-item" href="ref/doctable.parsetree.html">ParseTrees</a>
+                  <a class="dropdown-item" href="ref/doctable.DocParser.html">Depreciated: DocParser</a>
+                  <a class="dropdown-item" href="ref/doctable.DocTableLegacy.html">Depreciated: DocTableLegacy</a>
                 <!--<div class="dropdown-divider"></div>-->
                 <!--<a class="dropdown-item" href="#">Something else here</a>-->
               </div>
@@ -65,7 +69,7 @@
       <div class="row h-100 align-items-center">
         <div class="col-lg-12">
           <h1 class="display-4 text-white mt-5 mb-2">Databases for text analysis</h1>
-          <p class="lead mb-5 text-white-50"><span style='font-family: "Lucida Console", Monaco, monospace;'>doctable</span> is a python package for parsing, storing, and accessing text documents and models in databases.</p>
+          <p class="lead mb-5 text-white-50"><span style='font-family: "Lucida Console", Monaco, monospace;'>doctable</span> is a python package for parsing, storing, and accessing text documents/models in databases.</p>
 			<img src="diagram.svg" style="width:80%"/>
         </div>
       </div>
@@ -80,24 +84,34 @@
         <pre><code>pip install doctable</code></pre>
         <!--<h2>Here's the thing.</h2>-->
         
-          <p>doctable consists of two Python classes: <b>DocTable</b> and <b>DocParser</b>. <b>DocTable</b> is an object-oriented interface for working with SQL tables. Instantiate a doctable object to create or connect to an existing database table and use .insert(), .select(), .update(), and .delete() methods to manipulate its contents. <b>DocParser</b> is a class with static methods for tokenization and parsetree extraction with spaCy, and other methods to distribute parsing functions and insert results into a DocTable (or other format).</p>
+          <p>doctable consists of several classes for working with text data:
+          <ul>
+              <li><b><i>DocTable</i></b> provides an interface over db engines (like SQLite). Treat each DocTable like a database table.</li>
+              <li><b><i>Pipeline</i></b> provides a way to create text processing pipelines which can be executed in parallel over large corpora. Use to work with pipeline components are in <i>doctable.parse</i>, as well as other custom functions.</li>
+              <li><b><i>ParseTree</i></b> is a compact format for storing parsetree data from Spacy without the data overhead from Spacy models.</li>
+              <li><b><i>DocBootstrap</i></b> allows you to conveniently bootstrap text data for use in text models.</li>
+              <li><b><i>Distribute</i></b> does multiprocessing similar to <i>multiprocessing.Pool()</i> but allows for more datatypes to be passed to processes via IPC and distributes data in chunks instead of individual elements. Also features method for chunk-processing for insertion into DocTables.</li>
+          </ul>
         <hr/>
           
         <h3>Example: US National Security Strategy Documents</h3>
         <hr/>
         <p>This demonstration shows a typical workflow using DocTable and DocParser. We use DocParser to download, tokenize, and create parsetrees for 17 national security strategy documents. We take advantage of DocParser to create a parallelized workflow for parsing, and a custom DocTable class for efficient storage.</p>
-        <a class="btn btn-primary btn-lg" href="examples/ex_nss.html">See NSS Example &raquo;</a><br/><br/><br/>
+        <a class="btn btn-primary btn-lg" href="examples/example_nss_1_intro.html">See Intro to DocTable Example &raquo;</a><br/>
+        <a class="btn btn-primary btn-lg" href="examples/example_nss_2_parsetrees.html">See Intro to ParseTrees Example &raquo;</a><br/>
           
-        <h3>Example: Gutenberg Texts</h3>
+        <br/><br/>
+          
+        <!--<h3>Example: Gutenberg Texts</h3>
         <hr>
         <p>Here we show how to parse a large corpus of more than 60 thousand books.</p>
-        <a class="btn btn-primary btn-lg" href="examples/docparser_basics.html">DocParser Overview &raquo;</a>
+        <a class="btn btn-primary btn-lg" href="examples/docparser_basics.html">DocParser Overview &raquo;</a>-->
         
       </div>
       <div class="col-md-4 mb-5">
         <h2>Devin J. Cornell</h2>
         <hr>
-		  <p>Devin uses computational methods to study cultural processes through which organizations and individuals produce and are shaped by meaning.</p>
+		  <p>Devin uses computational methods to study cultural processes through which organizations and individuals produce meaning.</p>
           <a href='https://devincornell.github.io/'>Webpage</a><br/>
 		  <a href='https://dcornellresearch.org'>Research Blog</a><br/>
 		  <a href='https://twitter.com/Devin_Cornell'>Twitter @devin_cornell</a>
@@ -135,7 +149,7 @@
       <div class="col-md-4 mb-5">
         <div class="card h-100">
           <!--<img class="card-img-top" src="http://placehold.it/300x200" alt="">-->
-          <div class="card-body">
+          <!--<div class="card-body">
             <h4 class="card-title">DocParser Class Examples</h4>
             <p class="card-text">Static methods for tokenizing and creating parsetrees using the <a href="https://spacy.io/">SpaCy text analysis package</a>. It includes methods to assist with largely parallel text preprocessing and processing for storage into a DocTable database.</p>
 			<ul>
@@ -144,7 +158,7 @@
                 <li><a href="examples/docparser_parsetrees.html">Extract and Manipulate Parsetrees</a></li>
                 <li><a href="examples/docparser_distributed.html">Distributed Parsing and Processing</a></li>
               </ul>
-          </div>
+          </div>-->
           <div class="card-footer">
             <a href="ref/doctable.DocParser.html" class="btn btn-primary">Reference</a>
           </div>
