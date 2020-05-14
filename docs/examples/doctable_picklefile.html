@@ -13074,6 +13074,14 @@ div#notebook {
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
 
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="DocTable-Example:-Pickle-and-Text-Files">DocTable Example: Pickle and Text Files<a class="anchor-link" href="#DocTable-Example:-Pickle-and-Text-Files">&#182;</a></h1><p>Here I show a bit about how to use <code>picklefile</code> and <code>textfile</code> column types. DocTable transparently handles saving and reading column data as separate files when data is large to improve performance of select queries. It will automatically create a folder in the same directory as your sqlite database and save or read file data as if you were working with a regular table entry.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
@@ -13099,7 +13107,6 @@ div#notebook {
 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
     <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
 <span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),(</span><span class="s1">&#39;picklefile&#39;</span><span class="p">,</span> <span class="s1">&#39;pic&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;textfile&#39;</span><span class="p">,</span><span class="s1">&#39;text&#39;</span><span class="p">)],</span> <span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span>
-<span class="n">dbchecker</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span> <span class="c1"># schema is inferred from db file</span>
 </pre></div>
 
     </div>
@@ -13132,7 +13139,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;sqlalchemy.engine.result.ResultProxy at 0x7f2392372d30&gt;</pre>
+<pre>&lt;sqlalchemy.engine.result.ResultProxy at 0x7f41a59502b0&gt;</pre>
 </div>
 
 </div>
@@ -13174,12 +13181,21 @@ div#notebook {
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Because doctable creates a transparent interface to work with these separate files, we need to use a new database to read the raw table schema and show the filenames that DocTable uses to reference stored data files.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dbchecker</span><span class="o">.</span><span class="n">select</span><span class="p">()</span> <span class="c1"># this version without the doctable wrapper</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dbchecker</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span> <span class="c1"># schema is inferred from db file</span>
+<span class="n">dbchecker</span><span class="o">.</span><span class="n">select</span><span class="p">()</span> <span class="c1"># this version without the doctable wrapper</span>
 </pre></div>
 
     </div>
@@ -13198,7 +13214,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(1, &#39;780298227313.pic&#39;, &#39;244549452357.txt&#39;)]</pre>
+<pre>[(1, &#39;384272277333.pic&#39;, &#39;468571887065.txt&#39;)]</pre>
 </div>
 
 </div>
@@ -13206,6 +13222,14 @@ div#notebook {
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For performance reasons, DocTable never deletes stored file data unless you call the <code>.clean_col_files()</code> method directly. It will raise an exception if a referenced file is missing, and delete all files which are not referenced in the table.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
@@ -13221,6 +13245,14 @@ div#notebook {
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now I create another DocTable with a changed <code>fpath</code> argument. Because the argument changed, DocTable will raise an exception when selecting or calling <code>.clean_col_files()</code>. Be wary of this!</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
@@ -13254,19 +13286,6 @@ div#notebook {
 </div>
 </div>
 
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
 </div>
 </div>
 

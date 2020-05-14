@@ -13077,7 +13077,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Example-1:-US-National-Security-Strategy-Document-Corpus">Example 1: US National Security Strategy Document Corpus<a class="anchor-link" href="#Example-1:-US-National-Security-Strategy-Document-Corpus">&#182;</a></h1><p>In this example, I'll show how to create a database for document + metadata storage using the <code>DocTable</code> class, and a parser class using a doctable <code>Pipeline</code>. We will store the metadata you see below with the raw text and parsed tokens in the same DocTable.</p>
+<h1 id="Example-1:-US-National-Security-Strategy-Document-Corpus">Example 1: US National Security Strategy Document Corpus<a class="anchor-link" href="#Example-1:-US-National-Security-Strategy-Document-Corpus">&#182;</a></h1><p>In this example, I'll show how to create a database for document + metadata storage using the <code>DocTable</code> class, and a parser class using a <code>ParsePipeline</code>. We will store the metadata you see below with the raw text and parsed tokens in the same DocTable.</p>
 
 </div>
 </div>
@@ -13199,8 +13199,8 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="1.-Create-a-DocTable-Schema">1. Create a DocTable Schema<a class="anchor-link" href="#1.-Create-a-DocTable-Schema">&#182;</a></h2><p>Our <code>NSSDocs</code> class inherits from DocTable and will typically store schema and other static inforamtion about the database. This is the most common way to use a DocTable. You can see we keep two class member variables to store the database table name and the schema. See the <a href="examples/doctable_schema.html">schema guide</a> for more schema examples.</p>
-<p>We also create a <code>.insert_nssdoc()</code> method which wraps the <code>DocTable.insert()</code> method to make insertion easier by counting paragraphs, sentences, and tokens to insert. A <code>.print_doctable()</code> static method is created so we can print the contents of a NSSDocs database later.</p>
+<h2 id="1.-Create-a-DocTable-Schema">1. Create a DocTable Schema<a class="anchor-link" href="#1.-Create-a-DocTable-Schema">&#182;</a></h2><p>The <code>DocTable</code> class is often used by subclassing. Our <code>NSSDocs</code> class inherits from <code>DocTable</code> and will store schema and other static inforamtion about the database. You can see we keep two member variables <code>tabname</code> and <code>schema</code> to store the database table name and schema, respectively. See the <a href="examples/doctable_schema.html">schema guide</a> for examples of more column types.</p>
+<p>We also overload the <code>__init__</code> method so we can set soem defaults.</p>
 
 </div>
 </div>
@@ -13216,7 +13216,7 @@ div#notebook {
         <span class="p">(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="c1"># doctable shortcut for automatic index</span>
         
         <span class="c1"># some metdata about the documents</span>
-        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
         <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;president&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;party&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;check_constraint&#39;</span><span class="p">,</span> <span class="s1">&#39;party in (&quot;R&quot;,&quot;D&quot;)&#39;</span><span class="p">),</span>
         
@@ -13224,25 +13224,14 @@ div#notebook {
         <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;pickle&#39;</span><span class="p">,</span><span class="s1">&#39;parsed&#39;</span><span class="p">),</span> <span class="c1"># nested tokens within each paragraph</span>
         
-        <span class="c1"># metdata</span>
-        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;num_paragraphs&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;num_tokens&#39;</span><span class="p">),</span>
-        
         <span class="c1"># indices for easy access</span>
         <span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;ind_yr&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
     <span class="p">)</span>
+    
+    <span class="c1"># by overriding the constructor, we can change some of the default parameters</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># NOTE: &quot;:memory:&quot; keyword is an sqlite directive indicating the table should be stored in memory</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tabname</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        
-        
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Override insert to automatically calculate num_paragraphs and num_tokens.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="s1">&#39;parsed&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">:</span>
-            <span class="n">row</span><span class="p">[</span><span class="s1">&#39;num_paragraphs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;parsed&#39;</span><span class="p">])</span>
-            <span class="n">row</span><span class="p">[</span><span class="s1">&#39;num_tokens&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">tok</span> <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;parsed&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">par</span><span class="p">])</span>
-        
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="c1"># call the regular doctable insert now.</span>
     
 </pre></div>
 
@@ -13254,7 +13243,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We can then create a connection to a database by instantiating. Since the fname parameter was not provided, this doctable exists only in memory using sqlite (uses special sqlite name ":memory:"). We will use this for these examples.</p>
+<p>We can then create a connection to a database by instantiating the <code>NSSDocs</code> class. Since the <code>fname</code> parameter was not provided, this doctable exists only in memory using sqlite (uses special sqlite name ":memory:"). We will use this for these examples.</p>
 <p>We can check the sqlite table schema using the <code>.schemainfo</code> property. You can see that the 'pickle' datatype we chose above is represented as a BLOB column. This is because DocTable, using SQLAlchemy core, creates an interface on top of sqlite to handle the data conversion. You can view the number of documents using the <code>.count</code> method or by viewing the db instance as a string (in this case with print function).</p>
 
 </div>
@@ -13262,7 +13251,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># printing the DocTable object itself shows how many entries there are</span>
@@ -13294,7 +13283,7 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[18]:</div>
+    <div class="prompt output_prompt">Out[6]:</div>
 
 
 
@@ -13380,24 +13369,6 @@ div#notebook {
       <td>auto</td>
       <td>0</td>
     </tr>
-    <tr>
-      <th>6</th>
-      <td>num_paragraphs</td>
-      <td>INTEGER</td>
-      <td>True</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>num_tokens</td>
-      <td>INTEGER</td>
-      <td>True</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>0</td>
-    </tr>
   </tbody>
 </table>
 </div>
@@ -13412,14 +13383,21 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Now let's download and store the text into the database. Each loop downloads a text document and inserts it into the doctable.</p>
+<h2 id="2.-Insert-Data-Into-the-Table">2. Insert Data Into the Table<a class="anchor-link" href="#2.-Insert-Data-Into-the-Table">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now let's download and store the text into the database. Each loop downloads a text document and inserts it into the doctable, and we use the <code>.insert()</code> method to insert a single row at a time. The row to be inserted is represented as a dictionary, and any missing column information is left as NULL. The <code>ifnotunique</code> argument is set to false because if we were to re-run this code, it needs to replace the existing document of the same year. Recall that in the schema we placed a unique constraint on the year column.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">docmeta</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">nss_metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
@@ -13430,7 +13408,6 @@ div#notebook {
         <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="n">docmeta</span><span class="p">[</span><span class="s1">&#39;president&#39;</span><span class="p">],</span>
         <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span> 
     <span class="p">},</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
-    <span class="c1">#print(f&#39;added parsed text to {year}: {db}&#39;)</span>
 <span class="n">db</span>
 </pre></div>
 
@@ -13448,14 +13425,14 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|██████████| 17/17 [00:02&lt;00:00,  7.94it/s]
+<pre>100%|██████████| 17/17 [00:03&lt;00:00,  4.87it/s]
 </pre>
 </div>
 </div>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[20]:</div>
+    <div class="prompt output_prompt">Out[7]:</div>
 
 
 
@@ -13470,9 +13447,144 @@ div#notebook {
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="3.-Query-Table-Data">3. Query Table Data<a class="anchor-link" href="#3.-Query-Table-Data">&#182;</a></h2><p>Now that we have inserted the NSS documents into the table, there are a few ways we can query the data. To select the first entry of the table use <code>.select_first()</code>. This method returns a simple <code>sqlalchemy.RowProxy</code> object which can be accessed like a dictionary or like a tuple.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;president&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(1, 1987, &#39;Reagan&#39;, &#39;R&#39;, &#39;I. An American Perspective \n\nIn the early days of this Administration we laid the foundation for a more constructive and positive American role in  ... (157206 characters truncated) ...  final two years as your President to ensure that we continue setting in place a strategy which will carry us securely into the 21st Century.\n\n\n\n&#39;, None)
+Reagan
+1987
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To select more than one row, use the <code>.select()</code> method. If you'd only like to return the first few rows, you can use the <code>limit</code> argument.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;year&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;year&#39;</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1987
+1993
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can also select only a few columns.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[10]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(1987, &#39;Reagan&#39;), (1993, &#39;H.W. Bush&#39;), (2002, &#39;W. Bush&#39;)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For convenience, we can also use the <code>.select_df()</code> method to return directly as a pandas dataframe.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># use select_df to show a couple rows of our database</span>
@@ -13489,7 +13601,7 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[21]:</div>
+    <div class="prompt output_prompt">Out[11]:</div>
 
 
 
@@ -13518,31 +13630,25 @@ div#notebook {
       <th>party</th>
       <th>text</th>
       <th>parsed</th>
-      <th>num_paragraphs</th>
-      <th>num_tokens</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>18</td>
+      <td>1</td>
       <td>1987</td>
       <td>Reagan</td>
       <td>R</td>
       <td>I. An American Perspective \n\nIn the early da...</td>
       <td>None</td>
-      <td>None</td>
-      <td>None</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>19</td>
+      <td>2</td>
       <td>1993</td>
       <td>H.W. Bush</td>
       <td>R</td>
       <td>Preface \n\nAmerican Leadership for Peaceful C...</td>
-      <td>None</td>
-      <td>None</td>
       <td>None</td>
     </tr>
   </tbody>
@@ -13559,45 +13665,35 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Notice that we've filled the text column, but now we need to convert the text data into tokens in python.</p>
-<h2 id="2.-Create-A-Text-Parser-for-Tokenization">2. Create A Text Parser for Tokenization<a class="anchor-link" href="#2.-Create-A-Text-Parser-for-Tokenization">&#182;</a></h2><p>Now that the text is in the doctable, we can parse the text by reading from the table and store the parsed text there as well.</p>
-<p>Now we create a small <code>NSSParser</code> class that keeps a <code>doctable.ParsePipeline</code> object for doing the actual text processing. As you can see from our init method, instantiating the package will load a spacy module into memory and construct the pipeline from the selected components. We also create a wrapper over the pipeline <code>.parse</code> and <code>.parsemany</code> methods. Here we define, instantiate, and view the components of <code>NSSParser</code>.</p>
+<h2 id="4.-Create-a-Parser-for-Tokenization">4. Create a Parser for Tokenization<a class="anchor-link" href="#4.-Create-a-Parser-for-Tokenization">&#182;</a></h2><p>Now that the text is in the doctable, we can extract it using <code>.select()</code>, parse it, and store the parsed text back into the table using <code>.update()</code>.</p>
+<p>Now we create a parser using <code>ParsePipeline</code> and a list of functions to apply to the text sequentially. The <code>component</code> function returns a <a href="ref/doctable.parse.html">doctable parse function</a> with additional keyword arguments. For instance, the following two expressions would be the same.</p>
+
+<pre><code>doctable.component('keep_tok', keep_punct=True) # is equivalent to
+lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
+<p>Note in this example that the 'tokenize' function takes two function arguments <code>keep_tok_func</code> and <code>parse_tok_func</code> which are also specified using the <code>.component()</code> function. The available pipeline components are listed in the <a href="ref/doctable.parse.html">parse function documentation</a>.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">NSSParser</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39; Handles text parsing for NSS documents.&#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en&#39;</span><span class="p">)</span>
-        
-        <span class="c1"># this determines all settings for tokenizing</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParsePipeline</span><span class="p">([</span>
-            <span class="n">nlp</span><span class="p">,</span> <span class="c1"># first run spacy parser</span>
-            <span class="n">doctable</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="s1">&#39;merge_tok_spans&#39;</span><span class="p">,</span> <span class="n">merge_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-            <span class="n">doctable</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="s1">&#39;tokenize&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
-                <span class="s1">&#39;split_sents&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="s1">&#39;keep_tok_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="s1">&#39;keep_tok&#39;</span><span class="p">),</span>
-                <span class="s1">&#39;parse_tok_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="s1">&#39;parse_tok&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
-                    <span class="s1">&#39;format_ents&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                    <span class="s1">&#39;num_replacement&#39;</span><span class="p">:</span> <span class="s1">&#39;NUM&#39;</span><span class="p">,</span>
-                <span class="p">})</span>
-            <span class="p">})</span>
-        <span class="p">])</span>
-        
-    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">parsemany</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">parsemany</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># first load a spacy model</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en&#39;</span><span class="p">)</span>
 
-<span class="n">parser</span> <span class="o">=</span> <span class="n">NSSParser</span><span class="p">()</span> <span class="c1"># creates a parser instance</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">components</span>
+<span class="c1"># add pipeline components</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParsePipeline</span><span class="p">([</span>
+    <span class="n">nlp</span><span class="p">,</span> <span class="c1"># first run spacy parser</span>
+    <span class="n">doctable</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="s1">&#39;tokenize&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
+        <span class="s1">&#39;split_sents&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s1">&#39;keep_tok_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="s1">&#39;keep_tok&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;parse_tok_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="s1">&#39;parse_tok&#39;</span><span class="p">),</span>
+    <span class="p">})</span>
+<span class="p">])</span>
+
+<span class="n">parser</span><span class="o">.</span><span class="n">components</span>
 </pre></div>
 
     </div>
@@ -13610,14 +13706,13 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[9]:</div>
+    <div class="prompt output_prompt">Out[12]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[&lt;spacy.lang.en.English at 0x7ff1a72e3048&gt;,
- &lt;function doctable.pipeline.component.&lt;locals&gt;.&lt;lambda&gt;(x)&gt;,
+<pre>[&lt;spacy.lang.en.English at 0x7f1454f63f98&gt;,
  &lt;function doctable.pipeline.component.&lt;locals&gt;.&lt;lambda&gt;(x)&gt;]</pre>
 </div>
 
@@ -13630,14 +13725,14 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In the next block we loop through rows in the doctable and for each iteration parse the text document and insert it back into the table. Because each paragraph is independent, we can use our <code>.parsemany</code> method (simple wrapper over pipeline) to parse them all in parallel. To parse in parallel, you must specify a value for <code>workers</code> greater than 1.</p>
+<p>Now we loop through rows in the doctable and for each iteration parse the text and insert it back into the table using <code>.update()</code>. We use the <code>ParsePipeline</code> method <code>.parsemany()</code> to parse paragraphs from each document in parallel. This is much faster.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;year&#39;</span><span class="p">,</span><span class="s1">&#39;text&#39;</span><span class="p">])):</span>
@@ -13660,14 +13755,14 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|██████████| 17/17 [00:14&lt;00:00,  1.18it/s]
+<pre>100%|██████████| 17/17 [00:14&lt;00:00,  1.19it/s]
 </pre>
 </div>
 </div>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[22]:</div>
+    <div class="prompt output_prompt">Out[13]:</div>
 
 
 
@@ -13692,7 +13787,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -13708,7 +13803,7 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[23]:</div>
+    <div class="prompt output_prompt">Out[14]:</div>
 
 
 
@@ -13737,43 +13832,35 @@ div#notebook {
       <th>party</th>
       <th>text</th>
       <th>parsed</th>
-      <th>num_paragraphs</th>
-      <th>num_tokens</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>18</td>
+      <td>1</td>
       <td>1987</td>
       <td>Reagan</td>
       <td>R</td>
       <td>I. An American Perspective \n\nIn the early da...</td>
-      <td>[[I. An American, perspective], [in, The Early...</td>
-      <td>265</td>
-      <td>25302</td>
+      <td>[[I., An, American, perspective], [in, the, ea...</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>19</td>
+      <td>2</td>
       <td>1993</td>
       <td>H.W. Bush</td>
       <td>R</td>
       <td>Preface \n\nAmerican Leadership for Peaceful C...</td>
       <td>[[preface], [American, leadership, for, peacef...</td>
-      <td>125</td>
-      <td>13082</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>20</td>
+      <td>3</td>
       <td>2002</td>
       <td>W. Bush</td>
       <td>R</td>
       <td>The great struggles of the twentieth century b...</td>
-      <td>[[the, great, struggles, of, The Twentieth Cen...</td>
-      <td>199</td>
-      <td>13883</td>
+      <td>[[the, great, struggles, of, the, twentieth, c...</td>
     </tr>
   </tbody>
 </table>
@@ -13789,10 +13876,48 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>You can see above that the <code>num_paragraphs</code> and <code>num_tokens</code> columns have been updated because of our custom <code>update</code> function in the <code>NSSDocs</code> class.</p>
+<p>And here we show a few tokenized paragraphs.</p>
 
 </div>
 </div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">paragraphs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">(</span><span class="s1">&#39;parsed&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">paragraphs</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;I.&#39;, &#39;An&#39;, &#39;American&#39;, &#39;perspective&#39;] 
+
+[&#39;in&#39;, &#39;the&#39;, &#39;early&#39;, &#39;days&#39;, &#39;of&#39;, &#39;this&#39;, &#39;administration&#39;, &#39;we&#39;, &#39;laid&#39;, &#39;the&#39;, &#39;foundation&#39;, &#39;for&#39;, &#39;a&#39;, &#39;more&#39;, &#39;constructive&#39;, &#39;and&#39;, &#39;positive&#39;, &#39;American&#39;, &#39;role&#39;, &#39;in&#39;, &#39;world&#39;, &#39;affairs&#39;, &#39;by&#39;, &#39;clarifying&#39;, &#39;the&#39;, &#39;essential&#39;, &#39;elements&#39;, &#39;of&#39;, &#39;U.S.&#39;, &#39;foreign&#39;, &#39;and&#39;, &#39;defense&#39;, &#39;policy&#39;, &#39;.&#39;] 
+
+[&#39;over&#39;, &#39;the&#39;, &#39;intervening&#39;, &#39;years&#39;, &#39;,&#39;, &#39;we&#39;, &#39;have&#39;, &#39;looked&#39;, &#39;objectively&#39;, &#39;at&#39;, &#39;our&#39;, &#39;policies&#39;, &#39;and&#39;, &#39;performance&#39;, &#39;on&#39;, &#39;the&#39;, &#39;world&#39;, &#39;scene&#39;, &#39;to&#39;, &#39;ensure&#39;, &#39;they&#39;, &#39;reflect&#39;, &#39;the&#39;, &#39;dynamics&#39;, &#39;of&#39;, &#39;a&#39;, &#39;complex&#39;, &#39;and&#39;, &#39;ever&#39;, &#39;-&#39;, &#39;changing&#39;, &#39;world&#39;, &#39;.&#39;, &#39;where&#39;, &#39;course&#39;, &#39;adjustments&#39;, &#39;have&#39;, &#39;been&#39;, &#39;required&#39;, &#39;,&#39;, &#39;i&#39;, &#39;have&#39;, &#39;directed&#39;, &#39;changes&#39;, &#39;.&#39;, &#39;but&#39;, &#39;we&#39;, &#39;have&#39;, &#39;not&#39;, &#39;veered&#39;, &#39;and&#39;, &#39;will&#39;, &#39;not&#39;, &#39;veer&#39;, &#39;from&#39;, &#39;the&#39;, &#39;broad&#39;, &#39;aims&#39;, &#39;that&#39;, &#39;guide&#39;, &#39;America&#39;, &#34;&#39;s&#34;, &#39;leadership&#39;, &#39;role&#39;, &#39;in&#39;, &#39;today&#39;, &#34;&#39;s&#34;, &#39;world&#39;, &#39;:&#39;] 
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
     </div>
   </div>
