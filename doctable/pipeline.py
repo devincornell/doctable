@@ -1,9 +1,9 @@
 
 from .distribute import Distribute
 from .parse import preprocess, tokenize, parse_tok, keep_tok, merge_tok_spans, merge_tok_ngrams, get_parsetrees
+import functools
 
-
-component_map = {
+components = {
     'preprocess': preprocess,
     'tokenize': tokenize,
     'parse_tok': parse_tok,
@@ -14,14 +14,17 @@ component_map = {
 }
 
 
-def component(name, *args, **kwargs):
+def Comp(func, *args, **kwargs):
     ''' Returns a pipeline component as a function with one positional arg.
-        See component_map in this file to see available mappings.
+        See components in this file to see available mappings.
     Args:
         *args: passed directly to component function
         **kwargs: passed directly to component function
     '''
-    return lambda x: component_map[name](x, *args, **kwargs)
+    if isinstance(func, str):
+        return functools.partial(components[func], *args, **kwargs)
+    else:
+        return functools.partial(func, *args, **kwargs)
 
 
 class ParsePipeline:

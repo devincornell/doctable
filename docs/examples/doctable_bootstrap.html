@@ -13074,6 +13074,14 @@ div#notebook {
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
 
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Document-Bootstrapping-Examples">Document Bootstrapping Examples<a class="anchor-link" href="#Document-Bootstrapping-Examples">&#182;</a></h1><p>When estimating machine learning or statistical models on your corpus, you may need to bootstrap documents (randomly sample with replacement). The <code>.bootstrap()</code> method of <code>DocTable</code> will act like a select statement but return a bootstrap object instead of a direct query result. Here I show how to do some basic bootstrapping using an example doctable.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
@@ -13092,6 +13100,14 @@ div#notebook {
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Create-Example-DocTable">Create Example DocTable<a class="anchor-link" href="#Create-Example-DocTable">&#182;</a></h3><p>First we define a DocTable that will be used for examples.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
@@ -13099,7 +13115,7 @@ div#notebook {
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
     <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
     <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;age&#39;</span><span class="p">),</span>
     <span class="p">(</span><span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">),</span>
 <span class="p">)</span>
@@ -13121,7 +13137,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>&lt;DocTable2::_documents_ ct: 0&gt;
+<pre>&lt;DocTable::_documents_ ct: 0&gt;
 </pre>
 </div>
 </div>
@@ -13129,49 +13145,27 @@ div#notebook {
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Then we add several example rows to the doctable.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
     <span class="n">age</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="c1"># number in [0,1]</span>
     <span class="n">is_old</span> <span class="o">=</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
     <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;user_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="n">age</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">:</span><span class="n">is_old</span><span class="p">}</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
-</pre></div>
+    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
 
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>&lt;DocTable2::_documents_ ct: 5&gt;
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">():</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
 </pre></div>
 
@@ -13189,11 +13183,9 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>(1, &#39;user_0&#39;, 0.0903606780594799, False)
-(2, &#39;user_1&#39;, 0.1936026672500093, False)
-(3, &#39;user_2&#39;, 0.7179026106618069, True)
-(4, &#39;user_3&#39;, 0.07015109876076597, False)
-(5, &#39;user_4&#39;, 0.9055454699822891, True)
+<pre>(1, &#39;user_0&#39;, 0.2366025981867288, False)
+(2, &#39;user_1&#39;, 0.35796532417518767, False)
+(3, &#39;user_2&#39;, 0.4970760427595383, False)
 </pre>
 </div>
 </div>
@@ -13205,7 +13197,64 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The <code>.bootstrap()</code> method will return a DocBootstrap object.</p>
+<h3 id="Create-a-Bootstrap">Create a Bootstrap<a class="anchor-link" href="#Create-a-Bootstrap">&#182;</a></h3><p>We can use the doctable method <code>.bootstrap()</code> to return a bootstrap object using the keyword argument <code>n</code> to set the sample size (will use number of docs by default). This method acts like a select query, so we can specify columns and use the where argument to choose columns and rows to be bootstrapped. The bootsrap object contains the rows in the <code>.doc</code> property.</p>
+<p>Notice that while our select statement drew three documens, the sample size specified with <code>n</code> is 5. The boostrap object will always return 5 objects, even though the number of docs stays the same.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="s1">&#39;age&#39;</span><span class="p">],</span> <span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">bs</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">docs</span><span class="p">))</span>
+<span class="n">bs</span><span class="o">.</span><span class="n">n</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>&lt;class &#39;doctable.bootstrap.DocBootstrap&#39;&gt;
+3
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[4]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>5</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Use the bootstrap object as an iterator to access the bootstrapped docs. The bootstrap object draws a sample upon instantiation, so the same sample is maintained until reset.</p>
 
 </div>
 </div>
@@ -13215,8 +13264,12 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">()</span>
-<span class="nb">type</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;first run:&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;second run:&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13229,15 +13282,24 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[5]:</div>
+    <div class="prompt"></div>
 
 
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>doctable.bootstrap.DocBootstrap</pre>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>first run:
+(&#39;user_5&#39;, 0.5089936416003444)
+(&#39;user_2&#39;, 0.4970760427595383)
+(&#39;user_8&#39;, 0.6925955073384841)
+(&#39;user_5&#39;, 0.5089936416003444)
+(&#39;user_2&#39;, 0.4970760427595383)
+second run:
+(&#39;user_5&#39;, 0.5089936416003444)
+(&#39;user_2&#39;, 0.4970760427595383)
+(&#39;user_8&#39;, 0.6925955073384841)
+(&#39;user_5&#39;, 0.5089936416003444)
+(&#39;user_2&#39;, 0.4970760427595383)
+</pre>
 </div>
-
 </div>
 
 </div>
@@ -13247,7 +13309,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>There are three ways to use this object: (1) as an iterator directly, (2) using a stateful sample, or (3) using the .sample() to draw new samples.</p>
+<h3 id="Draw-New-Sample">Draw New Sample<a class="anchor-link" href="#Draw-New-Sample">&#182;</a></h3><p>You can reset the internal sample of the bootstrap object using the <code>.set_new_sample()</code> method. See that we now sample 2 docs and the output is different from previous runs. The sample will still remain the same each time we iterate until we reset the sample.</p>
 
 </div>
 </div>
@@ -13257,7 +13319,12 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span> <span class="c1"># use directly</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bs</span><span class="o">.</span><span class="n">set_new_sample</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;first run:&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;second run:&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
 </pre></div>
 
@@ -13275,120 +13342,12 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>(4, &#39;user_3&#39;, 0.07015109876076597, False)
-(1, &#39;user_0&#39;, 0.0903606780594799, False)
-(5, &#39;user_4&#39;, 0.9055454699822891, True)
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">()</span> <span class="c1"># use the stateful approach</span>
-<span class="n">bs</span><span class="o">.</span><span class="n">set_sample</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">ids</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">sample</span><span class="p">():</span> <span class="c1"># here equivalent to for doc in bs</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>[2 1 2]
-(3, &#39;user_2&#39;, 0.7179026106618069, True)
-(2, &#39;user_1&#39;, 0.1936026672500093, False)
-(3, &#39;user_2&#39;, 0.7179026106618069, True)
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span> <span class="c1"># non-stateful sample</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>(2, &#39;user_1&#39;, 0.1936026672500093, False)
-(5, &#39;user_4&#39;, 0.9055454699822891, True)
-(5, &#39;user_4&#39;, 0.9055454699822891, True)
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span> <span class="c1"># ignores n=3 to make new one-off bootstrap</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>(2, &#39;user_1&#39;, 0.1936026672500093, False)
-(4, &#39;user_3&#39;, 0.07015109876076597, False)
-(3, &#39;user_2&#39;, 0.7179026106618069, True)
-(3, &#39;user_2&#39;, 0.7179026106618069, True)
+<pre>first run:
+(&#39;user_5&#39;, 0.5089936416003444)
+(&#39;user_2&#39;, 0.4970760427595383)
+second run:
+(&#39;user_5&#39;, 0.5089936416003444)
+(&#39;user_2&#39;, 0.4970760427595383)
 </pre>
 </div>
 </div>
@@ -13400,17 +13359,21 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Because args and kwargs passed to .bootstrap are passed directly to .select() (with the exception of n), you can specify any other details. Note that using limit will reduce the number of rows initially queried then draw a bootstrap sample of the requested size from that subset.</p>
+<p>And we can iterate through a new sample using <code>.new_sample()</code>. Equivalent to calling <code>.set_new_sample()</code> and then iterating through elements.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="s1">&#39;is_old&#39;</span><span class="p">],</span> <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span> <span class="c1"># use directly</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;drawing new sample:&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">new_sample</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;repeating sample:&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">bs</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
 </pre></div>
 
@@ -13428,11 +13391,14 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>(&#39;user_0&#39;, False)
-(&#39;user_1&#39;, False)
-(&#39;user_1&#39;, False)
-(&#39;user_1&#39;, False)
-(&#39;user_1&#39;, False)
+<pre>drawing new sample:
+(&#39;user_2&#39;, 0.4970760427595383)
+(&#39;user_2&#39;, 0.4970760427595383)
+(&#39;user_8&#39;, 0.6925955073384841)
+repeating sample:
+(&#39;user_2&#39;, 0.4970760427595383)
+(&#39;user_2&#39;, 0.4970760427595383)
+(&#39;user_8&#39;, 0.6925955073384841)
 </pre>
 </div>
 </div>
@@ -13440,6 +13406,14 @@ div#notebook {
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>I may add additional functionality in the future if I use this in any projects, but that's it for now.</p>
+
+</div>
+</div>
 </div>
     </div>
   </div>

@@ -46,9 +46,9 @@
               </a>
               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="ref/doctable.DocTable.html">DocTable</a>
-                <a class="dropdown-item" href="ref/doctable.parse.html">Parsing</a>
-                <a class="dropdown-item" href="ref/doctable.pipeline.html">Parsing Pipeline</a>
-                
+                <a class="dropdown-item" href="ref/doctable.parse.html">Parsing Functions</a>
+                <a class="dropdown-item" href="ref/doctable.pipeline.html">ParsePipeline</a>
+                  
                 <a class="dropdown-item" href="ref/doctable.Distribute.html">Distribute</a>
                 <a class="dropdown-item" href="ref/doctable.DocBootstrap.html">DocBootstrap</a>
 				<a class="dropdown-item" href="ref/doctable.parsetree.html">ParseTrees</a>
@@ -88,13 +88,13 @@
           <ul>
               <li><b><i>DocTable</i></b> is an object-oriented interface for querying and manipulating a single database table. <i><a href="examples/doctable_basics.html">overview</a></i>/<i><a href="ref/doctable.DocTable.html">docs</a></i>.</li>
               
-              <li><b><i>ParsePipeline</i></b> manages parallelized parsing pipelines using custom functions or components in <i><a href="ref/doctable.parse.html">doctable.parse</a></i>. <i><a href="examples/example_nss_1_intro.html#4.-Create-a-Parser-for-Tokenization">example</a></i>.</li>
+              <li><b><i>ParsePipeline</i></b> manages parallelized parsing pipelines using custom functions or pre-built doctable components. <i><a href="examples/parse_basics.html">overview</a></i>/<i><a href="ref/doctable.ParsePipeline.html">docs</a></i>/<i><a href="ref/doctable.parse.html">components</a></i>.</li>
 
-              <li><b><i>DocBootstrap</i></b> makes it easy to bootstrap table rows for estimating statistical models. <i><a href="examples/doctable_bootstrap.html">example</a></i>.</li>
+              <li><b><i>DocBootstrap</i></b> makes it easy to bootstrap documents for estimating statistical models. <i><a href="examples/doctable_bootstrap.html">overview</a></i>.</li>
 
-              <li><b><i>ParseTree</i></b> is a compact structure for storing parsetree data from Spacy without the data overhead from Spacy models.</li>
+              <li><b><i>ParseTree</i></b> is a compact structure for storing parsetree data from Spacy without the data overhead from Spacy models. </li>
               
-              <li><b><i>Distribute</i></b> does multiprocessing similar to <i>multiprocessing.Pool()</i> but allows for more datatypes to be passed to processes via IPC and distributes data in chunks instead of individual elements. Also features method for chunk-processing for insertion into DocTables. <i><a href="examples/distributed_basics.html">example</a></i></li>
+              <li><b><i>Distribute</i></b> does multiprocessing similar to <i>multiprocessing.Pool()</i> but allows for more datatypes to be passed to processes via IPC and distributes data in chunks instead of individual elements. Also features method for chunk-processing for insertion into DocTables. <i><a href="examples/distributed_basics.html">overview</a></i></li>
               
           </ul>
         <hr/>
@@ -134,7 +134,7 @@
             <!--<p class="card-text">Class for creating and manipulating document databases.</p>-->
             <!--<h5>Examples:</h5>-->
 			<ul>
-                <li><a href="examples/doctable_basics.html">Overview</a></li>
+                <li><a href="examples/doctable_basics.html">DocTable Overview</a></li>
                 <li><a href="examples/doctable_schema.html">Schema Format Examples</a></li>
                 <li><a href="examples/doctable_insert_delete.html">Insert/Delete Rows</a></li>
                 <li><a href="examples/doctable_select.html">Select Rows</a></li>
@@ -155,10 +155,11 @@
             <h4 class="card-title">ParsePipeline Class</h4>
             <!--<p class="card-text">Static methods for tokenizing and creating parsetrees using the <a href="https://spacy.io/">SpaCy text analysis package</a>. It includes methods to assist with largely parallel text preprocessing and processing for storage into a DocTable database.</p>-->
 			<ul>
-                <li><a href="examples/example_nss_1_intro.html#4.-Create-a-Parser-for-Tokenization">NSS Example</a></li>
+                <li><a href="examples/parse_basics.html">ParsePipeline Overview</a></li>
                 <li><a href="#">Need more examples -_-</a></li>
                 <li><a href="#">Tokenization</a></li>
                 <li><a href="#">Parsetrees</a></li>
+                <li><a href="examples/example_nss_1_intro.html#4.-Create-a-Parser-for-Tokenization">NSS Example</a></li>
                 <!--<li><a href="examples/docparser_tokenizing.html">Tokenize</a></li>-->
             </ul>
           </div>

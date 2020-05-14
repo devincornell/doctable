@@ -14,13 +14,15 @@
 
 <dl><dt><a name="DocBootstrap-__iter__"><strong>__iter__</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="DocBootstrap-sample"><strong>sample</strong></a>(self, n=None, with_ids=False)</dt><dd><tt>Extract&nbsp;new&nbsp;sample&nbsp;if&nbsp;given&nbsp;n&nbsp;else&nbsp;return&nbsp;old&nbsp;sample.<br>
+<dl><dt><a name="DocBootstrap-new_sample"><strong>new_sample</strong></a>(self, n=None, with_ids=False)</dt><dd><tt>Save&nbsp;and&nbsp;return&nbsp;new&nbsp;sample.<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;n&nbsp;(int):&nbsp;number&nbsp;of&nbsp;new&nbsp;samples&nbsp;to&nbsp;draw.&nbsp;If&nbsp;None,&nbsp;will&nbsp;draw&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sample&nbsp;from&nbsp;ids&nbsp;set&nbsp;by&nbsp;.<a href="#doctable.DocBootstrap-set_sample">set_sample</a>().<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;previously&nbsp;set&nbsp;number.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;with_ids&nbsp;(bool):&nbsp;return&nbsp;(id,doc)&nbsp;tuples&nbsp;or&nbsp;just&nbsp;docs.</tt></dd></dl>
 
-<dl><dt><a name="DocBootstrap-set_sample"><strong>set_sample</strong></a>(self, n=None)</dt></dl>
+<dl><dt><a name="DocBootstrap-set_new_sample"><strong>set_new_sample</strong></a>(self, n=None)</dt><dd><tt>Set&nbsp;internal&nbsp;sample&nbsp;state.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;n&nbsp;(int):&nbsp;new&nbsp;number&nbsp;of&nbsp;samples&nbsp;to&nbsp;draw</tt></dd></dl>
 
 <hr>
 Data descriptors defined here:<br>
