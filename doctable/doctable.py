@@ -171,7 +171,7 @@ class DocTable:
                 coltype, colname = colinfo[:2]
                 colargs = colinfo[2] if n > 2 else dict()
                 coltypeargs = colinfo[3] if n > 3 else dict()
-                if coltype in ('picklefile','textfile') and self._fname != ':memory:':
+                if coltype in ('picklefile','textfile','jsonfile'):
                     if 'fpath' not in coltypeargs:
                         #path = os.path.splitext(self._fname)[0]
                         #coltypeargs['fpath'] = path+'_'+self._tabname+'_'+colname

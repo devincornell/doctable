@@ -18,7 +18,7 @@ class FileTypeBase(types.TypeDecorator):
         '''Define init to store fpath.'''
         if fpath is None:
             raise Exception('fpath must be defined when '
-                'initializing PickleFileType.')
+                'initializing a file type.')
         self.fpath = fpath+'/'
         
         # make directory if it doesn't exist
@@ -76,7 +76,19 @@ class TextFileType(FileTypeBase):
     def load_data(cls, f, dialect):
         return f.read().decode()
 
-
+# NOTE: I SIMPLY HAVENT BOTHERED TO INTEGRATE THIS INTO CODE - SHOULD BE CORRECT THOUGH
+class JSONFileType(FileTypeBase):
+    file_ext = '.json'
+    @classmethod
+    def dump_data(cls, f, value, dialect): # used in FileTypeBase.process_bind_param()
+        return json.dump(value, f, indent=2) # use highest protocol with negative number
+    @classmethod
+    def load_data(cls, f, dialect):
+        return json.load(f)
+    
+    
+    
+    
 
 class CpickleType(types.TypeDecorator):
     impl = types.LargeBinary
