@@ -86,19 +86,24 @@
         
           <p>doctable consists of several classes for working with text data:
           <ul>
-              <li><b><i>DocTable</i></b> provides an interface over db engines (like SQLite). Treat each DocTable like a database table.</li>
-              <li><b><i>Pipeline</i></b> provides a way to create text processing pipelines which can be executed in parallel over large corpora. Use to work with pipeline components are in <i>doctable.parse</i>, as well as other custom functions.</li>
-              <li><b><i>ParseTree</i></b> is a compact format for storing parsetree data from Spacy without the data overhead from Spacy models.</li>
-              <li><b><i>DocBootstrap</i></b> allows you to conveniently bootstrap text data for use in text models.</li>
-              <li><b><i>Distribute</i></b> does multiprocessing similar to <i>multiprocessing.Pool()</i> but allows for more datatypes to be passed to processes via IPC and distributes data in chunks instead of individual elements. Also features method for chunk-processing for insertion into DocTables.</li>
+              <li><b><i>DocTable</i></b> is an object-oriented interface for querying and manipulating a single database table.<i><a href="ref/doctable.DocTable.html">docs</a></i>/<i><a href="examples/doctable_basics.html">overview</a></i></li>
+              
+              <li><b><i>ParsePipeline</i></b> manages parallelized parsing pipelines using custom functions or components in <i><a href="ref/doctable.parse.html">doctable.parse</a></i>. <i><a href="examples/example_nss_1_intro.html#4.-Create-a-Parser-for-Tokenization">example</a></i>.</li>
+
+              <li><b><i>DocBootstrap</i></b> makes it easy to bootstrap table rows for estimating statistical models. <i><a href="examples/doctable_bootstrap.html">example</a></i>.</li>
+
+              <li><b><i>ParseTree</i></b> is a compact structure for storing parsetree data from Spacy without the data overhead from Spacy models.</li>
+              
+              <li><b><i>Distribute</i></b> does multiprocessing similar to <i>multiprocessing.Pool()</i> but allows for more datatypes to be passed to processes via IPC and distributes data in chunks instead of individual elements. Also features method for chunk-processing for insertion into DocTables. <i><a href="examples/distributed_basics.html">example</a></i></li>
+              
           </ul>
         <hr/>
           
         <h3>Example: US National Security Strategy Documents</h3>
         <hr/>
-        <p>This demonstration shows a typical workflow using DocTable and DocParser. We use DocParser to download, tokenize, and create parsetrees for 17 national security strategy documents. We take advantage of DocParser to create a parallelized workflow for parsing, and a custom DocTable class for efficient storage.</p>
-        <a class="btn btn-primary btn-lg" href="examples/example_nss_1_intro.html">See Intro to DocTable Example &raquo;</a><br/><br/><br/>
-        <a class="btn btn-primary btn-lg" href="examples/example_nss_2_parsetrees.html">See Intro to ParseTrees Example &raquo;</a><br/>
+        <p>This demonstration shows a typical DocTable workflow. We show how to create a new DocTable, insert NSS document text and metadata, and parse data for storage in the table.</p>
+        <a class="btn btn-primary btn-lg" href="examples/example_nss_1_intro.html">See NSS Example &raquo;</a><br/><br/><br/>
+        <!--<a class="btn btn-primary btn-lg" href="examples/example_nss_2_parsetrees.html">See Intro to ParseTrees Example &raquo;</a><br/>-->
           
         <br/><br/>
           
