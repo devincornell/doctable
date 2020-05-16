@@ -58,32 +58,23 @@ class ParseTree:
         return self.root.bubble_reduce(func, init_data)
     
     
-    def print_ascii_tree(self):
-        '''Print out an ascii tree.
-        taken from: https://stackoverflow.com/questions/32151776/visualize-tree-in-bash-like-the-output-of-unix-tree
+    def display(self, pad=15, base=10, **kwargs):
+        ''' Print out an ascii tree.
         '''
-        self._print_ascii_tree(self.root, 0)
+        self.print_tree_recursive(self.root, pad, base, **kwargs)
         
     @classmethod
-    def _print_ascii_tree(cls, node, level, last=False, sup=[]):
-        def update(left, i):
-            if i < len(left):
-                left[i] = '   '
-            return left
-        branch = '├'
-        pipe = '|'
-        end = '└'
-        dash = '─'
+    def print_tree_recursive(cls, tok, pad, base, level=0, root_str='{text}', dep_str=' -{dep}> {text}'):
+        if level == 0:
+            print(root_str.format(**tok.to_dict()).ljust(pad-(pad-base)), end='')
+        else:
+            print(dep_str.format(**tok.to_dict()).ljust(pad), end='')
 
-        print(''.join(reduce(update, sup, ['{}  '.format(pipe)] * level)) \
-              + (end if last else branch) + '{} '.format(dash) \
-              + '({}) {}'.format(node.dep, node.text))
-        if len(node.childs) > 0:
-            level += 1
-            for node in node.childs[:-1]:
-                cls._print_ascii_tree(node, level, sup=sup)
-            if len(node.childs) > 1:
-                cls._print_ascii_tree(node.childs[-1], level, True, [level] + sup)
+        if len(tok.childs)==0: # base case
+            print('\n' + ' '*(level*pad-(pad-base)), end='')
+        else:
+            for child in tok.childs:
+                cls.print_tree_recursive(child, pad, base, level+1, root_str, dep_str)
 
 
 class Token:
