@@ -13,7 +13,8 @@ from .util import list_tables
 
 # for parsing
 from .pipeline import ParsePipeline, Comp, components
-from .parsetree import ParseTree, ParseNode
+from .parsetree import ParseTree, Token
+from .parse import * # perhaps debatable
 
 # all legacy
 from .docparser import DocParser

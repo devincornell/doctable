@@ -2,8 +2,6 @@
 from functools import reduce
 
 class ParseTree:
-    tree = None
-    nodes = None
     root = None
     def __init__(self, root_node, *args, **kwargs):
         '''Create from dict parsetree or spacy sentence root.'''
@@ -12,16 +10,18 @@ class ParseTree:
         if not isinstance(root_node, dict): # root node is spacy token
             if not root_node.doc.is_parsed:
                 raise ValueError('Both the Spacy tagger and parser must '
-                    'be enabled to use a ParseTree.')
+                    'be enabled to make a ParseTree.')
         
         # root is reference to entire tree
-        self.root = ParseNode(root_node, *args, **kwargs)
-        nodes = self.bubble_accum(lambda n: [n])
-        self.nodes = list(sorted(nodes,key=lambda n:n.i))
+        self.root = Token(root_node, *args, **kwargs)
+        _tokens = self.bubble_accum(lambda n: [n])
+        self._tokens = list(sorted(_tokens,key=lambda n:n.i))
         
     @property
     def toks(self):
-        return [n.text for n in self.nodes]
+        ''' List of token texts.
+        '''
+        return [n.text for n in self._tokens]
         
     def __str__(self):
         return 'ParseTree({})'.format(self.toks)
@@ -30,17 +30,17 @@ class ParseTree:
         return str(self)
         
     def __len__(self):
-        return len(self.nodes)
+        return len(self._tokens)
     
     def __getitem__(self,ind):
-        '''Returns ith item in ordered list of tokens.'''
-        return self.nodes[ind]
+        '''Returns ith item in ordered list of _tokens.'''
+        return self._tokens[ind]
     
     def __iter__(self):
-        return iter(self.nodes)
+        return iter(self._tokens)
     
-    def asdict(self):
-        return self.root.asdict()
+    def to_dict(self):
+        return self.root.to_dict()
     
     def bubble_accum(self, func):
         '''Applies func to each node and bubbles up accumulated result (like reduce).
@@ -86,7 +86,14 @@ class ParseTree:
                 cls._print_ascii_tree(node.childs[-1], level, True, [level] + sup)
 
 
-class ParseNode:
+class Token:
+    parent = None
+    childs = []
+    i = None
+    text = None
+    dep = None
+    tag = None
+    info = None
     
     def __init__(self, node, tok_parse_func=None, info_func_map=dict(), parent=None):
         '''Construct from either a dictionary or spacy token.'''
@@ -99,7 +106,7 @@ class ParseNode:
             self.dep = ndict['dep']
             self.tag = ndict['tag']
             self.info = ndict['info']
-            self.childs = [ParseNode(c, parent=self) for c in ndict['childs']]
+            self.childs = [Token(c, parent=self) for c in ndict['childs']]
             self._pos = ndict['pos']
             self._ent = ndict['ent']
 
@@ -112,7 +119,7 @@ class ParseNode:
             self.tag = tok.tag_
             self.info = {attr:func(tok) for attr,func in info_func_map.items()}
             
-            self.childs = [ParseNode(child, tok_parse_func=tok_parse_func, \
+            self.childs = [Token(child, tok_parse_func=tok_parse_func, \
                             info_func_map=info_func_map, parent=self) 
                            for child in tok.children]
             
@@ -123,19 +130,19 @@ class ParseNode:
     @property
     def pos(self):
         if self._pos is None:
-            raise AttributeError('Part-of-speech tag is not available in ParseTree because '
+            raise AttributeError('Part-of-speech tag is not available in Token because '
                 'POS-tagging was not enabled while processing with Spacy.')
         return self._pos
 
     @property
     def ent(self):
         if self._ent is None:
-            raise AttributeError('Entity tag is not available in ParseTree because '
+            raise AttributeError('Entity tag is not available in Token because '
                 'NER was not enabled while processing with Spacy.')
         return self._ent    
     
         
-    def asdict(self):
+    def to_dict(self):
         '''Convert self to a dict.'''
         node = dict(
             i=self.i,
@@ -143,7 +150,7 @@ class ParseNode:
             tag=self.tag,
             dep=self.dep,
             info=self.info,
-            childs=[c.asdict() for c in self.childs],
+            childs=[c.to_dict() for c in self.childs],
             pos=self._pos,
             ent=self._ent,
         )
@@ -151,7 +158,7 @@ class ParseNode:
         
             
     def __str__(self):
-        return 'ParseNode({})'.format(self.text)
+        return 'Token({})'.format(self.text)
     
     def __repr__(self):
         return str(self)
