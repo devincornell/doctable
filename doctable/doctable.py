@@ -8,21 +8,20 @@ from glob import glob
 from datetime import datetime
 
 # operators like and_, or_, and not_, functions like sum, min, max, etc
-import sqlalchemy.sql as op
-from sqlalchemy.sql import func
 import sqlalchemy as sa
 
 #from .coltypes import CpickleType, ParseTreeType, PickleFileType, TextFileType, FileTypeBase, JSONType
 from .bootstrap import DocBootstrap
 from .util import list_tables
+from .connectengine import ConnectEngine
 
 def is_ord_sequence(obj):
     return isinstance(obj, list) or isinstance(obj,tuple)
 
 class DocTable:
-
-        
-    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', persistent_conn=True, verbose=False, new_db=False, engine=None, engine_type='sqlite', **engine_args):
+    def __init__(self, tabname='_documents_', target=':memory:', schema=None, 
+                 persistent_conn=True, verbose=False, new_db=False, engine=None, 
+                 dialect='sqlite', **engine_kwargs):
         '''Create new database.
         Args:
             schema (list<list>): schema from which to create db. Includes a
@@ -30,11 +29,11 @@ class DocTable:
                 defined according to information needed to execute the sqlalchemy
                 commands.
             tabname (str): table name for this specific doctable.
-            fname (str): filename for database to connect to. ":memory:" is a 
+            target (str): filename for database to connect to. ":memory:" is a 
                 special value indicating to the python db engine that the db
                 should be created in memory. Will create new empty database file
                 if it does not exist and new_db is True.
-            engine_type (str): database engine through which to construct db.
+            dialect (str): database engine through which to construct db.
                 For more info, see sqlalchemy dialect info:
                 https://docs.sqlalchemy.org/en/13/dialects/
             persistent_conn (bool): whether or not to create a persistent conn 
@@ -56,16 +55,16 @@ class DocTable:
                 tabname = kwargs['tabname']
             if 'schema' in kwargs:
                 schema = kwargs['schema']
-            if 'fname' in kwargs:
-                fname = kwargs['fname']
+            if 'target' in kwargs:
+                target = kwargs['target']
             if 'verbose' in kwargs:
                 verbose = kwargs['verbose']
             if 'new_db' in kwargs:
                 new_db = kwargs['new_db']
-            if 'engine_type' in kwargs:
-                engine_type = kwargs['engine_type']
-            if 'engine_args' in kwargs:
-                engine_args = kwargs['engine_args']
+            if 'dialect' in kwargs:
+                dialect = kwargs['dialect']
+            if 'engine_kwargs' in kwargs:
+                engine_kwargs = kwargs['engine_kwargs']
         except AttributeError:
             pass
         try:
@@ -77,50 +76,48 @@ class DocTable:
         except AttributeError:
             pass
         try:
-            fname = self.fname
+            target = self.target
         except AttributeError:
             pass
         
-        
-        # in cases where user did not want to create new db but a db does not 
-        # exist
-        existing_tabnames = list_tables(fname, engine=engine_type, **engine_args)#connstr = '{}:///{}'.format(engine_type, fname)
-        if fname != ':memory:' and not os.path.exists(fname) and not new_db:
-            raise FileNotFoundError('new_db is set to False but the database does not '
-                             'exist yet.')
-        elif schema is None and (fname == ':memory:' or not os.path.exists(fname)):
+        if dialect == 'sqlite' and schema is None and (target == ':memory:' or not os.path.exists(target)):
             raise ValueError('Schema must be provided if using memory database or '
                              'database file does not exist yet. Need to provide schema '
                              'when creating a new table.')
-        elif schema is None and tabname not in existing_tabnames:
-            raise ValueError('The requested table was not found in the database! Schema must be '
-                             'provided to create a new table. Existing tables: {existing_tables}'
-                             ''.format(existing_tabnames))
         
         # store arguments as-is
         self._tabname = tabname
-        self._fname = fname
-        self._engine_args = engine_args
+        self._target = target
         self.verbose = verbose
-        self._user_schema = schema
+        self.user_schema = schema
         
-        # create database engine
-        self._conn = None
-        self._engine, self._metadata, self._table = self._make_engine(
-            fname, tabname, schema,
-            engine=engine, engine_type=engine_type, engine_args=engine_args
-        )
+        # establish an engine connection
+        if engine is None:
+            self._engine = ConnectEngine(dialect=dialect, target=target, new_db=new_db, 
+                                     **engine_kwargs)
+        else:
+            self._engine = engine
+        
+        # connect to existing table or create new one
+        columns = None
+        if schema is not None:
+            columns = parse_schema(schema, target+'_'+tabname)
+        
+        self._table = self._engine.add_table(self._tabname, columns=columns)
+        
+        # connect to database
+        self._conn = self._engine.get_connection()
         
     def __delete__(self):
         ''' Closes database connection to prevent locking db.
         '''
         self.close_conn()
-        
     
     #################### Convenience Methods ###################
     
     def __str__(self):
         return '<DocTable::{} ct: {}>'.format(self._tabname, self.count())
+    
     def __repr__(self):
         return str(self)
     
@@ -129,7 +126,7 @@ class DocTable:
         return self.col(colname)
     
     def col(self,name):
-        '''Accesses a column object. Equivalent to table.c[name].
+        '''Accesses a column object.
         Args:
             Name of column to access. Applied as subscript to 
                 sqlalchemy columns object.
@@ -165,54 +162,26 @@ class DocTable:
         return self._table.c
     
     @property
+    def engine(self):
+        return self._engine
+    
     def colnames(self):
         return [c.name for c in self.columns]
     
-    @property
-    def schemainfo(self):
+    def schema_info(self):
         '''Get info about each column as a dictionary.
         Returns:
             dict<dict>: info about each column.
         '''
-        inspector = sa.inspect(self._engine)
-        return inspector.get_columns(self._tabname)
+        return self._engine.schema()
     
-    @property
-    def schematable(self):
+    def schema_table(self):
         '''Get info about each column as a dictionary.
         Returns:
             DataFrame: info about each column.
         '''
-        return pd.DataFrame(self.schemainfo)
-        
-        
-    ################# INITIALIZATION METHODS ##################
-    @classmethod
-    def _make_engine(cls, fname, tabname, schema, engine=None, engine_type=None, engine_args=None):
-        if engine is None:
-            connstr = '{}:///{}'.format(engine_type, fname)
-            engine = sa.create_engine(connstr, **engine_args)
-        
-        # make table if needed
-        metadata = sa.MetaData()
-        if schema is not None:
-            columns = cls._parse_schema_columns(schema, fname, tabname)
-            table = sa.Table(tabname, metadata, *columns)
-            metadata.create_all(engine)
-        else:
-            table = sa.Table(tabname, metadata, autoload=True, autoload_with=engine)
-        
-        # Binds .max(), .min(), .count(), .sum() to each column object.
-        # https://docs.sqlalchemy.org/en/13/core/functions.html
-        for col in table.c:
-            col.max = func.max(col)
-            col.min = func.min(col)
-            col.count = func.count(col)
-            col.sum = func.sum(col)
-            
-        return engine, metadata, table
+        return self._engine.schema_table()
     
-
             
     #################### Connection Methods ###################
     
@@ -234,56 +203,14 @@ class DocTable:
     def close_engine(self):
         ''' Closes connection engine. '''
         self.close_conn()
-        self._engine = None
+        self._engine.close()
         
     def open_engine(self, open_conn=True):
         ''' Opens connection engine. '''
-        self._engine, self._metadata, self._table = self._make_engine(
-            fname=self._fname, tabname=self._tabname, schema=self._user_schema,
-            engine_type=self._engine_type, engine_args=self._engine_args
-        )
-        
+        self._engine.open()
         if open_conn:
             self.open_conn()
         
-        
-    def clean_col_files(self, col, check_missing=True, delete_extraneous=True):
-        '''Make sure there is a 1-1 mapping between files listed in db and files in folder.
-        Args:
-            col (str or Column object): column to clean picklefiles for.
-            ignore_missing (bool): if False, throw an error when a db file doesn't exist.
-        '''
-        col = self.col(col)
-        if not isinstance(self.col(col).type, FileTypeBase):
-            raise ValueError('Only call clean_col_files for a file column types.')
-        if not (check_missing or delete_extraneous):
-            raise ValueError('Either check_missing or delete_extraneous should be set to true, '
-                             'or else this method does nothing.')
-        
-        # get column filenames
-        db = DocTable(fname=self._fname, tabname=self._tabname)
-        dbcol = db[col.name]
-        db_fnames = {col.type.fpath+fn for fn in db.select(dbcol, where=dbcol != None)}
-        
-        # get existing files from filesystem
-        exist_fnames = set(glob(col.type.fpath+'*'+col.type.file_ext))
-        intersect = db_fnames & exist_fnames
-        
-        # remove files not listed in db
-        extraneous_fnames = exist_fnames - intersect
-        if delete_extraneous and len(extraneous_fnames) > 0:
-            for rm_fname in extraneous_fnames:
-                os.remove(rm_fname)
-        
-        # throw error if filesystem is missing some files
-        miss_fnames = db_fnames-intersect
-        if check_missing and len(miss_fnames) > 0:
-            raise FileNotFoundError('These files were not found while cleaning: {}'
-                ''.format(miss_fnames))
-                
-    
-
-    
     
     ################# INSERT METHODS ##################
     
@@ -612,7 +539,7 @@ class DocTable:
         return result
     
     def _execute(self, query, conn=None):
-        if self._engine is None:
+        if not self._engine.is_open():
             raise AttributeError('DocTable does not have an engine '
                 'connection. Use .open_engine() to make new engine '
                 'connection.')
@@ -623,7 +550,7 @@ class DocTable:
         elif self._conn is not None:
             r = self._conn.execute(query)
         else:
-            with self._engine.connect() as conn:
+            with self._engine.get_connection() as conn:
                 r = conn.execute(query)
         return r
     
@@ -646,7 +573,47 @@ class DocTable:
         docs = self.select(*args, **kwargs)
         return DocBootstrap(docs, n=n)
     
+    
+    
+    
+    ################# FILE COLUMN METHODS ##################
 
+    def clean_col_files(self, col, check_missing=True, delete_extraneous=True):
+        '''Make sure there is a 1-1 mapping between files listed in db and files in folder.
+        Args:
+            col (str or Column object): column to clean picklefiles for.
+            ignore_missing (bool): if False, throw an error when a db file doesn't exist.
+        '''
+        col = self.col(col)
+        if not isinstance(self.col(col).type, FileTypeBase):
+            raise ValueError('Only call clean_col_files for a file column types.')
+        if not (check_missing or delete_extraneous):
+            raise ValueError('Either check_missing or delete_extraneous should be set to true, '
+                             'or else this method does nothing.')
+        
+        # get column filenames
+        db = DocTable(tabname=self._tabname, engine=self._engine)
+        dbcol = db[col.name]
+        db_fnames = {col.type.fpath+fn for fn in db.select(dbcol, where=dbcol != None)}
+        
+        # get existing files from filesystem
+        exist_fnames = set(glob(col.type.fpath+'*'+col.type.file_ext))
+        intersect = db_fnames & exist_fnames
+        
+        # remove files not listed in db
+        extraneous_fnames = exist_fnames - intersect
+        if delete_extraneous and len(extraneous_fnames) > 0:
+            for rm_fname in extraneous_fnames:
+                os.remove(rm_fname)
+        
+        # throw error if filesystem is missing some files
+        miss_fnames = db_fnames-intersect
+        if check_missing and len(miss_fnames) > 0:
+            raise FileNotFoundError('These files were not found while cleaning: {}'
+                ''.format(miss_fnames))
+    
+    
+    
 def is_sequence(obj):
     return isinstance(obj, list) or isinstance(obj,set) or isinstance(obj,tuple)
 
