@@ -104,7 +104,7 @@ class DocTable:
         
         # in cases where user did not want to create new db but a db does not 
         # exist
-        existing_tabnames = list_tables(fname, engine=engine_type, **engine_args)
+        existing_tabnames = list_tables(fname, engine=engine_type, **engine_args)#connstr = '{}:///{}'.format(engine_type, fname)
         if fname != ':memory:' and not os.path.exists(fname) and not new_db:
             raise FileNotFoundError('new_db is set to False but the database does not '
                              'exist yet.')
@@ -285,9 +285,9 @@ class DocTable:
                     if n < 3:
                         raise ValueError('A foreignkey constraint should follow the form '
                                 '(\'foreignkey\', fromcol(s), tocol(s), **args).')
-                    fro, to = colinfo[1][0], colinfo[1][1]
-                    fro = fro if isinstance(fro, list) else [fro]
-                    to = to if isinstance(to, list) else [to]
+                    
+                    fro = colinfo[1] if is_ord_sequence(colinfo[1]) else [colinfo[1]]
+                    to = colinfo[2] if is_ord_sequence(colinfo[2]) else [colinfo[2]]
                     kwargs = colinfo[3] if n > 3 else dict()
                     const = sa.ForeignKeyConstraint(fro, to, **kwargs)
                     columns.append(const)
@@ -733,4 +733,5 @@ class DocTable:
 def is_sequence(obj):
     return isinstance(obj, list) or isinstance(obj,set) or isinstance(obj,tuple)
 
-
+def is_ord_sequence(obj):
+    return isinstance(obj, list) or isinstance(obj,tuple)
