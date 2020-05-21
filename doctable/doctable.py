@@ -41,11 +41,8 @@ class DocTable:
         'picklefile': PickleFileType,
         'textfile': TextFileType,
     }
-    
-
-    #_valid_types = list(_constraint_map.keys()) + list(_type_map.keys())
-    
-    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, make_new_db=True, **engine_args):
+        
+    def __init__(self, schema=None, tabname='_documents_', fname=':memory:', persistent_conn=True, verbose=False, new_db=False, engine=None, engine_type='sqlite', **engine_args):
         '''Create new database.
         Args:
             schema (list<list>): schema from which to create db. Includes a
@@ -57,7 +54,7 @@ class DocTable:
                 special value indicating to the python db engine that the db
                 should be created in memory. Will create new empty database file
                 if it does not exist and new_db is True.
-            engine (str): database engine through which to construct db.
+            engine_type (str): database engine through which to construct db.
                 For more info, see sqlalchemy dialect info:
                 https://docs.sqlalchemy.org/en/13/dialects/
             persistent_conn (bool): whether or not to create a persistent conn 
@@ -72,83 +69,98 @@ class DocTable:
                 Example: connect_args={'timeout': 15} for sqlite
                 or connect_args={'connect_timeout': 15} for PostgreSQL.
         '''
+        # static definition variable assignments
+        try:
+            kwargs = self.args
+            if 'tabname' in kwargs:
+                tabname = kwargs['tabname']
+            if 'schema' in kwargs:
+                schema = kwargs['schema']
+            if 'fname' in kwargs:
+                fname = kwargs['fname']
+            if 'verbose' in kwargs:
+                verbose = kwargs['verbose']
+            if 'new_db' in kwargs:
+                new_db = kwargs['new_db']
+            if 'engine_type' in kwargs:
+                engine_type = kwargs['engine_type']
+            if 'engine_args' in kwargs:
+                engine_args = kwargs['engine_args']
+        except AttributeError:
+            pass
+        try:
+            tabname = self.tabname
+        except AttributeError:
+            pass
+        try:
+            schema = self.schema
+        except AttributeError:
+            pass
+        try:
+            fname = self.fname
+        except AttributeError:
+            pass
+        
         
         # in cases where user did not want to create new db but a db does not 
         # exist
-        
-        if fname != ':memory:' and not os.path.exists(fname) and not make_new_db:
-            raise FileNotFoundError('make_new_db is set to False but the database does not '
+        existing_tabnames = list_tables(fname, engine=engine_type, **engine_args)
+        if fname != ':memory:' and not os.path.exists(fname) and not new_db:
+            raise FileNotFoundError('new_db is set to False but the database does not '
                              'exist yet.')
         elif schema is None and (fname == ':memory:' or not os.path.exists(fname)):
             raise ValueError('Schema must be provided if using memory database or '
                              'database file does not exist yet. Need to provide schema '
                              'when creating a new table.')
-        elif schema is None and tabname not in list_tables(fname, engine=engine, **engine_args):
-            tables = list_tables(fname, engine=engine, **engine_args)
+        elif schema is None and tabname not in existing_tabnames:
             raise ValueError('The requested table was not found in the database! Schema must be '
-                             'provided to create a new table. Existing tables: {tables}')
+                             'provided to create a new table. Existing tables: {existing_tables}'
+                             ''.format(existing_tabnames))
         
-        # separate tables for custom data types and main table
-        self._fname = fname
+        # store arguments as-is
         self._tabname = tabname
+        self._fname = fname
+        self._engine_args = engine_args
         self.verbose = verbose
+        self._user_schema = schema
         
         # create database engine
-        self._schema = schema
-        self._connstr = '{}:///{}'.format(engine,fname)
-        self._engine_args = engine_args
         self._conn = None
-        self.open_engine(open_conn=persistent_conn)
+        self._engine, self._metadata, self._table = self._make_engine(
+            fname, tabname, schema,
+            engine=engine, engine_type=engine_type, engine_args=engine_args
+        )
         
-        # bind .min(), .max(), and .count() to col objects themselves.
-        self._bind_functions()
-
     
     def __delete__(self):
-        '''Closes database connection to prevent locking.'''
+        ''' Closes database connection to prevent locking db.
+        '''
         self.close_conn()
-            
+    
     def close_engine(self):
+        ''' Closes connection engine. '''
         self.close_conn()
         self._engine = None
-    
-    def open_engine(self, open_conn=True):
-        '''Open engine manually (esp when concurrency applications).'''
         
-        # make new engine
-        self._engine = sa.create_engine(self._connstr, **self._engine_args)
-    
-        # make table if needed
-        self._metadata = sa.MetaData()
-        if self._schema is not None:
-            columns = self._parse_column_schema(self._schema)
-            self._table = sa.Table(self._tabname, self._metadata, *columns)
-            self._metadata.create_all(self._engine)
-        else:
-            # NOTE: use list_tables to list available tables upon failure!
-            self._table = sa.Table(self._tabname, self._metadata, 
-                                   autoload=True, autoload_with=self._engine)
+    def open_engine(self, open_conn=True):
+        ''' Opens connection engine. '''
+        self._engine, self._metadata, self._table = self._make_engine(
+            fname=self._fname, tabname=self._tabname, schema=self._user_schema,
+            engine_type=self._engine_type, engine_args=self._engine_args
+        )
+        
         if open_conn:
             self.open_conn()
             
             
     def close_conn(self):
-        '''Closes connection to db (if one exists).
-        Notes:
-            Primarily to be used if persistent_conn flag was set
-                to true in constructor, but user wants to close.
-        '''
+        ''' Closes connection to db (if one exists). '''
         if self._conn is not None:
             self._conn.close()
-        self._conn = None
+            self._conn = None
         
     def open_conn(self):
-        '''Opens connection to db (if one does not exist).
-        Notes:
-            Primarily to be used if persistent_conn flag was set
-                to false in constructor, but user wants to create.
-        
-        '''
+        ''' Opens connection to db (if one does not exist). '''
         if self._engine is None:
             raise ValueError('Need to create engine using .open_engine() '
                              'before trying to open connection.')
@@ -158,26 +170,48 @@ class DocTable:
         
         
     ################# INITIALIZATION METHODS ##################
+    @classmethod
+    def _make_engine(cls, fname, tabname, schema, engine=None, engine_type=None, engine_args=None):
+        if engine is None:
+            connstr = '{}:///{}'.format(engine_type, fname)
+            engine = sa.create_engine(connstr, **engine_args)
+        
+        # make table if needed
+        metadata = sa.MetaData()
+        if schema is not None:
+            columns = cls._parse_schema_columns(schema, fname)
+            table = sa.Table(tabname, metadata, *columns)
+            metadata.create_all(engine)
+        else:
+            table = sa.Table(tabname, metadata, autoload=True, autoload_with=engine)
+        
+        # Binds .max(), .min(), .count(), .sum() to each column object.
+        # https://docs.sqlalchemy.org/en/13/core/functions.html
+        for col in table.c:
+            col.max = func.max(col)
+            col.min = func.min(col)
+            col.count = func.count(col)
+            col.sum = func.sum(col)
+            
+        return engine, metadata, table
     
-    def _parse_column_schema(self,schema):
+    @classmethod
+    def _parse_schema_columns(cls, schema, fname, tabname):
         columns = list()
         for colinfo in schema:
             n = len(colinfo)
             if n not in (2,3,4):
                 raise ValueError('A schema entry must have 2+ arguments: (type,name,..)')
-
+            
             # column is regular type
-            if colinfo[0] in self._type_map:
+            if colinfo[0] in cls._type_map:
                 coltype, colname = colinfo[:2]
                 colargs = colinfo[2] if n > 2 else dict()
                 coltypeargs = colinfo[3] if n > 3 else dict()
-                if coltype in ('picklefile','textfile','jsonfile'):
-                    if 'fpath' not in coltypeargs:
-                        #path = os.path.splitext(self._fname)[0]
-                        #coltypeargs['fpath'] = path+'_'+self._tabname+'_'+colname
-                        coltypeargs['fpath'] = self._fname+'_'+self._tabname+'_'+colname
+                if coltype in ('picklefile','textfile','jsonfile') and 'fpath' not in coltypeargs:
+                    coltypeargs['fpath'] = fname+'_'+tabname+'_'+colname
                 
-                col = sa.Column(colname, self._type_map[coltype](**coltypeargs), **colargs)
+                col = sa.Column(colname, cls._type_map[coltype](**coltypeargs), **colargs)
                 columns.append(col)
             else:
                 if colinfo[0] == 'idcol': #shortcut for typical id integer primary key etc
@@ -210,28 +244,21 @@ class DocTable:
                     kwargs = colinfo[2] if n > 2 else dict()
                     const = sa.PrimaryKeyConstraint(*colinfo[1], **kwargs)
                     columns.append(const)
-                elif colinfo[0] == 'foreignkey_constraint':
-                    # ('foreignkey_constraint', 
-                    # [('othertab_name','othertab_address'),('othertab.name', 'othertab.address')])
-                    kwargs = colinfo[2] if n > 2 else dict()
-                    const = sa.ForeignKeyConstraint(*colinfo[1], **kwargs)
+                elif colinfo[0] == 'foreignkey':
+                    if n < 3:
+                        raise ValueError('A foreignkey constraint should follow the form '
+                                '(\'foreignkey\', fromcol(s), tocol(s), **args).')
+                    fro, to = colinfo[1][0], colinfo[1][1]
+                    fro = fro if isinstance(fro, list) else [fro]
+                    to = to if isinstance(to, list) else [to]
+                    kwargs = colinfo[3] if n > 3 else dict()
+                    const = sa.ForeignKeyConstraint(fro, to, **kwargs)
                     columns.append(const)
                 else:
                     raise ValueError('Column or constraint type "{}" was not recognized.'
                                     ''.format(colinfo[0]))
                 
         return columns
-
-    
-    def _bind_functions(self):
-        '''Binds .max(), .min(), .count() to each column object.
-            note: https://docs.sqlalchemy.org/en/13/core/functions.html
-        '''
-        for col in self._table.c:
-            col.max = func.max(col)
-            col.min = func.min(col)
-            col.count = func.count(col)
-            col.sum = func.sum(col)
             
     def clean_col_files(self, col, check_missing=True, delete_extraneous=True):
         '''Make sure there is a 1-1 mapping between files listed in db and files in folder.
