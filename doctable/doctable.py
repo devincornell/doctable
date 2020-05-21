@@ -196,6 +196,14 @@ class DocTable:
         '''
         inspector = sa.inspect(self._engine)
         return inspector.get_columns(self._tabname)
+    
+    @property
+    def schematable(self):
+        '''Get info about each column as a dictionary.
+        Returns:
+            DataFrame: info about each column.
+        '''
+        return pd.DataFrame(self.schemainfo)
         
         
     ################# INITIALIZATION METHODS ##################
@@ -208,7 +216,7 @@ class DocTable:
         # make table if needed
         metadata = sa.MetaData()
         if schema is not None:
-            columns = cls._parse_schema_columns(schema, fname)
+            columns = cls._parse_schema_columns(schema, fname, tabname)
             table = sa.Table(tabname, metadata, *columns)
             metadata.create_all(engine)
         else:
