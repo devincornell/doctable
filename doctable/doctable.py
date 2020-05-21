@@ -131,42 +131,71 @@ class DocTable:
             engine=engine, engine_type=engine_type, engine_args=engine_args
         )
         
-    
     def __delete__(self):
         ''' Closes database connection to prevent locking db.
         '''
         self.close_conn()
+        
     
-    def close_engine(self):
-        ''' Closes connection engine. '''
-        self.close_conn()
-        self._engine = None
+    #################### Convenience Methods ###################
+    
+    def __str__(self):
+        return '<DocTable::{} ct: {}>'.format(self._tabname, self.count())
+    def __repr__(self):
+        return str(self)
+    
+    def __getitem__(self, colname):
+        '''Accesses a column object by calling .col().'''
+        return self.col(colname)
+    
+    def col(self,name):
+        '''Accesses a column object. Equivalent to table.c[name].
+        Args:
+            Name of column to access. Applied as subscript to 
+                sqlalchemy columns object.
+        '''
+        if isinstance(name, sa.Column):
+            return name
+        return self._table.c[name]
         
-    def open_engine(self, open_conn=True):
-        ''' Opens connection engine. '''
-        self._engine, self._metadata, self._table = self._make_engine(
-            fname=self._fname, tabname=self._tabname, schema=self._user_schema,
-            engine_type=self._engine_type, engine_args=self._engine_args
-        )
-        
-        if open_conn:
-            self.open_conn()
+    @property
+    def table(self):
+        '''Returns underlying sqlalchemy table object for manual manipulation.
+        '''
+        return self._table
+    
+    @property
+    def tabname(self):
+        '''Gets name of table for this connection.'''
+        return self._tabname
+    
+    @property
+    def columns(self):
+        '''Exposes SQLAlchemy core table columns object.
+        Notes:
+            some info here: 
+            https://docs.sqlalchemy.org/en/13/core/metadata.html
             
-            
-    def close_conn(self):
-        ''' Closes connection to db (if one exists). '''
-        if self._conn is not None:
-            self._conn.close()
-            self._conn = None
-        
-    def open_conn(self):
-        ''' Opens connection to db (if one does not exist). '''
-        if self._engine is None:
-            raise ValueError('Need to create engine using .open_engine() '
-                             'before trying to open connection.')
-        
-        if self._conn is None:
-            self._conn = self._engine.connect()
+            c = db.columns['id']
+            c.type, c.name, c.
+        Returns:
+            sqlalchemy columns: access to underlying columns
+                object.
+        '''
+        return self._table.c
+    
+    @property
+    def colnames(self):
+        return [c.name for c in self.columns]
+    
+    @property
+    def schemainfo(self):
+        '''Get info about each column as a dictionary.
+        Returns:
+            dict<dict>: info about each column.
+        '''
+        inspector = sa.inspect(self._engine)
+        return inspector.get_columns(self._tabname)
         
         
     ################# INITIALIZATION METHODS ##################
@@ -260,6 +289,39 @@ class DocTable:
                 
         return columns
             
+    #################### Connection Methods ###################
+    
+    def close_conn(self):
+        ''' Closes connection to db (if one exists). '''
+        if self._conn is not None:
+            self._conn.close()
+            self._conn = None
+        
+    def open_conn(self):
+        ''' Opens connection to db (if one does not exist). '''
+        if self._engine is None:
+            raise ValueError('Need to create engine using .open_engine() '
+                             'before trying to open connection.')
+        
+        if self._conn is None:
+            self._conn = self._engine.connect()
+    
+    def close_engine(self):
+        ''' Closes connection engine. '''
+        self.close_conn()
+        self._engine = None
+        
+    def open_engine(self, open_conn=True):
+        ''' Opens connection engine. '''
+        self._engine, self._metadata, self._table = self._make_engine(
+            fname=self._fname, tabname=self._tabname, schema=self._user_schema,
+            engine_type=self._engine_type, engine_args=self._engine_args
+        )
+        
+        if open_conn:
+            self.open_conn()
+        
+        
     def clean_col_files(self, col, check_missing=True, delete_extraneous=True):
         '''Make sure there is a 1-1 mapping between files listed in db and files in folder.
         Args:
@@ -295,65 +357,7 @@ class DocTable:
                 ''.format(miss_fnames))
                 
     
-    #################### Convenience Methods ###################
-    
-    def __str__(self):
-        return '<DocTable::{} ct: {}>'.format(self._tabname, self.count())
-    def __repr__(self):
-        return str(self)
-    
-    def __getitem__(self, colname):
-        '''Accesses a column object by calling .col().'''
-        return self.col(colname)
-    
-    def col(self,name):
-        '''Accesses a column object. Equivalent to table.c[name].
-        Args:
-            Name of column to access. Applied as subscript to 
-                sqlalchemy columns object.
-        '''
-        if isinstance(name, sa.Column):
-            return name
-        return self._table.c[name]
-        
-    @property
-    def table(self):
-        '''Returns underlying sqlalchemy table object for manual manipulation.
-        '''
-        return self._table
-    
-    @property
-    def tabname(self):
-        '''Gets name of table for this connection.'''
-        return self._tabname
-    
-    @property
-    def columns(self):
-        '''Exposes SQLAlchemy core table columns object.
-        Notes:
-            some info here: 
-            https://docs.sqlalchemy.org/en/13/core/metadata.html
-            
-            c = db.columns['id']
-            c.type, c.name, c.
-        Returns:
-            sqlalchemy columns: access to underlying columns
-                object.
-        '''
-        return self._table.c
-    
-    @property
-    def colnames(self):
-        return [c.name for c in self.columns]
-    
-    @property
-    def schemainfo(self):
-        '''Get info about each column as a dictionary.
-        Returns:
-            dict<dict>: info about each column.
-        '''
-        inspector = sa.inspect(self._engine)
-        return inspector.get_columns(self._tabname)
+
     
     
     ################# INSERT METHODS ##################
