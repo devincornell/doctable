@@ -12,14 +12,15 @@ import sqlalchemy as sa
 
 #from .coltypes import CpickleType, ParseTreeType, PickleFileType, TextFileType, FileTypeBase, JSONType
 from .bootstrap import DocBootstrap
-from .util import list_tables
+#from .util import list_tables
 from .connectengine import ConnectEngine
+from .schemas import parse_schema
 
 def is_ord_sequence(obj):
     return isinstance(obj, list) or isinstance(obj,tuple)
 
 class DocTable:
-    def __init__(self, tabname='_documents_', target=':memory:', schema=None, 
+    def __init__(self, schema=None, tabname='_documents_', target=':memory:', 
                  persistent_conn=True, verbose=False, new_db=False, engine=None, 
                  dialect='sqlite', **engine_kwargs):
         '''Create new database.
@@ -80,8 +81,9 @@ class DocTable:
         except AttributeError:
             pass
         
-        if dialect == 'sqlite' and schema is None and (target == ':memory:' or not os.path.exists(target)):
-            raise ValueError('Schema must be provided if using memory database or '
+        if dialect.startswith('sqlite'):
+            if schema is None and (target == ':memory:' or not os.path.exists(target)):
+                raise ValueError('Schema must be provided if using memory database or '
                              'database file does not exist yet. Need to provide schema '
                              'when creating a new table.')
         
@@ -90,6 +92,7 @@ class DocTable:
         self._target = target
         self.verbose = verbose
         self.user_schema = schema
+        self.persistent_conn = persistent_conn
         
         # establish an engine connection
         if engine is None:
@@ -165,6 +168,9 @@ class DocTable:
     def engine(self):
         return self._engine
     
+    def list_tables(self):
+        return self._engine.list_tables()
+    
     def colnames(self):
         return [c.name for c in self.columns]
     
@@ -193,7 +199,7 @@ class DocTable:
         
     def open_conn(self):
         ''' Opens connection to db (if one does not exist). '''
-        if self._engine is None:
+        if not self._engine.is_open():
             raise ValueError('Need to create engine using .open_engine() '
                              'before trying to open connection.')
         
@@ -205,10 +211,14 @@ class DocTable:
         self.close_conn()
         self._engine.close()
         
-    def open_engine(self, open_conn=True):
-        ''' Opens connection engine. '''
+    def open_engine(self, open_conn=None):
+        ''' Opens connection engine. 
+            open_conn overrides persistent_conn if defined
+            default is True
+        '''
         self._engine.open()
-        if open_conn:
+        
+        if open_conn or (open_conn is None and self.persistent_conn):
             self.open_conn()
         
     
@@ -257,7 +267,7 @@ class DocTable:
         Returns:
             int: number of rows that match "where" and "whrstr" criteria.
         '''
-        cter = func.count(self._table)
+        cter = sa.sql.func.count(self._table)
         ct = self.select_first(cter, where=where, whrstr=whrstr, **kwargs)
         return ct
     

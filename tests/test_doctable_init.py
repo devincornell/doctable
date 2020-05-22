@@ -4,7 +4,7 @@
 
 
 import random
-
+import os
 
 import sys
 sys.path.append('..')
@@ -12,23 +12,29 @@ sys.path.append('..')
 import doctable as dt
 import pytest
 
-        
+schema = (
+    ('idcol', 'id'),
+    ('integer', 'whateva'),
+)    
+    
 def test_init_errors():
     # never actually creates this database
     randdbname = 'randomdbname2349io8oipaudjrtfoajsd.db'
     
-    # testing make_new_db
+    # new memory db with no schema
+    with pytest.raises(ValueError):
+        dt.DocTable(target=':memory:')
+    print(dt.DocTable(target=':memory:', schema=schema))
+        
+    # new db with no schema
+    with pytest.raises(ValueError):
+        dt.DocTable(target=randdbname, new_db=True)
+    #print(dt.DocTable(target=randdbname, schema=schema))
+        
+    # don't want to make db but one doesn't exist
     with pytest.raises(FileNotFoundError):
-        dt.DocTable(fname=randdbname, make_new_db=False)
-        
-    # trying to create new file but didn't provide a column schema
-    with pytest.raises(ValueError):
-        dt.DocTable(fname=randdbname)
-        
-    with pytest.raises(ValueError):
-        db = dt.DocTable()
-        print(db)
-    
+        dt.ConnectEngine(target=randdbname, new_db=False)
+
 
 if __name__ == '__main__':
     pass

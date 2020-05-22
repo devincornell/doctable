@@ -43,7 +43,7 @@ def check_db(rows, db, filt_func=lambda x: True, show=True):
 
 def test_insert_single1(n=20):
     rows = gen_data1(n)
-    db = dt.DocTable(schema1)
+    db = dt.DocTable(schema=schema1)
     for r in rows:
         db.insert(r)
     
@@ -51,7 +51,7 @@ def test_insert_single1(n=20):
 
 def test_insert_many1(n=20):
     rows = gen_data1(n)
-    db = dt.DocTable(schema1)
+    db = dt.DocTable(schema=schema1)
     db.insert(rows)
     assert(check_db(rows,db,show=False))
 

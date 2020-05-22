@@ -84,7 +84,7 @@ def parse_schema(schema, default_fpath='./'):
             elif colinfo[0] == 'foreignkey':
                 if n < 3:
                     raise ValueError('A foreignkey constraint should follow the form '
-                            '(\'foreignkey\', fromcol(s), tocol(s), **args).')
+                            '(\'foreignkey\', from_col(s), to_col(s), **kwargs).')
                 
                 fro = colinfo[1] if is_ord_sequence(colinfo[1]) else [colinfo[1]]
                 to = colinfo[2] if is_ord_sequence(colinfo[2]) else [colinfo[2]]

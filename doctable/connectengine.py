@@ -10,42 +10,48 @@ class ConnectEngine:
     target = None
     engine_kwargs = None
     
-    def __init__(self, dialect='sqlite', target=':memory:', new_db=False, 
+    def __init__(self, dialect='sqlite', target=':memory:', new_db=False, foreign_keys=False,
                  **engine_kwargs):
         
-        if not new_db and dialect=='sqlite' and not (target==':memory:' or os.path.exists(fname)):
-            raise FileNotFoundError('new_db is set to False but the database does not '
-                             'exist yet.')
+        if dialect.startswith('sqlite') and target != ':memory:':
+            exists = os.path.exists(target)
+            if not new_db and not exists:
+                raise FileNotFoundError('new_db is set to False but the database does not '
+                                 'exist yet.')
             
         # store connection info
-        self.dialect = dialect
-        self.target = target
+        self._dialect = dialect
+        self._target = target
         
         # create sqlalchemy engine
-        self.connstr = '{}:///{}'.format(dialect, target)
-        self.engine_kwargs = engine_kwargs
+        self._connstr = '{}:///{}'.format(dialect, target)
+        self._engine_kwargs = engine_kwargs
         self.open()
+        
+        if foreign_keys:
+            self.execute('PRAGMA foreign_keys=ON')
+        
     
     def get_connection(self):
-        return self.engine.connect()
+        return self._engine.connect()
         
     def open(self):
-        self.engine = sqlalchemy.create_engine(self.connstr, **self.engine_kwargs)
-        self.metadata = sqlalchemy.MetaData()
+        self._engine = sqlalchemy.create_engine(self._connstr, **self._engine_kwargs)
+        self._metadata = sqlalchemy.MetaData()
         
     def close(self):
-        self.engine = None
-        self.metadata = None
+        self._engine = None
+        self._metadata = None
         
     def is_open(self):
-        return self.engine is not None
+        return self._engine is not None
     
     def add_table(self, tabname, columns=None):
         if columns is not None:
-            table = sqlalchemy.Table(tabname, self.metadata, *columns)
-            self.metadata.create_all(self.engine) # create table if it doesn't exist
+            table = sqlalchemy.Table(tabname, self._metadata, *columns)
+            self._metadata.create_all(self._engine) # create table if it doesn't exist
         else:
-            table = sqlalchemy.Table(tabname, self.metadata, autoload=True, autoload_with=self.engine)
+            table = sqlalchemy.Table(tabname, self._metadata, autoload=True, autoload_with=self._engine)
         
         # Binds .max(), .min(), .count(), .sum() to each column object.
         # https://docs.sqlalchemy.org/en/13/core/functions.html
@@ -58,13 +64,17 @@ class ConnectEngine:
         return table
             
     def schema(self, tabname):
-        inspector = sqlalchemy.inspect(self.engine)
+        inspector = sqlalchemy.inspect(self._engine)
         return inspector.get_columns(tabname)
     
     def schema_table(self, tabname):
         return pd.DataFrame(self.schema(tabname))
     
     def list_tables(self):
-        return self.engine.table_names()
+        return self._engine.table_names()
+    
+    def execute(self, query):
+        with self.get_connection() as conn:
+            r = conn.execute(query)
         
         
