@@ -13077,7 +13077,8 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Example:-Multiple-Tables">Example: Multiple Tables<a class="anchor-link" href="#Example:-Multiple-Tables">&#182;</a></h1><p>In this example, I show how doctable can be used with multiple tables. To accomplish this, I first create a new DocTable object named SubTable that stores a single value <code>n</code> in addition to an index column, column recording when item was inserted, and an index to ensure speed and uniqueness of the number <code>n</code>. Next, we create a MainTable object which includes a foreign key constraint, and overloads the <code>DocTable.insert()</code> method to store data into the SubTable transparently.</p>
+<h1 id="Example:-Multiple-Tables">Example: Multiple Tables<a class="anchor-link" href="#Example:-Multiple-Tables">&#182;</a></h1><p>In this example, I show how doctable can be used with multiple inter-related tables to perform queries which automatically merge different aspects of your dataset when you use <code>.select()</code>. By integrating these relations into the schema, your database can automatically maintain consistency between tables by deleting irrelevant elements when their relations disappear.</p>
+<p>For this example, we create a doctable for books called <code>Books</code> a authors called <code>AuthorTable</code> containing <em>elements</em> that can each have a number of <em>sub-elements</em> in <code>SubTable</code>. In this design, each sub-element in <code>SubTable</code> should maintain what is called a <em>foreign key</em> reference to the primary key column in <code>MainTable</code>.</p>
 
 </div>
 </div>
@@ -13090,9 +13091,114 @@ div#notebook {
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">doctable</span>
+<span class="k">class</span> <span class="nc">Authors</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
+    <span class="n">tabname</span> <span class="o">=</span> <span class="s1">&#39;authors&#39;</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;birthday&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;date_updated&#39;</span><span class="p">,</span> <span class="s1">&#39;updated&#39;</span><span class="p">),</span>
+    <span class="p">)</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">Authors</span><span class="p">()</span>
+<span class="n">db</span><span class="o">.</span><span class="n">schematable</span>
+
+<span class="k">class</span> <span class="nc">Books</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
+    <span class="n">tabname</span> <span class="o">=</span> <span class="s1">&#39;books&#39;</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="c1"># each book has its own id</span>
+        <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;authid&#39;</span><span class="p">),</span> <span class="c1"># reference to author table entry</span>
+        <span class="p">(</span><span class="s1">&#39;foreignkey&#39;</span><span class="p">,</span> <span class="s1">&#39;authid&#39;</span><span class="p">,</span> <span class="s1">&#39;authors.id&#39;</span><span class="p">),</span>
+    <span class="p">)</span>
+<span class="n">bt</span> <span class="o">=</span> <span class="n">Books</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
+<span class="n">bt</span>
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[1]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>name</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>birthday</td>
+      <td>DATE</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>updated</td>
+      <td>DATETIME</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
 </div>
 </div>
 
@@ -13100,7 +13206,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>First, we create a simple class SubTable. Nothing special here.</p>
+<p>First, we create a doctable called <code>AuthorTable</code> to store information about authors.</p>
 
 </div>
 </div>
@@ -13110,18 +13216,113 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">SubTable</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
-    <span class="n">tabname</span> <span class="o">=</span> <span class="s1">&#39;subtable&#39;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;date_updated&#39;</span><span class="p">,</span> <span class="s1">&#39;updated&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;ind_n&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-        <span class="p">),</span> <span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tabname</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span> 
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NoReferencedTableError</span>                    Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-2-072f460416be&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">      7</span>         <span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#39;foreignkey&#39;</span><span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#39;authid&#39;</span><span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#39;authors.id&#39;</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">      8</span>     )
+<span class="ansi-green-fg">----&gt; 9</span><span class="ansi-red-fg"> </span>bt <span class="ansi-blue-fg">=</span> Books<span class="ansi-blue-fg">(</span>engine<span class="ansi-blue-fg">=</span>db<span class="ansi-blue-fg">.</span>_engine<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     10</span> bt
+
+<span class="ansi-green-fg">/scratch/dc326/code/doctable/doctable/doctable.py</span> in <span class="ansi-cyan-fg">__init__</span><span class="ansi-blue-fg">(self, schema, tabname, fname, persistent_conn, verbose, new_db, engine, engine_type, **engine_args)</span>
+<span class="ansi-green-intense-fg ansi-bold">    129</span>         self._engine, self._metadata, self._table = self._make_engine(
+<span class="ansi-green-intense-fg ansi-bold">    130</span>             fname<span class="ansi-blue-fg">,</span> tabname<span class="ansi-blue-fg">,</span> schema<span class="ansi-blue-fg">,</span>
+<span class="ansi-green-fg">--&gt; 131</span><span class="ansi-red-fg">             </span>engine<span class="ansi-blue-fg">=</span>engine<span class="ansi-blue-fg">,</span> engine_type<span class="ansi-blue-fg">=</span>engine_type<span class="ansi-blue-fg">,</span> engine_args<span class="ansi-blue-fg">=</span>engine_args
+<span class="ansi-green-intense-fg ansi-bold">    132</span>         )
+<span class="ansi-green-intense-fg ansi-bold">    133</span> 
+
+<span class="ansi-green-fg">/scratch/dc326/code/doctable/doctable/doctable.py</span> in <span class="ansi-cyan-fg">_make_engine</span><span class="ansi-blue-fg">(cls, fname, tabname, schema, engine, engine_type, engine_args)</span>
+<span class="ansi-green-intense-fg ansi-bold">    219</span>             columns <span class="ansi-blue-fg">=</span> cls<span class="ansi-blue-fg">.</span>_parse_schema_columns<span class="ansi-blue-fg">(</span>schema<span class="ansi-blue-fg">,</span> fname<span class="ansi-blue-fg">,</span> tabname<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    220</span>             table <span class="ansi-blue-fg">=</span> sa<span class="ansi-blue-fg">.</span>Table<span class="ansi-blue-fg">(</span>tabname<span class="ansi-blue-fg">,</span> metadata<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">*</span>columns<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-fg">--&gt; 221</span><span class="ansi-red-fg">             </span>metadata<span class="ansi-blue-fg">.</span>create_all<span class="ansi-blue-fg">(</span>engine<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    222</span>         <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    223</span>             table <span class="ansi-blue-fg">=</span> sa<span class="ansi-blue-fg">.</span>Table<span class="ansi-blue-fg">(</span>tabname<span class="ansi-blue-fg">,</span> metadata<span class="ansi-blue-fg">,</span> autoload<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">True</span><span class="ansi-blue-fg">,</span> autoload_with<span class="ansi-blue-fg">=</span>engine<span class="ansi-blue-fg">)</span>
+
+<span class="ansi-green-fg">~/local/anaconda3/lib/python3.6/site-packages/sqlalchemy/sql/schema.py</span> in <span class="ansi-cyan-fg">create_all</span><span class="ansi-blue-fg">(self, bind, tables, checkfirst)</span>
+<span class="ansi-green-intense-fg ansi-bold">   4302</span>             bind <span class="ansi-blue-fg">=</span> _bind_or_error<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   4303</span>         bind._run_visitor(
+<span class="ansi-green-fg">-&gt; 4304</span><span class="ansi-red-fg">             </span>ddl<span class="ansi-blue-fg">.</span>SchemaGenerator<span class="ansi-blue-fg">,</span> self<span class="ansi-blue-fg">,</span> checkfirst<span class="ansi-blue-fg">=</span>checkfirst<span class="ansi-blue-fg">,</span> tables<span class="ansi-blue-fg">=</span>tables
+<span class="ansi-green-intense-fg ansi-bold">   4305</span>         )
+<span class="ansi-green-intense-fg ansi-bold">   4306</span> 
+
+<span class="ansi-green-fg">~/local/anaconda3/lib/python3.6/site-packages/sqlalchemy/engine/base.py</span> in <span class="ansi-cyan-fg">_run_visitor</span><span class="ansi-blue-fg">(self, visitorcallable, element, connection, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">   2044</span>     ):
+<span class="ansi-green-intense-fg ansi-bold">   2045</span>         <span class="ansi-green-fg">with</span> self<span class="ansi-blue-fg">.</span>_optional_conn_ctx_manager<span class="ansi-blue-fg">(</span>connection<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">as</span> conn<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">-&gt; 2046</span><span class="ansi-red-fg">             </span>conn<span class="ansi-blue-fg">.</span>_run_visitor<span class="ansi-blue-fg">(</span>visitorcallable<span class="ansi-blue-fg">,</span> element<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>kwargs<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   2047</span> 
+<span class="ansi-green-intense-fg ansi-bold">   2048</span>     <span class="ansi-green-fg">class</span> _trans_ctx<span class="ansi-blue-fg">(</span>object<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+
+<span class="ansi-green-fg">~/local/anaconda3/lib/python3.6/site-packages/sqlalchemy/engine/base.py</span> in <span class="ansi-cyan-fg">_run_visitor</span><span class="ansi-blue-fg">(self, visitorcallable, element, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">   1613</span> 
+<span class="ansi-green-intense-fg ansi-bold">   1614</span>     <span class="ansi-green-fg">def</span> _run_visitor<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> visitorcallable<span class="ansi-blue-fg">,</span> element<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>kwargs<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">-&gt; 1615</span><span class="ansi-red-fg">         </span>visitorcallable<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>dialect<span class="ansi-blue-fg">,</span> self<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>kwargs<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>traverse_single<span class="ansi-blue-fg">(</span>element<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   1616</span> 
+<span class="ansi-green-intense-fg ansi-bold">   1617</span> 
+
+<span class="ansi-green-fg">~/local/anaconda3/lib/python3.6/site-packages/sqlalchemy/sql/visitors.py</span> in <span class="ansi-cyan-fg">traverse_single</span><span class="ansi-blue-fg">(self, obj, **kw)</span>
+<span class="ansi-green-intense-fg ansi-bold">    136</span>             meth <span class="ansi-blue-fg">=</span> getattr<span class="ansi-blue-fg">(</span>v<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#34;visit_%s&#34;</span> <span class="ansi-blue-fg">%</span> obj<span class="ansi-blue-fg">.</span>__visit_name__<span class="ansi-blue-fg">,</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    137</span>             <span class="ansi-green-fg">if</span> meth<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">--&gt; 138</span><span class="ansi-red-fg">                 </span><span class="ansi-green-fg">return</span> meth<span class="ansi-blue-fg">(</span>obj<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>kw<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    139</span> 
+<span class="ansi-green-intense-fg ansi-bold">    140</span>     <span class="ansi-green-fg">def</span> iterate<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> obj<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+
+<span class="ansi-green-fg">~/local/anaconda3/lib/python3.6/site-packages/sqlalchemy/sql/ddl.py</span> in <span class="ansi-cyan-fg">visit_metadata</span><span class="ansi-blue-fg">(self, metadata)</span>
+<span class="ansi-green-intense-fg ansi-bold">    752</span> 
+<span class="ansi-green-intense-fg ansi-bold">    753</span>         collection = sort_tables_and_constraints(
+<span class="ansi-green-fg">--&gt; 754</span><span class="ansi-red-fg">             </span><span class="ansi-blue-fg">[</span>t <span class="ansi-green-fg">for</span> t <span class="ansi-green-fg">in</span> tables <span class="ansi-green-fg">if</span> self<span class="ansi-blue-fg">.</span>_can_create_table<span class="ansi-blue-fg">(</span>t<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">]</span>
+<span class="ansi-green-intense-fg ansi-bold">    755</span>         )
+<span class="ansi-green-intense-fg ansi-bold">    756</span> 
+
+<span class="ansi-green-fg">~/local/anaconda3/lib/python3.6/site-packages/sqlalchemy/sql/ddl.py</span> in <span class="ansi-cyan-fg">sort_tables_and_constraints</span><span class="ansi-blue-fg">(tables, filter_fn, extra_dependencies)</span>
+<span class="ansi-green-intense-fg ansi-bold">   1156</span>                     <span class="ansi-green-fg">continue</span>
+<span class="ansi-green-intense-fg ansi-bold">   1157</span> 
+<span class="ansi-green-fg">-&gt; 1158</span><span class="ansi-red-fg">             </span>dependent_on <span class="ansi-blue-fg">=</span> fkc<span class="ansi-blue-fg">.</span>referred_table
+<span class="ansi-green-intense-fg ansi-bold">   1159</span>             <span class="ansi-green-fg">if</span> dependent_on <span class="ansi-green-fg">is</span> <span class="ansi-green-fg">not</span> table<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">   1160</span>                 mutable_dependencies<span class="ansi-blue-fg">.</span>add<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">(</span>dependent_on<span class="ansi-blue-fg">,</span> table<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
+
+<span class="ansi-green-fg">~/local/anaconda3/lib/python3.6/site-packages/sqlalchemy/sql/schema.py</span> in <span class="ansi-cyan-fg">referred_table</span><span class="ansi-blue-fg">(self)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3226</span> 
+<span class="ansi-green-intense-fg ansi-bold">   3227</span>         &#34;&#34;&#34;
+<span class="ansi-green-fg">-&gt; 3228</span><span class="ansi-red-fg">         </span><span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>elements<span class="ansi-blue-fg">[</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">.</span>column<span class="ansi-blue-fg">.</span>table
+<span class="ansi-green-intense-fg ansi-bold">   3229</span> 
+<span class="ansi-green-intense-fg ansi-bold">   3230</span>     <span class="ansi-green-fg">def</span> _validate_dest_table<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> table<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+
+<span class="ansi-green-fg">~/local/anaconda3/lib/python3.6/site-packages/sqlalchemy/util/langhelpers.py</span> in <span class="ansi-cyan-fg">__get__</span><span class="ansi-blue-fg">(self, obj, cls)</span>
+<span class="ansi-green-intense-fg ansi-bold">    853</span>         <span class="ansi-green-fg">if</span> obj <span class="ansi-green-fg">is</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    854</span>             <span class="ansi-green-fg">return</span> self
+<span class="ansi-green-fg">--&gt; 855</span><span class="ansi-red-fg">         </span>obj<span class="ansi-blue-fg">.</span>__dict__<span class="ansi-blue-fg">[</span>self<span class="ansi-blue-fg">.</span>__name__<span class="ansi-blue-fg">]</span> <span class="ansi-blue-fg">=</span> result <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>fget<span class="ansi-blue-fg">(</span>obj<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    856</span>         <span class="ansi-green-fg">return</span> result
+<span class="ansi-green-intense-fg ansi-bold">    857</span> 
+
+<span class="ansi-green-fg">~/local/anaconda3/lib/python3.6/site-packages/sqlalchemy/sql/schema.py</span> in <span class="ansi-cyan-fg">column</span><span class="ansi-blue-fg">(self)</span>
+<span class="ansi-green-intense-fg ansi-bold">   2033</span>                     <span class="ansi-blue-fg">&#34;foreign key to target column &#39;%s&#39;&#34;</span>
+<span class="ansi-green-intense-fg ansi-bold">   2034</span>                     <span class="ansi-blue-fg">%</span> <span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>parent<span class="ansi-blue-fg">,</span> tablekey<span class="ansi-blue-fg">,</span> colname<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span>
+<span class="ansi-green-fg">-&gt; 2035</span><span class="ansi-red-fg">                     </span>tablekey<span class="ansi-blue-fg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">   2036</span>                 )
+<span class="ansi-green-intense-fg ansi-bold">   2037</span>             <span class="ansi-green-fg">elif</span> parenttable<span class="ansi-blue-fg">.</span>key <span class="ansi-green-fg">not</span> <span class="ansi-green-fg">in</span> parenttable<span class="ansi-blue-fg">.</span>metadata<span class="ansi-blue-fg">:</span>
+
+<span class="ansi-red-fg">NoReferencedTableError</span>: Foreign key associated with column &#39;books.authid&#39; could not find table &#39;authors&#39; with which to generate a foreign key to target column &#39;id&#39;</pre>
+</div>
+</div>
+
 </div>
 </div>
 
@@ -13133,41 +13334,6 @@ div#notebook {
 
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">MainTable</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
-    <span class="n">tabname</span> <span class="o">=</span> <span class="s1">&#39;maintable&#39;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subtab</span> <span class="o">=</span> <span class="n">SubTable</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-        <span class="c1">#self.subtab.commit()</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;subkey&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;foreignkey_constraint&#39;</span><span class="p">,</span> <span class="p">[[</span><span class="s1">&#39;subkey&#39;</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">subtab</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]]],</span> <span class="p">{},</span> <span class="nb">dict</span><span class="p">(</span><span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">)),</span>
-            <span class="p">(</span><span class="s1">&#39;date_updated&#39;</span><span class="p">,</span> <span class="s1">&#39;updated&#39;</span><span class="p">),</span>
-        <span class="p">),</span> <span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tabname</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rowdat</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="c1"># add just in case it wasn&#39;t there</span>
-        <span class="k">if</span> <span class="s1">&#39;n&#39;</span> <span class="ow">in</span> <span class="n">rowdat</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">subtab</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;n&#39;</span><span class="p">:</span><span class="n">rowdat</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]},</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
-        
-            <span class="c1"># get id of the right column</span>
-            <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtab</span><span class="o">.</span><span class="n">select_first</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subtab</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">rowdat</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">])</span>
-            <span class="n">rowdat</span><span class="p">[</span><span class="s1">&#39;subkey&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
-            <span class="k">del</span> <span class="n">rowdat</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">rowdat</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">

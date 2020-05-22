@@ -13425,7 +13425,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|██████████| 17/17 [00:03&lt;00:00,  4.87it/s]
+<pre>100%|██████████| 17/17 [00:04&lt;00:00,  4.22it/s]
 </pre>
 </div>
 </div>
@@ -13666,11 +13666,11 @@ Reagan
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="4.-Create-a-Parser-for-Tokenization">4. Create a Parser for Tokenization<a class="anchor-link" href="#4.-Create-a-Parser-for-Tokenization">&#182;</a></h2><p>Now that the text is in the doctable, we can extract it using <code>.select()</code>, parse it, and store the parsed text back into the table using <code>.update()</code>.</p>
-<p>Now we create a parser using <code>ParsePipeline</code> and a list of functions to apply to the text sequentially. The <code>component</code> function returns a <a href="ref/doctable.parse.html">doctable parse function</a> with additional keyword arguments. For instance, the following two expressions would be the same.</p>
+<p>Now we create a parser using <code>ParsePipeline</code> and a list of functions to apply to the text sequentially. The <code>Comp</code> function returns a <a href="ref/doctable.parse.html">doctable parse function</a> with additional keyword arguments. For instance, the following two expressions would be the same.</p>
 
 <pre><code>doctable.component('keep_tok', keep_punct=True) # is equivalent to
 lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
-<p>Note in this example that the 'tokenize' function takes two function arguments <code>keep_tok_func</code> and <code>parse_tok_func</code> which are also specified using the <code>.component()</code> function. The available pipeline components are listed in the <a href="ref/doctable.parse.html">parse function documentation</a>.</p>
+<p>Note in this example that the 'tokenize' function takes two function arguments <code>keep_tok_func</code> and <code>parse_tok_func</code> which are also specified using the <code>.Comp()</code> function. The available pipeline components are listed in the <a href="ref/doctable.parse.html">parse function documentation</a>.</p>
 
 </div>
 </div>
@@ -13686,10 +13686,10 @@ lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
 <span class="c1"># add pipeline components</span>
 <span class="n">parser</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParsePipeline</span><span class="p">([</span>
     <span class="n">nlp</span><span class="p">,</span> <span class="c1"># first run spacy parser</span>
-    <span class="n">doctable</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="s1">&#39;tokenize&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
+    <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;tokenize&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
         <span class="s1">&#39;split_sents&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s1">&#39;keep_tok_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="s1">&#39;keep_tok&#39;</span><span class="p">),</span>
-        <span class="s1">&#39;parse_tok_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="s1">&#39;parse_tok&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;keep_tok_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;keep_tok&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;parse_tok_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;parse_tok&#39;</span><span class="p">),</span>
     <span class="p">})</span>
 <span class="p">])</span>
 
@@ -13712,8 +13712,8 @@ lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[&lt;spacy.lang.en.English at 0x7f1454f63f98&gt;,
- &lt;function doctable.pipeline.component.&lt;locals&gt;.&lt;lambda&gt;(x)&gt;]</pre>
+<pre>[&lt;spacy.lang.en.English at 0x7fdbb92afe80&gt;,
+ functools.partial(&lt;function tokenize at 0x7fdbc267ac80&gt;, split_sents=False, keep_tok_func=functools.partial(&lt;function keep_tok at 0x7fdbc267ad90&gt;), parse_tok_func=functools.partial(&lt;function parse_tok at 0x7fdbc267ad08&gt;))]</pre>
 </div>
 
 </div>
@@ -13755,7 +13755,7 @@ lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|██████████| 17/17 [00:14&lt;00:00,  1.19it/s]
+<pre>100%|██████████| 17/17 [00:13&lt;00:00,  1.28it/s]
 </pre>
 </div>
 </div>

@@ -10,22 +10,22 @@
     
 <tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
-<dl><dt><a name="DocTable-__delete__"><strong>__delete__</strong></a>(self)</dt><dd><tt>Closes&nbsp;database&nbsp;connection&nbsp;to&nbsp;prevent&nbsp;locking.</tt></dd></dl>
+<dl><dt><a name="DocTable-__delete__"><strong>__delete__</strong></a>(self)</dt><dd><tt>Closes&nbsp;database&nbsp;connection&nbsp;to&nbsp;prevent&nbsp;locking&nbsp;db.</tt></dd></dl>
 
 <dl><dt><a name="DocTable-__getitem__"><strong>__getitem__</strong></a>(self, colname)</dt><dd><tt>Accesses&nbsp;a&nbsp;column&nbsp;object&nbsp;by&nbsp;calling&nbsp;.<a href="#doctable.DocTable-col">col</a>().</tt></dd></dl>
 
-<dl><dt><a name="DocTable-__init__"><strong>__init__</strong></a>(self, schema=None, tabname='_documents_', fname=':memory:', engine='sqlite', persistent_conn=True, verbose=False, make_new_db=True, **engine_args)</dt><dd><tt>Create&nbsp;new&nbsp;database.<br>
+<dl><dt><a name="DocTable-__init__"><strong>__init__</strong></a>(self, schema=None, tabname='_documents_', target=':memory:', persistent_conn=True, verbose=False, new_db=False, engine=None, dialect='sqlite', **engine_kwargs)</dt><dd><tt>Create&nbsp;new&nbsp;database.<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;schema&nbsp;(list&lt;list&gt;):&nbsp;schema&nbsp;from&nbsp;which&nbsp;to&nbsp;create&nbsp;db.&nbsp;Includes&nbsp;a<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list&nbsp;of&nbsp;columns&nbsp;(including&nbsp;contraints&nbsp;and&nbsp;indexes)&nbsp;as&nbsp;tuples<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defined&nbsp;according&nbsp;to&nbsp;information&nbsp;needed&nbsp;to&nbsp;execute&nbsp;the&nbsp;sqlalchemy<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commands.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;tabname&nbsp;(str):&nbsp;table&nbsp;name&nbsp;for&nbsp;this&nbsp;specific&nbsp;doctable.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;fname&nbsp;(str):&nbsp;filename&nbsp;for&nbsp;database&nbsp;to&nbsp;connect&nbsp;to.&nbsp;":memory:"&nbsp;is&nbsp;a&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;target&nbsp;(str):&nbsp;filename&nbsp;for&nbsp;database&nbsp;to&nbsp;connect&nbsp;to.&nbsp;":memory:"&nbsp;is&nbsp;a&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;special&nbsp;value&nbsp;indicating&nbsp;to&nbsp;the&nbsp;python&nbsp;db&nbsp;engine&nbsp;that&nbsp;the&nbsp;db<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;should&nbsp;be&nbsp;created&nbsp;in&nbsp;memory.&nbsp;Will&nbsp;create&nbsp;new&nbsp;empty&nbsp;database&nbsp;file<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;it&nbsp;does&nbsp;not&nbsp;exist&nbsp;and&nbsp;new_db&nbsp;is&nbsp;True.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;engine&nbsp;(str):&nbsp;database&nbsp;engine&nbsp;through&nbsp;which&nbsp;to&nbsp;construct&nbsp;db.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dialect&nbsp;(str):&nbsp;database&nbsp;engine&nbsp;through&nbsp;which&nbsp;to&nbsp;construct&nbsp;db.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For&nbsp;more&nbsp;info,&nbsp;see&nbsp;sqlalchemy&nbsp;dialect&nbsp;info:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://docs.sqlalchemy.org/en/13/dialects/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;persistent_conn&nbsp;(bool):&nbsp;whether&nbsp;or&nbsp;not&nbsp;to&nbsp;create&nbsp;a&nbsp;persistent&nbsp;conn&nbsp;<br>
@@ -61,17 +61,16 @@ Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;col&nbsp;(str&nbsp;or&nbsp;Column&nbsp;object):&nbsp;column&nbsp;to&nbsp;clean&nbsp;picklefiles&nbsp;for.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;ignore_missing&nbsp;(bool):&nbsp;if&nbsp;False,&nbsp;throw&nbsp;an&nbsp;error&nbsp;when&nbsp;a&nbsp;db&nbsp;file&nbsp;doesn't&nbsp;exist.</tt></dd></dl>
 
-<dl><dt><a name="DocTable-close_conn"><strong>close_conn</strong></a>(self)</dt><dd><tt>Closes&nbsp;connection&nbsp;to&nbsp;db&nbsp;(if&nbsp;one&nbsp;exists).<br>
-Notes:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;Primarily&nbsp;to&nbsp;be&nbsp;used&nbsp;if&nbsp;persistent_conn&nbsp;flag&nbsp;was&nbsp;set<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;true&nbsp;in&nbsp;constructor,&nbsp;but&nbsp;user&nbsp;wants&nbsp;to&nbsp;close.</tt></dd></dl>
+<dl><dt><a name="DocTable-close_conn"><strong>close_conn</strong></a>(self)</dt><dd><tt>Closes&nbsp;connection&nbsp;to&nbsp;db&nbsp;(if&nbsp;one&nbsp;exists).</tt></dd></dl>
 
-<dl><dt><a name="DocTable-close_engine"><strong>close_engine</strong></a>(self)</dt></dl>
+<dl><dt><a name="DocTable-close_engine"><strong>close_engine</strong></a>(self)</dt><dd><tt>Closes&nbsp;connection&nbsp;engine.</tt></dd></dl>
 
-<dl><dt><a name="DocTable-col"><strong>col</strong></a>(self, name)</dt><dd><tt>Accesses&nbsp;a&nbsp;column&nbsp;object.&nbsp;Equivalent&nbsp;to&nbsp;table.c[name].<br>
+<dl><dt><a name="DocTable-col"><strong>col</strong></a>(self, name)</dt><dd><tt>Accesses&nbsp;a&nbsp;column&nbsp;object.<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;column&nbsp;to&nbsp;access.&nbsp;Applied&nbsp;as&nbsp;subscript&nbsp;to&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;columns&nbsp;object.</tt></dd></dl>
+
+<dl><dt><a name="DocTable-colnames"><strong>colnames</strong></a>(self)</dt></dl>
 
 <dl><dt><a name="DocTable-count"><strong>count</strong></a>(self, where=None, whrstr=None, **kwargs)</dt><dd><tt>Count&nbsp;number&nbsp;of&nbsp;rows&nbsp;which&nbsp;match&nbsp;where&nbsp;condition.<br>
 Notes:<br>
@@ -114,12 +113,21 @@ Args:<br>
 Returns:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;query&nbsp;result&nbsp;object.</tt></dd></dl>
 
-<dl><dt><a name="DocTable-open_conn"><strong>open_conn</strong></a>(self)</dt><dd><tt>Opens&nbsp;connection&nbsp;to&nbsp;db&nbsp;(if&nbsp;one&nbsp;does&nbsp;not&nbsp;exist).<br>
-Notes:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;Primarily&nbsp;to&nbsp;be&nbsp;used&nbsp;if&nbsp;persistent_conn&nbsp;flag&nbsp;was&nbsp;set<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;false&nbsp;in&nbsp;constructor,&nbsp;but&nbsp;user&nbsp;wants&nbsp;to&nbsp;create.</tt></dd></dl>
+<dl><dt><a name="DocTable-list_tables"><strong>list_tables</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="DocTable-open_engine"><strong>open_engine</strong></a>(self, open_conn=True)</dt><dd><tt>Open&nbsp;engine&nbsp;manually&nbsp;(esp&nbsp;when&nbsp;concurrency&nbsp;applications).</tt></dd></dl>
+<dl><dt><a name="DocTable-open_conn"><strong>open_conn</strong></a>(self)</dt><dd><tt>Opens&nbsp;connection&nbsp;to&nbsp;db&nbsp;(if&nbsp;one&nbsp;does&nbsp;not&nbsp;exist).</tt></dd></dl>
+
+<dl><dt><a name="DocTable-open_engine"><strong>open_engine</strong></a>(self, open_conn=None)</dt><dd><tt>Opens&nbsp;connection&nbsp;engine.&nbsp;<br>
+open_conn&nbsp;overrides&nbsp;persistent_conn&nbsp;if&nbsp;defined<br>
+default&nbsp;is&nbsp;True</tt></dd></dl>
+
+<dl><dt><a name="DocTable-schema_info"><strong>schema_info</strong></a>(self)</dt><dd><tt>Get&nbsp;info&nbsp;about&nbsp;each&nbsp;column&nbsp;as&nbsp;a&nbsp;dictionary.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dict&lt;dict&gt;:&nbsp;info&nbsp;about&nbsp;each&nbsp;column.</tt></dd></dl>
+
+<dl><dt><a name="DocTable-schema_table"><strong>schema_table</strong></a>(self)</dt><dd><tt>Get&nbsp;info&nbsp;about&nbsp;each&nbsp;column&nbsp;as&nbsp;a&nbsp;dictionary.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;DataFrame:&nbsp;info&nbsp;about&nbsp;each&nbsp;column.</tt></dd></dl>
 
 <dl><dt><a name="DocTable-select"><strong>select</strong></a>(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, offset=None, **kwargs)</dt><dd><tt>Perform&nbsp;select&nbsp;query,&nbsp;yield&nbsp;result&nbsp;for&nbsp;each&nbsp;row.<br>
 &nbsp;<br>
@@ -223,8 +231,6 @@ Data descriptors defined here:<br>
 <dl><dt><strong>__weakref__</strong></dt>
 <dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
 </dl>
-<dl><dt><strong>colnames</strong></dt>
-</dl>
 <dl><dt><strong>columns</strong></dt>
 <dd><tt>Exposes&nbsp;SQLAlchemy&nbsp;core&nbsp;table&nbsp;columns&nbsp;object.<br>
 Notes:<br>
@@ -237,10 +243,7 @@ Returns:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;columns:&nbsp;access&nbsp;to&nbsp;underlying&nbsp;columns<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;object.</tt></dd>
 </dl>
-<dl><dt><strong>schemainfo</strong></dt>
-<dd><tt>Get&nbsp;info&nbsp;about&nbsp;each&nbsp;column&nbsp;as&nbsp;a&nbsp;dictionary.<br>
-Returns:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;dict&lt;dict&gt;:&nbsp;info&nbsp;about&nbsp;each&nbsp;column.</tt></dd>
+<dl><dt><strong>engine</strong></dt>
 </dl>
 <dl><dt><strong>table</strong></dt>
 <dd><tt>Returns&nbsp;underlying&nbsp;sqlalchemy&nbsp;table&nbsp;object&nbsp;for&nbsp;manual&nbsp;manipulation.</tt></dd>
