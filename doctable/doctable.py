@@ -186,7 +186,7 @@ class DocTable:
         Returns:
             DataFrame: info about each column.
         '''
-        return self._engine.schema_table()
+        return self._engine.schema_table(self._tabname)
     
             
     #################### Connection Methods ###################
