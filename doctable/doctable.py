@@ -51,7 +51,7 @@ class DocTable:
         '''
         # static definition variable assignments
         try:
-            kwargs = self.args
+            kwargs = self.args # user can provide their own data
             if 'tabname' in kwargs:
                 tabname = kwargs['tabname']
             if 'schema' in kwargs:
