@@ -204,7 +204,7 @@ class DocTable:
                              'before trying to open connection.')
         
         if self._conn is None:
-            self._conn = self._engine.connect()
+            self._conn = self._engine.get_connection()
     
     def close_engine(self):
         ''' Closes connection engine. '''
