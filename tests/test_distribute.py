@@ -17,7 +17,7 @@ def test_basic():
     for NCORES in (1,3):
         with doctable.Distribute(NCORES) as d:
             el1 = d.map_chunk(chunk_thread, elements)
-            el2 = d.map_insert(thread_func, elements)
+            el2 = d.map(thread_func, elements)
 
         assert(len(elements) == len(el1))
         assert(len(elements) == len(el2))

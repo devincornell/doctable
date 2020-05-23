@@ -11,13 +11,16 @@ class ConnectEngine:
     engine_kwargs = None
     
     def __init__(self, dialect='sqlite', target=':memory:', new_db=False, foreign_keys=False,
-                 **engine_kwargs):
+                 timeout=None, **engine_kwargs):
         
         if dialect.startswith('sqlite') and target != ':memory:':
             exists = os.path.exists(target)
             if not new_db and not exists:
                 raise FileNotFoundError('new_db is set to False but the database does not '
                                  'exist yet.')
+        
+        if dialect.startswith('sqlite') and timeout is not None:
+            engine_kwargs = {**engine_kwargs, 'timeout':timeout}
             
         # store connection info
         self._dialect = dialect
