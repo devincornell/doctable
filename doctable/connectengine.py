@@ -22,6 +22,8 @@ class ConnectEngine:
         if dialect.startswith('sqlite') and timeout is not None:
             engine_kwargs = {**engine_kwargs, 'timeout':timeout}
             
+        self._foreign_keys = foreign_keys
+            
         # store connection info
         self._dialect = dialect
         self._target = target
@@ -31,16 +33,15 @@ class ConnectEngine:
         self._engine_kwargs = engine_kwargs
         self.open()
         
-        if foreign_keys:
-            self.execute('PRAGMA foreign_keys=ON')
-        
     
     def get_connection(self):
         return self._engine.connect()
         
     def open(self):
         self._engine = sqlalchemy.create_engine(self._connstr, **self._engine_kwargs)
-        self._metadata = sqlalchemy.MetaData()
+        self._metadata = sqlalchemy.MetaData(bind=self._engine)
+        if self._foreign_keys:
+            self.execute('PRAGMA foreign_keys=ON')
         
     def close(self):
         self._engine = None
@@ -54,7 +55,11 @@ class ConnectEngine:
             table = sqlalchemy.Table(tabname, self._metadata, *columns)
             self._metadata.create_all(self._engine) # create table if it doesn't exist
         else:
-            table = sqlalchemy.Table(tabname, self._metadata, autoload=True, autoload_with=self._engine)
+            try:
+                table = sqlalchemy.Table(tabname, self._metadata, autoload=True, autoload_with=self._engine)
+            except sqlalchemy.exc.NoSuchTableError:
+                tables = self.list_tables()
+                raise sqlalchemy.exc.NoSuchTableError(f'Couldn\'t find table {tabname}! Existing tables: {tables}!')
         
         # Binds .max(), .min(), .count(), .sum() to each column object.
         # https://docs.sqlalchemy.org/en/13/core/functions.html
@@ -65,6 +70,12 @@ class ConnectEngine:
             col.sum = sqlalchemy.sql.func.sum(col)
         
         return table
+    
+    def drop_table(self, tabname, if_exists=False):
+        if if_exists:
+            self.execute(f'DROP TABLE IF EXISTS {tabname}')
+        else:
+            self.execute(f'DROP TABLE {tabname}')
             
     def schema(self, tabname):
         inspector = sqlalchemy.inspect(self._engine)

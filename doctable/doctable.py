@@ -20,7 +20,7 @@ def is_ord_sequence(obj):
     return isinstance(obj, list) or isinstance(obj,tuple)
 
 class DocTable:
-    def __init__(self, schema=None, tabname='_documents_', target=':memory:', 
+    def __init__(self, target=':memory:', tabname='_documents_', schema=None, 
                  persistent_conn=True, verbose=False, new_db=False, engine=None, 
                  dialect='sqlite', **engine_kwargs):
         '''Create new database.
@@ -102,11 +102,11 @@ class DocTable:
             self._engine = engine
         
         # connect to existing table or create new one
-        columns = None
+        self._columns = None
         if schema is not None:
-            columns = parse_schema(schema, target+'_'+tabname)
+            self._columns = parse_schema(schema, target+'_'+tabname)
         
-        self._table = self._engine.add_table(self._tabname, columns=columns)
+        self._table = self._engine.add_table(self._tabname, columns=self._columns)
         
         # connect to database
         self._conn = self._engine.get_connection()
@@ -206,20 +206,21 @@ class DocTable:
         if self._conn is None:
             self._conn = self._engine.get_connection()
     
-    def close_engine(self):
-        ''' Closes connection engine. '''
-        self.close_conn()
-        self._engine.close()
-        
     def open_engine(self, open_conn=None):
         ''' Opens connection engine. 
             open_conn overrides persistent_conn if defined
             default is True
         '''
         self._engine.open()
+        #self._table = self._engine.add_table(self._tabname, columns=self._columns)
         
         if open_conn or (open_conn is None and self.persistent_conn):
             self.open_conn()
+    
+    def close_engine(self):
+        ''' Closes connection engine. '''
+        self.close_conn()
+        self._engine.close()
         
     
     ################# INSERT METHODS ##################
