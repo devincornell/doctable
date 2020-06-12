@@ -2,7 +2,7 @@
 import sqlalchemy as sa
 
 from .coltypes import CpickleType, ParseTreeType, PickleFileType, TextFileType, FileTypeBase, JSONType
-
+from datetime import datetime
 
 column_type_map = {
     'biginteger':sa.BigInteger,
