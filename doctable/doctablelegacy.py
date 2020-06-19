@@ -54,7 +54,8 @@ class DocTableLegacy:
         self.verbose = verbose
         self.conn = None
         
-        self._try_create_table()
+        if make_new_db:
+            self._try_create_table()
         
         self.schema = self._get_schema()
         self.columns = list(self.schema['name'])
