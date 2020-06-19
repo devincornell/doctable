@@ -13080,7 +13080,7 @@ div#notebook {
 <h1 id="Distribute-Parallel-Processing-Basics"><code>Distribute</code> Parallel Processing Basics<a class="anchor-link" href="#Distribute-Parallel-Processing-Basics">&#182;</a></h1><p>Due to a number of limitations involving data passed to processes using <code>multiprocessing.Pool()</code>, I've implemented a similar class called <code>Distribute()</code>. The primary difference is that Distribute is meant to distribute chunks of data for parallel processing, so your map function should parse multiple values. There are currently two functions in Distribute:</p>
 <ul>
 <li><code>.map_chunk()</code> simply applies a function to a list of elements and returns a list of parsed elements.</li>
-<li><code>.map_insert()</code> applies a function to a single element and stores the result as a row in a doctable.</li>
+<li><code>.map()</code> applies a function to a single element. Same as <code>multiprocessing.Pool().map()</code>.</li>
 </ul>
 
 </div>
@@ -13098,6 +13098,57 @@ div#notebook {
 </pre></div>
 
     </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id=".map()-Method"><code>.map()</code> Method<a class="anchor-link" href="#.map()-Method">&#182;</a></h2><p>Unsurprisingly, this method works exactly like the <code>multiprocessing.Pool().map()</code>. Simply provide a sequence of elements and a function to apply to them, and this method will parse all the elements in parallel.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">multiply</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+
+<span class="n">nums</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="k">with</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Distribute</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">multiply</span><span class="p">,</span> <span class="n">nums</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+    
+    <span class="c1"># pass any argument to your function here.</span>
+    <span class="c1"># we try multiplying by 5 instead of 2.</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">multiply</span><span class="p">,</span> <span class="n">nums</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[0, 2, 4, 6, 8]
+[0, 5, 10, 15, 20]
+</pre>
+</div>
+</div>
+
 </div>
 </div>
 
@@ -13144,10 +13195,10 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>CPU times: user 1.76 ms, sys: 24.3 ms, total: 26 ms
-Wall time: 36.6 ms
-CPU times: user 161 µs, sys: 0 ns, total: 161 µs
-Wall time: 166 µs
+<pre>CPU times: user 5.92 ms, sys: 13.3 ms, total: 19.2 ms
+Wall time: 22.7 ms
+CPU times: user 63 µs, sys: 85 µs, total: 148 µs
+Wall time: 154 µs
 </pre>
 </div>
 </div>
@@ -13165,159 +13216,6 @@ Wall time: 166 µs
 
 </div>
 
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="map_insert()-Method"><code>map_insert()</code> Method<a class="anchor-link" href="#map_insert()-Method">&#182;</a></h2><p>Allows you to write methods which are meant to store single rows into a database. Note how <code>muli_multi_store()</code> inserts into database a single element, and the doctable is passed using the <code>dt_inst</code> keyword parameter.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">## make a new doctable instance with two columns</span>
-<span class="c1">#db = doctable.DocTable(schema=(</span>
-<span class="c1">#    (&#39;idcol&#39;, &#39;id&#39;), </span>
-<span class="c1">#    (&#39;float&#39;, &#39;num&#39;, dict(unique=True)), </span>
-<span class="c1">#), target=&#39;tmp_distributed_basics.db&#39;, new_db=True)</span>
-<span class="c1">#</span>
-<span class="c1">## function to apply to each number then store in doctable</span>
-<span class="c1">#def multiply_and_insert(num, db):</span>
-<span class="c1">#    db.insert({&#39;num&#39;: num*1.275}, ifnotunique=&#39;replace&#39;)</span>
-<span class="c1">#</span>
-<span class="c1">## use .map_insert() while passing the DocTable instance through dt_inst</span>
-<span class="c1">#with doctable.Distribute(2) as d:</span>
-<span class="c1">#    %time res = d.map_insert(multiply_and_insert, nums, dt_inst=db)</span>
-<span class="c1">#db.select_df(limit=10)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>CPU times: user 9.66 ms, sys: 11.7 ms, total: 21.3 ms
-Wall time: 1.79 s
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[3]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>num</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>2001</td>
-      <td>0.000</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2002</td>
-      <td>1.275</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>2003</td>
-      <td>2.550</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>2004</td>
-      <td>3.825</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>2005</td>
-      <td>5.100</td>
-    </tr>
-    <tr>
-      <td>5</td>
-      <td>2006</td>
-      <td>6.375</td>
-    </tr>
-    <tr>
-      <td>6</td>
-      <td>2007</td>
-      <td>7.650</td>
-    </tr>
-    <tr>
-      <td>7</td>
-      <td>2008</td>
-      <td>8.925</td>
-    </tr>
-    <tr>
-      <td>8</td>
-      <td>2009</td>
-      <td>637.500</td>
-    </tr>
-    <tr>
-      <td>9</td>
-      <td>2010</td>
-      <td>638.775</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
 </div>
 </div>
 

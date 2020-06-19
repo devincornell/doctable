@@ -13199,8 +13199,8 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="1.-Create-a-DocTable-Schema">1. Create a DocTable Schema<a class="anchor-link" href="#1.-Create-a-DocTable-Schema">&#182;</a></h2><p>The <code>DocTable</code> class is often used by subclassing. Our <code>NSSDocs</code> class inherits from <code>DocTable</code> and will store schema and other static inforamtion about the database. You can see we keep two member variables <code>tabname</code> and <code>schema</code> to store the database table name and schema, respectively. See the <a href="examples/doctable_schema.html">schema guide</a> for examples of more column types.</p>
-<p>We also overload the <code>__init__</code> method so we can set soem defaults.</p>
+<h2 id="1.-Create-a-DocTable-Schema">1. Create a DocTable Schema<a class="anchor-link" href="#1.-Create-a-DocTable-Schema">&#182;</a></h2><p>The <code>DocTable</code> class is often used by subclassing. Our <code>NSSDocs</code> class inherits from <code>DocTable</code> and will store connection and schema information. Because the default constructor checks for statically define member variables <code>tabname</code> and <code>schema</code> (as well as others), we can simply add them to the class definition.</p>
+<p>In this example, we create the 'id' column as a unique index, the 'year', 'president', and 'party' columns for storing the metadata we defined above in <code>nss_metadata</code>, and columns for raw and parse text. See the <a href="examples/doctable_schema.html">schema guide</a> for examples of the full range of column types.</p>
 
 </div>
 </div>
@@ -13227,12 +13227,6 @@ div#notebook {
         <span class="c1"># indices for easy access</span>
         <span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;ind_yr&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
     <span class="p">)</span>
-    
-    <span class="c1"># by overriding the constructor, we can change some of the default parameters</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="c1"># NOTE: &quot;:memory:&quot; keyword is an sqlite directive indicating the table should be stored in memory</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tabname</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    
 </pre></div>
 
     </div>
@@ -13244,7 +13238,7 @@ div#notebook {
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>We can then create a connection to a database by instantiating the <code>NSSDocs</code> class. Since the <code>fname</code> parameter was not provided, this doctable exists only in memory using sqlite (uses special sqlite name ":memory:"). We will use this for these examples.</p>
-<p>We can check the sqlite table schema using the <code>.schemainfo</code> property. You can see that the 'pickle' datatype we chose above is represented as a BLOB column. This is because DocTable, using SQLAlchemy core, creates an interface on top of sqlite to handle the data conversion. You can view the number of documents using the <code>.count</code> method or by viewing the db instance as a string (in this case with print function).</p>
+<p>We can check the sqlite table schema using <code>.schema_table()</code>. You can see that the 'pickle' datatype we chose above is represented as a BLOB column. This is because DocTable, using SQLAlchemy core, creates an interface on top of sqlite to handle the data conversion. You can view the number of documents using <code>.count()</code> or by viewing the db instance as a string (in this case with print function).</p>
 
 </div>
 </div>
@@ -13255,10 +13249,10 @@ div#notebook {
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># printing the DocTable object itself shows how many entries there are</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">NSSDocs</span><span class="p">()</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">NSSDocs</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">schemainfo</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13425,7 +13419,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|██████████| 17/17 [00:04&lt;00:00,  4.22it/s]
+<pre>100%|██████████| 17/17 [00:03&lt;00:00,  4.31it/s]
 </pre>
 </div>
 </div>
@@ -13712,8 +13706,8 @@ lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[&lt;spacy.lang.en.English at 0x7fdbb92afe80&gt;,
- functools.partial(&lt;function tokenize at 0x7fdbc267ac80&gt;, split_sents=False, keep_tok_func=functools.partial(&lt;function keep_tok at 0x7fdbc267ad90&gt;), parse_tok_func=functools.partial(&lt;function parse_tok at 0x7fdbc267ad08&gt;))]</pre>
+<pre>[&lt;spacy.lang.en.English at 0x7fd9b9b6c748&gt;,
+ functools.partial(&lt;function tokenize at 0x7fd9c2f40510&gt;, split_sents=False, keep_tok_func=functools.partial(&lt;function keep_tok at 0x7fd9c2f40620&gt;), parse_tok_func=functools.partial(&lt;function parse_tok at 0x7fd9c2f40598&gt;))]</pre>
 </div>
 
 </div>
@@ -13755,7 +13749,7 @@ lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|██████████| 17/17 [00:13&lt;00:00,  1.28it/s]
+<pre>100%|██████████| 17/17 [00:12&lt;00:00,  1.34it/s]
 </pre>
 </div>
 </div>
