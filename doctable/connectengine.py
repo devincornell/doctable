@@ -49,8 +49,11 @@ class ConnectEngine:
         
         
     def __del__(self):
-        # used instead of garbage collector to reliably kill connections
-        self._engine.dispose()
+        try:
+            # used instead of garbage collector to reliably kill connections
+            self._engine.dispose()
+        except:# AttributeError:
+            pass
         
     ######################### Core Methods ######################    
     def execute(self, query, **kwargs):
@@ -68,6 +71,17 @@ class ConnectEngine:
     @property
     def target(self):
         return self._target
+    
+    def table_names(self):
+        ''' List table names in database connection.
+        '''
+        return self._engine.table_names()
+    
+    @property
+    def tables(self):
+        ''' Get table objects stored in metadata.
+        '''
+        return self._metadata.tables
     
     def __str__(self):
         return '<ConnectEngine{}>'.format(repr(self))
@@ -99,16 +113,7 @@ class ConnectEngine:
     
     ######################### Table Management ######################
     
-    def list_tables(self):
-        ''' List table names in database connection.
-        '''
-        return self._engine.table_names()
-    
-    @property
-    def tables(self):
-        ''' Get table objects stored in metadata.
-        '''
-        return self._metadata.tables
+
     
     def schema(self, tabname):
         ''' Read schema information for single table.
@@ -118,30 +123,44 @@ class ConnectEngine:
         inspector = sqlalchemy.inspect(self._engine)
         return inspector.get_columns(tabname)
     
-    def schema_table(self, tabname):
+    def schema_df(self, tabname):
         ''' Read schema information for table as pandas dataframe.
         Returns:
             pandas dataframe
         '''
         return pd.DataFrame(self.schema(tabname))
     
-    def add_table(self, tabname, columns=None, **kwargs):
+    def remove_table(self, table):
+        ''' Remove the given Table object from MetaData object. Does not drop.
+        '''
+        return self._metadata.remove(table)
+    
+    def add_table(self, tabname, columns=None, new_table=True, **table_kwargs):
         ''' Adds a table to the metadata. If columns not provided, creates by autoload.
         Args:
             tabname (str): name of new table.
             columns (list/tuple): column objects passed to sqlalchemy.Table
-            kwargs: passed to sqlalchemy.Table constructor.
+            table_kwargs: passed to sqlalchemy.Table constructor.
         '''
-        if tabname in self.tables:
+        # return table instance if already stored in metadata object
+        if tabname in self._metadata.tables:
             return self.tables[tabname]
         
+        # create new table with provided columns
         if columns is not None:
-            table = sqlalchemy.Table(tabname, self._metadata, *columns, **kwargs)
-            table.create(self._engine)
+            table = sqlalchemy.Table(tabname, self._metadata, *columns, **table_kwargs)
+            if tabname not in self._engine.table_names():
+                if new_table:
+                    table.create(self._engine)
+                else:
+                    raise sqlalchemy.ProgrammingError('"new_table" was set to false but table '
+                                                     'does not exist yet.')
+                
             #self._metadata.create_all(self._engine) # create table if it doesn't exist
-        else:
+        
+        else: # infer schema from existing table
             try:
-                table = sqlalchemy.Table(tabname, self._metadata, autoload=True, autoload_with=self._engine, **kwargs)
+                table = sqlalchemy.Table(tabname, self._metadata, autoload=True, autoload_with=self._engine, **table_kwargs)
             except sqlalchemy.exc.NoSuchTableError:
                 tables = self.list_tables()
                 raise sqlalchemy.exc.NoSuchTableError(f'Couldn\'t find table {tabname}! Existing tables: {tables}!')
@@ -171,10 +190,6 @@ class ConnectEngine:
             else:
                 return self.execute(f'DROP TABLE {tabname}', **kwargs)
     
-    def remove_table(self, table):
-        ''' Remove the given Table object from MetaData object. Does not drop.
-        '''
-        return self._metadata.remove(table)
             
 
     

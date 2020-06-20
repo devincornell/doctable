@@ -12,16 +12,16 @@ import doctable
     
     
 class Parent(doctable.DocTable):
-    tabname = 'parent'
-    schema = (
+    __tabname__ = 'parent'
+    __schema__ = (
         ('idcol', 'id'),
         ('string', 'name', dict(unique=True)),
         ('integer', 'age', dict(default=10))
     )
     
 class Child(doctable.DocTable):
-    tabname = 'child'
-    schema = (
+    __tabname__ = 'child'
+    __schema__ = (
         ('idcol', 'id'),
         ('integer', 'name'),
         ('string', 'par'),
@@ -34,11 +34,11 @@ def test_thread(nums, eng):
     print(pdb)
     
 def test_engine_basics():
-    eng = doctable.ConnectEngine(':memory:', echo=False)
+    eng = doctable.ConnectEngine('tmp.db', new_db=True)
     print(eng)
     pdb = Parent(engine=eng)
     cdb = Child(engine=eng)
-    pdb2 = Parent(engine=eng)
+    pdb2 = Parent(target='tmp.db')
     #print(pdb)
     pdb.insert({'name':'whateva'})
     print(pdb)

@@ -20,7 +20,8 @@ def is_ord_sequence(obj):
     return isinstance(obj, list) or isinstance(obj,tuple)
 
 class DocTable:
-    def __init__(self, target=':memory:', tabname='_documents_', schema=None, 
+    __default_tabname__ = '_documents_'
+    def __init__(self, target=None, tabname=None, schema=None, 
                  persistent_conn=True, verbose=False, new_db=False, engine=None, 
                  dialect='sqlite', **engine_kwargs):
         '''Create new database.
@@ -49,43 +50,62 @@ class DocTable:
                 Example: connect_args={'timeout': 15} for sqlite
                 or connect_args={'connect_timeout': 15} for PostgreSQL.
         '''
-        # static definition variable assignments
+        # check for argument information in static member variable "args"
         try:
-            kwargs = self.args # user can provide their own data
-            if 'tabname' in kwargs:
-                tabname = kwargs['tabname']
-            if 'schema' in kwargs:
-                schema = kwargs['schema']
-            if 'target' in kwargs:
-                target = kwargs['target']
+            kwargs = self.__args__ # user can provide their own data
+            
+            # these will definitely override constructor args
+            if 'dialect' in kwargs:
+                dialect = kwargs['dialect']
             if 'verbose' in kwargs:
                 verbose = kwargs['verbose']
             if 'new_db' in kwargs:
                 new_db = kwargs['new_db']
-            if 'dialect' in kwargs:
-                dialect = kwargs['dialect']
             if 'engine_kwargs' in kwargs:
                 engine_kwargs = kwargs['engine_kwargs']
+            
+            # these will override if not provided
+            if tabname is None and 'tabname' in kwargs:
+                tabname = kwargs['tabname']
+            if schema is None and 'schema' in kwargs:
+                schema = kwargs['schema']
+            if target is None and 'target' in kwargs:
+                target = kwargs['target']
+            
+        except AttributeError:
+            pass
+        
+        # now look for statically defined classes
+        try:
+            tabname = self.__tabname__
         except AttributeError:
             pass
         try:
-            tabname = self.tabname
+            schema = self.__schema__
         except AttributeError:
             pass
         try:
-            schema = self.schema
+            target = self.__target__
         except AttributeError:
             pass
-        try:
-            target = self.target
-        except AttributeError:
-            pass
+            
+        # set defaults
+        if tabname is None:
+            tabname = self.__default_tabname__
+        if engine is not None:
+            target = engine.target
+            
+        # run some checks
+        if target is None:
+            raise ValueError('target has not been provided.')
         
         if dialect.startswith('sqlite'):
             if schema is None and (target == ':memory:' or not os.path.exists(target)):
                 raise ValueError('Schema must be provided if using memory database or '
                              'database file does not exist yet. Need to provide schema '
                              'when creating a new table.')
+                
+
         
         # store arguments as-is
         self._tabname = tabname
@@ -96,7 +116,7 @@ class DocTable:
         
         # establish an engine connection
         if engine is None:
-            self._engine = ConnectEngine(dialect=dialect, target=target, new_db=new_db, 
+            self._engine = ConnectEngine(target=target, dialect=dialect, new_db=new_db, 
                                      **engine_kwargs)
         else:
             self._engine = engine
@@ -114,6 +134,7 @@ class DocTable:
     def __delete__(self):
         ''' Closes database connection to prevent locking db.
         '''
+        self._engine.remove_table(self._table) # remove from engine metadata
         self.close_conn()
     
     #################### Convenience Methods ###################
@@ -550,10 +571,6 @@ class DocTable:
         return result
     
     def _execute(self, query, conn=None):
-        if not self._engine.is_open():
-            raise AttributeError('DocTable does not have an engine '
-                'connection. Use .open_engine() to make new engine '
-                'connection.')
         
         # takes raw query object
         if conn is not None:
