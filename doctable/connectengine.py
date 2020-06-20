@@ -72,7 +72,7 @@ class ConnectEngine:
     def target(self):
         return self._target
     
-    def table_names(self):
+    def list_tables(self):
         ''' List table names in database connection.
         '''
         return self._engine.table_names()
@@ -84,7 +84,7 @@ class ConnectEngine:
         return self._metadata.tables
     
     def __str__(self):
-        return '<ConnectEngine{}>'.format(repr(self))
+        return '<ConnectEngine::{}>'.format(repr(self))
     
     def __repr__(self):
         return '{}'.format(self._connstr)
@@ -111,9 +111,8 @@ class ConnectEngine:
         for table in self._metadata.sorted_tables:
             self.remove_table(table)
     
-    ######################### Table Management ######################
     
-
+    ######################### Table Management ######################
     
     def schema(self, tabname):
         ''' Read schema information for single table.
@@ -175,6 +174,14 @@ class ConnectEngine:
         
         return table
     
+    
+    def add_existing_tables(self, **table_kwargs):
+        ''' Will register all existing tables in metadata.
+        '''
+        for tabname in self.list_tables():
+            self.add_table(tabname, **table_kwargs)
+    
+    
     def drop_table(self, table, if_exists=False, **kwargs):
         ''' Drops table, either sqlalchemy object or by executing DROP TABLE.
         Args:
@@ -184,11 +191,10 @@ class ConnectEngine:
         if isinstance(table, sqlalchemy.Table):
             return table.drop(self._engine, checkfirst=if_exists, **kwargs)
         
-        else:
-            if if_exists:
-                return self.execute(f'DROP TABLE IF EXISTS {tabname}', **kwargs)
-            else:
-                return self.execute(f'DROP TABLE {tabname}', **kwargs)
+        else: # table is a string
+            if table not in self._metadata.tables:
+                self.add_table(table)
+            return self._metadata.tables[table].drop(self._engine, checkfirst=if_exists, **kwargs)
     
             
 

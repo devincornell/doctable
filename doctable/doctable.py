@@ -207,7 +207,7 @@ class DocTable:
         return self._engine
     
     def list_tables(self):
-        return self._engine.table_names()
+        return self._engine.list_tables()
     
     def colnames(self):
         return [c.name for c in self.columns]
@@ -237,9 +237,6 @@ class DocTable:
         
     def open_conn(self):
         ''' Opens connection to db (if one does not exist). '''
-        if not self._engine.is_open():
-            raise ValueError('Need to create engine using .open_engine() '
-                             'before trying to open connection.')
         
         if self._conn is None:
             self._conn = self._engine.get_connection()
@@ -249,6 +246,7 @@ class DocTable:
         Args:
             open_conn (bool): create a new db connection.
         '''
+        self.close_conn()
         self._engine.reopen()
         if open_conn or (open_conn is None and self.persistent_conn):
             self.open_conn()

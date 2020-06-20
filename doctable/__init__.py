@@ -23,4 +23,3 @@ from .parse import * # perhaps debatable
 from .docparser import DocParser
 from .doctablelegacy import DocTableLegacy
 
-
