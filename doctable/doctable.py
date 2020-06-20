@@ -43,8 +43,8 @@ class DocTable:
                 while instance exists, esp if calling .update() in a .select()
                 loop. Set to False to access from separate processes.
             verbose (bool): Print every sql command before executing.
-            readonly (bool): Block all attempts to write to database through 
-                doctable.
+            readonly (bool): Prevents user from calling insert(), delete(), or 
+                update(). Will not block other sql commands.
             new_db (bool): Indicate if new db file should be created given 
                 that a schema is provided and the db file doesn't exist.
             new_table (bool): Allow doctable to create a new table if one 
@@ -106,6 +106,9 @@ class DocTable:
             tabname = self.__default_tabname__
         if engine is not None:
             target = engine.target
+        if readonly:
+            new_db = False
+            new_table = False
             
         # run some checks
         if target is None:
@@ -116,8 +119,6 @@ class DocTable:
                 raise ValueError('Schema must be provided if using memory database or '
                              'database file does not exist yet. Need to provide schema '
                              'when creating a new table.')
-                
-
         
         # store arguments as-is
         self._tabname = tabname
@@ -125,6 +126,9 @@ class DocTable:
         self.verbose = verbose
         self.user_schema = schema
         self.persistent_conn = persistent_conn
+        self._readonly = readonly
+        self._new_db = new_db
+        self._new_table = new_table
         
         # establish an engine connection
         if engine is None:
@@ -138,7 +142,8 @@ class DocTable:
         if schema is not None:
             self._columns = parse_schema(schema, target+'_'+tabname)
         
-        self._table = self._engine.add_table(self._tabname, columns=self._columns)
+        self._table = self._engine.add_table(self._tabname, columns=self._columns, 
+                                             new_table=self._new_table)
         
         # connect to database
         self._conn = self._engine.get_connection()
@@ -202,7 +207,7 @@ class DocTable:
         return self._engine
     
     def list_tables(self):
-        return self._engine.list_tables()
+        return self._engine.table_names()
     
     def colnames(self):
         return [c.name for c in self.columns]
@@ -219,7 +224,7 @@ class DocTable:
         Returns:
             DataFrame: info about each column.
         '''
-        return self._engine.schema_table(self._tabname)
+        return self._engine.schema_df(self._tabname)
     
             
     #################### Connection Methods ###################
@@ -239,22 +244,14 @@ class DocTable:
         if self._conn is None:
             self._conn = self._engine.get_connection()
     
-    def open_engine(self, open_conn=None):
+    def reopen_engine(self, open_conn=None):
         ''' Opens connection engine. 
-            open_conn overrides persistent_conn if defined
-            default is True
+        Args:
+            open_conn (bool): create a new db connection.
         '''
-        self._engine.open()
-        #self._table = self._engine.add_table(self._tabname, columns=self._columns)
-        
+        self._engine.reopen()
         if open_conn or (open_conn is None and self.persistent_conn):
             self.open_conn()
-    
-    def close_engine(self):
-        ''' Closes connection engine. '''
-        self.close_conn()
-        self._engine.close()
-        
     
     ################# INSERT METHODS ##################
     
@@ -267,6 +264,9 @@ class DocTable:
         Returns:
             sqlalchemy query result object. 
         '''
+        if self._readonly:
+            raise ValueError('Cannot call .insert() when doctable set to readonly.')
+        
         q = sa.sql.insert(self._table, rowdat)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         
@@ -514,6 +514,8 @@ class DocTable:
         Returns:
             SQLAlchemy result proxy object
         '''
+        if self._readonly:
+            raise ValueError('Cannot call .update() when doctable set to readonly.')
             
         # update the main column values
         if isinstance(values,list) or isinstance(values,tuple):
@@ -547,6 +549,9 @@ class DocTable:
         Returns:
             SQLAlchemy result proxy object.
         '''
+        if self._readonly:
+            raise ValueError('Cannot call .delete() when doctable set to readonly.')
+        
         q = sa.sql.delete(self._table)
 
         if where is not None:
