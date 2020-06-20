@@ -119,7 +119,7 @@ class DocTable:
     #################### Convenience Methods ###################
     
     def __str__(self):
-        return '<DocTable::{} ct: {}>'.format(self._tabname, self.count())
+        return '<DocTable::{}:{} ct: {}>'.format(repr(self._engine), self._tabname, self.count())
     
     def __repr__(self):
         return str(self)
@@ -258,18 +258,18 @@ class DocTable:
     ################# SELECT METHODS ##################
     
     
-    def count(self, where=None, whrstr=None, **kwargs):
+    def count(self, where=None, wherestr=None, **kwargs):
         '''Count number of rows which match where condition.
         Notes:
             Calls select_first under the hood.
         Args:
             where (sqlalchemy condition): filter rows before counting.
-            whrstr (str): filter rows before counting.
+            wherestr (str): filter rows before counting.
         Returns:
-            int: number of rows that match "where" and "whrstr" criteria.
+            int: number of rows that match "where" and "wherestr" criteria.
         '''
         cter = sa.sql.func.count(self._table)
-        ct = self.select_first(cter, where=where, whrstr=whrstr, **kwargs)
+        ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
         return ct
     
     def head(self, n=5):
@@ -281,7 +281,7 @@ class DocTable:
         '''
         return self.select_df(limit=n)
     
-    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, whrstr=None, offset=None, **kwargs):
+    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, **kwargs):
         '''Perform select query, yield result for each row.
         
         Description: Because output must be iterable, returns special column results 
@@ -294,7 +294,7 @@ class DocTable:
             orderby: sqlalchemy orderby directive
             groupby: sqlalchemy gropuby directive
             limit (int): number of entries to return before stopping
-            whrstr (str): raw sql "where" conditionals to add to where input
+            wherestr (str): raw sql "where" conditionals to add to where input
         Yields:
             sqlalchemy result object: row data
         '''
@@ -308,7 +308,7 @@ class DocTable:
         cols = [c if not isinstance(c,str) else self[c] for c in cols]
                 
         # query colunmns in main table
-        result = self._exec_select_query(cols,where,orderby,groupby,limit,whrstr,offset,**kwargs)
+        result = self._exec_select_query(cols,where,orderby,groupby,limit,wherestr,offset,**kwargs)
         # this is the result object:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         
@@ -382,14 +382,14 @@ class DocTable:
         sel = self.select(col, *args, **kwargs)
         return pd.Series(sel)
     
-    def _exec_select_query(self, cols, where, orderby, groupby, limit, whrstr, offset,**kwargs):
+    def _exec_select_query(self, cols, where, orderby, groupby, limit, wherestr, offset,**kwargs):
         
         q = sa.sql.select(cols)
         
         if where is not None:
             q = q.where(where)
-        if whrstr is not None:
-            q = q.where(sa.text(whrstr))
+        if wherestr is not None:
+            q = q.where(sa.text(wherestr))
         if orderby is not None:
             if is_sequence(orderby):
                 q = q.order_by(*orderby)
@@ -462,7 +462,7 @@ class DocTable:
     
     #################### Update Methods ###################
     
-    def update(self, values, where=None, whrstr=None, **kwargs):
+    def update(self, values, where=None, wherestr=None, **kwargs):
         '''Update row(s) assigning the provided values.
         Args:
             values (dict<colname->value> or list<dict> or list<(col,value)>)): 
@@ -477,7 +477,7 @@ class DocTable:
                 undefined.
             where (sqlalchemy condition): used to match rows where
                 update will be applied.
-            whrstr (sql string condition): matches same as where arg.
+            wherestr (sql string condition): matches same as where arg.
         Returns:
             SQLAlchemy result proxy object
         '''
@@ -492,8 +492,8 @@ class DocTable:
         
         if where is not None:
             q = q.where(where)
-        if whrstr is not None:
-            q = q.where(sa.text(whrstr))
+        if wherestr is not None:
+            q = q.where(sa.text(wherestr))
         
         r = self.execute(q, **kwargs)
         
@@ -503,11 +503,11 @@ class DocTable:
     
     #################### Delete Methods ###################
     
-    def delete(self, where=None, whrstr=None, vacuum=False, **kwargs):
+    def delete(self, where=None, wherestr=None, vacuum=False, **kwargs):
         '''Delete rows from the table that meet the where criteria.
         Args:
             where (sqlalchemy condition): criteria for deletion.
-            whrstr (sql string): addtnl criteria for deletion.
+            wherestr (sql string): addtnl criteria for deletion.
             vacuum (bool): will execute vacuum sql command to reduce
                 storage space needed by SQL table. Use when deleting
                 significant ammounts of data.
@@ -518,8 +518,8 @@ class DocTable:
 
         if where is not None:
             q = q.where(where)
-        if whrstr is not None:
-            q = q.where(sa.text(whrstr))
+        if wherestr is not None:
+            q = q.where(sa.text(wherestr))
         
         r = self.execute(q, **kwargs)
         
