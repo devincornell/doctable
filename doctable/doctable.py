@@ -21,9 +21,9 @@ def is_ord_sequence(obj):
 
 class DocTable:
     __default_tabname__ = '_documents_'
-    def __init__(self, target=None, tabname=None, schema=None, 
-                 persistent_conn=True, verbose=False, new_db=False, engine=None, 
-                 dialect='sqlite', **engine_kwargs):
+    def __init__(self, target=None, tabname=None, schema=None, dialect='sqlite', engine=None,  
+                 readonly=False, new_db=False, new_table=True, persistent_conn=True, 
+                 verbose=False, **engine_kwargs):
         '''Create new database.
         Args:
             schema (list<list>): schema from which to create db. Includes a
@@ -43,13 +43,39 @@ class DocTable:
                 while instance exists, esp if calling .update() in a .select()
                 loop. Set to False to access from separate processes.
             verbose (bool): Print every sql command before executing.
+            readonly (bool): Block all attempts to write to database through 
+                doctable.
             new_db (bool): Indicate if new db file should be created given 
                 that a schema is provided and the db file doesn't exist.
-            engine_args (**kwargs): Pass directly to the sqlalchemy
+            new_table (bool): Allow doctable to create a new table if one 
+                doesn't exist already.
+            engine_kwargs (**kwargs): Pass directly to the sqlalchemy
                 .create_engine(). Args typically vary by dialect.
                 Example: connect_args={'timeout': 15} for sqlite
                 or connect_args={'connect_timeout': 15} for PostgreSQL.
         '''
+        
+        # look for statically defined class members
+        try:
+            self.__tabname__
+            if tabname is None:
+                tabname = self.__tabname__
+        except AttributeError:
+            pass
+        try:
+            self.__schema__
+            if schema is None:
+                schema = self.__schema__
+        except AttributeError:
+            pass
+        try:
+            self.__target__
+            if target is None:
+                target = self.__target__
+        except AttributeError:
+            pass
+        
+        
         # check for argument information in static member variable "args"
         try:
             kwargs = self.__args__ # user can provide their own data
@@ -75,20 +101,6 @@ class DocTable:
         except AttributeError:
             pass
         
-        # now look for statically defined classes
-        try:
-            tabname = self.__tabname__
-        except AttributeError:
-            pass
-        try:
-            schema = self.__schema__
-        except AttributeError:
-            pass
-        try:
-            target = self.__target__
-        except AttributeError:
-            pass
-            
         # set defaults
         if tabname is None:
             tabname = self.__default_tabname__
@@ -134,7 +146,7 @@ class DocTable:
     def __delete__(self):
         ''' Closes database connection to prevent locking db.
         '''
-        self._engine.remove_table(self._table) # remove from engine metadata
+        #self._engine.remove_table(self._table) # remove from engine metadata
         self.close_conn()
     
     #################### Convenience Methods ###################
