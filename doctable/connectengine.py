@@ -47,6 +47,9 @@ class ConnectEngine:
         self._engine = sqlalchemy.create_engine(self._connstr, echo=self._echo, **engine_kwargs)
         self._metadata = sqlalchemy.MetaData(bind=self._engine)
         
+        if self._foreign_keys:
+            self.execute('pragma foreign_keys=ON')
+        
         
     def __del__(self):
         try:
@@ -101,6 +104,10 @@ class ConnectEngine:
         '''
         self.close_connections()
         self.clear_metadata()
+        
+        # not sure if this needs to be here, but can't hurt
+        if self._foreign_keys:
+            self.execute('pragma foreign_keys=ON')
     
     def close_connections(self):
         ''' Closes all existing connections attached to engine.

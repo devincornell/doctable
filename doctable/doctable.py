@@ -576,7 +576,7 @@ class DocTable:
             verbose (bool or None): Print SQL command issued before
                 execution.
         '''
-        prstr = 'DocTable2 Query: {}'
+        prstr = 'DocTable: {}'
         if verbose is not None:
             if verbose: print(prstr.format(query))
         elif self.verbose: print(prstr.format(query))
