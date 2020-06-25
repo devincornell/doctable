@@ -13150,10 +13150,10 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">make_rows</span><span class="p">():</span>
     <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13170,9 +13170,11 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:name, :age, :is_old)
-DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:name, :age, :is_old)
-DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:name, :age, :is_old)
+<pre>DocTable: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (?, ?, ?)
+DocTable: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (?, ?, ?)
+DocTable: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (?, ?, ?)
+DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_
 </pre>
 </div>
 </div>
@@ -13210,24 +13212,24 @@ DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:na
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
+      <th>0</th>
       <td>1</td>
       <td>user_0</td>
-      <td>0.293036</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2</td>
-      <td>user_1</td>
-      <td>0.534513</td>
+      <td>0.870957</td>
       <td>True</td>
     </tr>
     <tr>
+      <th>1</th>
       <td>2</td>
+      <td>user_1</td>
+      <td>0.343512</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2</th>
       <td>3</td>
       <td>user_2</td>
-      <td>0.025267</td>
+      <td>0.372013</td>
       <td>False</td>
     </tr>
   </tbody>
@@ -13246,8 +13248,8 @@ DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:na
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">make_rows</span><span class="p">()))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">newrows</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">make_rows</span><span class="p">())</span>
+<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">newrows</span><span class="p">)</span>
 <span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
@@ -13292,25 +13294,46 @@ DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:na
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
+      <th>0</th>
       <td>1</td>
       <td>user_0</td>
-      <td>0.712753</td>
+      <td>0.870957</td>
       <td>True</td>
     </tr>
     <tr>
-      <td>1</td>
+      <th>1</th>
       <td>2</td>
       <td>user_1</td>
-      <td>0.782320</td>
-      <td>True</td>
+      <td>0.343512</td>
+      <td>False</td>
     </tr>
     <tr>
-      <td>2</td>
+      <th>2</th>
       <td>3</td>
       <td>user_2</td>
-      <td>0.400103</td>
+      <td>0.372013</td>
       <td>False</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>user_0</td>
+      <td>0.350080</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>user_1</td>
+      <td>0.498410</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>user_2</td>
+      <td>0.626763</td>
+      <td>True</td>
     </tr>
   </tbody>
 </table>
@@ -13335,10 +13358,8 @@ DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:na
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># delete everything</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">make_rows</span><span class="p">()))</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># delete all entries where is_old is false</span>
+<span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">where</span><span class="o">=~</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">])</span>
 <span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
@@ -13356,7 +13377,7 @@ DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:na
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: DELETE FROM _documents_
+<pre>DocTable: DELETE FROM _documents_ WHERE _documents_.is_old = 0
 </pre>
 </div>
 </div>
@@ -13386,9 +13407,27 @@ DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:na
   <thead>
     <tr style="text-align: right;">
       <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>user_0</td>
+      <td>0.870957</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6</td>
+      <td>user_2</td>
+      <td>0.626763</td>
+      <td>True</td>
+    </tr>
   </tbody>
 </table>
 </div>
@@ -13405,10 +13444,8 @@ DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:na
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># delete all entries where is_old is false</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">make_rows</span><span class="p">()))</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">where</span><span class="o">=~</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># use vacuum to free unused space now</span>
+<span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">where</span><span class="o">=~</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">],</span> <span class="n">vacuum</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
@@ -13426,7 +13463,8 @@ DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:na
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: DELETE FROM _documents_ WHERE NOT _documents_.is_old
+<pre>DocTable: DELETE FROM _documents_ WHERE _documents_.is_old = 0
+DocTable: VACUUM
 </pre>
 </div>
 </div>
@@ -13464,10 +13502,17 @@ DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:na
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
+      <th>0</th>
       <td>1</td>
       <td>user_0</td>
-      <td>0.813919</td>
+      <td>0.870957</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6</td>
+      <td>user_2</td>
+      <td>0.626763</td>
       <td>True</td>
     </tr>
   </tbody>
@@ -13483,14 +13528,12 @@ DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:na
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># use vacuum to free unused space now</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">make_rows</span><span class="p">()))</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">where</span><span class="o">=~</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">],</span> <span class="n">vacuum</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># delete everything</span>
+<span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+<span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13507,61 +13550,23 @@ DocTable2 Query: INSERT OR FAIL INTO _documents_ (name, age, is_old) VALUES (:na
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>DocTable2 Query: DELETE FROM _documents_ WHERE NOT _documents_.is_old
-DocTable2 Query: VACUUM
+<pre>DocTable: DELETE FROM _documents_
+DocTable: SELECT count() AS count_1 
+FROM _documents_
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[8]:</div>
+    <div class="prompt output_prompt">Out[9]:</div>
 
 
 
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>name</th>
-      <th>age</th>
-      <th>is_old</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>2</td>
-      <td>user_1</td>
-      <td>0.850569</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>3</td>
-      <td>user_2</td>
-      <td>0.657028</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-</div>
+<div class="output_text output_subarea output_execute_result">
+<pre>0</pre>
 </div>
 
 </div>

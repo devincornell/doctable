@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>doctable_multitable</title>
+<title>doctable_connectengine</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13077,10 +13077,9 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Example:-Multiple-Tables">Example: Multiple Tables<a class="anchor-link" href="#Example:-Multiple-Tables">&#182;</a></h1><p>In this example, I show how doctable can be used with multiple inter-related tables to perform queries which automatically merge different aspects of your dataset when you use <code>.select()</code>. By integrating these relations into the schema, your database can automatically maintain consistency between tables by deleting irrelevant elements when their relations disappear. There are two important features of any multi-table schema using doctable:</p>
-<p>(1) Set the foreign_keys=True in the original doctable or ConnectEngine constructor. Otherwise sqlalchemy will not enable.</p>
-<p>(2) Use the "foreignkey" column type to set the constraint, probably with the onupdate and ondelete keywords specifiied.</p>
-<p>In this example I'll create interrelated tables for authors and their books.</p>
+<h1 id="Manage-SQL-Connections-with-DocTable">Manage SQL Connections with DocTable<a class="anchor-link" href="#Manage-SQL-Connections-with-DocTable">&#182;</a></h1><p>This is meant to give a bit more depth describing how doctable works under-the-hood. I won't cover the details of DocTable methods or working with doctable objects, but I will try to give a clearer sense of how connections and tables are managed within a doctable instance.</p>
+<p>The driving motivator behind doctable is to create an object-oriented interface for working with sql tables by linking schemas described in your code with the structure of the databases you work with. This model is less ideal for the kinds of application-based frameworks where you would define the database schema once and build code around it separately, but works well for data science applications where you will be creating new tables and playing with different schemas regularly as your approach and end-goals change.</p>
+<p>When you instantiate a DocTable (or inheriting class), the object will convert your provided schema into a set of sqlalchemy objects which are then stored in-memory as part of the doctable instance. If the table does not already exist in the actual database, DocTable can create one that matches the provided schema, and then the schema will be used to work with the underlying database table. I will now discuss the lower-level objects that manage the metadata and connections to the database.</p>
 
 </div>
 </div>
@@ -13100,22 +13099,23 @@ div#notebook {
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="ConnectEngine-Class">ConnectEngine Class<a class="anchor-link" href="#ConnectEngine-Class">&#182;</a></h2><p>Each doctable maintains a <code>ConnectEngine</code> object to manage database connections and metadata that make all other database operations possible. I'll demonstrate how to instantiate this class manually to show how it works.</p>
+<p>The constructor takes arguments for dialect (sqlite, mysql, etc) and database target (filename or database server) to create new sqlalchemy <a href="https://docs.sqlalchemy.org/en/13/core/engines_connections.html">engine</a> and <a href="https://docs.sqlalchemy.org/en/13/faq/metadata_schema.html">metadata</a> objects. The engine object stores information about the target and can generate database connections, the metadata object stores schemas for registered tables. To work with a table, the metadata object must have the table schema registered, although it can be constructed from the database object itself.</p>
+<p>See here that the constructor requires a target (file or server where the database is located) and a dialect (flavor of database engine). This connection sits above individual table connections, and thus maintains no connections of it's own - only the engine that can create connections. We can, however list the tables in the database and perform other operations on the table.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">Authors</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
-    <span class="n">__tabname__</span> <span class="o">=</span> <span class="s1">&#39;authors&#39;</span>
-    <span class="n">__schema__</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-        <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;fav_color&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;date_updated&#39;</span><span class="p">,</span> <span class="s1">&#39;updated&#39;</span><span class="p">),</span>
-    <span class="p">)</span>
-<span class="n">adb</span> <span class="o">=</span> <span class="n">Authors</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">foreign_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="c1">#adb.execute(&#39;pragma foreign_keys=ON&#39;)</span>
-<span class="n">adb</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">engine</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ConnectEngine</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="s1">&#39;sqlite&#39;</span><span class="p">)</span>
+<span class="n">engine</span>
 </pre></div>
 
     </div>
@@ -13134,7 +13134,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;DocTable::sqlite:///:memory::authors ct: 0&gt;</pre>
+<pre>sqlite:///:memory:</pre>
 </div>
 
 </div>
@@ -13142,27 +13142,23 @@ div#notebook {
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Working-with-tables">Working with tables<a class="anchor-link" href="#Working-with-tables">&#182;</a></h3><p>You can also execute connectionless queries directly from this object, although normally you would create a connection object first and then execute queries from the connection. In this example I use a custom sql query to create a new table.</p>
+<p>As the ConnectEngine sits above the level of tables, we can list and drop tables from here.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">Books</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
-    <span class="n">__tabname__</span> <span class="o">=</span> <span class="s1">&#39;books&#39;</span>
-    <span class="n">__schema__</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="c1"># each book has its own id</span>
-        <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">),</span>
-        
-        <span class="c1"># reference to authors table</span>
-        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;authname&#39;</span><span class="p">),</span> 
-        <span class="p">(</span><span class="s1">&#39;foreignkey&#39;</span><span class="p">,</span> <span class="s1">&#39;authname&#39;</span><span class="p">,</span> <span class="s1">&#39;authors.name&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">)),</span>
-        
-        <span class="c1"># make unique combination</span>
-        <span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;ind_authtitle&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;authname&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    <span class="p">)</span>
-<span class="n">bdb</span> <span class="o">=</span> <span class="n">Books</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="n">adb</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
-<span class="n">bdb</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see there are no tables here yet.</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13181,7 +13177,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;DocTable::sqlite:///:memory::books ct: 0&gt;</pre>
+<pre>[]</pre>
 </div>
 
 </div>
@@ -13195,8 +13191,11 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see that both are registered with the engine metadata</span>
-<span class="n">adb</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># run this raw sql query just for example</span>
+<span class="c1"># NOTE: Normally you would NOT create a table this way using doctable.</span>
+<span class="c1"># This is just for example purposes.</span>
+<span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;CREATE TABLE temp (id INTEGER PRIMARY KEY, number INTEGER NOT NULL)&#39;</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13215,7 +13214,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>dict_keys([&#39;authors&#39;, &#39;books&#39;])</pre>
+<pre>&lt;sqlalchemy.engine.result.ResultProxy at 0x7fc553404358&gt;</pre>
 </div>
 
 </div>
@@ -13229,18 +13228,31 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># define a test dataset</span>
-<span class="n">collection</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s1">&#39;Devin Cornell&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;The Case of Austerity&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;Devin Cornell&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;Gender Stereotypes&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;Devin Cornell&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;Colombian Politics&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;Pierre Bourdieu&#39;</span><span class="p">,</span> <span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="s1">&#39;Distinction&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;Pierre Bourdieu&#39;</span><span class="p">,</span> <span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="s1">&#39;Symbolic Power&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;Jean-Luc Picard&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;Enterprise Stories&#39;</span><span class="p">),</span>
-<span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see that the table is now in the database</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[5]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&#39;temp&#39;]</pre>
+</div>
+
+</div>
+
 </div>
 </div>
 
@@ -13250,10 +13262,8 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">auth</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="n">collection</span><span class="p">:</span>
-    <span class="n">adb</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="n">auth</span><span class="p">,</span> <span class="s1">&#39;fav_color&#39;</span><span class="p">:</span> <span class="n">color</span><span class="p">},</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
-    <span class="n">bdb</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;authname&#39;</span><span class="p">:</span><span class="n">auth</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">title</span><span class="p">},</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
-<span class="n">adb</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">bdb</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># uses inspect to ask the database directly for the schema</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13272,7 +13282,18 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>(3, 6)</pre>
+<pre>[{&#39;name&#39;: &#39;id&#39;,
+  &#39;type&#39;: INTEGER(),
+  &#39;nullable&#39;: True,
+  &#39;default&#39;: None,
+  &#39;autoincrement&#39;: &#39;auto&#39;,
+  &#39;primary_key&#39;: 1},
+ {&#39;name&#39;: &#39;number&#39;,
+  &#39;type&#39;: INTEGER(),
+  &#39;nullable&#39;: False,
+  &#39;default&#39;: None,
+  &#39;autoincrement&#39;: &#39;auto&#39;,
+  &#39;primary_key&#39;: 0}]</pre>
 </div>
 
 </div>
@@ -13286,7 +13307,8 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">adb</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># or as a dataframe</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">schema_df</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13322,33 +13344,32 @@ div#notebook {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>id</th>
       <th>name</th>
-      <th>fav_color</th>
-      <th>updated</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
       <td>1</td>
-      <td>Devin Cornell</td>
-      <td>green</td>
-      <td>2020-06-20 23:14:43.460658</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>2</td>
-      <td>Pierre Bourdieu</td>
-      <td>orange</td>
-      <td>2020-06-20 23:14:43.462758</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>3</td>
-      <td>Jean-Luc Picard</td>
-      <td>red</td>
-      <td>2020-06-20 23:14:43.463840</td>
+      <td>number</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
     </tr>
   </tbody>
 </table>
@@ -13361,12 +13382,22 @@ div#notebook {
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>All of these methods I've shown so far access the database tables directly, but currently our python objects do not have any idea of what the table schema looks like. You can view the sqlalchemy table objects actually registered with the engine by using the .tables property. See that it is currently empty! Our python code is not able to work with the table using objects because it does not have record of the schema. Now we'll show how to register tables with the engine.</p>
+<h3 id="Creating-and-accessing-tables">Creating and accessing tables<a class="anchor-link" href="#Creating-and-accessing-tables">&#182;</a></h3><p>To create a data structure internally representing the database structure, we can either ask sqlalchemy to read the database and create the schema, or we can provide lists of sqlalchemy column objects. Wee that we can access the registered tables using the .tables property.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bdb</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see that currently our engine does not have information about the table we created above.</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">tables</span>
 </pre></div>
 
     </div>
@@ -13383,70 +13414,9 @@ div#notebook {
 
 
 
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>title</th>
-      <th>authname</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>The Case of Austerity</td>
-      <td>Devin Cornell</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>Gender Stereotypes</td>
-      <td>Devin Cornell</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>3</td>
-      <td>Colombian Politics</td>
-      <td>Devin Cornell</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>4</td>
-      <td>Distinction</td>
-      <td>Pierre Bourdieu</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>5</td>
-      <td>Symbolic Power</td>
-      <td>Pierre Bourdieu</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>6</td>
-      <td>Enterprise Stories</td>
-      <td>Jean-Luc Picard</td>
-    </tr>
-  </tbody>
-</table>
-</div>
+<div class="output_text output_subarea output_execute_result">
+<pre>immutabledict({})</pre>
 </div>
 
 </div>
@@ -13454,22 +13424,14 @@ div#notebook {
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Joint-Select-Statements">Joint Select Statements<a class="anchor-link" href="#Joint-Select-Statements">&#182;</a></h2><p>You can perform joins by using select queries with column objects from different tables.</p>
-
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># this is a left join</span>
-<span class="n">bdb</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="n">adb</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">adb</span><span class="p">[</span><span class="s1">&#39;fav_color&#39;</span><span class="p">]],</span> <span class="n">where</span><span class="o">=</span><span class="n">bdb</span><span class="p">[</span><span class="s1">&#39;authname&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">adb</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># now I ask doctable to read the database schema and register the table in metadata.</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13488,12 +13450,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(&#39;Colombian Politics&#39;, &#39;Devin Cornell&#39;, &#39;green&#39;),
- (&#39;Gender Stereotypes&#39;, &#39;Devin Cornell&#39;, &#39;green&#39;),
- (&#39;The Case of Austerity&#39;, &#39;Devin Cornell&#39;, &#39;green&#39;),
- (&#39;Distinction&#39;, &#39;Pierre Bourdieu&#39;, &#39;orange&#39;),
- (&#39;Symbolic Power&#39;, &#39;Pierre Bourdieu&#39;, &#39;orange&#39;),
- (&#39;Enterprise Stories&#39;, &#39;Jean-Luc Picard&#39;, &#39;red&#39;)]</pre>
+<pre>Table(&#39;temp&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp&gt;, primary_key=True, nullable=False), Column(&#39;number&#39;, INTEGER(), table=&lt;temp&gt;, nullable=False), schema=None)</pre>
 </div>
 
 </div>
@@ -13507,8 +13464,8 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># with tables reversed, still returns same output</span>
-<span class="n">adb</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">bdb</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]],</span> <span class="n">where</span><span class="o">=</span><span class="n">adb</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">bdb</span><span class="p">[</span><span class="s1">&#39;authname&#39;</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># and we can see that the table is registered</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">tables</span>
 </pre></div>
 
     </div>
@@ -13527,12 +13484,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(&#39;Devin Cornell&#39;, &#39;Colombian Politics&#39;),
- (&#39;Devin Cornell&#39;, &#39;Gender Stereotypes&#39;),
- (&#39;Devin Cornell&#39;, &#39;The Case of Austerity&#39;),
- (&#39;Jean-Luc Picard&#39;, &#39;Enterprise Stories&#39;),
- (&#39;Pierre Bourdieu&#39;, &#39;Distinction&#39;),
- (&#39;Pierre Bourdieu&#39;, &#39;Symbolic Power&#39;)]</pre>
+<pre>immutabledict({&#39;temp&#39;: Table(&#39;temp&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp&gt;, primary_key=True, nullable=False), Column(&#39;number&#39;, INTEGER(), table=&lt;temp&gt;, nullable=False), schema=None)})</pre>
 </div>
 
 </div>
@@ -13544,17 +13496,64 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Cascade-deletion">Cascade deletion<a class="anchor-link" href="#Cascade-deletion">&#182;</a></h2><p>See now that by deleting the author "Devin Cornell", we also removed the corresponding rows in the book table.</p>
+<p>When add_table() is called, a new sqlalchemy.Table object is registered in the engine's metadata and returned. If add_table() is called again, it will return the table already registered in the metadata. Because we usually use doctable to manage tables, we'll just show a short example here.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># while we can use doctable to do most of this work </span>
+<span class="c1">#  usually, I&#39;ll just show how sqlalchemy core objects </span>
+<span class="c1">#  can be used to create a table in ConnectEngine.</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="k">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">String</span>
+
+<span class="c1"># create a list of columns</span>
+<span class="n">columns</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Column</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span> <span class="o">=</span> <span class="kc">True</span><span class="p">),</span> 
+    <span class="n">Column</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">),</span> 
+<span class="p">)</span>
+
+<span class="c1"># we similarly use the add_table() method to store the schema</span>
+<span class="c1">#  in the metadata</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s1">&#39;temp2&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[11]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Table(&#39;temp2&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, Integer(), table=&lt;temp2&gt;, primary_key=True, nullable=False), Column(&#39;name&#39;, String(), table=&lt;temp2&gt;), schema=None)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
 <div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">adb</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">adb</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;Devin Cornell&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see now that the engine has information about both tables</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">tables</span>
 </pre></div>
 
     </div>
@@ -13573,7 +13572,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;sqlalchemy.engine.result.ResultProxy at 0x7f68b8d59f60&gt;</pre>
+<pre>immutabledict({&#39;temp&#39;: Table(&#39;temp&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp&gt;, primary_key=True, nullable=False), Column(&#39;number&#39;, INTEGER(), table=&lt;temp&gt;, nullable=False), schema=None), &#39;temp2&#39;: Table(&#39;temp2&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, Integer(), table=&lt;temp2&gt;, primary_key=True, nullable=False), Column(&#39;name&#39;, String(), table=&lt;temp2&gt;), schema=None)})</pre>
 </div>
 
 </div>
@@ -13587,7 +13586,8 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">adb</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># and see that you can get individual table object references like this</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s1">&#39;temp&#39;</span><span class="p">]</span>
 </pre></div>
 
     </div>
@@ -13604,6 +13604,648 @@ div#notebook {
 
 
 
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Table(&#39;temp&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp&gt;, primary_key=True, nullable=False), Column(&#39;number&#39;, INTEGER(), table=&lt;temp&gt;, nullable=False), schema=None)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Dropping-tables">Dropping tables<a class="anchor-link" href="#Dropping-tables">&#182;</a></h3><p>Dropping tables is simple enough, but remember that the schema stored in the database and the objects in code mirror each other, so it is best to manipulate them at the same time. Use .drop_table instead of issuing CREATE TABLE query to make sure they stay in sync. The method can also be used on tables that are not in the metadata engine.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># by providing the argument as a string</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">drop_table</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[15]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&#39;temp2&#39;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In cases where an underlying table has been deleted but metadata is retained, the drop_table() method will still work but you may need to call clear_metadata() to flush all metadata and add_all_tables() to re-create the metadata from the actual data.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see this works although the temp3 table is not registered in engine metadata</span>
+<span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;CREATE TABLE temp3 (id INTEGER PRIMARY KEY, number INTEGER NOT NULL)&#39;</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">drop_table</span><span class="p">(</span><span class="s1">&#39;temp3&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># this will delete the underlying table even though the metadata information still exists.</span>
+<span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;CREATE TABLE temp4 (id INTEGER PRIMARY KEY, number INTEGER NOT NULL)&#39;</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;DROP TABLE IF EXISTS temp4&#39;</span><span class="p">)</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[17]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&#39;temp2&#39;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see that the table is still registered in the metadata</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">tables</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[18]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>immutabledict({&#39;temp&#39;: Table(&#39;temp&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp&gt;, primary_key=True, nullable=False), Column(&#39;number&#39;, INTEGER(), table=&lt;temp&gt;, nullable=False), schema=None), &#39;temp2&#39;: Table(&#39;temp2&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, Integer(), table=&lt;temp2&gt;, primary_key=True, nullable=False), Column(&#39;name&#39;, String(), table=&lt;temp2&gt;), schema=None), &#39;temp3&#39;: Table(&#39;temp3&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp3&gt;, primary_key=True, nullable=False), Column(&#39;number&#39;, INTEGER(), table=&lt;temp3&gt;, nullable=False), schema=None)})</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># in this case, it might be simplest just to clear all metadata</span>
+<span class="c1"># and re-build according to exising tables</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">clear_metadata</span><span class="p">()</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">add_existing_tables</span><span class="p">()</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">tables</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[19]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>immutabledict({&#39;temp2&#39;: Table(&#39;temp2&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp2&gt;, primary_key=True, nullable=False), Column(&#39;name&#39;, VARCHAR(), table=&lt;temp2&gt;), schema=None)})</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Managing-connections-with-ConnectEngine">Managing connections with ConnectEngine<a class="anchor-link" href="#Managing-connections-with-ConnectEngine">&#182;</a></h2><p>ConnectEngine objects are used to create database connections which are maintained by individual doctable objects. Use the get_connection() function to retreive a new connection object which you can use to execute queries. While garbage collecting the connection objects will close the individual connection, sometimes all connections need to be closed simultaneously. This is especially important because garbage-collecting the ConnectEngine object doesn't mean the connections will be garbage-collected if they have references elsewhere in your code. You can close all connections using the close_connections() method.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># make new connection</span>
+<span class="n">conn</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">get_connection</span><span class="p">()</span>
+<span class="n">conn</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[20]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;sqlalchemy.engine.base.Connection at 0x7fc55336e0b8&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see here we just run a select query on the empty table, returning an empty list</span>
+<span class="nb">list</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM temp2&#39;</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[21]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">engine</span><span class="o">.</span><span class="n">close_connections</span><span class="p">()</span> <span class="c1"># closes all connections in the pool</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>An important use-case of this feature is when you have multiple processes accessing the same database. In general, each process should have separate connections to the database, but both the engine and metadata stored with the ConnectEngine can be copied. Here I'll show a basic multiprocessing case using the Distribute class (it works much like multiprocessing.Pool()).</p>
+<p>In using the map function we open two processes, and in the thread function we call the close_connections() method to delete existing connections which don't exist in this new memory space.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">thread</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
+    <span class="c1"># close connections that were opened in other thread</span>
+    <span class="n">engine</span><span class="o">.</span><span class="n">close_connections</span><span class="p">()</span>
+    
+    <span class="c1"># create a new connection for this thread</span>
+    <span class="n">thread_conn</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">get_connection</span><span class="p">()</span>
+
+<span class="n">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="k">with</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Distribute</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">thread</span><span class="p">,</span> <span class="n">numbers</span><span class="p">,</span> <span class="n">engine</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[24]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="DocTable-and-ConnectEngine">DocTable and ConnectEngine<a class="anchor-link" href="#DocTable-and-ConnectEngine">&#182;</a></h2><p>Every DocTable object maintains a ConnectEngine to store information about the table they represent, and can be accessed through the engine property. When a target and dialect are provided to doctable, it will automatically initialize a new ConnectEngine and store a new connection object.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># create a new doctable and view it&#39;s engine</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="p">((</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">))</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+<span class="nb">str</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[25]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;&lt;ConnectEngine::sqlite:///:memory:&gt;&#39;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The DocTable constructor can also accept an engine in place of a target and dialect, and thus share ConnectEngines between multiple DocTable objects. In this case, the doctable constructor will use the provided schema to insert the table information into the engine metadata and create the table if doesn't already exist. It will also generate a new connection object from the ConnectEngine.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># a w</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">clear_metadata</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>dict_keys([])
+[]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># make a new doctable using the existing engine</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="p">((</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">))</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="s1">&#39;tmp5&#39;</span><span class="p">)</span>
+<span class="n">db</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[27]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;DocTable::sqlite:///:memory::tmp5 ct: 0&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># make another doctable using existing engine</span>
+<span class="n">schema2</span> <span class="o">=</span> <span class="p">((</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">))</span>
+<span class="n">db2</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema2</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="s1">&#39;tmp6&#39;</span><span class="p">)</span>
+<span class="n">db2</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[28]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;DocTable::sqlite:///:memory::tmp6 ct: 0&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># we can see that both tables have been created in the database</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[29]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&#39;tmp5&#39;, &#39;tmp6&#39;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># and that both are registered in the metadata</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[30]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>dict_keys([&#39;tmp5&#39;, &#39;tmp6&#39;])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Some ConnectEngine methods are also accessable through the DocTable instances.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[31]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&#39;tmp5&#39;, &#39;tmp6&#39;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[32]:</div>
+
+
+
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
 <style scoped>
@@ -13623,26 +14265,32 @@ div#notebook {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>id</th>
       <th>name</th>
-      <th>fav_color</th>
-      <th>updated</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>2</td>
-      <td>Pierre Bourdieu</td>
-      <td>orange</td>
-      <td>2020-06-20 23:14:43.462758</td>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>3</td>
-      <td>Jean-Luc Picard</td>
-      <td>red</td>
-      <td>2020-06-20 23:14:43.463840</td>
+      <td>name</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
     </tr>
   </tbody>
 </table>
@@ -13657,76 +14305,15 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bdb</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># and this is equivalent to calling the engine method reopen(), which clears </span>
+<span class="c1">#  metadata and closes connection pool</span>
+<span class="n">db</span><span class="o">.</span><span class="n">reopen_engine</span><span class="p">()</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[14]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>title</th>
-      <th>authname</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>4</td>
-      <td>Distinction</td>
-      <td>Pierre Bourdieu</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>5</td>
-      <td>Symbolic Power</td>
-      <td>Pierre Bourdieu</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>6</td>
-      <td>Enterprise Stories</td>
-      <td>Jean-Luc Picard</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
 </div>
 </div>
 

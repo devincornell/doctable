@@ -27,7 +27,7 @@ class Child(doctable.DocTable):
         ('string', 'par'),
     )
     
-def test_thread(nums, eng):
+def processfunc(nums, eng):
     eng.reopen()
     print(eng)
     pdb = Parent(engine=eng)
@@ -40,12 +40,13 @@ def test_engine_basics():
     cdb = Child(engine=eng)
     pdb2 = Parent(target='tmp.db')
     #print(pdb)
-    pdb.insert({'name':'whateva'})
+    pdb.insert({'name':'whateva'}, ifnotunique='replace')
+    print(cdb)
     print(pdb)
     print(pdb2)
     
     with doctable.Distribute(2) as d:
-        d.map_chunk(test_thread, [1,2], eng)
+        d.map_chunk(processfunc, [1,2], eng)
     
 
 if __name__ == '__main__':

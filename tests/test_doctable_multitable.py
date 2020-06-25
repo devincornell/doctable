@@ -6,22 +6,22 @@ import sqlalchemy
 import sys
 sys.path.append('..')
 #from doctable import DocTable2, func, op
-import doctable as dt
+import doctable
 #from doctable.schemas import parse_schema
     
     
     
-class Parent(dt.DocTable):
-    tabname = 'parent'
-    schema = (
+class Parent(doctable.DocTable):
+    __tabname__ = 'parent'
+    __schema__ = (
         ('idcol', 'id'),
         ('string', 'name', dict(unique=True)),
         ('integer', 'age', dict(default=10))
     )
     
-class Child(dt.DocTable):
-    tabname = 'child'
-    schema = (
+class Child(doctable.DocTable):
+    __tabname__ = 'child'
+    __schema__ = (
         ('idcol', 'id'),
         ('integer', 'name'),
         
@@ -30,7 +30,7 @@ class Child(dt.DocTable):
     )
     
 def test_foreignkeys():
-    eng = dt.ConnectEngine(echo=False, foreign_keys=True)
+    eng = doctable.ConnectEngine(target=':memory:', echo=False, foreign_keys=True)
     pdb = Parent(engine=eng)
     cdb = Child(engine=eng)
     print(cdb.list_tables())
@@ -56,7 +56,7 @@ def test_foreignkeys():
     print(pdb.select_df())
     print(cdb.select_df())
     
-    pdb.delete(whrstr='name=="carnivore"')
+    pdb.delete(wherestr='name=="carnivore"')
     
     print('---')
     print(pdb.select_df())

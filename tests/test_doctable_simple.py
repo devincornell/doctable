@@ -4,14 +4,16 @@ import random
 import sys
 sys.path.append('..')
 #from doctable import DocTable2, func, op
-import doctable as dt
+import doctable
 
 def new_db():
-    db = dt.DocTable(schema=(
-        ('integer', 'id',dict(primary_key=True)),
-        ('string', 'title', dict(unique=True)),
-        ('integer', 'year'),
-    ))
+    db = doctable.DocTable(target=':memory:', 
+        schema=(
+            ('integer', 'id',dict(primary_key=True)),
+            ('string', 'title', dict(unique=True)),
+            ('integer', 'year'),
+        )
+    )
     return db
 
 

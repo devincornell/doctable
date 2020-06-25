@@ -13119,7 +13119,7 @@ div#notebook {
     <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;age&#39;</span><span class="p">),</span>
     <span class="p">(</span><span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">),</span>
 <span class="p">)</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
 </pre></div>
 
@@ -13137,7 +13137,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>&lt;DocTable::_documents_ ct: 0&gt;
+<pre>&lt;DocTable::sqlite:///:memory::_documents_ ct: 0&gt;
 </pre>
 </div>
 </div>
@@ -13183,9 +13183,9 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>(1, &#39;user_0&#39;, 0.2366025981867288, False)
-(2, &#39;user_1&#39;, 0.35796532417518767, False)
-(3, &#39;user_2&#39;, 0.4970760427595383, False)
+<pre>(1, &#39;user_0&#39;, 0.16086747483303065, False)
+(2, &#39;user_1&#39;, 0.14322051505126332, False)
+(3, &#39;user_2&#39;, 0.22664393988892395, False)
 </pre>
 </div>
 </div>
@@ -13242,7 +13242,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>5</pre>
+<pre>4</pre>
 </div>
 
 </div>
@@ -13287,17 +13287,15 @@ div#notebook {
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>first run:
-(&#39;user_5&#39;, 0.5089936416003444)
-(&#39;user_2&#39;, 0.4970760427595383)
-(&#39;user_8&#39;, 0.6925955073384841)
-(&#39;user_5&#39;, 0.5089936416003444)
-(&#39;user_2&#39;, 0.4970760427595383)
+(&#39;user_5&#39;, 0.6473182290263347)
+(&#39;user_2&#39;, 0.22664393988892395)
+(&#39;user_2&#39;, 0.22664393988892395)
+(&#39;user_5&#39;, 0.6473182290263347)
 second run:
-(&#39;user_5&#39;, 0.5089936416003444)
-(&#39;user_2&#39;, 0.4970760427595383)
-(&#39;user_8&#39;, 0.6925955073384841)
-(&#39;user_5&#39;, 0.5089936416003444)
-(&#39;user_2&#39;, 0.4970760427595383)
+(&#39;user_5&#39;, 0.6473182290263347)
+(&#39;user_2&#39;, 0.22664393988892395)
+(&#39;user_2&#39;, 0.22664393988892395)
+(&#39;user_5&#39;, 0.6473182290263347)
 </pre>
 </div>
 </div>
@@ -13343,11 +13341,11 @@ second run:
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>first run:
-(&#39;user_5&#39;, 0.5089936416003444)
-(&#39;user_2&#39;, 0.4970760427595383)
+(&#39;user_5&#39;, 0.6473182290263347)
+(&#39;user_8&#39;, 0.5270190808172914)
 second run:
-(&#39;user_5&#39;, 0.5089936416003444)
-(&#39;user_2&#39;, 0.4970760427595383)
+(&#39;user_5&#39;, 0.6473182290263347)
+(&#39;user_8&#39;, 0.5270190808172914)
 </pre>
 </div>
 </div>
@@ -13392,13 +13390,13 @@ second run:
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>drawing new sample:
-(&#39;user_2&#39;, 0.4970760427595383)
-(&#39;user_2&#39;, 0.4970760427595383)
-(&#39;user_8&#39;, 0.6925955073384841)
+(&#39;user_5&#39;, 0.6473182290263347)
+(&#39;user_5&#39;, 0.6473182290263347)
+(&#39;user_8&#39;, 0.5270190808172914)
 repeating sample:
-(&#39;user_2&#39;, 0.4970760427595383)
-(&#39;user_2&#39;, 0.4970760427595383)
-(&#39;user_8&#39;, 0.6925955073384841)
+(&#39;user_5&#39;, 0.6473182290263347)
+(&#39;user_5&#39;, 0.6473182290263347)
+(&#39;user_8&#39;, 0.5270190808172914)
 </pre>
 </div>
 </div>
