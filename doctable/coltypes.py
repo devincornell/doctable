@@ -2,7 +2,6 @@
 import pickle
 import sqlalchemy.types as types
 import numpy as np
-from collections import Iterable
 from random import randrange
 import os
 import json
@@ -128,19 +127,19 @@ class ParseTreeType(types.TypeDecorator):
     
     def process_bind_param(self, parsetree, dialect):
         if parsetree is not None:
-            return recurse_store_pt(parsetree)
+            return self.recurse_store_pt(parsetree)
         else:
             return None
 
     def process_result_value(self, pt_dict, dialect):
         if pt_dict is not None:
-            return recurse_load_pt(pt_dict)
+            return self.recurse_load_pt(pt_dict)
         else:
             return None
     @staticmethod
     def recurse_store_pt(obj):
         if is_iter(obj):
-            return [recurse_store_pt(el) for el in obj]
+            return [self.recurse_store_pt(el) for el in obj]
         elif isinstance(obj, ParseTree):
             return obj.asdict()
         else:
@@ -148,7 +147,7 @@ class ParseTreeType(types.TypeDecorator):
     @staticmethod
     def recurse_load_pt(obj):
         if is_iter(obj):
-            return [recurse_load_pt(el) for el in obj]
+            return [self.recurse_load_pt(el) for el in obj]
         elif isinstance(obj, dict):
             return ParseTree(obj)
         else:
