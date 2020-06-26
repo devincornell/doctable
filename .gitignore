@@ -1,6 +1,10 @@
 examples/exdb/*
 *.db
+*.db-journal
 *.csv
+*.pic
+*.pickle
+*.pkl
 misc/*
 
 # Byte-compiled / optimized / DLL files
