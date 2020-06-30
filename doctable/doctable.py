@@ -10,7 +10,8 @@ import typing
 from typing import Union, Mapping, Sequence, Tuple, Set, List
 
 # operators like and_, or_, and not_, functions like sum, min, max, etc
-import sqlalchemy as sa
+#import sqlalchemy as sa
+import sqlalchemy
 
 from .coltypes import FileTypeBase
 from .bootstrap import DocBootstrap
@@ -175,10 +176,10 @@ class DocTable:
     
     #################### Convenience Methods ###################
     
-    def __str__(self):
+    def __str__(self) -> str:
         return '<DocTable::{}:{} ct: {}>'.format(repr(self._engine), self._tabname, self.count())
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
     
     def __getitem__(self, colname):
@@ -191,7 +192,7 @@ class DocTable:
             Name of column to access. Applied as subscript to 
                 sqlalchemy columns object.
         '''
-        if isinstance(name, sa.Column):
+        if isinstance(name, sqlalchemy.Column):
             return name
         return self._table.c[name]
         
@@ -284,7 +285,7 @@ class DocTable:
         if self._readonly:
             raise ValueError('Cannot call .insert() when doctable set to readonly.')
         
-        q = sa.sql.insert(self._table, rowdat)
+        q = sqlalchemy.sql.insert(self._table, rowdat)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         
         #NOTE: there is a weird issue with using verbose mode with a 
@@ -318,7 +319,7 @@ class DocTable:
         Returns:
             int: number of rows that match "where" and "wherestr" criteria.
         '''
-        cter = sa.sql.func.count(self._table)
+        cter = sqlalchemy.sql.func.count(self._table)
         ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
         return ct
     
@@ -434,12 +435,12 @@ class DocTable:
     
     def _exec_select_query(self, cols, where, orderby, groupby, limit, wherestr, offset,**kwargs):
         
-        q = sa.sql.select(cols)
+        q = sqlalchemy.sql.select(cols)
         
         if where is not None:
             q = q.where(where)
         if wherestr is not None:
-            q = q.where(sa.text(wherestr))
+            q = q.where(sqlalchemy.text(wherestr))
         if orderby is not None:
             if is_sequence(orderby):
                 q = q.order_by(*orderby)
@@ -536,16 +537,16 @@ class DocTable:
             
         # update the main column values
         if isinstance(values,list) or isinstance(values,tuple):
-            q = sa.sql.update(self._table, preserve_parameter_order=True)
+            q = sqlalchemy.sql.update(self._table, preserve_parameter_order=True)
             q = q.values(values)
         else:
-            q = sa.sql.update(self._table)
+            q = sqlalchemy.sql.update(self._table)
             q = q.values(values)
         
         if where is not None:
             q = q.where(where)
         if wherestr is not None:
-            q = q.where(sa.text(wherestr))
+            q = q.where(sqlalchemy.text(wherestr))
         
         r = self.execute(q, **kwargs)
         
@@ -569,12 +570,12 @@ class DocTable:
         if self._readonly:
             raise ValueError('Cannot call .delete() when doctable set to readonly.')
         
-        q = sa.sql.delete(self._table)
+        q = sqlalchemy.sql.delete(self._table)
 
         if where is not None:
             q = q.where(where)
         if wherestr is not None:
-            q = q.where(sa.text(wherestr))
+            q = q.where(sqlalchemy.text(wherestr))
         
         r = self.execute(q, **kwargs)
         
