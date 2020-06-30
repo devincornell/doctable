@@ -6,6 +6,7 @@ import pandas as pd
 import os
 from glob import glob
 from datetime import datetime
+import typing
 
 # operators like and_, or_, and not_, functions like sum, min, max, etc
 import sqlalchemy as sa
@@ -37,7 +38,7 @@ class DocTable:
             to the constructor.
     '''
     __default_tabname__ = '_documents_'
-    def __init__(self, target=None, tabname=None, schema=None, dialect='sqlite', engine=None,  
+    def __init__(self, target: str = None, tabname: str = None, schema:  = None, dialect='sqlite', engine=None,  
                  readonly=False, new_db=False, new_table=True, persistent_conn=True, 
                  verbose=False, **engine_kwargs):
         '''Create new database.

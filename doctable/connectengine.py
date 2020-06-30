@@ -2,18 +2,17 @@ import pandas as pd
 import sqlalchemy# as sa
 import os
 from datetime import datetime
+import typing
+from typing import Union, Mapping, Sequence, Tuple, Set, List
 #from sqlalchemy.sql import func
 
 class ConnectEngine:
-    engine = None
-    metadata = None
-    dialect = None
-    target = None
-    engine_kwargs = None
-    
-    def __init__(self, target=None, dialect='sqlite', new_db=False, foreign_keys=False,
-                 timeout=None, echo=False, **engine_kwargs):
-        ''' Initializes sqlalchemy engine object.
+    ''' Class to maintain sqlalchemy engine and metadata information for doctables.
+    '''
+    def __init__(self, target: str = None, dialect:str = 'sqlite', new_db: bool = False, 
+                    foreign_keys: bool = False, timeout: int = None, echo: bool = False, 
+                    **engine_kwargs):
+        ''' Initializes sqlalchemy engine  and metadata objects.
             Args:
                 target: choose target database for connection.
                 echo: sets the echo status used in sqlalchemy.create_engine().
@@ -59,7 +58,7 @@ class ConnectEngine:
             pass
         
     ######################### Core Methods ######################    
-    def execute(self, query, **kwargs):
+    def execute(self, query:str, **kwargs) -> sqlalchemy.engine.ResultProxy:
         ''' Open temporary connection and execute query.
         '''
         #with self.get_connection() as conn:
@@ -68,38 +67,38 @@ class ConnectEngine:
         
     ######################### Convenient Properties ######################
     @property
-    def dialect(self):
+    def dialect(self) -> str:
         return self._dialect
     
     @property
-    def target(self):
+    def target(self) -> str:
         return self._target
     
-    def list_tables(self):
+    def list_tables(self) -> List[str]:
         ''' List table names in database connection.
         '''
         return self._engine.table_names()
     
     @property
-    def tables(self):
+    def tables(self) -> List[sqlalchemy.Table]:
         ''' Get table objects stored in metadata.
         '''
         return self._metadata.tables
     
-    def __str__(self):
+    def __str__(self) -> str:
         return '<ConnectEngine::{}>'.format(repr(self))
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '{}'.format(self._connstr)
     
     ######################### Engine and Connection Management ######################
     
-    def get_connection(self):
+    def get_connection(self) -> sqlalchemy.engine.Connection:
         ''' Open new connection in engine connection pool.
         '''
         return self._engine.connect()
     
-    def reopen(self):
+    def reopen(self) -> sqlalchemy.engine.ResultProxy:
         ''' Deletes all connections and clears metadata.
         '''
         self.close_connections()
@@ -107,21 +106,21 @@ class ConnectEngine:
         
         # not sure if this needs to be here, but can't hurt
         if self._foreign_keys:
-            self.execute('pragma foreign_keys=ON')
+            return self.execute('pragma foreign_keys=ON')
     
-    def close_connections(self):
+    def close_connections(self) -> sqlalchemy.engine.ResultProxy:
         ''' Closes all existing connections attached to engine.
         '''
         return self._engine.dispose()
     
-    def clear_metadata(self):
+    def clear_metadata(self) -> None:
         for table in self._metadata.sorted_tables:
             self.remove_table(table)
     
     
     ######################### Table Management ######################
     
-    def schema(self, tabname):
+    def schema(self, tabname: str) -> Sequence[sqlalchemy.Column]:
         ''' Read schema information for single table.
         Returns:
             dictionary
@@ -129,19 +128,20 @@ class ConnectEngine:
         inspector = sqlalchemy.inspect(self._engine)
         return inspector.get_columns(tabname)
     
-    def schema_df(self, tabname):
+    def schema_df(self, tabname: str) -> pd.DataFrame:
         ''' Read schema information for table as pandas dataframe.
         Returns:
             pandas dataframe
         '''
         return pd.DataFrame(self.schema(tabname))
     
-    def remove_table(self, table):
+    def remove_table(self, table: str):
         ''' Remove the given Table object from MetaData object. Does not drop.
         '''
         return self._metadata.remove(table)
     
-    def add_table(self, tabname, columns=None, new_table=True, **table_kwargs):
+    def add_table(self, tabname: str, columns: Sequence[typing.Sequence] = None, 
+                    new_table: bool = True, **table_kwargs) -> None:
         ''' Adds a table to the metadata. If columns not provided, creates by autoload.
         Args:
             tabname (str): name of new table.
@@ -182,14 +182,15 @@ class ConnectEngine:
         return table
     
     
-    def add_existing_tables(self, **table_kwargs):
+    def add_existing_tables(self, **table_kwargs) -> None:
         ''' Will register all existing tables in metadata.
         '''
         for tabname in self.list_tables():
             self.add_table(tabname, **table_kwargs)
     
     
-    def drop_table(self, table, if_exists=False, **kwargs):
+    def drop_table(self, table: Union[sqlalchemy.Table, str], if_exists: bool = False, 
+                    **kwargs) -> None:
         ''' Drops table, either sqlalchemy object or by executing DROP TABLE.
         Args:
             table (sqlalchemy.Table/str): table object or name to drop.
