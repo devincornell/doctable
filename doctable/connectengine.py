@@ -158,7 +158,7 @@ class ConnectEngine:
                 table = sqlalchemy.Table(tabname, self._metadata, *columns, **table_kwargs)
             except: # make error more transparent
                 raise ValueError(f'Error creating table. Data provided: {tabname}, '
-                    'metadata={self._metadata}, columns={columns}, table_kwargs={table_kwargs}')
+                    f'metadata={self._metadata}, columns={columns}, table_kwargs={table_kwargs}')
             if tabname not in self._engine.table_names():
                 if new_table:
                     table.create(self._engine)
