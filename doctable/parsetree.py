@@ -93,7 +93,7 @@ class Token:
         if isinstance(node, dict):
             ndict = node
             self.i = ndict['i']
-            self.text = ndict['tok']
+            self.text = ndict['text']
             self.dep = ndict['dep']
             self.tag = ndict['tag']
             self.info = ndict['info']
