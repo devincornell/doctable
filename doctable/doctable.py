@@ -174,6 +174,31 @@ class DocTable:
         #self._engine.remove_table(self._table) # remove from engine metadata
         self.close_conn()
     
+    #################### Connection Methods ###################
+    
+    def close_conn(self):
+        ''' Closes connection to db (if one exists). '''
+        if self._conn is not None:
+            self._conn.close()
+            self._conn = None
+        
+    def open_conn(self):
+        ''' Opens connection to db (if one does not exist). '''
+        
+        if self._conn is None:
+            self._conn = self._engine.get_connection()
+    
+    def reopen_engine(self, open_conn=None):
+        ''' Opens connection engine. 
+        Args:
+            open_conn (bool): create a new db connection.
+        '''
+        self.close_conn()
+        self._engine.reopen()
+        if open_conn or (open_conn is None and self.persistent_conn):
+            self.open_conn()
+
+
     #################### Convenience Methods ###################
     
     def __str__(self) -> str:
@@ -247,29 +272,7 @@ class DocTable:
         return self._engine.schema_df(self._tabname)
     
             
-    #################### Connection Methods ###################
-    
-    def close_conn(self):
-        ''' Closes connection to db (if one exists). '''
-        if self._conn is not None:
-            self._conn.close()
-            self._conn = None
-        
-    def open_conn(self):
-        ''' Opens connection to db (if one does not exist). '''
-        
-        if self._conn is None:
-            self._conn = self._engine.get_connection()
-    
-    def reopen_engine(self, open_conn=None):
-        ''' Opens connection engine. 
-        Args:
-            open_conn (bool): create a new db connection.
-        '''
-        self.close_conn()
-        self._engine.reopen()
-        if open_conn or (open_conn is None and self.persistent_conn):
-            self.open_conn()
+
     
     ################# INSERT METHODS ##################
     
