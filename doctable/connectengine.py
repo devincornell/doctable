@@ -51,18 +51,13 @@ class ConnectEngine:
         
         
     def __del__(self):
-        try:
-            # used instead of garbage collector to reliably kill connections
-            self._engine.dispose()
-        except:# AttributeError:
-            pass
+        
+        self.dispose() # empty connection pool
         
     ######################### Core Methods ######################    
     def execute(self, query:str, **kwargs) -> sqlalchemy.engine.ResultProxy:
         ''' Open temporary connection and execute query.
         '''
-        #with self.get_connection() as conn:
-        #    r = conn.execute(query)
         return self._engine.execute(query, **kwargs)
         
     ######################### Convenient Properties ######################
@@ -93,7 +88,7 @@ class ConnectEngine:
     
     ######################### Engine and Connection Management ######################
     
-    def get_connection(self) -> sqlalchemy.engine.Connection:
+    def connect(self) -> sqlalchemy.engine.Connection:
         ''' Open new connection in engine connection pool.
         '''
         return self._engine.connect()
@@ -101,17 +96,20 @@ class ConnectEngine:
     def reopen(self) -> sqlalchemy.engine.ResultProxy:
         ''' Deletes all connections and clears metadata.
         '''
-        self.close_connections()
+        self.dispose()
         self.clear_metadata()
         
         # not sure if this needs to be here, but can't hurt
         if self._foreign_keys:
             return self.execute('pragma foreign_keys=ON')
     
-    def close_connections(self) -> sqlalchemy.engine.ResultProxy:
+    def dispose(self) -> sqlalchemy.engine.ResultProxy:
         ''' Closes all existing connections attached to engine.
         '''
-        return self._engine.dispose()
+        if hasattr(self, '_engine'):
+            return self._engine.dispose()
+        else:
+            return None
     
     def clear_metadata(self) -> None:
         for table in self._metadata.sorted_tables:

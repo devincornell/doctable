@@ -166,7 +166,7 @@ class DocTable:
                                              new_table=self._new_table)
         
         # connect to database
-        self._conn = self._engine.get_connection()
+        self._conn = self._engine.connect()
         
     def __del__(self):
         ''' Closes database connection to prevent locking db.
@@ -186,7 +186,7 @@ class DocTable:
         ''' Opens connection to db (if one does not exist). '''
         
         if self._conn is None:
-            self._conn = self._engine.get_connection()
+            self._conn = self._engine.connect()
     
     def reopen_engine(self, open_conn=None):
         ''' Opens connection engine. 
@@ -616,8 +616,8 @@ class DocTable:
         elif self._conn is not None:
             r = self._conn.execute(query)
         else:
-            with self._engine.get_connection() as conn:
-                r = conn.execute(query)
+            # execute query using temporary cursor
+            r = self._engine.execute(query)
         return r
     
     
