@@ -443,7 +443,7 @@ class DocTable:
         if where is not None:
             q = q.where(where)
         if wherestr is not None:
-            q = q.where(sqlalchemy.text(wherestr))
+            q = q.where(sqlalchemy.text(f'({wherestr})'))
         if orderby is not None:
             if is_sequence(orderby):
                 q = q.order_by(*orderby)
