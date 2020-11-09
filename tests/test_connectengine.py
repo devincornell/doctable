@@ -85,51 +85,19 @@ def test_engine_connections():
         print(row)
     #cdb.close_conn()
     print(f'{len(allrows)}: {allrows[0]}')
-
-    def write_pic(data, fname):
-        with open(fname, 'wb') as f:
-            pickle.dump(data, f)
-
-    write_pic(allrows, 'tmp.pic')
-    
-
-if __name__ == '__main__':
-    #test_engine_basics()
-    #test_engine_connections()
-
-    tmp_fname = 'tmp.db'
-    eng = doctable.ConnectEngine(tmp_fname, new_db=True)
-    print(eng)
-    pdb = Parent(engine=eng, verbose=True)
-    cdb = pdb.get_childdb(verbose=True)
-    #pdb2 = Parent(target=tmp_fname)
-    
-    #print(dir(eng._engine.pool))
-    #print(eng._engine.pool.unique_connection().close())
-    pdb.insert({'name':'whateva'}, ifnotunique='replace')
-    cdb.insert({'name': 'cal', 'parent_name':'whateva'})
-    print(cdb._conn)
-    print(pdb._conn)
-    #print(pdb2._conn)
-
-    eng.dispose()
-    print(cdb.select_first())
-    cdb.insert({'name':'carlos', 'parent_name': 'whateva'})
-    
-    #time.sleep(1)
-    allrows = list()
-    for row in pdb.select(where=pdb['name']==cdb['parent_name']):
-        allrows.append(row)
-        print(row)
-    #cdb.close_conn()
-    print(f'{len(allrows)}: {allrows[0]}')
-
-    def write_pic(data, fname):
-        with open(fname, 'wb') as f:
-            pickle.dump(data, f)
+    #def write_pic(data, fname):
+    #    with open(fname, 'wb') as f:
+    #        pickle.dump(data, f)
     #del pdb._engine
     #del cdb._engine
     #del eng
     #del pdb
     #del cdb
-    write_pic(allrows, 'tmp.pic')
+    #write_pic(allrows, 'tmp.pic')
+    
+
+if __name__ == '__main__':
+    #test_engine_basics()
+    test_engine_connections()
+
+
