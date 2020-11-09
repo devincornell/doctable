@@ -37,27 +37,45 @@
           <li class="nav-item">
             <a class="nav-link" href="https://github.com/devincornell/doctable">GitHub</a>
           </li>
-		<li class="nav-item">
+		      <li class="nav-item">
             <a class="nav-link" href="https://pypi.org/project/doctable/">PyPi Page</a>
           </li>
-		  <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Reference
-              </a>
-              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="ref/doctable.DocTable.html">DocTable</a>
-                <a class="dropdown-item" href="ref/doctable.parse.html">Parsing Functions</a>
-                <a class="dropdown-item" href="ref/doctable.pipeline.html">ParsePipeline</a>
-                  
-                <a class="dropdown-item" href="ref/doctable.Distribute.html">Distribute</a>
-                <a class="dropdown-item" href="ref/doctable.DocBootstrap.html">DocBootstrap</a>
-				<a class="dropdown-item" href="ref/doctable.parsetree.html">ParseTrees</a>
-                  <a class="dropdown-item" href="ref/doctable.DocParser.html">Depreciated: DocParser</a>
-                  <a class="dropdown-item" href="ref/doctable.DocTableLegacy.html">Depreciated: DocTableLegacy</a>
-                <!--<div class="dropdown-divider"></div>-->
-                <!--<a class="dropdown-item" href="#">Something else here</a>-->
-              </div>
-            </li>
+
+		      <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Docs</a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="examples/doctable_basics.html">DocTable Overview</a>
+              <a class="dropdown-item" href="examples/doctable_schema.html">Schema Format Examples</a>
+              <a class="dropdown-item" href="examples/doctable_insert_delete.html">Insert/Delete Rows</a>
+              <a class="dropdown-item" href="examples/doctable_select.html">Select Rows</a>
+              <a class="dropdown-item" href="examples/doctable_update.html">Update Rows</a>
+              <a class="dropdown-item" href="examples/doctable_picklefile.html">File Column Types</a>
+              <a class="dropdown-item" href="examples/doctable_multitable.html">Relational DocTables</a>
+              <a class="dropdown-item" href="examples/doctable_concurrency.html">Concurrency and DocTables</a>
+
+              <a class="dropdown-item" href="examples/parse_basics.html">ParsePipeline Overview</a>
+              <a class="dropdown-item" href="examples/parse_bootstrap.html">Bootstrapping Documents</a>
+              <a class="dropdown-item" href="examples/distributed_basics.html">Distributed Processing</a>
+            </div>
+          </li>
+
+		      <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Reference</a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="ref/doctable.DocTable.html">DocTable</a>
+              <a class="dropdown-item" href="ref/doctable.parse.html">Parsing Functions</a>
+              <a class="dropdown-item" href="ref/doctable.pipeline.html">ParsePipeline</a>
+                
+              <a class="dropdown-item" href="ref/doctable.Distribute.html">Distribute</a>
+              <a class="dropdown-item" href="ref/doctable.DocBootstrap.html">DocBootstrap</a>
+              <a class="dropdown-item" href="ref/doctable.parsetree.html">ParseTrees</a>
+              <a class="dropdown-item" href="ref/doctable.DocParser.html">Depreciated: DocParser</a>
+              <a class="dropdown-item" href="ref/doctable.DocTableLegacy.html">Depreciated: DocTableLegacy</a>
+              <!--<div class="dropdown-divider"></div>-->
+              <!--<a class="dropdown-item" href="#">Something else here</a>-->
+            </div>
+          </li>
+
         </ul>
       </div>
     </div>
@@ -82,27 +100,32 @@
     <div class="row">
       <div class="col-md-8 mb-5">
         <pre><code>pip install doctable</code></pre>
-        <!--<h2>Here's the thing.</h2>-->
+        <pre><code>pip install git+https://github.com/devincornell/doctable.git@dev</code></pre>
         
-          <p>doctable consists of several classes for working with text data:
-          <ul>
-              <li><b><i>DocTable</i></b> is an object-oriented interface for querying and manipulating a single database table. <i><a href="examples/doctable_basics.html">overview</a></i>/<i><a href="ref/doctable.DocTable.html">docs</a></i>.</li>
-              
-              <li><b><i>ParsePipeline</i></b> manages parallelized parsing pipelines using custom functions or pre-built doctable components. <i><a href="examples/parse_basics.html">overview</a></i>/<i><a href="ref/doctable.ParsePipeline.html">docs</a></i>/<i><a href="ref/doctable.parse.html">components</a></i>.</li>
+        <!--<h2>Here's the thing.</h2>-->
 
-              <li><b><i>DocBootstrap</i></b> makes it easy to bootstrap documents for estimating statistical models. <i><a href="examples/doctable_bootstrap.html">overview</a></i>.</li>
-
-              <li><b><i>ParseTree</i></b> is a compact structure for storing parsetree data from Spacy without the data overhead from Spacy models. </li>
-              
-              <li><b><i>Distribute</i></b> does multiprocessing similar to <i>multiprocessing.Pool()</i> but allows for more datatypes to be passed to processes via IPC and distributes data in chunks instead of individual elements. Also features method for chunk-processing for insertion into DocTables. <i><a href="examples/distributed_basics.html">overview</a></i></li>
-              
-          </ul>
-        <hr/>
-          
-        <h3>Example: US National Security Strategy Documents</h3>
+        <h4>Example: US National Security Strategy Documents</h4>
         <hr/>
         <p>This demonstration shows a typical DocTable workflow. We show how to create a new DocTable, insert NSS document text and metadata, and parse data for storage in the table.</p>
-        <a class="btn btn-primary btn-lg" href="examples/example_nss_1_intro.html">See NSS Example &raquo;</a><br/><br/>
+        <a class="btn btn-primary btn-lg" href="examples/example_nss_1_intro.html">See NSS Example &raquo;</a>
+
+        <hr/><br/>
+        <h4><pre>doctable</pre> consists of several classes:</h4>
+        <ul>
+            <li><b><i>DocTable</i></b> is an object-oriented interface for querying and manipulating a single database table. <i><a href="examples/doctable_basics.html">overview</a></i>/<i><a href="ref/doctable.DocTable.html">docs</a></i>.</li>
+            
+            <li><b><i>ParsePipeline</i></b> manages parallelized parsing pipelines using custom functions or pre-built doctable components. <i><a href="examples/parse_basics.html">overview</a></i>/<i><a href="ref/doctable.pipeline.html">docs</a></i>/<i><a href="ref/doctable.parse.html">components</a></i>.</li>
+
+            <li><b><i>ParseTree</i></b> is a compact structure for storing parsetree data from Spacy without the data overhead from Spacy models. </li>
+
+            <li><b><i>DocBootstrap</i></b> makes it easy to bootstrap documents for estimating statistical models. <i><a href="examples/doctable_bootstrap.html">overview</a></i>.</li>
+            
+            <li><b><i>Distribute</i></b> does multiprocessing similar to <i>multiprocessing.Pool()</i> but allows for more datatypes to be passed to processes via IPC and distributes data in chunks instead of individual elements. Also features method for chunk-processing for insertion into DocTables. <i><a href="examples/distributed_basics.html">overview</a></i></li>
+            
+        </ul>
+        
+          
+        <br/><br/>
         <!--<a class="btn btn-primary btn-lg" href="examples/example_nss_2_parsetrees.html">See Intro to ParseTrees Example &raquo;</a><br/>-->
           
         <!--<br/><br/><br/>-->
@@ -113,6 +136,7 @@
         <a class="btn btn-primary btn-lg" href="examples/docparser_basics.html">DocParser Overview &raquo;</a>-->
         
       </div>
+
       <div class="col-md-4 mb-5">
         <h2>Devin J. Cornell</h2>
         <hr>
