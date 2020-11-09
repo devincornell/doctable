@@ -9,7 +9,67 @@
 <font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="doctable.html"><font color="#ffffff">doctable</font></a>.parse</strong></big></big></font></td
 ><td align=right valign=bottom
 ><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/scratch/dc326/code/doctable/doctable/parse.py">/scratch/dc326/code/doctable/doctable/parse.py</a></font></td></tr></table>
-    <p><tt>The&nbsp;functions&nbsp;in&nbsp;this&nbsp;docs</tt></p>
+    <p><tt>These&nbsp;functions&nbsp;are&nbsp;used&nbsp;as&nbsp;wrappers&nbsp;around&nbsp;SpaCy&nbsp;parsers,&nbsp;and&nbsp;can&nbsp;be&nbsp;used<br>
+either&nbsp;standalone&nbsp;or&nbsp;as&nbsp;part&nbsp;of&nbsp;a&nbsp;doctable.ParsePipeline.<br>
+&nbsp;<br>
+The&nbsp;two&nbsp;primary&nbsp;parse&nbsp;functions&nbsp;here&nbsp;are&nbsp;`tokenize`&nbsp;and&nbsp;`get_parsetrees`.<br>
+Use&nbsp;`tokenize`&nbsp;when&nbsp;you&nbsp;want&nbsp;to&nbsp;extract&nbsp;lists&nbsp;of&nbsp;tokens&nbsp;(split&nbsp;by&nbsp;sentence<br>
+or&nbsp;not)&nbsp;and&nbsp;`get_parsetrees`&nbsp;when&nbsp;you'd&nbsp;like&nbsp;to&nbsp;extract&nbsp;condensed&nbsp;versions<br>
+of&nbsp;SpaCy&nbsp;parsetrees.<br>
+&nbsp;<br>
+The&nbsp;`tokenize`&nbsp;function&nbsp;accepts&nbsp;two&nbsp;parameters,&nbsp;`keep_tok_func`&nbsp;and&nbsp;<br>
+`parse_tok_func`,&nbsp;which&nbsp;can&nbsp;be&nbsp;custom&nbsp;or&nbsp;optionally&nbsp;filled&nbsp;by&nbsp;<br>
+`keep_tok`&nbsp;and&nbsp;`parse_tok`.&nbsp;These&nbsp;methods&nbsp;are&nbsp;also&nbsp;registered&nbsp;as&nbsp;<br>
+components&nbsp;in&nbsp;`doctable.ParsePipeline`,&nbsp;so&nbsp;can&nbsp;be&nbsp;accessed&nbsp;using&nbsp;<br>
+`doctable.Comp()`&nbsp;as&nbsp;shown&nbsp;below.<br>
+&nbsp;<br>
+```<br>
+#&nbsp;add&nbsp;pipeline&nbsp;components<br>
+parser&nbsp;=&nbsp;doctable.ParsePipeline([<br>
+&nbsp;&nbsp;&nbsp;&nbsp;spacy.load('en'),&nbsp;#&nbsp;first&nbsp;run&nbsp;spacy&nbsp;parser<br>
+&nbsp;&nbsp;&nbsp;&nbsp;doctable.Comp('tokenize',&nbsp;**{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'split_sents':&nbsp;False,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'keep_tok_func':&nbsp;doctable.Comp('keep_tok'),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'parse_tok_func':&nbsp;doctable.Comp('parse_tok'),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;})<br>
+])<br>
+```<br>
+&nbsp;<br>
+A&nbsp;more&nbsp;complete&nbsp;`ParsePipeline`&nbsp;example&nbsp;might&nbsp;look&nbsp;like&nbsp;the&nbsp;code&nbsp;below.<br>
+This&nbsp;example&nbsp;uses&nbsp;the&nbsp;`merge_tok_spans`&nbsp;function&nbsp;to&nbsp;merge&nbsp;named&nbsp;entities&nbsp;as<br>
+single&nbsp;tokens&nbsp;in&nbsp;SpaCy&nbsp;then&nbsp;uses&nbsp;the&nbsp;`tokenize`&nbsp;function&nbsp;in&nbsp;conjunction&nbsp;<br>
+with&nbsp;`keep_tok`&nbsp;(which&nbsp;drops&nbsp;whitespace&nbsp;tokens&nbsp;but&nbsp;keeps&nbsp;punctuation&nbsp;and&nbsp;<br>
+stopwords)&nbsp;and&nbsp;`parse_tok`&nbsp;(which&nbsp;capitalizes&nbsp;named&nbsp;entities,&nbsp;replaces&nbsp;<br>
+numbers&nbsp;with&nbsp;"NUM",&nbsp;and&nbsp;does&nbsp;not&nbsp;lemmatize&nbsp;tokens).<br>
+&nbsp;<br>
+```<br>
+parser&nbsp;=&nbsp;doctable.ParsePipeline([<br>
+&nbsp;&nbsp;&nbsp;&nbsp;spacy.load('en'),&nbsp;#&nbsp;spacy&nbsp;nlp&nbsp;parser&nbsp;object<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;merge&nbsp;spacy&nbsp;multi-word&nbsp;named&nbsp;entities&nbsp;(doctable.parse.merge_tok_spans)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Comp('merge_tok_spans',&nbsp;merge_ents=True,&nbsp;merge_noun_chunks=False),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;tokenize&nbsp;document<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Comp('tokenize',&nbsp;**{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'split_sents':&nbsp;False,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;choose&nbsp;tokens&nbsp;to&nbsp;keep&nbsp;(doctable.parse.keep_tok)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'keep_tok_func':&nbsp;Comp('keep_tok',&nbsp;**{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'keep_whitespace':&nbsp;False,&nbsp;#&nbsp;don't&nbsp;keep&nbsp;whitespace<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'keep_punct':&nbsp;True,&nbsp;#&nbsp;keep&nbsp;punctuation&nbsp;and&nbsp;stopwords<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'keep_stop':&nbsp;True,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;choose&nbsp;how&nbsp;to&nbsp;convert&nbsp;Spacy&nbsp;token&nbsp;t&nbsp;text&nbsp;(doctable.parse.parse_tok)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'parse_tok_func':&nbsp;Comp('parse_tok',&nbsp;**{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'format_ents':&nbsp;True,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'lemmatize':&nbsp;False,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'num_replacement':&nbsp;'NUM',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'ent_convert':&nbsp;lambda&nbsp;e:&nbsp;e.text.upper(),&nbsp;#&nbsp;function&nbsp;to&nbsp;capitalize&nbsp;named&nbsp;entities<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;})<br>
+&nbsp;&nbsp;&nbsp;&nbsp;})<br>
+])<br>
+```</tt></p>
 <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#aa55cc">

@@ -1,4 +1,66 @@
-''' The functions in this docs
+''' These functions are used as wrappers around SpaCy parsers, and can be used
+either standalone or as part of a doctable.ParsePipeline.
+
+The two primary parse functions here are `tokenize` and `get_parsetrees`.
+Use `tokenize` when you want to extract lists of tokens (split by sentence
+or not) and `get_parsetrees` when you'd like to extract condensed versions
+of SpaCy parsetrees.
+
+The `tokenize` function accepts two parameters, `keep_tok_func` and 
+`parse_tok_func`, which can be custom or optionally filled by 
+`keep_tok` and `parse_tok`. These methods are also registered as 
+components in `doctable.ParsePipeline`, so can be accessed using 
+`doctable.Comp()` as shown below.
+
+```
+# add pipeline components
+parser = doctable.ParsePipeline([
+    spacy.load('en'), # first run spacy parser
+    doctable.Comp('tokenize', **{
+        'split_sents': False,
+        'keep_tok_func': doctable.Comp('keep_tok'),
+        'parse_tok_func': doctable.Comp('parse_tok'),
+    })
+])
+```
+
+A more complete `ParsePipeline` example might look like the code below.
+This example uses the `merge_tok_spans` function to merge named entities as
+single tokens in SpaCy then uses the `tokenize` function in conjunction 
+with `keep_tok` (which drops whitespace tokens but keeps punctuation and 
+stopwords) and `parse_tok` (which capitalizes named entities, replaces 
+numbers with "NUM", and does not lemmatize tokens).
+
+```
+parser = doctable.ParsePipeline([
+    spacy.load('en'), # spacy nlp parser object
+    
+    # merge spacy multi-word named entities (doctable.parse.merge_tok_spans)
+    Comp('merge_tok_spans', merge_ents=True, merge_noun_chunks=False),
+    
+    # tokenize document
+    Comp('tokenize', **{
+        'split_sents': False,
+        
+        # choose tokens to keep (doctable.parse.keep_tok)
+        'keep_tok_func': Comp('keep_tok', **{
+            'keep_whitespace': False, # don't keep whitespace
+            'keep_punct': True, # keep punctuation and stopwords
+            'keep_stop': True,
+        }),
+        
+        # choose how to convert Spacy token t text (doctable.parse.parse_tok)
+        'parse_tok_func': Comp('parse_tok', **{
+            'format_ents': True,
+            'lemmatize': False,
+            'num_replacement': 'NUM',
+            'ent_convert': lambda e: e.text.upper(), # function to capitalize named entities
+        })
+    })
+])
+```
+
+
 '''
 
 
