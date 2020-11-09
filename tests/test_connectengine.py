@@ -8,7 +8,7 @@ sys.path.append('..')
 #from doctable import DocTable2, func, op
 import doctable
 #from doctable.schemas import parse_schema
-    
+import pickle
     
     
 class Parent(doctable.DocTable):
@@ -59,12 +59,12 @@ def test_engine_basics():
 
 
 def test_engine_connections():
-    tmp_fname = 'tmp2.db'
+    tmp_fname = 'tmp.db'
     eng = doctable.ConnectEngine(tmp_fname, new_db=True)
     print(eng)
     pdb = Parent(engine=eng, verbose=True)
     cdb = pdb.get_childdb(verbose=True)
-    pdb2 = Parent(target=tmp_fname)
+    #pdb2 = Parent(target=tmp_fname)
     
     #print(dir(eng._engine.pool))
     #print(eng._engine.pool.unique_connection().close())
@@ -72,64 +72,64 @@ def test_engine_connections():
     cdb.insert({'name': 'cal', 'parent_name':'whateva'})
     print(cdb._conn)
     print(pdb._conn)
-    print(pdb2._conn)
+    #print(pdb2._conn)
 
     eng.dispose()
     print(cdb.select_first())
     cdb.insert({'name':'carlos', 'parent_name': 'whateva'})
-    cdb.close_conn()
+    
     #time.sleep(1)
-    print(cdb.select(where=cdb['name']=='carlos'))
-    
+    allrows = list()
+    for row in pdb.select(where=pdb['name']==cdb['parent_name']):
+        allrows.append(row)
+        print(row)
+    #cdb.close_conn()
+    print(f'{len(allrows)}: {allrows[0]}')
 
+    def write_pic(data, fname):
+        with open(fname, 'wb') as f:
+            pickle.dump(data, f)
 
-    exit()
-
-
-
-    pdb = Parent(engine=eng)
-    
-    
-    pdb.close_conn()
-    pdb.insert({'name':'a','age':3})
-
-    print(eng)
-
-    for conn in eng._engine.pool:
-        print(conn)
-
-
-    #print(dir(eng._engine))
-    eng._engine.dispose()
-    gc.collect()
-
-    
-    #print(pdb.select_df())
-    
-
-
-    exit()
-    #conn = eng.get_connection()
-    #print(dir(conn))
-    #print(conn)
-    #print(dir(eng._engine.pool))
-    
-    print(conn.closed)
-    print(eng._engine)
-    eng._engine.dispose()
-    print(conn.closed)
-    conn.close()
-    print(conn.closed)
-    #del eng
-    #gc.collect()
-    #print()
-    #print(conn)
-    #print(eng)
-    #del eng
-
-
+    write_pic(allrows, 'tmp.pic')
     
 
 if __name__ == '__main__':
     #test_engine_basics()
-    test_engine_connections()
+    #test_engine_connections()
+
+    tmp_fname = 'tmp.db'
+    eng = doctable.ConnectEngine(tmp_fname, new_db=True)
+    print(eng)
+    pdb = Parent(engine=eng, verbose=True)
+    cdb = pdb.get_childdb(verbose=True)
+    #pdb2 = Parent(target=tmp_fname)
+    
+    #print(dir(eng._engine.pool))
+    #print(eng._engine.pool.unique_connection().close())
+    pdb.insert({'name':'whateva'}, ifnotunique='replace')
+    cdb.insert({'name': 'cal', 'parent_name':'whateva'})
+    print(cdb._conn)
+    print(pdb._conn)
+    #print(pdb2._conn)
+
+    eng.dispose()
+    print(cdb.select_first())
+    cdb.insert({'name':'carlos', 'parent_name': 'whateva'})
+    
+    #time.sleep(1)
+    allrows = list()
+    for row in pdb.select(where=pdb['name']==cdb['parent_name']):
+        allrows.append(row)
+        print(row)
+    #cdb.close_conn()
+    print(f'{len(allrows)}: {allrows[0]}')
+
+    def write_pic(data, fname):
+        with open(fname, 'wb') as f:
+            pickle.dump(data, f)
+    #del pdb._engine
+    #del cdb._engine
+    #del eng
+    #del pdb
+    #del cdb
+    write_pic(allrows, 'tmp.pic')

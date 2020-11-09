@@ -171,8 +171,14 @@ class DocTable:
     def __del__(self):
         ''' Closes database connection to prevent locking db.
         '''
+        # apparently engines and connections are garbage collected using event handlers?
+        # I don't understand this, but solved some big issues by just doing nothing.
+        
         #self._engine.remove_table(self._table) # remove from engine metadata
-        self.close_conn()
+        #self.close_conn()
+        pass
+
+        
     
     #################### Connection Methods ###################
     
@@ -181,6 +187,7 @@ class DocTable:
         if self._conn is not None:
             self._conn.close()
             self._conn = None
+            
         
     def open_conn(self):
         ''' Opens connection to db (if one does not exist). '''
@@ -616,7 +623,7 @@ class DocTable:
         elif self._conn is not None:
             r = self._conn.execute(query)
         else:
-            # execute query using temporary cursor
+            # execute query using connectengine directly
             r = self._engine.execute(query)
         return r
     

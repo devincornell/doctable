@@ -51,8 +51,12 @@ class ConnectEngine:
         
         
     def __del__(self):
-        
-        self.dispose() # empty connection pool
+        # I seriously don't understand why the hell this isn't needed...
+        # solved some major issues by removing though
+        #if hasattr(self, '_engine'):
+        #    self._engine.dispose()
+        #    self._engine = None
+        pass
         
     ######################### Core Methods ######################    
     def execute(self, query:str, **kwargs) -> sqlalchemy.engine.ResultProxy:
