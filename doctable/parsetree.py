@@ -183,7 +183,7 @@ class Token:
                 childs.append(c)
         return childs
 
-    def get_dep(self, deprel):
+    def get_dep(self, deprel, first=False):
         ''' Get first child with the given dependency relation.
         Args:
             deprel (sequence or string): dependency relations to match on.
@@ -192,7 +192,7 @@ class Token:
                 given relation.
         '''
         deps = self.get_deps(deprel)
-        if len(deps) == 1:
+        if len(deps) == 1 or (len(deps) and first):
             return deps[0]
         elif len(deps) == 0:
             return NoneToken()
