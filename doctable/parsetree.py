@@ -229,6 +229,7 @@ class Token:
 class NoneToken(Token):
     def __init__(self):
         pass
+    @property
     def is_none(self):
         return True
     def __str__(self):
