@@ -194,7 +194,7 @@ class Token:
         deps = self.get_deps(deprel)
         if len(deps) == 1 or (len(deps) and first):
             return deps[0]
-        elif len(deps) == 0:
+        elif not len(deps):
             return NoneToken()
         else:
             raise ValueError(f'There is more than one dependency of types {deprel}.')
@@ -207,9 +207,7 @@ class Token:
         #if preps is None:
         preps = list()
         for prep in self.get_deps({'prep', 'dative'}):
-            pobj = prep.get_dep('pobj')
-            if not pobj.is_none:
-                preps.append((prep, pobj))
+            preps.append((prep, [p for p in prep.get_deps('pobj') if not p.is_none]))
                 
         return preps
     
