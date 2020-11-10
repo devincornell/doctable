@@ -24,7 +24,7 @@ final_check: docs build test
 
 push_all: 
 	git add --all
-	git commit -m '.'
+	git commit -m '[auto pushed]'
 	git push
 
 
