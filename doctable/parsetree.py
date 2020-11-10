@@ -199,7 +199,7 @@ class Token:
         else:
             raise ValueError(f'There is more than one dependency of types {deprel}.')
     
-    def get_preps(self):
+    def get_preps(self, as_str=False):
         ''' Gets chained prepositional phrases starting at the current token.
         Returns:
             tuple of prep, pobj.
@@ -207,7 +207,11 @@ class Token:
         #if preps is None:
         preps = list()
         for prep in self.get_deps({'prep', 'dative'}):
-            preps.append((prep, [p for p in prep.get_deps('pobj') if not p.is_none]))
+            if as_str:
+                pairs = (prep.t, [p.t for p in prep.get_deps('pobj') if not p.is_none])
+            else:
+                pairs = (prep, [p for p in prep.get_deps('pobj') if not p.is_none])
+            preps.append(pairs)
                 
         return preps
     
