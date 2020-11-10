@@ -115,23 +115,7 @@ class Token:
                            for child in tok.children]
             
             self._pos = tok.pos_ if tok.doc.is_tagged else None
-            self._ent = tok.ent_type_ if tok.doc.is_nered else None
-            
-    
-    @property
-    def pos(self):
-        if self._pos is None:
-            raise AttributeError('Part-of-speech tag is not available in Token because '
-                'POS-tagging was not enabled while processing with Spacy.')
-        return self._pos
-
-    @property
-    def ent(self):
-        if self._ent is None:
-            raise AttributeError('Entity tag is not available in Token because '
-                'NER was not enabled while processing with Spacy.')
-        return self._ent    
-    
+            self._ent = tok.ent_type_ if tok.doc.is_nered else None    
         
     def to_dict(self):
         '''Convert self to a dict.'''
@@ -147,7 +131,7 @@ class Token:
         )
         return node
         
-            
+    ########################## Built-In Methods ##########################
     def __str__(self):
         return 'Token({})'.format(self.text)
     
@@ -159,7 +143,77 @@ class Token:
     
     def __iter__(self):
         return iter(self.childs)
+
+    ########################## Properties ##########################
+    @property
+    def t(self):
+        return self.text
+
+    @property
+    def pos(self):
+        if self._pos is None:
+            raise AttributeError('Part-of-speech tag is not available in Token because '
+                'POS-tagging was not enabled while processing with Spacy.')
+        return self._pos
+
+    @property
+    def ent(self):
+        if self._ent is None:
+            raise AttributeError('Entity tag is not available in Token because '
+                'NER was not enabled while processing with Spacy.')
+        return self._ent
+
+    @property
+    def is_none(self):
+        return False
+
+    ########################## Navigation Functions ##########################
+
+    def get_deps(self, deprel):
+        ''' Get children with the given dependency relation.
+        Args:
+            deprel (sequence or string): dependency relations to match on.
+        '''
+        if isinstance(deprel, str):
+            deprel = set([deprel])
+
+        childs = list()
+        for c in self.childs:
+            if c.dep in deprel:
+                childs.append(c)
+        return childs
+
+    def get_dep(self, deprel):
+        ''' Get first child with the given dependency relation.
+        Args:
+            deprel (sequence or string): dependency relations to match on.
+        Raises:
+            ValueError when the token has more than one dependency with the 
+                given relation.
+        '''
+        deps = self.get_deps(deprel)
+        if len(deps) == 1:
+            return deps[0]
+        elif len(deps) == 0:
+            return NoneToken()
+        else:
+            raise ValueError(f'There is more than one dependency of types {deprel}.')
     
+    def get_preps(self):
+        ''' Gets chained prepositional phrases starting at the current token.
+        Returns:
+            tuple of prep, pobj.
+        '''
+        #if preps is None:
+        preps = list()
+        for prep in self.get_deps({'prep', 'dative'}):
+            pobj = prep.get_dep('pobj')
+            if not pobj.is_none():
+                preps.append((prep, pobj))
+                
+        return preps
+    
+    ########################## Accumulation Functions ##########################
     def bubble_accum(self, func):
         aggregated_list = func(self)
         for child in self.childs:
@@ -172,4 +226,10 @@ class Token:
             agg_data = child.bubble_reduce(func, agg_data)
         return agg_data
     
-    
+class NoneToken(Token):
+    def __init__(self):
+        pass
+    def is_none(self):
+        return True
+    def __str__(self):
+        return 'NoneToken'
