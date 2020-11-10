@@ -22,6 +22,11 @@ all: docs build
 final_check: docs build test
 	@echo "ran final check"
 
+push_all: 
+	git add --all
+	git commit -m '.'
+	git push
+
 
 ################################# CREATE DOCUMENTATION ##############################
 

@@ -208,7 +208,7 @@ class Token:
         preps = list()
         for prep in self.get_deps({'prep', 'dative'}):
             pobj = prep.get_dep('pobj')
-            if not pobj.is_none():
+            if not pobj.is_none:
                 preps.append((prep, pobj))
                 
         return preps
