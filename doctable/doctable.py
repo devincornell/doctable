@@ -209,10 +209,7 @@ class DocTable:
     #################### Convenience Methods ###################
     
     def __str__(self) -> str:
-        return '<DocTable::{}:{} ct: {}>'.format(repr(self._engine), self._tabname, self.count())
-    
-    def __repr__(self) -> str:
-        return str(self)
+        return f'<DocTable ({len(self.columns)} cols)::{repr(self._engine)}:{self._tabname}>'
     
     def __getitem__(self, colname):
         '''Accesses a column object by calling .col().'''
