@@ -16,7 +16,7 @@ from .util import list_tables
 
 # for parsing
 from .pipeline import ParsePipeline, Comp, components
-from .parsetree import ParseTree, Token
+from .parsetree import ParseTree, Token, NoneToken
 from .parse import * # perhaps debatable
 
 # all legacy
