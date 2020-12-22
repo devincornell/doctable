@@ -19,7 +19,7 @@ from .connectengine import ConnectEngine
 
 
 # for parsing
-from .pipeline import ParsePipeline, Comp, components
+from .pipeline import ParsePipeline, Comp, MultiComp, components
 from .parsetree import ParseTree, Token, NoneToken
 from .parsefuncs import * # perhaps debatable
 
