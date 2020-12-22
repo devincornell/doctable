@@ -1,1 +1,0 @@
-from .doctable import DocTable
