@@ -13,7 +13,7 @@ class ParseTree:
                     'be enabled to make a ParseTree.')
         
         # root is reference to entire tree
-        self.root = Token(root_node, *args, **kwargs)
+        self.root = Token(root_node, *args, tree=self, **kwargs)
         _tokens = self.bubble_accum(lambda n: [n])
         self._tokens = list(sorted(_tokens,key=lambda n:n.i))
         
@@ -85,8 +85,9 @@ class Token:
     dep = None
     tag = None
     info = None
+    tree = None
     
-    def __init__(self, node, text_parse_func=None, info_func_map=dict(), parent=None):
+    def __init__(self, node, text_parse_func=None, info_func_map=dict(), parent=None, tree=None):
         '''Construct from either a dictionary or spacy token.
         Args:
             if node is spacy.Token:
@@ -100,6 +101,7 @@ class Token:
                 info_func_map: unused
         '''
         self.parent = parent
+        self.tree = tree
         
         if not isinstance(node, dict): # node is spacy token
             tok = node
@@ -110,7 +112,7 @@ class Token:
             self.info = {attr:func(tok) for attr,func in info_func_map.items()}
             
             self.childs = [self.__class__(child, text_parse_func=text_parse_func, \
-                            info_func_map=info_func_map, parent=self) 
+                            info_func_map=info_func_map, parent=self, tree=tree) 
                            for child in tok.children]
             
             self._pos = tok.pos_ if tok.doc.is_tagged else None
