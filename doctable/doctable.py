@@ -473,6 +473,14 @@ class DocTable:
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return result
+
+    def join(self, other, *args, **kwargs):
+        ''' Wrapper over table.join(), can pass to from_obj parameter for .select()
+        Args:
+            other (DocTable): other doctable to join
+            *args, **kwargs: passed to table.join() method
+        '''
+        return self._table.join(other._table, *args, **kwargs)
     
     
     #################### Select in Chunk Methods ###################
