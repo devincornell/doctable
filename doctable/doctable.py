@@ -339,7 +339,7 @@ class DocTable:
         '''
         return self.select_df(limit=n)
     
-    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, **kwargs):
+    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, from_obj=None, **kwargs):
         '''Perform select query, yield result for each row.
         
         Description: Because output must be iterable, returns special column results 
@@ -353,6 +353,8 @@ class DocTable:
             groupby: sqlalchemy gropuby directive
             limit (int): number of entries to return before stopping
             wherestr (str): raw sql "where" conditionals to add to where input
+            from_obj (sqlalchemy join): table from which to perform query (for joined tables)
+            **kwargs: passed to self.execute()
         Yields:
             sqlalchemy result object: row data
         '''
@@ -366,7 +368,7 @@ class DocTable:
         cols = [c if not isinstance(c,str) else self[c] for c in cols]
                 
         # query colunmns in main table
-        result = self._exec_select_query(cols,where,orderby,groupby,limit,wherestr,offset,**kwargs)
+        result = self._exec_select_query(cols,where,orderby,groupby,limit,wherestr,offset,from_obj,**kwargs)
         # this is the result object:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         
@@ -440,9 +442,12 @@ class DocTable:
         sel = self.select(col, *args, **kwargs)
         return pd.Series(sel)
     
-    def _exec_select_query(self, cols, where, orderby, groupby, limit, wherestr, offset,**kwargs):
+    def _exec_select_query(self, cols, where, orderby, groupby, limit, wherestr, offset, from_obj, **kwargs):
         
-        q = sqlalchemy.sql.select(cols)
+        if from_obj is None:
+            q = sqlalchemy.sql.select(cols)
+        else:
+            q = sqlalchemy.sql.select(cols, from_obj=from_obj)
         
         if where is not None:
             q = q.where(where)
