@@ -1,5 +1,9 @@
 
 #import sqlalchemy as sa
+import pickle
+import time
+import datetime
+import logging
 from .connectengine import *
 
 def list_tables(target=':memory:', dialect='sqlite', **engine_args):
@@ -42,3 +46,23 @@ class Timer:
         else:
             printstr = f'{delta:0.2f} seconds'
         return printstr
+
+    
+
+
+
+def try_print(*args, **kwargs):
+    try:
+        print(*args, **kwargs)
+    except UnicodeEncodeError:
+        print(f'[Unicode printing error]')
+
+def read_pickle(fname):
+    with open(fname, 'rb') as f:
+        d = pickle.load(f)
+    return d
+
+def write_pickle(obj, fname):
+    with open(fname, 'wb') as f:
+        pickle.dump(obj,f)
+    
