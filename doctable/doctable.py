@@ -378,9 +378,9 @@ class DocTable:
         # row is an object that can be accessed by col keyword
         # i.e. row['id'] or num index, i.e. row[0].
         if return_single:
-            return [row[0] for row in result]
+            return [row[0] for row in result.fetchall()]
         else:
-            return [row for row in result]
+            return result.fetchall()
     
     def select_first(self, *args, **kwargs):
         '''Perform regular select query returning only the first result.
