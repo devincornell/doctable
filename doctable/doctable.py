@@ -75,7 +75,37 @@ class DocTable:
             echo (bool): Print sqlalchemy engine log for each query.
         '''
         
-        # look for statically defined class members
+        # tabname arguments
+        if tabname is not None:
+            pass
+        elif hasattr(self, '__tabname__'):
+            tabname = self.__tabname__
+        elif hasattr(self, '__args__') and 'tabname' in self.__args__:
+            tabname = self.__args__.tabname
+        else:
+            tabname = self.__default_tabname__
+
+        # schema arguments
+        if schema is not None:
+            pass
+        elif hasattr(self, '__schema__'):
+            schema = self.__schema__
+        elif hasattr(self, '__args__') and 'tabname' in self.__args__:
+            schema = self.__args__.schema
+        else:
+            schema = None
+
+        # tabname argument
+        if tabname is not None:
+            pass
+        elif hasattr(self, '__tabname__'):
+            tabname = self.__tabname__
+        elif hasattr(self, '__args__') and 'tabname' in self.__args__:
+            tabname = self.__args__.tabname
+        else:
+            tabname = None
+
+
         try:
             self.__tabname__
             if tabname is None:
@@ -122,8 +152,8 @@ class DocTable:
             pass
         
         # set defaults
-        if tabname is None:
-            tabname = self.__default_tabname__
+        #if tabname is None:
+        #    tabname = self.__default_tabname__
         if engine is not None:
             target = engine.target
         if readonly:
