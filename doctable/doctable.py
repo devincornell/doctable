@@ -40,9 +40,9 @@ class DocTable:
             to the constructor.
     '''
     __default_tabname__ = '_documents_'
-    def __init__(self, target: str = None, tabname: str = None, schema: Sequence[Sequence] = None, dialect='sqlite', engine=None,  
-                 readonly=False, new_db=False, new_table=True, persistent_conn=True, 
-                 verbose=False, **engine_kwargs):
+    def __init__(self, target: str = None, tabname: str = None, schema: Sequence[Sequence] = None,
+                dialect='sqlite', engine=None, readonly=False, new_db=False, new_table=True, 
+                persistent_conn=True, verbose=False, **engine_kwargs):
         '''Create new database.
         Args:
             target (str): filename for database to connect to. ":memory:" is a 
@@ -75,9 +75,21 @@ class DocTable:
             echo (bool): Print sqlalchemy engine log for each query.
         '''
         
+        # target argument
+        if engine is not None:
+            target = engine.target
+        elif target is not None:
+            pass # use constructor-provided target
+        elif hasattr(self, '__target__'):
+            target = self.__target__
+        elif hasattr(self, '__args__') and 'target' in self.__args__:
+            target = self.__args__.target
+        else:
+            raise ValueError('target has not been provided.')
+
         # tabname arguments
         if tabname is not None:
-            pass
+            pass # use constructor-provided tabname
         elif hasattr(self, '__tabname__'):
             tabname = self.__tabname__
         elif hasattr(self, '__args__') and 'tabname' in self.__args__:
@@ -87,46 +99,31 @@ class DocTable:
 
         # schema arguments
         if schema is not None:
-            pass
+            pass # use constructor-provided schema
         elif hasattr(self, '__schema__'):
             schema = self.__schema__
         elif hasattr(self, '__args__') and 'tabname' in self.__args__:
             schema = self.__args__.schema
         else:
             schema = None
-
-        # tabname argument
-        if tabname is not None:
-            pass
-        elif hasattr(self, '__tabname__'):
-            tabname = self.__tabname__
-        elif hasattr(self, '__args__') and 'tabname' in self.__args__:
-            tabname = self.__args__.tabname
-        else:
-            tabname = None
         
         # overwrite arg defaults if provided in __args__
         if hasattr(self, '__args__'):
-            if 'dialect' in self.__args__.:
+            if dialect is None and 'dialect' in self.__args__.:
                 dialect = self.__args__.['dialect']
-            if 'verbose' in self.__args__.:
+            if verbose is None and 'verbose' in self.__args__.:
                 verbose = self.__args__.['verbose']
-            if 'new_db' in self.__args__.:
+            if new_db is None and 'new_db' in self.__args__.:
                 new_db = self.__args__.['new_db']
-            if 'engine_kwargs' in self.__args__.:
+            if engine_kwargs is None and 'engine_kwargs' in self.__args__.:
                 engine_kwargs = self.__args__.['engine_kwargs']
         
-        # set defaults
-        if engine is not None:
-            target = engine.target
+        # dependent args
         if readonly:
             new_db = False
             new_table = False
-            
-        # run some checks
-        if target is None:
-            raise ValueError('target has not been provided.')
         
+        # some error checking
         if dialect.startswith('sqlite'):
             if schema is None and (target == ':memory:' or not os.path.exists(target)):
                 raise ValueError('Schema must be provided if using memory database or '

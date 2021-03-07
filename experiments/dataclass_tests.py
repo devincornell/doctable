@@ -5,28 +5,14 @@ import datetime
 from dataclasses import dataclass, field, fields
 from typing import Union, Mapping, Sequence, Tuple, Set, List
 
-class EmptyValue:
-    @property
-    def val(self):
-        return None
-    pass
 
-def Col(obj_default=EmptyValue(), **colargs):
-    ''' Returns .field() after setting convienient params.
-    Args:
-        obj_default (any): default value of the object property.
-            NOT stored in database, just set when returning select 
-            query and the value was not requested. By leaving at
-            EmptyValue(), will throw an error when subscripting.
-        **colargs: passed to the sqlalchemy column object.
-    '''
-    if callable(obj_default):
-        default_arg = {'default_factory': obj_default}
-    else:
-        default_arg = {'default': obj_default}
-    return field(init=True, metadata=colargs, repr=True, **default_arg)
 
+
+
+########################## Row Object Base Class ##########################
 class RowBase:
+    ''' Base class for column objects.
+    '''
     miss_col_message = 'The column "{name}" was not retreived in the select statement.'
 
     ########################## Basic Accessors ##########################
