@@ -105,7 +105,7 @@ class DocTable:
         else:
             tabname = None
         
-        # set defaults of other params
+        # overwrite arg defaults if provided in __args__
         if hasattr(self, '__args__'):
             if 'dialect' in self.__args__.:
                 dialect = self.__args__.['dialect']
@@ -151,9 +151,10 @@ class DocTable:
             self._engine = engine
         
         # connect to existing table or create new one
-        self._columns = None
         if schema is not None:
             self._columns = parse_schema(schema, target+'_'+tabname)
+        else:
+            self._columns = None
         
         self._table = self._engine.add_table(self._tabname, columns=self._columns, 
                                              new_table=self._new_table)
