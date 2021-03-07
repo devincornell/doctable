@@ -6,13 +6,24 @@ from dataclasses import dataclass, field, fields
 from typing import Union, Mapping, Sequence, Tuple, Set, List
 
 class EmptyValue:
+    @property
+    def val(self):
+        return None
     pass
 
-def Col(default=EmptyValue(), **colargs):
-    if callable(default):
-        default_arg = {'default_factory': default}
+def Col(obj_default=EmptyValue(), **colargs):
+    ''' Returns .field() after setting convienient params.
+    Args:
+        obj_default (any): default value of the object property.
+            NOT stored in database, just set when returning select 
+            query and the value was not requested. By leaving at
+            EmptyValue(), will throw an error when subscripting.
+        **colargs: passed to the sqlalchemy column object.
+    '''
+    if callable(obj_default):
+        default_arg = {'default_factory': obj_default}
     else:
-        default_arg = {'default': default}
+        default_arg = {'default': obj_default}
     return field(init=True, metadata=colargs, repr=True, **default_arg)
 
 class RowBase:
@@ -26,46 +37,56 @@ class RowBase:
         datetime.time: sa.Time,
         datetime.date: sa.Date,
     }
+    ########################## Basic Accessors ##########################
     def __getitem__(self, attr):
+        ''' Access data, throwing error when accessing element that was not
+                retrieved from the database.
+        '''
         val = self.__dict__[attr]
         if isinstance(val, EmptyValue):
             raise KeyError(self.miss_col_message.format(name=attr))
         return val
-
-    def __getattribute__(self, name):
-        val = object.__getattribute__(self, name)
-        if isinstance(val, EmptyValue):
-            raise KeyError(self.miss_col_message.format(name=name))
-        return val
-
-    def coldata(self, cols):
-        ''' Get data only for columns with present data.
+    
+    @property
+    def v(self):
+        ''' Access data without throwing an error when accessing element.
         '''
-        coldat = dict()
-        for f in fields(self):
-            try:
-                coldat[f.name] = 
-            
+        return self.__dict__
+    
+    def __repr__(self):
+        cn = ", ".join([(f'{k}=\'{v}\'' if isinstance(v,str) else f'{k}={v}') 
+                            for k,v in self.as_dict().items()])
+        return f'{self.__class__.__name__}({cn})'
+    
+    ########################## Conversions ##########################
+    def as_dict(self):
+        ''' Convert to dictionary, ignoring EmptyValue objects.
+        '''
+        return {k:v for k,v in self.__dict__.items() if not isinstance(v, EmptyValue)}
 
+    ########################## SQLAlchemy Converters ##########################
     def sqlalchemy_columns(self):
         columns = list()
         for f in fields(self):
             if f.init:
                 use_type = self.type_lookup.get(f.type, sa.PickleType)
-                columns.append(dict(name=f.name, type=use_type))
-        return columns
+                col = sa.Column(f.name, use_type, **f.metadata)
+                columns.append(col)
+        return column
 
-@dataclass
+@dataclass(repr=False)
 class MyClass(RowBase):
-    name: str = Col(part='first')
-    lon: float = 0.5
-    lat: float = None
-    duh: Sequence = Col(default=list)
+    name: str = Col(unique=True)
+    lon: float = Col()
+    lat: float = Col()
+    elements: Sequence = Col(list) # use Col to use factory to construct emtpy list
+
 
 if __name__ == '__main__':
-    mc = MyClass('test')
+    mc = MyClass('Sally')
 
-    print(mc.sqlalchemy_columns())
+    #for col in mc.sqlalchemy_columns():
+    #    print(col)
     print(mc)
     #print(fields(MyBaseClass))
     #mt = MyTable()
@@ -84,7 +105,6 @@ if __name__ == '__main__':
 Desired behavior:
 # if column not in select statement
     raise exception that either (a) the object does not have this attr, or (b) 
-
 
 default: Default value of the field
 default_factory: Function that returns the initial value of the field
