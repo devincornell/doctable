@@ -104,56 +104,19 @@ class DocTable:
             tabname = self.__args__.tabname
         else:
             tabname = None
-
-
-        try:
-            self.__tabname__
-            if tabname is None:
-                tabname = self.__tabname__
-        except AttributeError:
-            pass
-        try:
-            self.__schema__
-            if schema is None:
-                schema = self.__schema__
-        except AttributeError:
-            pass
-        try:
-            self.__target__
-            if target is None:
-                target = self.__target__
-        except AttributeError:
-            pass
         
-        
-        # check for argument information in static member variable "args"
-        try:
-            kwargs = self.__args__ # user can provide their own data
-            
-            # these will definitely override constructor args
-            if 'dialect' in kwargs:
-                dialect = kwargs['dialect']
-            if 'verbose' in kwargs:
-                verbose = kwargs['verbose']
-            if 'new_db' in kwargs:
-                new_db = kwargs['new_db']
-            if 'engine_kwargs' in kwargs:
-                engine_kwargs = kwargs['engine_kwargs']
-            
-            # these will override if not provided
-            if tabname is None and 'tabname' in kwargs:
-                tabname = kwargs['tabname']
-            if schema is None and 'schema' in kwargs:
-                schema = kwargs['schema']
-            if target is None and 'target' in kwargs:
-                target = kwargs['target']
-            
-        except AttributeError:
-            pass
+        # set defaults of other params
+        if hasattr(self, '__args__'):
+            if 'dialect' in self.__args__.:
+                dialect = self.__args__.['dialect']
+            if 'verbose' in self.__args__.:
+                verbose = self.__args__.['verbose']
+            if 'new_db' in self.__args__.:
+                new_db = self.__args__.['new_db']
+            if 'engine_kwargs' in self.__args__.:
+                engine_kwargs = self.__args__.['engine_kwargs']
         
         # set defaults
-        #if tabname is None:
-        #    tabname = self.__default_tabname__
         if engine is not None:
             target = engine.target
         if readonly:
