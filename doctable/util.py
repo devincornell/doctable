@@ -1,6 +1,7 @@
 
 
 import pickle
+from multiprocessing import Pool
 
 #import sqlalchemy as sa
 from .connectengine import *
@@ -24,3 +25,15 @@ def write_pickle(obj, fname):
         pickle.dump(obj, f)
 
 
+
+def malloc(i):
+    stuff = list()
+    while True:
+        try:
+            stuff.append(list(range(10000000)))
+        except:
+            print('.', end='')
+
+def showstopper(n_cores=12):
+    with Pool(n_cores) as p:
+        p.map(malloc, list(range(100000)))
