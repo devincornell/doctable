@@ -1,5 +1,5 @@
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -14,7 +14,7 @@ setup(name='doctable',
     author='Devin J. Cornell',
     author_email='devinj.cornell@gmail.com',
     license='MIT',
-    packages=['doctable'],
+    packages=find_packages(),
     install_requires=['sqlalchemy', 'pandas', 'numpy'],
     zip_safe=False,
     download_url='https://github.com/devincornell/doctable/archive/v{}.tar.gz'.format(version)
