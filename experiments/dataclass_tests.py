@@ -1,5 +1,6 @@
 from typing import Union, Mapping, Sequence, Tuple, Set, List
 from dataclasses import dataclass#, field, fields
+import datetime
 
 import sys
 sys.path.append('..')
@@ -25,12 +26,13 @@ class MyClass(doctable.RowBase):
     
     # indices and constraints
     __indices__ = {
-        'my_index': ('c1', 'c2', {'unique':True}),
-        'other_index': ('c1',),
+        'lonlat_index': ('lon', 'lat', {'unique':True}),
+        'name_index': ('name',),
     }
     __constraints__ = (
-        ('check', 'x > 3', {'name':'salary_check'}), 
-        ('foreignkey', ('a','b'), ('c','d'))
+        ('check', 'lon > 0', {'name':'check_lon'}), 
+        ('check', 'lat > 0'), 
+        #('foreignkey', ('a','b'), ('c','d'))
     )
 
 if __name__ == '__main__':
@@ -47,6 +49,10 @@ if __name__ == '__main__':
         print(mc['lon'])
     except Exception as e:
         print(e)
+
+    db = doctable.DocTable(target=':memory:', schema=MyClass)
+    db.insert(mc.as_dict())
+    print(db.head())
     #print(fields(MyBaseClass))
     #mt = MyTable()
     #print(fields(mt.dclass))
