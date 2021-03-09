@@ -8,10 +8,22 @@ import doctable
 
 @dataclass
 class MyClass(doctable.RowBase):
+    
+    # builtin column types
+    idx: int = doctable.IDCol()
+    updated: datetime.datetime = doctable.UpdatedCol()
+    added: datetime.datetime = doctable.AddedCol()
+
+    # custom column types 
     name: str = doctable.Col(unique=True)
     lon: float = doctable.Col()
     lat: float = doctable.Col()
-    elements: Sequence = doctable.Col(list) # use Col to use factory to construct emtpy list
+
+    # use Col to use factory to construct emtpy list
+    # will be stored as binary/pickle type, since no other available
+    elements: Sequence = doctable.Col(list) 
+    
+    # indices and constraints
     __indices__ = {
         'my_index': ('c1', 'c2', {'unique':True}),
         'other_index': ('c1',),
@@ -31,7 +43,10 @@ if __name__ == '__main__':
     #    print(col)
     print(mc)
     print(mc.lon)
-    print(mc['lon'])
+    try:
+        print(mc['lon'])
+    except Exception as e:
+        print(e)
     #print(fields(MyBaseClass))
     #mt = MyTable()
     #print(fields(mt.dclass))
