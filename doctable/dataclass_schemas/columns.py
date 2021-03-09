@@ -1,6 +1,6 @@
 
 from .emptyvalue import EmptyValue
-import datetime
+from datetime import datetime
 from dataclasses import dataclass, field, fields
 
 
