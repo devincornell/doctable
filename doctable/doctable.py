@@ -260,7 +260,7 @@ class DocTable:
         Returns:
             dict<dict>: info about each column.
         '''
-        return self._engine.schema()
+        return self._engine.schema(self._tabname)
     
     def schema_table(self):
         '''Get info about each column as a dictionary.
