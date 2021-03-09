@@ -109,14 +109,14 @@ class DocTable:
         
         # overwrite arg defaults if provided in __args__
         if hasattr(self, '__args__'):
-            if dialect is None and 'dialect' in self.__args__.:
-                dialect = self.__args__.['dialect']
-            if verbose is None and 'verbose' in self.__args__.:
-                verbose = self.__args__.['verbose']
-            if new_db is None and 'new_db' in self.__args__.:
-                new_db = self.__args__.['new_db']
-            if engine_kwargs is None and 'engine_kwargs' in self.__args__.:
-                engine_kwargs = self.__args__.['engine_kwargs']
+            if dialect is None and 'dialect' in self.__args__:
+                dialect = self.__args__['dialect']
+            if verbose is None and 'verbose' in self.__args__:
+                verbose = self.__args__['verbose']
+            if new_db is None and 'new_db' in self.__args__:
+                new_db = self.__args__['new_db']
+            if engine_kwargs is None and 'engine_kwargs' in self.__args__:
+                engine_kwargs = self.__args__['engine_kwargs']
         
         # dependent args
         if readonly:
