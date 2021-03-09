@@ -134,7 +134,7 @@ class DocTable:
         self._tabname = tabname
         self._target = target
         self.verbose = verbose
-        self.user_schema = schema
+        self._schema = schema
         self.persistent_conn = persistent_conn
         self._readonly = readonly
         self._new_db = new_db
@@ -148,7 +148,7 @@ class DocTable:
             self._engine = engine
         
         # connect to existing table or create new one
-        if isinstance(schema, type) or isinstance(schema, RowBase):
+        if isinstance(schema, type):
             self._columns = SQLAlchemyConverter(schema).get_sqlalchemy_columns()
         elif isinstance(schema, list) or isinstance(schema, tuple):
             self._columns = parse_schema(schema, target+'_'+tabname)
@@ -285,6 +285,13 @@ class DocTable:
         '''
         if self._readonly:
             raise ValueError('Cannot call .insert() when doctable set to readonly.')
+
+        if isinstance(self._schema, type):
+            if is_sequence(rowdat) and len(rowdat) > 0 and isinstance(rowdat[0], RowBase):
+                rowdat = [r.as_dict() for r in rowdat]
+            
+            elif isinstance(rowdat, RowBase):
+                rowdat = rowdat.as_dict()
         
         q = sqlalchemy.sql.insert(self._table, rowdat)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
@@ -333,7 +340,7 @@ class DocTable:
         '''
         return self.select_df(limit=n)
     
-    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, from_obj=None, **kwargs):
+    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, from_obj=None, as_obj=True, **kwargs):
         '''Perform select query, yield result for each row.
         
         Description: Because output must be iterable, returns special column results 
@@ -348,6 +355,8 @@ class DocTable:
             limit (int): number of entries to return before stopping
             wherestr (str): raw sql "where" conditionals to add to where input
             from_obj (sqlalchemy join): table from which to perform query (for joined tables)
+            as_obj (bool): if schema was provided in dataclass format, should return as 
+                dataclass object?
             **kwargs: passed to self.execute()
         Yields:
             sqlalchemy result object: row data
@@ -374,7 +383,10 @@ class DocTable:
         if return_single:
             return [row[0] for row in result.fetchall()]
         else:
-            return result.fetchall()
+            if isinstance(self._schema, type) and as_obj:
+                return [self._schema(**row) for row in result.fetchall()]
+            else:
+                return result.fetchall()
     
     def select_first(self, *args, **kwargs):
         '''Perform regular select query returning only the first result.
@@ -417,7 +429,10 @@ class DocTable:
             cols = [cols]
         
         sel = self.select(cols, *args, **kwargs)
-        rows = [dict(r) for r in sel]
+        if isinstance(self._schema, type):
+            rows = [r.as_dict() for r in sel]
+        else:
+            rows = [dict(r) for r in sel]
         return pd.DataFrame(rows)
     
     def select_series(self, col, *args, **kwargs):
