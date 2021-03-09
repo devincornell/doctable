@@ -10,14 +10,14 @@ import doctable
 
 @dataclass
 class MyClass(doctable.RowBase):
-    
+    name: str = doctable.Col(unique=True)
+
     # builtin column types
     idx: int = doctable.IDCol()
     updated: datetime.datetime = doctable.UpdatedCol()
     added: datetime.datetime = doctable.AddedCol()
 
     # custom column types 
-    name: str = doctable.Col(unique=True)
     lon: float = doctable.Col()
     lat: float = doctable.Col()
 
@@ -52,9 +52,13 @@ if __name__ == '__main__':
         print(e)
 
     db = doctable.DocTable(target=':memory:', schema=MyClass)
-    db.insert(mc.as_dict())
+    db.insert(MyClass('hahhahha', elements='l o l ha ha ha'.split()))
+    db.insert(MyClass('whatever'))
     print(db.head())
     print(db.schema_table())
+    print(isinstance(mc, doctable.RowBase))
+    for row in db.select(['idx', 'name']):
+        print(f"{row.idx}: {row.name}")
     #print(fields(MyBaseClass))
     #mt = MyTable()
     #print(fields(mt.dclass))
