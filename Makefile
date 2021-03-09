@@ -26,6 +26,9 @@ push_all:
 	git commit -a -m '[auto_pushed]'
 	git push
 
+reinstall:
+	pip uninstall doctable
+	pip install .
 
 ################################# CREATE DOCUMENTATION ##############################
 
