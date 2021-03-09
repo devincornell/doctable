@@ -148,10 +148,7 @@ class DocTable:
             self._engine = engine
         
         # connect to existing table or create new one
-        SQLAlchemyConverter, RowBase
-        if schema is None:
-            
-        if isinstance(schema, RowBase):
+        if isinstance(schema, type) or isinstance(schema, RowBase):
             self._columns = SQLAlchemyConverter(schema).get_sqlalchemy_columns()
         elif isinstance(schema, list) or isinstance(schema, tuple):
             self._columns = parse_schema(schema, target+'_'+tabname)
