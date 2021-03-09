@@ -1,5 +1,5 @@
 
-from emptyvalue import EmptyValue
+from .emptyvalue import EmptyValue
 
 class RowBase:
     ''' Base class for column objects.

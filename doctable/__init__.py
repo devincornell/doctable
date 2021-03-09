@@ -14,10 +14,11 @@ from .migration import migrate_db
 from .util import list_tables, read_pickle, write_pickle
 from .timer import Timer
 
+# regular table features
 from .doctable import DocTable
 from .schemas import parse_schema, column_type_map
 from .connectengine import ConnectEngine
-
+from .dataclass_schemas import *
 
 # for parsing
 from .pipeline import ParsePipeline, Comp, MultiComp, components

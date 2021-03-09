@@ -1,5 +1,5 @@
 
-from emptyvalue import EmptyValue
+from .emptyvalue import EmptyValue
 import datetime
 from dataclasses import dataclass, field, fields
 
