@@ -1,6 +1,7 @@
 from typing import Union, Mapping, Sequence, Tuple, Set, List
 from dataclasses import dataclass#, field, fields
 import datetime
+import pandas as pd
 
 import sys
 sys.path.append('..')
@@ -53,6 +54,7 @@ if __name__ == '__main__':
     db = doctable.DocTable(target=':memory:', schema=MyClass)
     db.insert(mc.as_dict())
     print(db.head())
+    print(db.schema_table())
     #print(fields(MyBaseClass))
     #mt = MyTable()
     #print(fields(mt.dclass))
