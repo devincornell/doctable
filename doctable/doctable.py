@@ -18,7 +18,7 @@ from .bootstrap import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
 from .schemas import parse_schema
-
+from .dataclass_schemas import SQLAlchemyConverter, RowBase
 
 class DocTable:
     ''' Class for managing a single database table.
@@ -102,7 +102,7 @@ class DocTable:
             pass # use constructor-provided schema
         elif hasattr(self, '__schema__'):
             schema = self.__schema__
-        elif hasattr(self, '__args__') and 'tabname' in self.__args__:
+        elif hasattr(self, '__args__') and 'schema' in self.__args__:
             schema = self.__args__.schema
         else:
             schema = None
@@ -148,10 +148,16 @@ class DocTable:
             self._engine = engine
         
         # connect to existing table or create new one
-        if schema is not None:
+        SQLAlchemyConverter, RowBase
+        if schema is None:
+            
+        if isinstance(schema, RowBase):
+            self._columns = SQLAlchemyConverter(schema).get_sqlalchemy_columns()
+        elif isinstance(schema, list) or isinstance(schema, tuple):
             self._columns = parse_schema(schema, target+'_'+tabname)
         else:
-            self._columns = None
+            self._columns = None # inferred from existing table
+            
         
         self._table = self._engine.add_table(self._tabname, columns=self._columns, 
                                              new_table=self._new_table)
