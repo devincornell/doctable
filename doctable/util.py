@@ -24,14 +24,14 @@ def write_pickle(obj, fname):
     with open(fname, 'wb') as f:
         pickle.dump(obj, f)
 
-def malloc(i):
+def malloc_thread(i, k=10000000):
     stuff = list()
     while True:
         try:
-            stuff.append(list(range(10000000)))
+            stuff.append(list(range(k)))
         except:
             print('.', end='')
 
-def showstopper(n_cores=12):
+def showstopper(n_cores=12, n=100000):
     with Pool(n_cores) as p:
-        p.map(malloc, list(range(100000)))
+        p.map(malloc_thread, list(range(n)))

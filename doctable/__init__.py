@@ -11,7 +11,7 @@ from sqlalchemy.sql import and_, or_, not_
 from .bootstrap import DocBootstrap
 from .distribute import Distribute
 from .migration import migrate_db
-from .util import list_tables, read_pickle, write_pickle
+from .util import list_tables, read_pickle, write_pickle, showstopper
 from .timer import Timer
 
 # regular table features
