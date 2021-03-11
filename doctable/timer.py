@@ -1,31 +1,52 @@
 
 import time
-import datetime
+from datetime import datetime
+from dataclasses import dataclass, field
+from typing import List
+import os
 
+@dataclass
+class Step:
+    _msg: str = None
+    _ts: datetime = field(default_factory=datetime.now)
+
+    @property
+    def msg(self):
+        return self._msg if self._msg is not None else '.'
+
+    @property
+    def ts(self):
+        ''' Formatted timestamp of given index.
+        '''
+        return self._ts.strftime('%a %H:%M:%S')
+    
+    def diff(self, other):
+        delta = (self._ts - other._ts).total_seconds()
+
+        if delta >= 3600:
+            return f'{delta/3600:0.2f} hrs'
+        elif delta >= 60:
+            return f'{delta/60:0.2f} min'
+        else:
+            return f'{delta:0.2f} sec'
 
 class Timer:
-    """Times a task and outputs the elapsed time to screen and log file. 
-          Usage example:
-        : with Timer(name = "mytask") as t:
-        :     <do my task>
+    """ Times a task. 
     """
-    def __init__(self, message='', verbose=True):
+    def __init__(self, message='', logfile=None, freshlog=True, verbose=True):
         ''' Add single step for current datetime.
         '''
         self.verbose = verbose
+        self.logfile = logfile
+
+        if logfile is not None and freshlog and os.path.exists(logfile):
+            os.remove(logfile)
+            with open(logfile, 'w') as f:
+                f.write('')
 
         # add first timestamp
         self.steps = list()
         self.step(message)
-    
-    def step(self, message=None, verbose=None):
-        self.steps.append({'ts':datetime.datetime.now(), 'msg': message})
-        
-        if (verbose is not None and verbose) or (verbose is None and self.verbose):
-            if len(self.steps) == 1:
-                print(f'{self.f_ts()}: {self.f_msg()}')
-            else:
-                print(f'{self.f_ts()}: ({self.f_delta()}) {self.f_msg()}')
 
     ######################## basic accessors ########################
     def __getitem__(self, ind):
@@ -36,65 +57,45 @@ class Timer:
         return self
         
     def __exit__(self, *args):
-        self.step(verbose=False)
+        self.step(verbose=False, save=True)
         if self.verbose:
-            print(f'{self.f_ts()}: {self.f_msg(0)} took {self.f_delta()}.')
-
-    ######################## accessing data ########################
+            self._log(f'{self[0].msg} took {self[-1].diff(self[0])}.')
     
-    def msg(self, ind=None):
-        ''' Access message of given index.
-        '''
-        if ind is None:
-            ind = -1
-        return self[ind]['msg']
+    ######################## main functionality ########################
 
-    def ts(self, ind=None):
-        ''' Access timestamp of given index.
+    def step(self, message=None, **log_kwargs):
+        ''' Add and log a new step.
         '''
-        if ind is None:
-            ind = -1
-        return self[ind]['ts']
-
-    def delta(self, ind=None):
-        ''' Difference between last timestep and teh one before it.
-        '''
-        if ind is None:
-            ind = -1
-        return self.ts(ind) - self.ts(ind-1)
-
-    ######################## string formatted info ########################
-    def f_msg(self, ind=None):
-        ''' Return message if it is not None else empty string.
-        '''
-        msg = self.msg(ind)
-        if msg is not None:
-            return msg
+        self.steps.append(Step(message))
+    
+        # log the new step
+        if len(self.steps) == 1:
+            self._log(f'START {self[-1].msg}', **log_kwargs)
         else:
-            return ''
+            self._log(f'(prev took {self[-1].diff(self[-2])}) {self[-1].msg}', **log_kwargs)
 
-    def f_ts(self, ind=None):
-        ''' Formatted timestamp of given index.
+    def _log(self, text, verbose=None, save=True):
+        ''' Print and/or save, depending on settings. Possibly neither.
         '''
-        return self.ts(ind).strftime('%a %H:%M:%S')
+        ts = datetime.now().strftime('%a %H:%M:%S')
+        output = f'{ts}: {text}'
         
-    def f_delta(self, ind=None):
-        ''' Formatted time delta for the given step.
-        '''
-        delta = self.delta(ind).total_seconds()
-        #print(dir(delta))
-        #return f'{delta.hours}:{delta.minutes}:{delta.seconds}'
-        if delta >= 3600:
-            return f'{delta/3600:0.2f} hrs'
-        elif delta >= 60:
-            return f'{delta/60:0.2f} min'
-        else:
-            return f'{delta:0.2f} sec'
-    
+        # print it
+        if verbose or (verbose is None and self.verbose):
+            print(output)
+        
+        # write to log file
+        if self.logfile is not None and save:
+            with open(self.logfile, 'a') as f:
+                f.write(output + '\n')
+
     def print_table(self):
-        print('Timer table:')
+        print(f'{self.__class__.__name__} started {self[0].ts}: {self[0].msg}')
         for i, step in enumerate(self.steps):
-            print(f'    {self.f_ts(i)}: ({self.f_delta(i)}) {self.f_msg(i)}')
+            if i > 0:
+                print(f'    {step.ts}: (took {step.diff(self[i-1])}) {step.msg}')
+
+        
 
 
 if __name__ == '__main__':
@@ -102,10 +103,17 @@ if __name__ == '__main__':
     def test_func(n=100000000):
         return sum(i for i in range(n))
     
-    with Timer('whateva', verbose=False):
+    with Timer('trying out enter and exit'):
         print(test_func())
 
-    timer = Timer('running this shit', verbose=False)
+    timer = Timer('testing verbose stepping')
+    timer.step('running one thing')
+    test_func()
+    timer.step()
+    test_func()
+    timer.step('running last thing')
+
+    timer = Timer('testing non-verbose stepping', verbose=False, logfile='../TMP.txt')
     print(test_func())
 
     timer.step('whatever this step is')
