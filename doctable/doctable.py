@@ -562,9 +562,16 @@ class DocTable:
             
         # update the main column values
         if isinstance(values,list) or isinstance(values,tuple):
+            
+            if is_sequence(values) and len(values) > 0 and isinstance(values[0], DocTableSchema):
+                values = [v.as_dict() for r in values]
+            
             q = sqlalchemy.sql.update(self._table, preserve_parameter_order=True)
             q = q.values(values)
         else:
+            if isinstance(values, DocTableSchema):
+                values = values.as_dict()
+
             q = sqlalchemy.sql.update(self._table)
             q = q.values(values)
         
