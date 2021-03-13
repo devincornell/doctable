@@ -8,6 +8,7 @@ from glob import glob
 from datetime import datetime
 import typing
 from typing import Union, Mapping, Sequence, Tuple, Set, List
+import dataclasses
 
 # operators like and_, or_, and not_, functions like sum, min, max, etc
 #import sqlalchemy as sa
@@ -18,7 +19,7 @@ from .bootstrap import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
 from .schemas import parse_schema
-from .dataclass_schemas import SQLAlchemyConverter, RowBase
+from .dataclass_schemas import SQLAlchemyConverter, DocTableSchema
 
 class DocTable:
     ''' Class for managing a single database table.
@@ -148,7 +149,9 @@ class DocTable:
             self._engine = engine
         
         # connect to existing table or create new one
-        if isinstance(schema, type):
+        if dataclasses.is_dataclass(schema):
+            if not issubclass(schema, DocTableSchema):
+                raise TypeError('A dataclass schema must inherit from doctable.DocTableSchema.')
             self._columns = SQLAlchemyConverter(schema).get_sqlalchemy_columns()
         elif isinstance(schema, list) or isinstance(schema, tuple):
             self._columns = parse_schema(schema, target+'_'+tabname)
@@ -269,9 +272,6 @@ class DocTable:
         '''
         return self._engine.schema_df(self._tabname)
     
-            
-
-    
     ################# INSERT METHODS ##################
     
     def insert(self, rowdat, ifnotunique='fail', **kwargs):
@@ -281,17 +281,17 @@ class DocTable:
             ifnotunique (str): way to handle inserted data if it breaks
                 a table constraint. Choose from FAIL, IGNORE, REPLACE.
         Returns:
-            sqlalchemy query result object. 
+            sqlalchemy query result object.
         '''
         if self._readonly:
             raise ValueError('Cannot call .insert() when doctable set to readonly.')
 
-        if isinstance(self._schema, type):
-            if is_sequence(rowdat) and len(rowdat) > 0 and isinstance(rowdat[0], RowBase):
-                rowdat = [r.as_dict() for r in rowdat]
-            
-            elif isinstance(rowdat, RowBase):
+        if dataclasses.is_dataclass(self._schema):
+            if isinstance(rowdat, DocTableSchema):
                 rowdat = rowdat.as_dict()
+            
+            elif is_sequence(rowdat) and len(rowdat) > 0 and isinstance(rowdat[0], DocTableSchema):
+                rowdat = [r.as_dict() for r in rowdat]
         
         q = sqlalchemy.sql.insert(self._table, rowdat)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
@@ -340,7 +340,7 @@ class DocTable:
         '''
         return self.select_df(limit=n)
     
-    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, from_obj=None, as_obj=True, **kwargs):
+    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, from_obj=None, as_dataclass=True, **kwargs):
         '''Perform select query, yield result for each row.
         
         Description: Because output must be iterable, returns special column results 
@@ -355,7 +355,7 @@ class DocTable:
             limit (int): number of entries to return before stopping
             wherestr (str): raw sql "where" conditionals to add to where input
             from_obj (sqlalchemy join): table from which to perform query (for joined tables)
-            as_obj (bool): if schema was provided in dataclass format, should return as 
+            as_dataclass (bool): if schema was provided in dataclass format, should return as 
                 dataclass object?
             **kwargs: passed to self.execute()
         Yields:
@@ -383,7 +383,7 @@ class DocTable:
         if return_single:
             return [row[0] for row in result.fetchall()]
         else:
-            if isinstance(self._schema, type) and as_obj:
+            if dataclasses.is_dataclass(self._schema) and as_dataclass:
                 return [self._schema(**row) for row in result.fetchall()]
             else:
                 return result.fetchall()
@@ -428,12 +428,8 @@ class DocTable:
         elif not is_sequence(cols):
             cols = [cols]
         
-        sel = self.select(cols, *args, **kwargs)
-        if isinstance(self._schema, type):
-            rows = [r.as_dict() for r in sel]
-        else:
-            rows = [dict(r) for r in sel]
-        return pd.DataFrame(rows)
+        sel = self.select(cols, *args, as_dataclass=False, **kwargs)
+        return pd.DataFrame([dict(r) for r in sel])
     
     def select_series(self, col, *args, **kwargs):
         '''Select returning pandas Series.
