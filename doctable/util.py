@@ -18,14 +18,3 @@ def list_tables(target=':memory:', dialect='sqlite', **engine_args):
 
 
 
-def malloc_thread(i, k=10000000):
-    stuff = list()
-    while True:
-        try:
-            stuff.append(list(range(k)))
-        except:
-            print('.', end='')
-
-def showstopper(n_cores=12, n=100000):
-    with Pool(n_cores) as p:
-        p.map(malloc_thread, list(range(n)))
