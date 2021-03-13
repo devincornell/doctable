@@ -8,9 +8,9 @@ from sqlalchemy.sql import and_, or_, not_
 #from .doctable import *
 
 # convenience classes and functions
-from .migration import migrate_db
-from .util import list_tables, read_pickle, write_pickle, showstopper
-from .timer import Timer
+from .util import read_pickle, write_pickle, showstopper, Timer
+from .dbutils import list_tables, migrate_db
+from .parsing import *
 
 # regular table features
 from .dataclass_schemas import *
@@ -18,12 +18,9 @@ from .doctable import DocTable
 from .schemas import parse_schema, column_type_map
 from .connectengine import ConnectEngine
 from .bootstrap import DocBootstrap
-#import dataclass_schemas
 
-from .parsing import *
 
 # all legacy
-from .docparser import DocParser
 from .doctablelegacy import DocTableLegacy
 
-__all__ = ['dataclass_schemas']
+__all__ = ['dataclass_schemas', 'parsing', 'util']
