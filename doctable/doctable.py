@@ -598,7 +598,7 @@ class DocTable:
                                     'database has no primary key.')
             key_name = keynames[0]
 
-        return self.update(obj, where=self[key_name]==obj[key_name])
+        return self.update(obj, where=self[key_name]==obj[key_name], **kwargs)
             
         
 
