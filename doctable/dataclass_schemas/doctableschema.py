@@ -23,8 +23,9 @@ class DocTableSchema:
         return self.__dict__
     
     def __repr__(self):
+        #print([(v, isinstance(EmptyValue)) for k,v in self.as_dict().items()])
         cn = ", ".join([(f'{k}=\'{v}\'' if isinstance(v,str) else f'{k}={v}') 
-                            for k,v in self.as_dict().items()])
+            for k,v in self.as_dict().items() if not isinstance(v, EmptyValue)])
         return f'{self.__class__.__name__}({cn})'
     
     ########################## Conversions ##########################
