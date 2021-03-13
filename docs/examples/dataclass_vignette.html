@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>doctable_basics</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>dataclass_vignette</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -14259,7 +14259,7 @@ a.anchor-link {
 
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="DocTable-Overview"><code>DocTable</code> Overview<a class="anchor-link" href="#DocTable-Overview">&#182;</a></h1><p>A <code>DocTable</code> instance is a reference to a single database table, and can be used to <a href="examples/doctable_insert_delete.html">insert, delete</a>, <a href="examples/doctable_select.html">select</a>, or <a href="examples/doctable_update.html">update</a> the rows of that table. While it can infer the table schema upon connecting, typically it is used with an in-code schema definition including column types, constraints, and indices. This allows DocTable to have additional information about the data you store and how you can use it. See the <a href="https://devincornell.github.io/doctable/ref/doctable.DocTable.html">full documentation</a> for a full list of class methods.</p>
+<h1 id="Dataclass-Schema-Vignette">Dataclass Schema Vignette<a class="anchor-link" href="#Dataclass-Schema-Vignette">&#182;</a></h1><p>In this vignette I'll show how to use a <a href="https://realpython.com/python-data-classes/">Python dataclass</a> (introduced in Python 3.7) to specify a schema for a DocTable. The advantage of this schema format is that you can use custom classes to represent each row, and easily convert your existing python objects into a format that it easy to store in a sqlite database.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -14268,14 +14268,13 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
-<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
-<span class="kn">import</span> <span class="nn">doctable</span> <span class="k">as</span> <span class="nn">dt</span>
+<span class="kn">import</span> <span class="nn">doctable</span>
 </pre></div>
 
      </div>
@@ -14286,7 +14285,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Schema-Definitions">Schema Definitions<a class="anchor-link" href="#Schema-Definitions">&#182;</a></h2><p>First we create a schema definiton and use it to instantiate the DocTable. By default, the DocTable will connect to an in-memory database, so the examples here will not rely on a filesystem database. Printing the object will show the table name as well as the number of rows in the table.</p>
+<h2 id="Basic-dataclass-usage">Basic dataclass usage<a class="anchor-link" href="#Basic-dataclass-usage">&#182;</a></h2><p>For our first example, we show how a basic dataclass object can be used as a DocTable schema. First we create a python dataclass using the <code>@dataclass</code> decorator. This object has three members, each defaulted to <code>None</code>. We can create this object using the constructor provided by <code>dataclass</code>.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14295,14 +14294,13 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;age&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">),</span>
-<span class="p">)</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableSchema</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">User</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14318,13 +14316,15 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>&lt;DocTable::sqlite:///:memory::_documents_ ct: 0&gt;
-</pre>
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>User(name=None, age=None, height=None)</pre>
 </div>
+
 </div>
 
 </div>
@@ -14334,7 +14334,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Access table columns as objects by subscripting the doctable directly.</p>
+<p>And it is relatively easy to create a new doctable using the schema provided by our dataclass <code>User</code> by providing the class definition to the <code>schema</code> argument. We can see that <code>DocTable</code> uses the dataclass schema to create a new table that follows the specified Python datatypes.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14343,858 +14343,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>As we'll show later, these column objects also have some operators defined such that they can be used to construct complex queries and functions.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">3</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;sqlalchemy.sql.elements.BinaryExpression object at 0x7f4f6c69d828&gt;</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Inserting-Rows">Inserting Rows<a class="anchor-link" href="#Inserting-Rows">&#182;</a></h2><p>We use the <code>.insert()</code> method to insert a row passed as a dictionary of column name -&gt; value entries.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
-    <span class="n">age</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="c1"># number in [0,1]</span>
-    <span class="n">is_old</span> <span class="o">=</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
-    <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;user_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="n">age</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">:</span><span class="n">is_old</span><span class="p">}</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>&lt;DocTable::sqlite:///:memory::_documents_ ct: 5&gt;
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Select-Statements">Select Statements<a class="anchor-link" href="#Select-Statements">&#182;</a></h2><p>Now we show how to select data from the table. Use the <code>.count()</code> method to check the number of rows. It also accepts some column conditionals to count entries that satisfy a given criteria</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(5, 3)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Use the <code>.select()</code> method with no arguments to retrieve all rows of the table. You can also choose to select one or more columns to select.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;, 0.8444218515250481, True),
- (2, &#39;user_1&#39;, 0.7579544029403025, True),
- (3, &#39;user_2&#39;, 0.420571580830845, False),
- (4, &#39;user_3&#39;, 0.25891675029296335, False),
- (5, &#39;user_4&#39;, 0.5112747213686085, True)]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&#39;user_0&#39;, &#39;user_1&#39;, &#39;user_2&#39;, &#39;user_3&#39;, &#39;user_4&#39;]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;), (2, &#39;user_1&#39;), (3, &#39;user_2&#39;), (4, &#39;user_3&#39;), (5, &#39;user_4&#39;)]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[2.7931393069577677]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The SUM() and COUNT() SQL functions have been mapped to <code>.sum</code> and <code>.count</code> attributes of columns.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">])</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(2.7931393069577677, 5)]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Alternatively, to see the results as a pandas dataframe, we can use <code>.select_df()</code>.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>name</th>
-      <th>age</th>
-      <th>is_old</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>user_0</td>
-      <td>0.844422</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>user_1</td>
-      <td>0.757954</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>3</td>
-      <td>user_2</td>
-      <td>0.420572</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>4</td>
-      <td>user_3</td>
-      <td>0.258917</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>5</td>
-      <td>user_4</td>
-      <td>0.511275</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Now we can select specific elements of the db using the <code>where</code> argument of the <code>.select()</code> method.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;, 0.8444218515250481, True),
- (2, &#39;user_1&#39;, 0.7579544029403025, True),
- (5, &#39;user_4&#39;, 0.5112747213686085, True)]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(3, &#39;user_2&#39;, 0.420571580830845, False)]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We can update the results in a similar way, using the <code>where</code> argument.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;smartypants&#39;</span><span class="p">},</span> <span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[15]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;, 0.8444218515250481, True),
- (2, &#39;user_1&#39;, 0.7579544029403025, True),
- (3, &#39;smartypants&#39;, 0.420571580830845, False),
- (4, &#39;user_3&#39;, 0.25891675029296335, False),
- (5, &#39;user_4&#39;, 0.5112747213686085, True)]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">})</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[16]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;, 84.4421851525048, True),
- (2, &#39;user_1&#39;, 75.79544029403024, True),
- (3, &#39;smartypants&#39;, 42.0571580830845, False),
- (4, &#39;user_3&#39;, 25.891675029296334, False),
- (5, &#39;user_4&#39;, 51.12747213686085, True)]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>And we can delete elements using the <code>.delete()</code> method.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;, 84.4421851525048, True),
- (2, &#39;user_1&#39;, 75.79544029403024, True),
- (4, &#39;user_3&#39;, 25.891675029296334, False),
- (5, &#39;user_4&#39;, 51.12747213686085, True)]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Notes-on-DB-Interface">Notes on DB Interface<a class="anchor-link" href="#Notes-on-DB-Interface">&#182;</a></h1><p>DocTable2 allows you to access columns through direct subscripting, then relies on the power of sqlalchemy column objects to do most of the work of constructing queries. Here are a few notes on their use. For more demonstration, see the example in examples/dt2_select.ipynb</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># subscript is used to access underlying sqlalchemy column reference (without querying data)</span>
-<span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[18]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># conditionals are applied directly to the column objects (as we&#39;ll see with &quot;where&quot; clause)</span>
-<span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[19]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;sqlalchemy.sql.elements.BinaryExpression object at 0x7f4efa3199b0&gt;</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># can also access using .col() method</span>
-<span class="n">db</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[20]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to access all column objects (only useful for working directly with sql info)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">columns</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[21]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;sqlalchemy.sql.base.ImmutableColumnCollection at 0x7f4efa3882d0&gt;</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to access more detailed schema information</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">User</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">)</span>
 <span class="n">db</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
 </pre></div>
 
@@ -15211,7 +14360,7 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[23]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
 
 
 
@@ -15245,24 +14394,15 @@ a.anchor-link {
   <tbody>
     <tr>
       <th>0</th>
-      <td>id</td>
-      <td>INTEGER</td>
-      <td>False</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>1</th>
       <td>name</td>
       <td>VARCHAR</td>
-      <td>False</td>
+      <td>True</td>
       <td>None</td>
       <td>auto</td>
       <td>0</td>
     </tr>
     <tr>
-      <th>2</th>
+      <th>1</th>
       <td>age</td>
       <td>INTEGER</td>
       <td>True</td>
@@ -15271,9 +14411,9 @@ a.anchor-link {
       <td>0</td>
     </tr>
     <tr>
-      <th>3</th>
-      <td>is_old</td>
-      <td>BOOLEAN</td>
+      <th>2</th>
+      <td>height</td>
+      <td>FLOAT</td>
       <td>True</td>
       <td>None</td>
       <td>auto</td>
@@ -15290,14 +14430,20 @@ a.anchor-link {
 
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Now we insert several new objects into the table and view them using <code>DocTable.head()</code>. Note that the datbase actually inserted the object's defaulted values into the table.</p>
+
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># If needed, you can also access the sqlalchemy table object using the .table property.</span>
-<span class="n">db</span><span class="o">.</span><span class="n">table</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">([</span><span class="n">User</span><span class="p">(</span><span class="s1">&#39;kevin&#39;</span><span class="p">),</span> <span class="n">User</span><span class="p">(</span><span class="s1">&#39;tyrone&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">12</span><span class="p">),</span> <span class="n">User</span><span class="p">(</span><span class="s1">&#39;carlos&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">6.5</span><span class="p">)])</span>
+<span class="n">db</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -15313,13 +14459,56 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[24]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
 
 
 
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Table(&#39;_documents_&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False), Column(&#39;name&#39;, String(), table=&lt;_documents_&gt;, nullable=False), Column(&#39;age&#39;, Integer(), table=&lt;_documents_&gt;), Column(&#39;is_old&#39;, Boolean(), table=&lt;_documents_&gt;), schema=None)</pre>
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>age</th>
+      <th>height</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>kevin</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>tyrone</td>
+      <td>12.0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>carlos</td>
+      <td>25.0</td>
+      <td>6.5</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 </div>
 
 </div>
@@ -15328,52 +14517,21 @@ a.anchor-link {
 
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Using a normal <code>select()</code>, we can extract the results as the original objects. With no parameters, the select statement extracts all columns as they are stored and they exactly match the original data we entered. As expected from the python object, we can access these as properties of the object. Due to the base class <code>doctable.DocTableSchema</code>, we can also access properties using the <code>__getitem__</code> indexing. I'll show why there is a difference btween the two later.</p>
+
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the count method is also an easy way to count rows in the database</span>
-<span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[25]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>4</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the print method makes it easy to see the table name and total row count</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">users</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:</span><span class="se">\n\t</span><span class="s2">age: </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">age</span><span class="si">}</span><span class="se">\n\t</span><span class="s2">height: </span><span class="si">{</span><span class="n">user</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15393,7 +14551,15 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>&lt;DocTable::sqlite:///:memory::_documents_ ct: 4&gt;
+<pre>kevin:
+	age: None
+	height: None
+tyrone:
+	age: 12
+	height: None
+carlos:
+	age: 25
+	height: 6.5
 </pre>
 </div>
 </div>
@@ -15405,17 +14571,21 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Type-Mappings">Type Mappings<a class="anchor-link" href="#Type-Mappings">&#182;</a></h1><p>DocTable2 provides a simplified interface into the <a href="https://docs.sqlalchemy.org/en/13/core/">SQLAlchemy core</a> package component (not the object-relational mapping component). With this interface DocTable2 is able to provide an object-oriented interface to execute SQL commands. This package simplifies that interface by working with the various objects within the class, allowing the user to create schemas and perform queries without working with the hundreds of classes required by SQLAlchemy core.</p>
-<p>Because of this, it is important to note the interface between them. The first is the type map used to set up the schema. The DocTable2 constructor provides a schema interface which accepts strings as types, so the type map appears here:</p>
+<h2 id="Example-using-doctable.Col">Example using <code>doctable.Col</code><a class="anchor-link" href="#Example-using-doctable.Col">&#182;</a></h2><p>In this example, we will show how to create a dataclass with functionality that supports more complicated database operations. A key to this approach is to use the <code>doctable.Col</code> function as default values for our parameters. Note that when we initialize the object, the default values of all columns except for <code>name</code> are set to <code>EmptyValue</code>. This is important, because <code>EmptyValue</code> will indicate values that are not meant to be inserted into the database or are not retrieved from the database after selecting.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[32]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dt</span><span class="o">.</span><span class="n">schemas</span><span class="o">.</span><span class="n">column_type_map</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableSchema</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+<span class="n">User</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -15431,39 +14601,604 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[32]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;biginteger&#39;: sqlalchemy.sql.sqltypes.BigInteger,
- &#39;boolean&#39;: sqlalchemy.sql.sqltypes.Boolean,
- &#39;date&#39;: sqlalchemy.sql.sqltypes.Date,
- &#39;datetime&#39;: sqlalchemy.sql.sqltypes.DateTime,
- &#39;enum&#39;: sqlalchemy.sql.sqltypes.Enum,
- &#39;float&#39;: sqlalchemy.sql.sqltypes.Float,
- &#39;integer&#39;: sqlalchemy.sql.sqltypes.Integer,
- &#39;interval&#39;: sqlalchemy.sql.sqltypes.Interval,
- &#39;largebinary&#39;: sqlalchemy.sql.sqltypes.LargeBinary,
- &#39;numeric&#39;: sqlalchemy.sql.sqltypes.Numeric,
- &#39;smallinteger&#39;: sqlalchemy.sql.sqltypes.SmallInteger,
- &#39;string&#39;: sqlalchemy.sql.sqltypes.String,
- &#39;text&#39;: sqlalchemy.sql.sqltypes.Text,
- &#39;time&#39;: sqlalchemy.sql.sqltypes.Time,
- &#39;unicode&#39;: sqlalchemy.sql.sqltypes.Unicode,
- &#39;unicodetext&#39;: sqlalchemy.sql.sqltypes.UnicodeText,
- &#39;json&#39;: doctable.coltypes.JSONType,
- &#39;pickle&#39;: doctable.coltypes.CpickleType,
- &#39;parsetree&#39;: doctable.coltypes.ParseTreeType,
- &#39;picklefile&#39;: doctable.coltypes.PickleFileType,
- &#39;textfile&#39;: doctable.coltypes.TextFileType}</pre>
+<pre>User(name=EmptyValue, age=EmptyValue, height=EmptyValue)</pre>
 </div>
 
 </div>
 
 </div>
 
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Given that the type specifications are the same as the previous example, we get exactly the same database schema. We insert entries just as before. The <code>User</code> data contained <code>EmptyValue</code>s, and so that column data was not presented to the database at all - instead, the schema's column defaults were used. Consistent with our schema (not the object defaults, the default values were set to None.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">User</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">schema_table</span><span class="p">())</span>
+<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">([</span><span class="n">User</span><span class="p">(</span><span class="s1">&#39;kevin&#39;</span><span class="p">),</span> <span class="n">User</span><span class="p">(</span><span class="s1">&#39;tyrone&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">12</span><span class="p">),</span> <span class="n">User</span><span class="p">(</span><span class="s1">&#39;carlos&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">6.5</span><span class="p">)])</span>
+<span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">user</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>     name     type  nullable default autoincrement  primary_key
+0    name  VARCHAR      True    None          auto            0
+1     age  INTEGER      True    None          auto            0
+2  height    FLOAT      True    None          auto            0
+User(name=&#39;kevin&#39;, age=None, height=None)
+User(name=&#39;tyrone&#39;, age=None, height=None)
+User(name=&#39;carlos&#39;, age=None, height=None)
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Now let's try to select only a subset of the columns - in this case, 'name' and 'age'.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">users</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">])</span>
+<span class="n">users</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>User(name=&#39;kevin&#39;, age=None, height=EmptyValue)</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Note that the user height was set to <code>EmptyValue</code>. When we try to access height as an index, we get an error indicating that the data was not retrived in the select statement.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">users</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;height&#39;</span><span class="p">]</span>
+<span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>&#39;The column &#34;height&#34; was not retreived in the select statement.&#39;
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>On the contrary, if we try to access as an attribute, the actual <code>EmptyValue</code> object is retrieved. Object properties work as they always have, but indexing into columns will check for errors in the program logic. This implementation shows how dataclass schemas walk the line between regular python objects and database rows, and thus accessing these values can be done differently depending on how much the table entries should be treated like regular objects vs database rows. This is all determined based on how the dataclass columns are configured.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">users</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">height</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>EmptyValue</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Special-column-types">Special column types<a class="anchor-link" href="#Special-column-types">&#182;</a></h2><p>Now I'll introduce two special data column types provided by doctable: <code>IDCol()</code>, which represents a regular id column in sqlite with autoindex and primary_key parameters set, and <code>UpdatedCol()</code>, which records the datetime that an object was added to the database. When we create a new user using the dataclass constructor, these values are set to <code>EmptyValue</code>, and are relevant primarily to the database. By setting the <code>repr</code> parameter in the <code>@dataclass</code> decorator, we can use the <code>__repr__</code> of the <code>DocTableSchema</code> base class, which hides <code>EmptyValue</code> columns. This is optional.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">field</span><span class="p">,</span> <span class="n">fields</span>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableSchema</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span> <span class="c1"># shortcut for autoindex, primary_key column.</span>
+    <span class="n">updated</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">UpdatedCol</span><span class="p">()</span> <span class="c1"># shortcut for automatically </span>
+    
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="c1"># accessing sqlalchemy column keywords arguments</span>
+
+<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;carlos&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">user</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>User(name=&#39;carlos&#39;, age=15)</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>And we can see the relevance of those columns by inserting them into the database and selecting them again. You can see from the result of <code>.head()</code> that the primary key <code>id</code> and the <code>updated</code> columns were appropriately filled upon insertion. After selecting, these objects also contain valid values.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">User</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">schema_table</span><span class="p">())</span>
+<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">([</span><span class="n">User</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;kevin&#39;</span><span class="p">),</span> <span class="n">User</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;tyrone&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">12</span><span class="p">),</span> <span class="n">User</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;carlos&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">25</span><span class="p">)])</span>
+<span class="n">db</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>      name      type  nullable default autoincrement  primary_key
+0       id   INTEGER     False    None          auto            1
+1  updated  DATETIME      True    None          auto            0
+2     name   VARCHAR     False    None          auto            0
+3      age   INTEGER      True    None          auto            0
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>updated</th>
+      <th>name</th>
+      <th>age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>2021-03-13 13:10:05.636320</td>
+      <td>kevin</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2021-03-13 13:10:05.636328</td>
+      <td>tyrone</td>
+      <td>12.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>2021-03-13 13:10:05.636331</td>
+      <td>carlos</td>
+      <td>25.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>This was just an example of how regular Python dataclass objects can contain additional data which is relevant to the database, but which is otherwise unneeded. After retrieving from database, we can also use <code>.update()</code> to modify the entry.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">user</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">()</span>
+<span class="n">user</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">user</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+<span class="n">db</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>updated</th>
+      <th>name</th>
+      <th>age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>2021-03-13 13:10:05.636320</td>
+      <td>kevin</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2021-03-13 13:10:05.636328</td>
+      <td>tyrone</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>2021-03-13 13:10:05.636331</td>
+      <td>carlos</td>
+      <td>25</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>We can use the convenience function <code>update_dataclass()</code> to update a single row corresponding to the object.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">user</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="mi">11</span>
+<span class="n">db</span><span class="o">.</span><span class="n">update_dataclass</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[15]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>updated</th>
+      <th>name</th>
+      <th>age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>2021-03-13 13:10:05.636320</td>
+      <td>kevin</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2021-03-13 13:10:05.636328</td>
+      <td>tyrone</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>2021-03-13 13:10:05.636331</td>
+      <td>carlos</td>
+      <td>25</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
 </div>
 
 </div>
