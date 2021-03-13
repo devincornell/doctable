@@ -257,6 +257,9 @@ class DocTable:
     
     def colnames(self):
         return [c.name for c in self.columns]
+
+    def primary_keys(self):
+        return [c['name'] for c in self.schema_info() if c['primary_key']]
     
     def schema_info(self):
         '''Get info about each column as a dictionary.
@@ -584,6 +587,21 @@ class DocTable:
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
+
+    def update_dataclass(self, obj, key_name=None, **kwargs):
+        ''' Updates database with single modified object based on the provided key.
+        '''
+        if key_name is None:
+            keynames = self.primary_keys()
+            if not len(keynames):
+                raise ValueError('The "primary_key_name" argument should be provided if '
+                                    'database has no primary key.')
+            key_name = keynames[0]
+
+        return self.update(obj, where=self[key_name]==obj[key_name])
+            
+        
+
     
     
     #################### Delete Methods ###################
