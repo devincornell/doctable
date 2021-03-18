@@ -15,10 +15,7 @@ class TestObj(DocTableSchema):
         self.value = (self.i / 0.001)**2
 
 
-def run_benchmark():
-    fname = '.tmp.pic'
-    num_vals = 100000
-    num_pickle_files = 10
+def run_benchmark(fname = '.tmp.pic', num_vals = 1000, num_pickle_files = 10):
 
     timer = Timer('Starting benchmark')
 
@@ -29,7 +26,6 @@ def run_benchmark():
     for i in range(num_pickle_files):
         with open(fname, 'wb') as f:
             pickle.dump(data, f)
-    os.remove(fname)
 
     timer.step(f'saving {len(data)} small files')
     for d in data:
@@ -46,10 +42,23 @@ def run_benchmark():
     timer.step(f'inserting many doctable rows at once')
     db = DocTable(schema=TestObj, target=fname, new_db=True)
     db.insert(data)
+
+    timer.step(f'selecting all records')
+    selectdata = db.select()
+
+    timer.step(f'selecting some records')
+    selectdata = db.select(where=db['i']>len(data)/2)
+
     os.remove(fname)
 
     timer.step('finished!')
+    if os.path.exists(fname):
+        os.remove(fname)
 
+    print(f'===========================================')
+    print(f'===== Total took: {timer.total_diff()} =================')
+    print(f'===========================================')
+    timer.print_table()
 
 
 
