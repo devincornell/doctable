@@ -10,6 +10,7 @@ from sqlalchemy.sql import and_, or_, not_
 # convenience classes and functions
 from .util import read_pickle, write_pickle, showstopper, Timer
 from .dbutils import list_tables, migrate_db
+from .benchmark import *
 from .parsing import *
 
 # regular table features
