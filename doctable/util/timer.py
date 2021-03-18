@@ -91,9 +91,8 @@ class Timer:
 
     def print_table(self):
         print(f'{self.__class__.__name__} started {self[0].ts}: {self[0].msg}')
-        for i, step in enumerate(self.steps):
-            if i > 0:
-                print(f'    {step.ts}: (took {step.diff(self[i-1])}) {step.msg}')
+        for i, step in enumerate(self.steps[:-1]):
+            print(f'    {step.ts}: (took {self[i+1].diff(step)}) {step.msg}')
 
         
 
