@@ -89,7 +89,14 @@ class Timer:
             with open(self.logfile, 'a') as f:
                 f.write(output + '\n')
 
+    def total_diff(self):
+        ''' Get time from first to last step.
+        '''
+        return self[-1].diff(self[0])
+
     def print_table(self):
+        ''' Print table showing how long each step took.
+        '''
         print(f'{self.__class__.__name__} started {self[0].ts}: {self[0].msg}')
         for i, step in enumerate(self.steps[:-1]):
             print(f'    {step.ts}: (took {self[i+1].diff(step)}) {step.msg}')
