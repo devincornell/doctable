@@ -15,6 +15,7 @@ class FSStore:
         self.save_every = save_every
         self.folder = folder
         self.check_collision = check_collision
+        self.seed_range = seed_range
 
         if records is not None:
             self.records = list(records)
@@ -24,17 +25,22 @@ class FSStore:
         # make folder if it does not exist
         if not os.path.exists(self.folder):
             os.mkdir(self.folder)
-
-        # set random seeds for filename purposes
-        # (2x bc lower probability of collision)
-        self.seed = random.randrange(seed_range/10, seed_range)
-        self.seed += random.randrange(seed_range/10, seed_range)
+        
+        self.set_seed()
         self.ct = 0
 
     def __del__(self):
         ''' Save buffer before being deleted.
         '''
         self.dump_file()
+
+    def set_seed(self):
+        ''' Set random seeds for filename purposes.
+        '''
+        # (2x bc lower probability of collision)
+        self.seed = random.randrange(self.seed_range/10, self.seed_range)
+        self.seed += random.randrange(self.seed_range/10, self.seed_range)
+
 
     def insert(self, record):
         ''' Add a single record.
