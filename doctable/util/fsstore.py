@@ -3,19 +3,22 @@ import glob
 import random
 import os
 
-from .pickling import read_pickle, write_pickle
+from .io import read_pickle, write_pickle, read_json, write_json
 
 class FSStore:
     ''' Class for storing and retriving records as pickle files.
     Useful in multi-threading applications where a direct database
         insertion for each process would cause too much blocking.
     '''
-    def __init__(self, folder, records=None, save_every=10000, seed_range=100000000, check_collision=True):
+    def __init__(self, folder, records=None, save_every=10000, 
+                seed_range=100000000, check_collision=True, 
+                settings_fname='.settings_FSStore.json'):
 
         self.save_every = save_every
         self.folder = folder
         self.check_collision = check_collision
         self.seed_range = seed_range
+        self.settings_fname = settings_fname
 
         if records is not None:
             self.records = list(records)
@@ -42,6 +45,7 @@ class FSStore:
         self.seed += random.randrange(self.seed_range/10, self.seed_range)
 
 
+    ########################### Writing data ###########################
     def insert(self, record):
         ''' Add a single record.
         '''
@@ -55,6 +59,9 @@ class FSStore:
         ''' Save records to file and empty container.
         '''
         
+        if self.is_readonly():
+            raise PermissionError('FSStore has set the parameter readonly=True. To change, use .write_settings(readonly=False)')
+
         if len(self.records):
             fname = self.get_fname()
             if self.check_collision and os.path.exists(fname):
@@ -66,7 +73,8 @@ class FSStore:
 
     def get_fname(self):
         return f'{self.folder}/{self.seed+self.ct}.pic'
-
+    
+    ########################### Reading data ###########################
     def get_exist_fnames(self):
         return glob.glob(f'{self.folder}/*.pic')
 
@@ -91,9 +99,33 @@ class FSStore:
     def delete_all(self):
         for fname in self.get_exist_fnames():
             os.remove(fname)
-    
-    #def make_record_md5(self, obj):
-    #    return hashlib.md5(bin(self.records)).hexdigest()
+
+
+
+    ########################### Work with Settings File ###########################
+
+    def is_readonly(self):
+        return self.read_settings().get('readonly', False)
+
+    def read_setting(self, name):
+        ''' Read file and return value of a particular setting.
+        '''
+        return self.read_settings().get(name, None)
+
+    def read_settings(self):
+        ''' Read settings file.
+        '''
+        if os.path.exists(self.settings_fname):
+            return read_json(self.settings_fname)
+        else:
+            return dict()
+
+    def write_settings(self, **newsettings):
+        ''' Write new values to settings file.
+        '''
+        settings = self.read_settings()
+        settings = {**settings, **newsettings}
+        write_json(settings, self.settings_fname)
 
     
 
