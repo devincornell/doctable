@@ -146,7 +146,7 @@ class FSStore:
             for rec in records:
                 yield rec
     
-    def read_all_records(self, **kwargs):
+    def select_records(self, **kwargs):
         ''' Creates list of records from .yield_records()
         '''
         return list(self.yield_records(**kwargs))

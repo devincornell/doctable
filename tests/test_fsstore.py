@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 import pytest
 import os
 import glob
+import itertools
+import copy
 
 import sys
 sys.path.append('..')
@@ -61,18 +63,50 @@ def test_basic():
 
 class TestRecord:
     ''' Record for testing data.'''
-    def __init__(self, k=1000000):
-        payload: list[int] = list(range(k))
+    def __init__(self, size):
+        self.payload = list(range(size))
+    def __len__(self):
+        return len(self.payload)
 
-def speed_benchmark():
+def benchmark_insert_read(timer, folder, save_every=None, num_records=None, record_size=None):
 
-    timer = doctable.Timer('starting tests')
+    timer.step(f'=================== STARTING NEW TEST ==================')
+    fs = doctable.FSStore(folder, save_every=save_every)
+    test_record = TestRecord(record_size)
+    timer.step(f'======== {num_records} records of size {len(test_record)} saved in chunks of {fs.save_every} ========')
 
-    timer.step('creating data payload')
-    record = TestRecord()
+    timer.step(f'creating test records')
+    records = [copy.deepcopy(test_record) for _ in range(num_records)]
 
-    timer.step('init fsstore')
-    fs = doctable.FSStore('tmp', save_every=100)
+    timer.step(f'writing records')
+    for record in records:
+        fs.insert(record)
+    fs.dump_file()
+
+    timer.step(f'reading records')
+    records = fs.select_records()
+    
+    timer.step(f'deleting records')
+    fs.delete_records()
+
+    timer.step('finished test')
+    return records
+
+def speed_benchmark(folder='tmp'):
+    timer = doctable.Timer('starting timer')
+
+
+    settings = itertools.product([10, 50, 100], [1000, 50000], [1000, 10000])
+    for s1, s2, s3 in settings:
+        benchmark_insert_read(timer, folder, save_every=s1, num_records=s2, record_size=s3)
+
+    timer.step('deleting all data')
+    fs = doctable.FSStore(folder)
+    fs.delete_all_completely(force=True)
+
+    timer.step('finished!')    
+    timer.print_table()
+
 
 if __name__ == '__main__':
-    test_basic()
+    speed_benchmark()
