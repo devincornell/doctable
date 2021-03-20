@@ -8,7 +8,7 @@ from sqlalchemy.sql import and_, or_, not_
 #from .doctable import *
 
 # convenience classes and functions
-from .util import read_pickle, write_pickle, showstopper, Timer, FSStore
+from .util import read_pickle, write_pickle, read_json, write_json, showstopper, Timer, FSStore
 from .dbutils import list_tables, migrate_db
 from .benchmark import *
 from .parsing import *
