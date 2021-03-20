@@ -96,7 +96,7 @@ def speed_benchmark(folder='tmp'):
     timer = doctable.Timer('starting timer')
 
 
-    settings = itertools.product([10, 50, 100], [1000, 50000], [1000, 10000])
+    settings = itertools.product([10, 50, 100], [1000, 5000], [1000, 2000])
     for s1, s2, s3 in settings:
         benchmark_insert_read(timer, folder, save_every=s1, num_records=s2, record_size=s3)
 
