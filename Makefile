@@ -27,8 +27,11 @@ push_all:
 	git push
 
 reinstall:
-	pip uninstall doctable
+	pip uninstall -y doctable
 	pip install .
+
+uninstall:
+	pip uninstall -y doctable
 
 ################################# CREATE DOCUMENTATION ##############################
 
@@ -59,7 +62,7 @@ clean_docs:
 ######################################## RUN TESTS ########################################
 
 TESTS_FOLDER = tests/
-pytest:
+pytest: uninstall
 	# tests from tests folder
 	pytest $(TESTS_FOLDER)/test_*.py
 	#pytest $(TESTS_FOLDER)/test_docparser_*.py
@@ -67,7 +70,7 @@ pytest:
 	#pytest $(TESTS_FOLDER)/test_legacy_*.py
 
 TMP_TEST_FOLDER = tmp_test_deleteme
-test_examples:
+test_examples: uninstall
 	# make temporary testing folder and copy files into it
 	-rm -r $(TMP_TEST_FOLDER)
 	mkdir $(TMP_TEST_FOLDER)
