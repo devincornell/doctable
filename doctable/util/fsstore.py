@@ -2,6 +2,7 @@
 import glob
 import random
 import os
+from tqdm import tqdm
 
 from .io import read_pickle, write_pickle, read_json, write_json
 

@@ -46,7 +46,7 @@ def test_basic():
     fs.dump_file()
 
     timer.step('finished inserting; now checking integrity')
-    assert(sum(records) == sum(fs.select_records()))
+    assert(sum(records) == sum(fs.select_records(loadbar=True)))
 
     timer.step('asserting deletion of records')
     fs.delete_records()
