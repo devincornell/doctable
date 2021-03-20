@@ -21,7 +21,7 @@ class FSStore:
         self.folder = folder
         self.check_collision = check_collision
         self.seed_range = seed_range
-        self.settings_fname = settings_fname
+        self.settings_fname = f'{folder}/{settings_fname}'
 
         # intial settings
         self.set_seed()
@@ -32,7 +32,18 @@ class FSStore:
             self.records = list(records)
         else:
             self.records = list()
+
+        self.init_folder()
+
+    def __del__(self):
+        ''' Save buffer before being deleted.
+        '''
+        self.dump_file()
         
+
+    
+    ########################### Manage state ###########################
+    def init_folder(self):
         # make folder if it does not exist
         if not os.path.exists(self.folder):
             os.mkdir(self.folder)
@@ -40,13 +51,6 @@ class FSStore:
         # write defaulted settings file
         self.write_settings()
 
-    def __del__(self):
-        ''' Save buffer before being deleted.
-        '''
-        self.dump_file()
-
-    
-    ########################### Manage state ###########################
     def set_seed(self):
         ''' Set random seeds for filename purposes.
         '''
@@ -165,11 +169,9 @@ class FSStore:
         if not force:
             self.check_readonly() # raise exception if set to readonly
         
-        for fname in glob.glob(f'{self.folder}/*'):
+        for fname in glob.glob(f'{self.folder}/*') + glob.glob(f'{self.folder}/.*'):
             os.remove(fname)
         os.rmdir(self.folder)
-        
-        self.folder = None # ensure object cannot be used anymore
 
 
 
