@@ -10,6 +10,9 @@ class FSStore:
     Useful in multi-threading applications where a direct database
         insertion for each process would cause too much blocking.
     '''
+    default_settings = {
+        'readonly': False,
+    }
     def __init__(self, folder, records=None, save_every=10000, 
                 seed_range=100000000, check_collision=True, 
                 settings_fname='.settings_FSStore.json'):
@@ -20,6 +23,11 @@ class FSStore:
         self.seed_range = seed_range
         self.settings_fname = settings_fname
 
+        # intial settings
+        self.set_seed()
+        self.ct = 0
+
+        # keep initial records data
         if records is not None:
             self.records = list(records)
         else:
@@ -29,14 +37,16 @@ class FSStore:
         if not os.path.exists(self.folder):
             os.mkdir(self.folder)
         
-        self.set_seed()
-        self.ct = 0
+        # write defaulted settings file
+        self.write_settings()
 
     def __del__(self):
         ''' Save buffer before being deleted.
         '''
         self.dump_file()
 
+    
+    ########################### Manage state ###########################
     def set_seed(self):
         ''' Set random seeds for filename purposes.
         '''
@@ -44,11 +54,48 @@ class FSStore:
         self.seed = random.randrange(self.seed_range/10, self.seed_range)
         self.seed += random.randrange(self.seed_range/10, self.seed_range)
 
+    ########################### Work with Settings File ###########################
+
+    def check_readonly(self):
+        ''' Raise exception if system set to readonly.
+        '''
+        if self.read_settings().get('readonly', False):
+            raise PermissionError('FSStore has set the parameter readonly=True. '
+                f'To change, use .write_settings(readonly=False)')
+
+    def read_setting(self, name):
+        ''' Read file and return value of a particular setting.
+        '''
+        return self.read_settings()[name]
+
+    def read_settings(self):
+        ''' Read settings file.
+        '''
+        if os.path.exists(self.settings_fname):
+            return read_json(self.settings_fname)
+        else:
+            return dict()
+
+    def write_settings(self, **newsettings):
+        ''' Read settings file and update any missing values.
+        '''
+        if not all([k in self.default_settings for k in newsettings.keys()]):
+            raise KeyError(f'Invalid setting in {set(newsettings.keys())} provided to '
+                f'.write_settings(). Should be one of {set(self.default_settings.keys())}')
+        settings = {**self.default_settings, **self.read_settings(), **newsettings}
+        write_json(settings, self.settings_fname)
+
+    def clear_settings(self):
+        ''' Replace settings to defaults.
+        '''
+        write_json(self.default_settings, self.settings_fname)
 
     ########################### Writing data ###########################
     def insert(self, record):
         ''' Add a single record.
         '''
+        self.check_readonly() # raise exception if set to readonly
+
         self.records.append(record)
         self.ct += 1
 
@@ -58,9 +105,7 @@ class FSStore:
     def dump_file(self):
         ''' Save records to file and empty container.
         '''
-        
-        if self.is_readonly():
-            raise PermissionError('FSStore has set the parameter readonly=True. To change, use .write_settings(readonly=False)')
+        self.check_readonly() # raise exception if set to readonly
 
         if len(self.records):
             fname = self.get_fname()
@@ -73,61 +118,58 @@ class FSStore:
 
     def get_fname(self):
         return f'{self.folder}/{self.seed+self.ct}.pic'
+
+    
     
     ########################### Reading data ###########################
     def get_exist_fnames(self):
         return glob.glob(f'{self.folder}/*.pic')
 
-    def select_chunks(self):
+    def select_chunks(self, loadbar=False):
         ''' Yield records in file-sized chunks.
         '''
-        for fname in self.get_exist_fnames():
+        fnames = self.get_exist_fnames()
+        if loadbar:
+            fnames = tqdm(fnames)
+        
+        for fname in fnames:
             yield read_pickle(fname)
     
-    def yield_records(self):
+    def yield_records(self, **kwargs):
         ''' Reads pickle records and yields them one at a time.
         '''
-        for records in self.select_chunks():
+        for records in self.select_chunks(**kwargs):
             for rec in records:
                 yield rec
     
-    def read_all_records(self):
+    def read_all_records(self, **kwargs):
         ''' Creates list of records from .yield_records()
         '''
-        return list(self.yield_records())
+        return list(self.yield_records(**kwargs))
 
-    def delete_all(self):
+
+
+    ########################### Deleting data ###########################
+    def delete_records(self, force=False):
+        ''' Delete records (NOT settings or folder).
+        '''
+        if not force:
+            self.check_readonly() # raise exception if set to readonly
+
         for fname in self.get_exist_fnames():
             os.remove(fname)
 
-
-
-    ########################### Work with Settings File ###########################
-
-    def is_readonly(self):
-        return self.read_settings().get('readonly', False)
-
-    def read_setting(self, name):
-        ''' Read file and return value of a particular setting.
+    def delete_all_completely(self, force=False):
+        ''' Will delete all records and the containing directory.
         '''
-        return self.read_settings().get(name, None)
-
-    def read_settings(self):
-        ''' Read settings file.
-        '''
-        if os.path.exists(self.settings_fname):
-            return read_json(self.settings_fname)
-        else:
-            return dict()
-
-    def write_settings(self, **newsettings):
-        ''' Write new values to settings file.
-        '''
-        settings = self.read_settings()
-        settings = {**settings, **newsettings}
-        write_json(settings, self.settings_fname)
-
-    
+        if not force:
+            self.check_readonly() # raise exception if set to readonly
+        
+        for fname in glob.glob(f'{self.folder}/*'):
+            os.remove(fname)
+        os.rmdir(self.folder)
+        
+        self.folder = None # ensure object cannot be used anymore
 
 
 
