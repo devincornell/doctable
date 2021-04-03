@@ -1,4 +1,7 @@
 
+from dataclasses import dataclass
+
+@dataclass
 class EmptyValue:
     ''' Represents value that was not retrieved from select statement.
     '''
@@ -6,5 +9,5 @@ class EmptyValue:
     def val(self):
         return None
     
-    def __repr__(self):
-        return self.__class__.__name__
+    #def __repr__(self):
+    #    return self.__class__.__name__
