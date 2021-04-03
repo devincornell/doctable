@@ -1,33 +1,7 @@
 
 import sqlalchemy as sa
+from .coltype_map import string_to_sqlalchemy_type
 
-from .coltypes import CpickleType, PickleFileType, TextFileType, FileTypeBase, JSONType#, ParseTreeType
-from datetime import datetime
-
-column_type_map = {
-    'biginteger':sa.BigInteger,
-    'boolean':sa.Boolean,
-    'date':sa.Date,
-    'datetime':sa.DateTime,
-    'enum':sa.Enum,
-    'float':sa.Float,
-    'integer':sa.Integer,
-    'interval':sa.Interval,
-    'largebinary':sa.LargeBinary,
-    'numeric':sa.Numeric,
-    #'pickle':sa.PickleType,
-    'smallinteger':sa.SmallInteger,
-    'string':sa.String,
-    'text':sa.Text,
-    'time':sa.Time,
-    'unicode':sa.Unicode,
-    'unicodetext':sa.UnicodeText,
-    'json': JSONType, # custom datatype
-    'pickle': CpickleType, # custom datatype
-    #'parsetree': ParseTreeType, # custom datatype
-    'picklefile': PickleFileType,
-    'textfile': TextFileType,
-}
 
 def is_ord_sequence(obj):
     return isinstance(obj, list) or isinstance(obj,tuple)
@@ -41,14 +15,14 @@ def parse_schema(schema, default_fpath='./'):
             raise ValueError('A schema entry must have 2+ arguments: (type,name,..)')
         
         # column is regular type
-        if colinfo[0] in column_type_map:
+        if colinfo[0] in string_to_sqlalchemy_type:
             coltype, colname = colinfo[:2]
             colargs = colinfo[2] if n > 2 else dict()
             coltypeargs = colinfo[3] if n > 3 else dict()
             if coltype in ('picklefile','textfile','jsonfile') and 'fpath' not in coltypeargs:
                 coltypeargs['fpath'] = default_fpath+'_'+colname
             
-            col = sa.Column(colname, column_type_map[coltype](**coltypeargs), **colargs)
+            col = sa.Column(colname, string_to_sqlalchemy_type[coltype](**coltypeargs), **colargs)
             columns.append(col)
         else:
             if colinfo[0] == 'idcol': #shortcut for typical id integer primary key etc

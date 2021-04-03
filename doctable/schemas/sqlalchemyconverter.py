@@ -2,24 +2,10 @@
 import datetime
 import sqlalchemy as sa
 from dataclasses import dataclass, field, fields
-
+from .coltype_map import python_to_slqlchemy_type, string_to_sqlalchemy_type, constraint_lookup
 
 class SQLAlchemyConverter():
-    type_lookup = {
-        int: sa.Integer,
-        float: sa.Float,
-        str: sa.String,
-        bool: sa.Boolean,
-        datetime.datetime: sa.DateTime,
-        datetime.time: sa.Time,
-        datetime.date: sa.Date,
-    }
-    constraint_lookup = {
-        'check': sa.CheckConstraint,
-        'unique': sa.UniqueConstraint,
-        'primarykey': sa.PrimaryKeyConstraint,
-        'foreignkey': sa.ForeignKeyConstraint,
-    }
+
     def __init__(self, row_obj):
         self.row = row_obj
     
@@ -29,7 +15,7 @@ class SQLAlchemyConverter():
         # regular data columns (uses dataclass features)
         for f in fields(self.row):
             if f.init:
-                use_type = self.type_lookup.get(f.type, sa.PickleType)
+                use_type = python_to_slqlchemy_type.get(f.type, sa.PickleType)
                 col = sa.Column(f.name, use_type, **f.metadata)
                 columns.append(col)
 
@@ -49,7 +35,7 @@ class SQLAlchemyConverter():
         if hasattr(self.row, '__constraints__') and self.row.__constraints__ is not None:
             for vals in self.row.__constraints__:
                 args, kwargs = self.get_kwargs(vals)
-                columns.append(self.constraint_lookup[args[0]](*args[1:], **kwargs))
+                columns.append(constraint_lookup[args[0]](*args[1:], **kwargs))
 
         return columns
 

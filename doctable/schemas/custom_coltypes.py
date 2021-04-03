@@ -6,9 +6,6 @@ from random import randrange
 import os
 import json
 
-#from .parsetree import ParseTree
-
-
 class FileTypeBase(types.TypeDecorator):
     file_ext = None # needs to be overloaded
     impl = types.String # just stores filename
@@ -84,9 +81,6 @@ class JSONFileType(FileTypeBase):
     @classmethod
     def load_data(cls, f, dialect):
         return json.load(f)
-    
-    
-    
     
 
 class CpickleType(types.TypeDecorator):
