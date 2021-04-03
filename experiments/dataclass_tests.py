@@ -38,8 +38,7 @@ class MyClass(doctable.DocTableSchema):
 
 if __name__ == '__main__':
     mc = MyClass()
-    converter = doctable.SQLAlchemyConverter(MyClass)
-    for col in converter.get_sqlalchemy_columns():
+    for col in doctable.parse_schema_dataclass(MyClass):
         print(col)
 
     #for col in mc.sqlalchemy_columns():
