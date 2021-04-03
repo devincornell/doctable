@@ -1,6 +1,6 @@
 
 from .distribute import Distribute
-from .parse import preprocess, tokenize, parse_tok, keep_tok, merge_tok_spans, merge_tok_ngrams, get_parsetrees
+from .parsefuncs import preprocess, tokenize, parse_tok, keep_tok, merge_tok_spans, merge_tok_ngrams, get_parsetrees
 import functools
 
 components = {
@@ -26,6 +26,16 @@ def Comp(func, *args, **kwargs):
     else:
         return functools.partial(func, *args, **kwargs)
 
+def MultiComp(**funcs):
+    ''' Add a component that returns a dictionary, each with separate parsers.
+    Args:
+        funcs (dict<str:func>): mapping from string to dictionary
+    '''
+    return functools.partial(funcwrap, **funcs)
+
+def funcwrap(x, **funcs):
+    ''' Used in MultiComp.'''
+    return {name:func(x) for name, func in funcs.items()}
 
 class ParsePipeline:
     ''' Class for creating pipelines for parsing text documents (or other elements).

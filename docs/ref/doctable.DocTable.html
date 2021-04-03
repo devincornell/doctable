@@ -65,8 +65,6 @@ Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;verbose&nbsp;(bool):&nbsp;Print&nbsp;every&nbsp;sql&nbsp;command&nbsp;before&nbsp;executing.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;(bool):&nbsp;Print&nbsp;sqlalchemy&nbsp;engine&nbsp;log&nbsp;for&nbsp;each&nbsp;query.</tt></dd></dl>
 
-<dl><dt><a name="DocTable-__repr__"><strong>__repr__</strong></a>(self) -&gt; str</dt><dd><tt>Return&nbsp;repr(self).</tt></dd></dl>
-
 <dl><dt><a name="DocTable-__str__"><strong>__str__</strong></a>(self) -&gt; str</dt><dd><tt>Return&nbsp;str(self).</tt></dd></dl>
 
 <dl><dt><a name="DocTable-bootstrap"><strong>bootstrap</strong></a>(self, *args, n=None, **kwargs)</dt><dd><tt>Generates&nbsp;a&nbsp;DocBootstrapper&nbsp;object&nbsp;to&nbsp;sample&nbsp;from.<br>
@@ -136,9 +134,16 @@ Args:<br>
 Returns:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;query&nbsp;result&nbsp;object.</tt></dd></dl>
 
+<dl><dt><a name="DocTable-join"><strong>join</strong></a>(self, other, *args, **kwargs)</dt><dd><tt>Wrapper&nbsp;over&nbsp;table.<a href="#doctable.DocTable-join">join</a>(),&nbsp;can&nbsp;pass&nbsp;to&nbsp;from_obj&nbsp;parameter&nbsp;for&nbsp;.<a href="#doctable.DocTable-select">select</a>()<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;other&nbsp;(DocTable):&nbsp;other&nbsp;doctable&nbsp;to&nbsp;join<br>
+&nbsp;&nbsp;&nbsp;&nbsp;*args,&nbsp;**kwargs:&nbsp;passed&nbsp;to&nbsp;table.<a href="#doctable.DocTable-join">join</a>()&nbsp;method</tt></dd></dl>
+
 <dl><dt><a name="DocTable-list_tables"><strong>list_tables</strong></a>(self)</dt></dl>
 
 <dl><dt><a name="DocTable-open_conn"><strong>open_conn</strong></a>(self)</dt><dd><tt>Opens&nbsp;connection&nbsp;to&nbsp;db&nbsp;(if&nbsp;one&nbsp;does&nbsp;not&nbsp;exist).</tt></dd></dl>
+
+<dl><dt><a name="DocTable-primary_keys"><strong>primary_keys</strong></a>(self)</dt></dl>
 
 <dl><dt><a name="DocTable-reopen_engine"><strong>reopen_engine</strong></a>(self, open_conn=None)</dt><dd><tt>Opens&nbsp;connection&nbsp;engine.&nbsp;<br>
 Args:<br>
@@ -152,7 +157,7 @@ Returns:<br>
 Returns:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;DataFrame:&nbsp;info&nbsp;about&nbsp;each&nbsp;column.</tt></dd></dl>
 
-<dl><dt><a name="DocTable-select"><strong>select</strong></a>(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, **kwargs)</dt><dd><tt>Perform&nbsp;select&nbsp;query,&nbsp;yield&nbsp;result&nbsp;for&nbsp;each&nbsp;row.<br>
+<dl><dt><a name="DocTable-select"><strong>select</strong></a>(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, from_obj=None, as_dataclass=True, **kwargs)</dt><dd><tt>Perform&nbsp;select&nbsp;query,&nbsp;yield&nbsp;result&nbsp;for&nbsp;each&nbsp;row.<br>
 &nbsp;<br>
 Description:&nbsp;Because&nbsp;output&nbsp;must&nbsp;be&nbsp;iterable,&nbsp;returns&nbsp;special&nbsp;column&nbsp;results&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;performing&nbsp;one&nbsp;query&nbsp;per&nbsp;row.&nbsp;Can&nbsp;be&nbsp;inefficient&nbsp;for&nbsp;many&nbsp;smaller&nbsp;<br>
@@ -165,6 +170,10 @@ Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;groupby:&nbsp;sqlalchemy&nbsp;gropuby&nbsp;directive<br>
 &nbsp;&nbsp;&nbsp;&nbsp;limit&nbsp;(int):&nbsp;number&nbsp;of&nbsp;entries&nbsp;to&nbsp;return&nbsp;before&nbsp;stopping<br>
 &nbsp;&nbsp;&nbsp;&nbsp;wherestr&nbsp;(str):&nbsp;raw&nbsp;sql&nbsp;"where"&nbsp;conditionals&nbsp;to&nbsp;add&nbsp;to&nbsp;where&nbsp;input<br>
+&nbsp;&nbsp;&nbsp;&nbsp;from_obj&nbsp;(sqlalchemy&nbsp;join):&nbsp;table&nbsp;from&nbsp;which&nbsp;to&nbsp;perform&nbsp;query&nbsp;(for&nbsp;joined&nbsp;tables)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;as_dataclass&nbsp;(bool):&nbsp;if&nbsp;schema&nbsp;was&nbsp;provided&nbsp;in&nbsp;dataclass&nbsp;format,&nbsp;should&nbsp;return&nbsp;as&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dataclass&nbsp;object?<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**kwargs:&nbsp;passed&nbsp;to&nbsp;self.<a href="#doctable.DocTable-execute">execute</a>()<br>
 Yields:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;sqlalchemy&nbsp;result&nbsp;object:&nbsp;row&nbsp;data</tt></dd></dl>
 
@@ -246,14 +255,10 @@ Args:<br>
 Returns:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;SQLAlchemy&nbsp;result&nbsp;proxy&nbsp;object</tt></dd></dl>
 
+<dl><dt><a name="DocTable-update_dataclass"><strong>update_dataclass</strong></a>(self, obj, key_name=None, **kwargs)</dt><dd><tt>Updates&nbsp;database&nbsp;with&nbsp;single&nbsp;modified&nbsp;object&nbsp;based&nbsp;on&nbsp;the&nbsp;provided&nbsp;key.</tt></dd></dl>
+
 <hr>
-Data descriptors defined here:<br>
-<dl><dt><strong>__dict__</strong></dt>
-<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
-</dl>
-<dl><dt><strong>__weakref__</strong></dt>
-<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
-</dl>
+Readonly properties defined here:<br>
 <dl><dt><strong>columns</strong></dt>
 <dd><tt>Exposes&nbsp;SQLAlchemy&nbsp;core&nbsp;table&nbsp;columns&nbsp;object.<br>
 Notes:<br>
@@ -273,6 +278,14 @@ Returns:<br>
 </dl>
 <dl><dt><strong>tabname</strong></dt>
 <dd><tt>Gets&nbsp;name&nbsp;of&nbsp;table&nbsp;for&nbsp;this&nbsp;connection.</tt></dd>
+</dl>
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
 </dl>
 <hr>
 Data and other attributes defined here:<br>

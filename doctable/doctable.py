@@ -8,6 +8,7 @@ from glob import glob
 from datetime import datetime
 import typing
 from typing import Union, Mapping, Sequence, Tuple, Set, List
+import dataclasses
 
 # operators like and_, or_, and not_, functions like sum, min, max, etc
 #import sqlalchemy as sa
@@ -18,7 +19,7 @@ from .bootstrap import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
 from .schemas import parse_schema
-
+from .dataclass_schemas import SQLAlchemyConverter, DocTableSchema
 
 class DocTable:
     ''' Class for managing a single database table.
@@ -40,9 +41,9 @@ class DocTable:
             to the constructor.
     '''
     __default_tabname__ = '_documents_'
-    def __init__(self, target: str = None, tabname: str = None, schema: Sequence[Sequence] = None, dialect='sqlite', engine=None,  
-                 readonly=False, new_db=False, new_table=True, persistent_conn=True, 
-                 verbose=False, **engine_kwargs):
+    def __init__(self, target: str = None, tabname: str = None, schema: Sequence[Sequence] = None,
+                dialect='sqlite', engine=None, readonly=False, new_db=False, new_table=True, 
+                persistent_conn=True, verbose=False, **engine_kwargs):
         '''Create new database.
         Args:
             target (str): filename for database to connect to. ":memory:" is a 
@@ -75,65 +76,55 @@ class DocTable:
             echo (bool): Print sqlalchemy engine log for each query.
         '''
         
-        # look for statically defined class members
-        try:
-            self.__tabname__
-            if tabname is None:
-                tabname = self.__tabname__
-        except AttributeError:
-            pass
-        try:
-            self.__schema__
-            if schema is None:
-                schema = self.__schema__
-        except AttributeError:
-            pass
-        try:
-            self.__target__
-            if target is None:
-                target = self.__target__
-        except AttributeError:
-            pass
-        
-        
-        # check for argument information in static member variable "args"
-        try:
-            kwargs = self.__args__ # user can provide their own data
-            
-            # these will definitely override constructor args
-            if 'dialect' in kwargs:
-                dialect = kwargs['dialect']
-            if 'verbose' in kwargs:
-                verbose = kwargs['verbose']
-            if 'new_db' in kwargs:
-                new_db = kwargs['new_db']
-            if 'engine_kwargs' in kwargs:
-                engine_kwargs = kwargs['engine_kwargs']
-            
-            # these will override if not provided
-            if tabname is None and 'tabname' in kwargs:
-                tabname = kwargs['tabname']
-            if schema is None and 'schema' in kwargs:
-                schema = kwargs['schema']
-            if target is None and 'target' in kwargs:
-                target = kwargs['target']
-            
-        except AttributeError:
-            pass
-        
-        # set defaults
-        if tabname is None:
-            tabname = self.__default_tabname__
+        # target argument
         if engine is not None:
             target = engine.target
+        elif target is not None:
+            pass # use constructor-provided target
+        elif hasattr(self, '__target__'):
+            target = self.__target__
+        elif hasattr(self, '__args__') and 'target' in self.__args__:
+            target = self.__args__.target
+        else:
+            raise ValueError('target has not been provided.')
+
+        # tabname arguments
+        if tabname is not None:
+            pass # use constructor-provided tabname
+        elif hasattr(self, '__tabname__'):
+            tabname = self.__tabname__
+        elif hasattr(self, '__args__') and 'tabname' in self.__args__:
+            tabname = self.__args__.tabname
+        else:
+            tabname = self.__default_tabname__
+
+        # schema arguments
+        if schema is not None:
+            pass # use constructor-provided schema
+        elif hasattr(self, '__schema__'):
+            schema = self.__schema__
+        elif hasattr(self, '__args__') and 'schema' in self.__args__:
+            schema = self.__args__.schema
+        else:
+            schema = None
+        
+        # overwrite arg defaults if provided in __args__
+        if hasattr(self, '__args__'):
+            if dialect is None and 'dialect' in self.__args__:
+                dialect = self.__args__['dialect']
+            if verbose is None and 'verbose' in self.__args__:
+                verbose = self.__args__['verbose']
+            if new_db is None and 'new_db' in self.__args__:
+                new_db = self.__args__['new_db']
+            if engine_kwargs is None and 'engine_kwargs' in self.__args__:
+                engine_kwargs = self.__args__['engine_kwargs']
+        
+        # dependent args
         if readonly:
             new_db = False
             new_table = False
-            
-        # run some checks
-        if target is None:
-            raise ValueError('target has not been provided.')
         
+        # some error checking
         if dialect.startswith('sqlite'):
             if schema is None and (target == ':memory:' or not os.path.exists(target)):
                 raise ValueError('Schema must be provided if using memory database or '
@@ -144,7 +135,7 @@ class DocTable:
         self._tabname = tabname
         self._target = target
         self.verbose = verbose
-        self.user_schema = schema
+        self._schema = schema
         self.persistent_conn = persistent_conn
         self._readonly = readonly
         self._new_db = new_db
@@ -158,9 +149,15 @@ class DocTable:
             self._engine = engine
         
         # connect to existing table or create new one
-        self._columns = None
-        if schema is not None:
+        if dataclasses.is_dataclass(schema):
+            if not issubclass(schema, DocTableSchema):
+                raise TypeError('A dataclass schema must inherit from doctable.DocTableSchema.')
+            self._columns = SQLAlchemyConverter(schema).get_sqlalchemy_columns()
+        elif isinstance(schema, list) or isinstance(schema, tuple):
             self._columns = parse_schema(schema, target+'_'+tabname)
+        else:
+            self._columns = None # inferred from existing table
+            
         
         self._table = self._engine.add_table(self._tabname, columns=self._columns, 
                                              new_table=self._new_table)
@@ -209,10 +206,7 @@ class DocTable:
     #################### Convenience Methods ###################
     
     def __str__(self) -> str:
-        return '<DocTable::{}:{} ct: {}>'.format(repr(self._engine), self._tabname, self.count())
-    
-    def __repr__(self) -> str:
-        return str(self)
+        return f'<DocTable ({len(self.columns)} cols)::{repr(self._engine)}:{self._tabname}>'
     
     def __getitem__(self, colname):
         '''Accesses a column object by calling .col().'''
@@ -263,13 +257,16 @@ class DocTable:
     
     def colnames(self):
         return [c.name for c in self.columns]
+
+    def primary_keys(self):
+        return [c['name'] for c in self.schema_info() if c['primary_key']]
     
     def schema_info(self):
         '''Get info about each column as a dictionary.
         Returns:
             dict<dict>: info about each column.
         '''
-        return self._engine.schema()
+        return self._engine.schema(self._tabname)
     
     def schema_table(self):
         '''Get info about each column as a dictionary.
@@ -277,9 +274,6 @@ class DocTable:
             DataFrame: info about each column.
         '''
         return self._engine.schema_df(self._tabname)
-    
-            
-
     
     ################# INSERT METHODS ##################
     
@@ -290,10 +284,17 @@ class DocTable:
             ifnotunique (str): way to handle inserted data if it breaks
                 a table constraint. Choose from FAIL, IGNORE, REPLACE.
         Returns:
-            sqlalchemy query result object. 
+            sqlalchemy query result object.
         '''
         if self._readonly:
             raise ValueError('Cannot call .insert() when doctable set to readonly.')
+
+        if dataclasses.is_dataclass(self._schema):
+            if isinstance(rowdat, DocTableSchema):
+                rowdat = rowdat.as_dict()
+            
+            elif is_sequence(rowdat) and len(rowdat) > 0 and isinstance(rowdat[0], DocTableSchema):
+                rowdat = [r.as_dict() for r in rowdat]
         
         q = sqlalchemy.sql.insert(self._table, rowdat)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
@@ -342,7 +343,7 @@ class DocTable:
         '''
         return self.select_df(limit=n)
     
-    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, **kwargs):
+    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, from_obj=None, as_dataclass=True, **kwargs):
         '''Perform select query, yield result for each row.
         
         Description: Because output must be iterable, returns special column results 
@@ -356,6 +357,10 @@ class DocTable:
             groupby: sqlalchemy gropuby directive
             limit (int): number of entries to return before stopping
             wherestr (str): raw sql "where" conditionals to add to where input
+            from_obj (sqlalchemy join): table from which to perform query (for joined tables)
+            as_dataclass (bool): if schema was provided in dataclass format, should return as 
+                dataclass object?
+            **kwargs: passed to self.execute()
         Yields:
             sqlalchemy result object: row data
         '''
@@ -369,7 +374,7 @@ class DocTable:
         cols = [c if not isinstance(c,str) else self[c] for c in cols]
                 
         # query colunmns in main table
-        result = self._exec_select_query(cols,where,orderby,groupby,limit,wherestr,offset,**kwargs)
+        result = self._exec_select_query(cols,where,orderby,groupby,limit,wherestr,offset,from_obj,**kwargs)
         # this is the result object:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         
@@ -379,9 +384,12 @@ class DocTable:
         # row is an object that can be accessed by col keyword
         # i.e. row['id'] or num index, i.e. row[0].
         if return_single:
-            return [row[0] for row in result]
+            return [row[0] for row in result.fetchall()]
         else:
-            return [row for row in result]
+            if dataclasses.is_dataclass(self._schema) and as_dataclass:
+                return [self._schema(**row) for row in result.fetchall()]
+            else:
+                return result.fetchall()
     
     def select_first(self, *args, **kwargs):
         '''Perform regular select query returning only the first result.
@@ -423,9 +431,8 @@ class DocTable:
         elif not is_sequence(cols):
             cols = [cols]
         
-        sel = self.select(cols, *args, **kwargs)
-        rows = [dict(r) for r in sel]
-        return pd.DataFrame(rows)
+        sel = self.select(cols, *args, as_dataclass=False, **kwargs)
+        return pd.DataFrame([dict(r) for r in sel])
     
     def select_series(self, col, *args, **kwargs):
         '''Select returning pandas Series.
@@ -443,9 +450,12 @@ class DocTable:
         sel = self.select(col, *args, **kwargs)
         return pd.Series(sel)
     
-    def _exec_select_query(self, cols, where, orderby, groupby, limit, wherestr, offset,**kwargs):
+    def _exec_select_query(self, cols, where, orderby, groupby, limit, wherestr, offset, from_obj, **kwargs):
         
-        q = sqlalchemy.sql.select(cols)
+        if from_obj is None:
+            q = sqlalchemy.sql.select(cols)
+        else:
+            q = sqlalchemy.sql.select(cols, from_obj=from_obj)
         
         if where is not None:
             q = q.where(where)
@@ -471,6 +481,14 @@ class DocTable:
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return result
+
+    def join(self, other, *args, **kwargs):
+        ''' Wrapper over table.join(), can pass to from_obj parameter for .select()
+        Args:
+            other (DocTable): other doctable to join
+            *args, **kwargs: passed to table.join() method
+        '''
+        return self._table.join(other._table, *args, **kwargs)
     
     
     #################### Select in Chunk Methods ###################
@@ -547,9 +565,16 @@ class DocTable:
             
         # update the main column values
         if isinstance(values,list) or isinstance(values,tuple):
+            
+            if is_sequence(values) and len(values) > 0 and isinstance(values[0], DocTableSchema):
+                values = [v.as_dict() for r in values]
+            
             q = sqlalchemy.sql.update(self._table, preserve_parameter_order=True)
             q = q.values(values)
         else:
+            if isinstance(values, DocTableSchema):
+                values = values.as_dict()
+
             q = sqlalchemy.sql.update(self._table)
             q = q.values(values)
         
@@ -562,6 +587,21 @@ class DocTable:
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
+
+    def update_dataclass(self, obj, key_name=None, **kwargs):
+        ''' Updates database with single modified object based on the provided key.
+        '''
+        if key_name is None:
+            keynames = self.primary_keys()
+            if not len(keynames):
+                raise ValueError('The "primary_key_name" argument should be provided if '
+                                    'database has no primary key.')
+            key_name = keynames[0]
+
+        return self.update(obj, where=self[key_name]==obj[key_name], **kwargs)
+            
+        
+
     
     
     #################### Delete Methods ###################

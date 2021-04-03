@@ -1,7 +1,7 @@
 
 import sqlalchemy as sa
 
-from .coltypes import CpickleType, ParseTreeType, PickleFileType, TextFileType, FileTypeBase, JSONType
+from .coltypes import CpickleType, PickleFileType, TextFileType, FileTypeBase, JSONType#, ParseTreeType
 from datetime import datetime
 
 column_type_map = {
@@ -24,7 +24,7 @@ column_type_map = {
     'unicodetext':sa.UnicodeText,
     'json': JSONType, # custom datatype
     'pickle': CpickleType, # custom datatype
-    'parsetree': ParseTreeType, # custom datatype
+    #'parsetree': ParseTreeType, # custom datatype
     'picklefile': PickleFileType,
     'textfile': TextFileType,
 }

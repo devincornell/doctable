@@ -1,14 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html><head><title>Python: module doctable.parse</title>
+<html><head><title>Python: module doctable.parsing.parsefuncs</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head><body bgcolor="#f0f0f8">
 
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
 <tr bgcolor="#7799ee">
 <td valign=bottom>&nbsp;<br>
-<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="doctable.html"><font color="#ffffff">doctable</font></a>.parse</strong></big></big></font></td
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="doctable.html"><font color="#ffffff">doctable</font></a>.<a href="doctable.parsing.html"><font color="#ffffff">parsing</font></a>.parsefuncs</strong></big></big></font></td
 ><td align=right valign=bottom
-><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/scratch/dc326/code/doctable/doctable/parse.py">/scratch/dc326/code/doctable/doctable/parse.py</a></font></td></tr></table>
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/net/tts-nas.oit.duke.edu/dc326_research/code/doctable/doctable/parsing/parsefuncs.py">/net/tts-nas.oit.duke.edu/dc326_research/code/doctable/doctable/parsing/parsefuncs.py</a></font></td></tr></table>
     <p><tt>These&nbsp;functions&nbsp;are&nbsp;used&nbsp;as&nbsp;wrappers&nbsp;around&nbsp;SpaCy&nbsp;parsers,&nbsp;and&nbsp;can&nbsp;be&nbsp;used<br>
 either&nbsp;standalone&nbsp;or&nbsp;as&nbsp;part&nbsp;of&nbsp;a&nbsp;doctable.ParsePipeline.<br>
 &nbsp;<br>
@@ -85,7 +85,7 @@ parser&nbsp;=&nbsp;doctable.ParsePipeline([<br>
 <font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
     
 <tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><dl><dt><a name="-get_parsetrees"><strong>get_parsetrees</strong></a>(doc, parse_tok_func=None, info_func_map={})</dt><dd><tt>Extracts&nbsp;parsetree&nbsp;from&nbsp;spacy&nbsp;doc&nbsp;objects.<br>
+<td width="100%"><dl><dt><a name="-get_parsetrees"><strong>get_parsetrees</strong></a>(doc, text_parse_func=None, info_func_map={})</dt><dd><tt>Extracts&nbsp;parsetree&nbsp;from&nbsp;spacy&nbsp;doc&nbsp;objects.<br>
 Args:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;doc&nbsp;(spacy.Doc&nbsp;object):&nbsp;doc&nbsp;to&nbsp;generate&nbsp;parsetree&nbsp;from.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;parse_tok_func&nbsp;(func):&nbsp;function&nbsp;used&nbsp;to&nbsp;convert&nbsp;token&nbsp;to&nbsp;<br>

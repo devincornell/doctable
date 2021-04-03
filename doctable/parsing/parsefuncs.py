@@ -305,7 +305,7 @@ def merge_tok_ngrams(toks, ngrams=tuple(), ngram_sep='_'):
 
 
 
-def get_parsetrees(doc, parse_tok_func=None, info_func_map=dict()):
+def get_parsetrees(doc, text_parse_func=None, info_func_map=dict()):
     '''Extracts parsetree from spacy doc objects.
     Args:
         doc (spacy.Doc object): doc to generate parsetree from.
@@ -317,7 +317,7 @@ def get_parsetrees(doc, parse_tok_func=None, info_func_map=dict()):
             that will be stored in each parsetree node.
     '''
     sent_trees = [
-        ParseTree(sent.root, parse_tok_func, info_func_map=info_func_map)
+        ParseTree(sent.root, text_parse_func=text_parse_func, info_func_map=info_func_map)
         for sent in doc.sents
     ]
     return sent_trees

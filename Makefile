@@ -22,6 +22,16 @@ all: docs build
 final_check: docs build test
 	@echo "ran final check"
 
+push_all: 
+	git commit -a -m '[auto_pushed]'
+	git push
+
+reinstall:
+	pip uninstall -y doctable
+	pip install .
+
+uninstall:
+	pip uninstall -y doctable
 
 ################################# CREATE DOCUMENTATION ##############################
 
@@ -40,7 +50,7 @@ example_html:
 
 DOCS_REF_FOLDER = $(DOCS_FOLDER)/ref/
 pydoc:
-	pydoc -w doctable.DocTableLegacy doctable.DocTable doctable.DocParser doctable.parsetree doctable.DocBootstrap doctable.Distribute doctable.parse doctable.pipeline doctable.util
+	pydoc -w doctable.DocTableLegacy doctable.DocTable doctable.DocParser doctable.parsetree doctable.DocBootstrap doctable.Distribute doctable.parsefuncs doctable.pipeline doctable.util
 	mv *.html $(DOCS_REF_FOLDER)
 	git add --all $(DOCS_REF_FOLDER)*.html
 
@@ -52,7 +62,7 @@ clean_docs:
 ######################################## RUN TESTS ########################################
 
 TESTS_FOLDER = tests/
-pytest:
+pytest: uninstall
 	# tests from tests folder
 	pytest $(TESTS_FOLDER)/test_*.py
 	#pytest $(TESTS_FOLDER)/test_docparser_*.py
@@ -60,7 +70,7 @@ pytest:
 	#pytest $(TESTS_FOLDER)/test_legacy_*.py
 
 TMP_TEST_FOLDER = tmp_test_deleteme
-test_examples:
+test_examples: uninstall
 	# make temporary testing folder and copy files into it
 	-rm -r $(TMP_TEST_FOLDER)
 	mkdir $(TMP_TEST_FOLDER)

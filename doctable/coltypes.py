@@ -6,7 +6,7 @@ from random import randrange
 import os
 import json
 
-from .parsetree import ParseTree
+#from .parsetree import ParseTree
 
 
 class FileTypeBase(types.TypeDecorator):
@@ -122,36 +122,36 @@ class JSONType(types.TypeDecorator):
         
 
         
-class ParseTreeType(types.TypeDecorator):
-    impl = types.PickleType
-    
-    def process_bind_param(self, parsetree, dialect):
-        if parsetree is not None:
-            return self.recurse_store_pt(parsetree)
-        else:
-            return None
-
-    def process_result_value(self, pt_dict, dialect):
-        if pt_dict is not None:
-            return self.recurse_load_pt(pt_dict)
-        else:
-            return None
-    @staticmethod
-    def recurse_store_pt(obj):
-        if is_iter(obj):
-            return [self.recurse_store_pt(el) for el in obj]
-        elif isinstance(obj, ParseTree):
-            return obj.asdict()
-        else:
-            return obj
-    @staticmethod
-    def recurse_load_pt(obj):
-        if is_iter(obj):
-            return [self.recurse_load_pt(el) for el in obj]
-        elif isinstance(obj, dict):
-            return ParseTree(obj)
-        else:
-            return obj
+#class ParseTreeType(types.TypeDecorator):
+#    impl = types.PickleType
+#    
+#    def process_bind_param(self, parsetree, dialect):
+#        if parsetree is not None:
+#            return self.recurse_store_pt(parsetree)
+#        else:
+#            return None
+#
+#    def process_result_value(self, pt_dict, dialect):
+#        if pt_dict is not None:
+#            return self.recurse_load_pt(pt_dict)
+#        else:
+#            return None
+#    @staticmethod
+#    def recurse_store_pt(obj):
+#        if is_iter(obj):
+#            return [self.recurse_store_pt(el) for el in obj]
+#        elif isinstance(obj, ParseTree):
+#            return obj.asdict()
+#        else:
+#            return obj
+#    @staticmethod
+#    def recurse_load_pt(obj):
+#        if is_iter(obj):
+#            return [self.recurse_load_pt(el) for el in obj]
+#        elif isinstance(obj, dict):
+#            return ParseTree(obj)
+#        else:
+#            return obj
         
         
         
