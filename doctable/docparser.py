@@ -3,7 +3,7 @@ from multiprocessing import Pipe, Process
 import math
 import os
 from .util import Distribute
-from .parsing import ParseTree
+from .parse import ParseTree
 
 
 
