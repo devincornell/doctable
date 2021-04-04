@@ -2,6 +2,8 @@
 import numpy as np
 
 class DocBootstrap:
+    ''' Class to handle bootstrapping of documents.
+    '''
     def __init__(self, docs, n=None):
         self.docs = docs
         
