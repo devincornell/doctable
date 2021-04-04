@@ -28,27 +28,15 @@
 
                     <h2>Submodules</h2>
                     <ul>
+                            <li><a href="doctable/connectengine.html">doctable.connectengine</a></li>
+                            <li><a href="doctable/dbutils.html">doctable.dbutils</a></li>
+                            <li><a href="doctable/doctable.html">doctable.doctable</a></li>
+                            <li><a href="doctable/legacy.html">doctable.legacy</a></li>
+                            <li><a href="doctable/model.html">doctable.model</a></li>
                             <li><a href="doctable/parse.html">doctable.parse</a></li>
                             <li><a href="doctable/schemas.html">doctable.schemas</a></li>
                             <li><a href="doctable/util.html">doctable.util</a></li>
-                            <li><a href="doctable/model.html">doctable.model</a></li>
                     </ul>
-
-                    <h2>API Documentation</h2>
-                        <ul class="memberlist">
-            <li>
-                    <a class="module" href="#parse">parse</a>
-            </li>
-            <li>
-                    <a class="module" href="#schemas">schemas</a>
-            </li>
-            <li>
-                    <a class="module" href="#util">util</a>
-            </li>
-            <li>
-                    <a class="module" href="#model">model</a>
-            </li>
-    </ul>
 
 
                     <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev">
@@ -91,95 +79,12 @@ doctable    </h1>
 <span class="c1"># all legacy</span>
 <span class="kn">from</span> <span class="nn">.legacy</span> <span class="kn">import</span> <span class="n">DocTableLegacy</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;parse&#39;</span><span class="p">,</span> <span class="s1">&#39;schemas&#39;</span><span class="p">,</span> <span class="s1">&#39;util&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">]</span>
+<span class="c1">#__all__ = [&#39;parse&#39;, &#39;schemas&#39;, &#39;util&#39;, &#39;model&#39;]</span>
 </pre></div>
 
         </details>
 
             </section>
-                <section id="parse">
-                                <div class="attr module"><a class="headerlink" href="#parse">#&nbsp;&nbsp</a>
-<span class="name"><a href="doctable/parse.html">doctable.parse</a></span></div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="c1"># for parsing</span>
-
-<span class="kn">from</span> <span class="nn">.distribute</span> <span class="kn">import</span> <span class="n">Distribute</span>
-<span class="kn">from</span> <span class="nn">.pipeline</span> <span class="kn">import</span> <span class="n">ParsePipeline</span><span class="p">,</span> <span class="n">Comp</span><span class="p">,</span> <span class="n">MultiComp</span><span class="p">,</span> <span class="n">components</span>
-<span class="kn">from</span> <span class="nn">.parsetree</span> <span class="kn">import</span> <span class="n">ParseTree</span><span class="p">,</span> <span class="n">Token</span><span class="p">,</span> <span class="n">NoneToken</span>
-<span class="kn">from</span> <span class="nn">.parsefuncs</span> <span class="kn">import</span> <span class="o">*</span> <span class="c1"># perhaps debatable</span>
-</pre></div>
-
-        </details>
-
-    
-
-                </section>
-                <section id="schemas">
-                                <div class="attr module"><a class="headerlink" href="#schemas">#&nbsp;&nbsp</a>
-<span class="name"><a href="doctable/schemas.html">doctable.schemas</a></span></div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">.doctableschema</span> <span class="kn">import</span> <span class="n">DocTableSchema</span>
-<span class="kn">from</span> <span class="nn">.emptyvalue</span> <span class="kn">import</span> <span class="n">EmptyValue</span>
-
-<span class="kn">from</span> <span class="nn">.field_columns</span> <span class="kn">import</span> <span class="n">Col</span><span class="p">,</span> <span class="n">IDCol</span><span class="p">,</span> <span class="n">UpdatedCol</span><span class="p">,</span> <span class="n">AddedCol</span>
-
-<span class="kn">from</span> <span class="nn">.parse_schema_dataclass</span> <span class="kn">import</span> <span class="n">parse_schema_dataclass</span>
-<span class="kn">from</span> <span class="nn">.parse_schema_strings</span> <span class="kn">import</span> <span class="n">parse_schema_strings</span>
-
-<span class="kn">from</span> <span class="nn">.coltype_map</span> <span class="kn">import</span> <span class="n">python_to_slqlchemy_type</span><span class="p">,</span> <span class="n">constraint_lookup</span><span class="p">,</span> <span class="n">string_to_sqlalchemy_type</span>
-<span class="kn">from</span> <span class="nn">.custom_coltypes</span> <span class="kn">import</span> <span class="n">FileTypeBase</span><span class="p">,</span> <span class="n">PickleFileType</span><span class="p">,</span> <span class="n">TextFileType</span><span class="p">,</span> <span class="n">JSONFileType</span><span class="p">,</span> <span class="n">CpickleType</span><span class="p">,</span> <span class="n">JSONType</span>
-
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">&#39;DocTableSchema&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;EmptyValue&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Col&#39;</span><span class="p">,</span> <span class="s1">&#39;IDCol&#39;</span><span class="p">,</span> <span class="s1">&#39;UpdatedCol&#39;</span><span class="p">,</span> <span class="s1">&#39;AddedCol&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;parse_schema_dataclass&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;parse_schema_strings&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;python_to_slqlchemy_type&#39;</span><span class="p">,</span> <span class="s1">&#39;constraint_lookup&#39;</span><span class="p">,</span> <span class="s1">&#39;string_to_sqlalchemy_type&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;FileTypeBase&#39;</span><span class="p">,</span> <span class="s1">&#39;PickleFileType&#39;</span><span class="p">,</span> <span class="s1">&#39;TextFileType&#39;</span><span class="p">,</span> <span class="s1">&#39;JSONFileType&#39;</span><span class="p">,</span> <span class="s1">&#39;CpickleType&#39;</span><span class="p">,</span> <span class="s1">&#39;JSONType&#39;</span><span class="p">,</span>
-<span class="p">]</span>
-</pre></div>
-
-        </details>
-
-    
-
-                </section>
-                <section id="util">
-                                <div class="attr module"><a class="headerlink" href="#util">#&nbsp;&nbsp</a>
-<span class="name"><a href="doctable/util.html">doctable.util</a></span></div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">read_pickle</span><span class="p">,</span> <span class="n">write_pickle</span><span class="p">,</span> <span class="n">read_json</span><span class="p">,</span> <span class="n">write_json</span>
-<span class="kn">from</span> <span class="nn">.showstopper</span> <span class="kn">import</span> <span class="n">showstopper</span>
-<span class="kn">from</span> <span class="nn">.timer</span> <span class="kn">import</span> <span class="n">Timer</span>
-<span class="kn">from</span> <span class="nn">.fsstore</span> <span class="kn">import</span> <span class="n">FSStore</span>
-</pre></div>
-
-        </details>
-
-    
-
-                </section>
-                <section id="model">
-                                <div class="attr module"><a class="headerlink" href="#model">#&nbsp;&nbsp</a>
-<span class="name"><a href="doctable/model.html">doctable.model</a></span></div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">.bootstrap</span> <span class="kn">import</span> <span class="n">DocBootstrap</span>
-</pre></div>
-
-        </details>
-
-    
-
-                </section>
     </main>
 </body>
 </html>

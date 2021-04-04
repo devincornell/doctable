@@ -62,7 +62,7 @@
 		      <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Reference</a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="ref/doctable.DocTable.html">DocTable</a>
+              <a class="dropdown-item" href="ref/doctable/doctable.html">DocTable</a>
               <a class="dropdown-item" href="ref/doctable.parse.html">Parsing Functions</a>
               <a class="dropdown-item" href="ref/doctable.pipeline.html">ParsePipeline</a>
                 
@@ -109,16 +109,22 @@
         <!--<br/>-->
         <!--<h2>Here's the thing.</h2>-->
 
-        <h3>DocTable Class</h3>
+        <h3>DocTable Class     <a class="btn btn-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> <a class="btn btn-primary btn-sm" href="ref/doctable/doctable.html">Docs &raquo;</a></h3>
         <p>Object representing a single database table. Accepts schema using either a dataclass or a list of column names and types.</p>
-        <a class="btn btn-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> <a class="btn btn-primary btn-sm" href="ref/doctable.DocTable.html">Docs &raquo;</a>
-        <p>Also see: 
-          <i><a href="ref/doctable.DocTable.html">docs</a></i> / 
+        <p>See also: 
           <i><a href="examples/doctable_insert_delete.html">insert and delete</a></i> /
           <i><a href="examples/doctable_select.html">select</a></i> /
           <i><a href="examples/doctable_update.html">update</a></i> /
-          <i><a href="examples/doctable_schema.html">schema guide</a></i> / 
-          <i><a href=".">connection engine api</a></i>
+          <i><a href="examples/doctable_schema.html">schema guide</a></i>
+        </p>
+        <ul>
+          <li><b>ConnectEngine</b> 
+            <i><a href="examples/doctable_connectengine.html">examples</a></i> / 
+            <i><a href="ref/doctable.connectengine.html">api</a></i>
+          </li>
+        </ul>
+        <p>Related classes: 
+          
         </p>
         <hr/>
 
@@ -155,7 +161,7 @@
         <hr/><br/>
         <h4><i>doctable</i> consists of several classes:</h4>
         <ul>
-            <li><b><i>DocTable</i></b> is an object-oriented interface for querying and manipulating a single database table. <i><a href="examples/doctable_basics.html">overview</a></i>/<i><a href="ref/doctable.DocTable.html">docs</a></i>.</li>
+            <li><b><i>DocTable</i></b> is an object-oriented interface for querying and manipulating a single database table. <i><a href="examples/doctable_basics.html">overview</a></i>/<i><a href="ref/doctable/doctable.html">docs</a></i>.</li>
             
             <li><b><i>ParsePipeline</i></b> manages parallelized parsing pipelines using custom functions or pre-built doctable components. <i><a href="examples/parse_basics.html">overview</a></i>/<i><a href="ref/doctable.pipeline.html">docs</a></i>/<i><a href="ref/doctable.parse.html">components</a></i>.</li>
 
@@ -210,9 +216,8 @@
               </ul>
           </div>
           <div class="card-footer">
-			  <a href="ref/doctable.DocTable.html" class="btn btn-primary">Reference</a>
+			      <a href="ref/doctable/doctable.html" class="btn btn-primary">API</a>
           </div>
-			
         </div>
       </div>
       <div class="col-md-4 mb-5">

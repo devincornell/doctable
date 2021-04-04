@@ -23,4 +23,4 @@ from .schemas import *
 # all legacy
 from .legacy import DocTableLegacy
 
-__all__ = ['parse', 'schemas', 'util', 'model']
+#__all__ = ['parse', 'schemas', 'util', 'model']
