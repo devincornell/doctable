@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>doctable_schema</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>example_nss_intro_dataclass</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -14259,8 +14259,7 @@ a.anchor-link {
 
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="DocTable-Example:-Schemas">DocTable Example: Schemas<a class="anchor-link" href="#DocTable-Example:-Schemas">&#182;</a></h1><p>In this example, we show column specifications for each available type, as well as the <a href="https://docs.sqlalchemy.org/en/13/core/type_basics.html">sqlalchemy equivalents</a> on which they were based. Note that .</p>
-<p>Each column in the schema passed to doctable is a 2+ tuple containing, in order, the column type, name, and arguments, and optionally the sqlalchemy type arguemnts.</p>
+<h1 id="Example-1:-US-National-Security-Strategy-Document-Corpus">Example 1: US National Security Strategy Document Corpus<a class="anchor-link" href="#Example-1:-US-National-Security-Strategy-Document-Corpus">&#182;</a></h1><p>In this example, I'll show how to create a database for document + metadata storage using the <code>DocTable</code> class, and a parser class using a <code>ParsePipeline</code>. We will store the metadata you see below with the raw text and parsed tokens in the same DocTable.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -14269,13 +14268,15 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-
-<span class="kn">import</span> <span class="nn">sys</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">doctable</span>
+<span class="kn">import</span> <span class="nn">spacy</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span> <span class="c1"># used for downloading nss docs</span>
 </pre></div>
 
      </div>
@@ -14286,96 +14287,70 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Example-Schema">Example Schema<a class="anchor-link" href="#Example-Schema">&#182;</a></h2>
+<h2 id="Introduction-to-NSS-Corpus">Introduction to NSS Corpus<a class="anchor-link" href="#Introduction-to-NSS-Corpus">&#182;</a></h2><p>This dataset is the plain text version of the US National Security Strategy documents. During the parsing process, all plain text files will be downloaded from my <a href="https://github.com/devincornell/nssdocs">github project hosting the nss docs</a>. I compiled the metadata you see below from <a href="https://history.defense.gov/Historical-Sources/National-Security-Strategy/">a page hosted by the historical dept of the secretary's office</a>. In short, each US President must release at least one NSS per term, with some (namely Clinton) producing more.</p>
+<p>Here I've created the function <code>download_nss</code> to download the text data from my nssdocs github repository, and the python dictionary <code>nss_metadata</code> to store information about each document to be stored in the database.</p>
+
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="c1"># standard id column</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;id&#39;, Integer, primary_key = True, autoincrement=True), </span>
-    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    <span class="c1"># short form (can&#39;t provide any additional args though): (&#39;idcol&#39;, &#39;id&#39;)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">download_nss</span><span class="p">(</span><span class="n">year</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Simple helper function for downloading texts from my nssdocs repo.&#39;&#39;&#39;</span>
+    <span class="n">baseurl</span> <span class="o">=</span> <span class="s1">&#39;https://raw.githubusercontent.com/devincornell/nssdocs/master/docs/</span><span class="si">{}</span><span class="s1">.txt&#39;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">baseurl</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span>
+</pre></div>
 
-    <span class="c1"># make a category column with two options: &quot;FICTION&quot; and &quot;NONFICTION&quot;</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;title&#39;, String,)</span>
-    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+     </div>
+</div>
+</div>
+</div>
 
-    <span class="c1"># make a non-null title column</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;title&#39;, String,)</span>
-    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">nss_metadata</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1987</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Reagan&#39;</span><span class="p">},</span> 
+    <span class="mi">1993</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;H.W. Bush&#39;</span><span class="p">},</span> 
+    <span class="mi">2002</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;W. Bush&#39;</span><span class="p">},</span> 
+    <span class="mi">2015</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Obama&#39;</span><span class="p">},</span> 
+    <span class="mi">1994</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span> 
+    <span class="mi">1990</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;H.W. Bush&#39;</span><span class="p">},</span> 
+    <span class="mi">1991</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;H.W. Bush&#39;</span><span class="p">},</span> 
+    <span class="mi">2006</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;W. Bush&#39;</span><span class="p">},</span> 
+    <span class="mi">1997</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span> 
+    <span class="mi">1995</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span> 
+    <span class="mi">1988</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Reagan&#39;</span><span class="p">},</span> 
+    <span class="mi">2017</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Trump&#39;</span><span class="p">},</span> 
+    <span class="mi">1996</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span> 
+    <span class="mi">2010</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Obama&#39;</span><span class="p">},</span> 
+    <span class="mi">1999</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span> 
+    <span class="mi">1998</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span> 
+    <span class="mi">2000</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 
-    <span class="c1"># make an abstract where the default is an empty string instead of null</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;abstract&#39;, String, default=&#39;&#39;)</span>
-    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;abstract&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)),</span>
+     </div>
+</div>
+</div>
+</div>
 
-    <span class="c1"># make an age column where age must be greater than zero</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;abstract&#39;, Integer)</span>
-    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">),</span>
-
-    <span class="c1"># make a column that keeps track of column updates</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;updated_on&#39;, DateTime(), default=datetime.now, onupdate=datetime.now)</span>
-    <span class="p">(</span><span class="s1">&#39;datetime&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_on&#39;</span><span class="p">,</span>  <span class="nb">dict</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)),</span>
-    <span class="c1"># short form to auto-record update date: (&#39;date_updated&#39;, &#39;updated_on&#39;)</span>
-    
-    <span class="c1">#SQLAlchemy: Column(&#39;updated_on&#39;, DateTime(), default=datetime.now)</span>
-    <span class="p">(</span><span class="s1">&#39;datetime&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_on&#39;</span><span class="p">,</span>  <span class="nb">dict</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)),</span>
-    <span class="c1"># short form to auto-record insertion date: (&#39;date_added&#39;, &#39;added_on&#39;)</span>
-
-    <span class="c1"># make a string column with max of 500 characters</span>
-    <span class="c1">#SQLAlchemy: Column(&#39;abstract&#39;, String, default=&#39;&#39;)</span>
-    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(),</span><span class="nb">dict</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">500</span><span class="p">)),</span>
-
-    
-    <span class="c1">##### Custom DocTable Column Types #####</span>
-    
-    <span class="c1"># uses json.dump to convert python object to json when storing and</span>
-    <span class="c1"># json.load to convert json back to python when querying</span>
-    <span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">,</span><span class="s1">&#39;json_data&#39;</span><span class="p">),</span>
-    
-    <span class="c1"># stores pickled python object directly in table as BLOB</span>
-    <span class="c1"># TokensType and ParagraphsType are defined in doctable/coltypes.py</span>
-    <span class="c1"># SQLAlchemy: Column(&#39;tokenized&#39;, TokensType), Column(&#39;sentencized&#39;, ParagraphsType)</span>
-    <span class="p">(</span><span class="s1">&#39;pickle&#39;</span><span class="p">,</span><span class="s1">&#39;tokenized&#39;</span><span class="p">),</span>
-    
-    <span class="c1"># store pickled data into a separate file, recording only filename directly in table</span>
-    <span class="c1"># the &#39;fpath&#39; argument can specify where the files should be placed, but by</span>
-    <span class="c1"># default they are stored in &lt;dbname&gt;_&lt;tablename&gt;_&lt;columnname&gt;</span>
-    <span class="c1">#(&#39;picklefile&#39;, &#39;pickle_obj&#39;, dict(), dict(fpath=&#39;folder_for_picklefiles&#39;)),</span>
-    
-    <span class="c1"># very similar to above, but use only when storing text data</span>
-    <span class="c1">#(&#39;textfile&#39;, &#39;text_file&#39;), # similar to above</span>
-    
-    
-    <span class="c1">##### Constraints #####</span>
-    
-    <span class="c1">#SQLAlchemy: CheckConstraint(&#39;category in (&quot;FICTION&quot;,&quot;NONFICTION&quot;)&#39;, name=&#39;salary_check&#39;)</span>
-    <span class="p">(</span><span class="s1">&#39;check_constraint&#39;</span><span class="p">,</span> <span class="s1">&#39;category in (&quot;FICTION&quot;,&quot;NONFICTION&quot;)&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;salary_check&#39;</span><span class="p">)),</span>
-    
-    <span class="c1">#SQLAlchemy: CheckConstraint(&#39;age &gt; 0&#39;)</span>
-    <span class="p">(</span><span class="s1">&#39;check_constraint&#39;</span><span class="p">,</span> <span class="s1">&#39;age &gt; 0&#39;</span><span class="p">),</span>
-    
-    <span class="c1"># make sure each category/title entry is unique</span>
-    <span class="c1">#SQLAlchemy:  UniqueConstraint(&#39;category&#39;, &#39;title&#39;, name=&#39;work_key&#39;)</span>
-    <span class="p">(</span><span class="s1">&#39;unique_constraint&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">,</span><span class="s1">&#39;title&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;work_key&#39;</span><span class="p">)),</span>
-    
-    <span class="c1"># makes a foreign key from the &#39;subkey&#39; column of this table to the &#39;id&#39;</span>
-    <span class="c1"># column of ANOTHERDOCTABLE, setting the SQL onupdate and ondelete foreign key constraints</span>
-    <span class="c1">#(&#39;foreignkey_constraint&#39;, [[&#39;subkey&#39;], [ANOTHERDOCTABLE[&#39;id&#39;]]], {}, dict(onupdate=&quot;CASCADE&quot;, ondelete=&quot;CASCADE&quot;)),</span>
-    <span class="c1">#NOTE: Can&#39;t show here because we didn&#39;t make ANOTHERDOCTABLE</span>
-    
-    <span class="c1">##### Indexes ######</span>
-    
-    <span class="c1"># make index table</span>
-    <span class="c1"># SQLAlchemy: Index(&#39;ind0&#39;, &#39;category&#39;, &#39;title&#39;, unique=True)</span>
-    <span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;ind0&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">,</span><span class="s1">&#39;title&#39;</span><span class="p">),</span><span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    
-<span class="p">)</span>
-<span class="n">md</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">md</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># downloader example: first 100 characters of 1993 NSS document</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">download_nss</span><span class="p">(</span><span class="mi">1993</span><span class="p">)</span>
+<span class="n">text</span><span class="p">[:</span><span class="mi">100</span><span class="p">]</span>
 </pre></div>
 
      </div>
@@ -14391,7 +14366,105 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>&#39;Preface \n\nAmerican Leadership for Peaceful Change \n\nOur great Nation stands at a crossroads in histo&#39;</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="1.-Create-a-DocTable-Schema">1. Create a DocTable Schema<a class="anchor-link" href="#1.-Create-a-DocTable-Schema">&#182;</a></h2><p>The <code>DocTable</code> class is often used by subclassing. Our <code>NSSDocs</code> class inherits from <code>DocTable</code> and will store connection and schema information. Because the default constructor checks for statically define member variables <code>tabname</code> and <code>schema</code> (as well as others), we can simply add them to the class definition.</p>
+<p>In this example, we create the 'id' column as a unique index, the 'year', 'president', and 'party' columns for storing the metadata we defined above in <code>nss_metadata</code>, and columns for raw and parse text. See the <a href="examples/doctable_schema.html">schema guide</a> for examples of the full range of column types.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">NSSDoc</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableSchema</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
+    <span class="n">year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">president</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">party</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">parsed</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+        
+    <span class="n">__constraints__</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;party in (&quot;R&quot;, &quot;D&quot;)&#39;</span><span class="p">)]</span>
+    <span class="n">__indices__</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ind_yr&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">))}</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>We can then create a connection to a database by instantiating the <code>NSSDocs</code> class. Since the <code>fname</code> parameter was not provided, this doctable exists only in memory using sqlite (uses special sqlite name ":memory:"). We will use this for these examples.</p>
+<p>We can check the sqlite table schema using <code>.schema_table()</code>. You can see that the 'pickle' datatype we chose above is represented as a BLOB column. This is because DocTable, using SQLAlchemy core, creates an interface on top of sqlite to handle the data conversion. You can view the number of documents using <code>.count()</code> or by viewing the db instance as a string (in this case with print function).</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># printing the DocTable object itself shows how many entries there are</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">NSSDoc</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>DocTable: SELECT count() AS count_1 
+FROM _documents_
+ LIMIT ? OFFSET ?
+0
+&lt;DocTable (6 cols)::sqlite:///:memory::_documents_&gt;
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
 
 
 
@@ -14434,8 +14507,8 @@ a.anchor-link {
     </tr>
     <tr>
       <th>1</th>
-      <td>category</td>
-      <td>VARCHAR</td>
+      <td>year</td>
+      <td>INTEGER</td>
       <td>False</td>
       <td>None</td>
       <td>auto</td>
@@ -14443,16 +14516,16 @@ a.anchor-link {
     </tr>
     <tr>
       <th>2</th>
-      <td>title</td>
+      <td>president</td>
       <td>VARCHAR</td>
-      <td>False</td>
+      <td>True</td>
       <td>None</td>
       <td>auto</td>
       <td>0</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>abstract</td>
+      <td>party</td>
       <td>VARCHAR</td>
       <td>True</td>
       <td>None</td>
@@ -14461,34 +14534,7 @@ a.anchor-link {
     </tr>
     <tr>
       <th>4</th>
-      <td>age</td>
-      <td>INTEGER</td>
-      <td>True</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>updated_on</td>
-      <td>DATETIME</td>
-      <td>True</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>6</th>
       <td>text</td>
-      <td>VARCHAR(500)</td>
-      <td>True</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>json_data</td>
       <td>VARCHAR</td>
       <td>True</td>
       <td>None</td>
@@ -14496,8 +14542,8 @@ a.anchor-link {
       <td>0</td>
     </tr>
     <tr>
-      <th>8</th>
-      <td>tokenized</td>
+      <th>5</th>
+      <td>parsed</td>
       <td>BLOB</td>
       <td>True</td>
       <td>None</td>
@@ -14518,17 +14564,29 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Type-Mappings">Type Mappings<a class="anchor-link" href="#Type-Mappings">&#182;</a></h1><p>DocTable2 provides a simplified interface into the <a href="https://docs.sqlalchemy.org/en/13/core/">SQLAlchemy core</a> package component (not the object-relational mapping component). With this interface DocTable2 is able to provide an object-oriented interface to execute SQL commands. This package simplifies that interface by working with the various objects within the class, allowing the user to create schemas and perform queries without working with the hundreds of classes required by SQLAlchemy core.</p>
-<p>Because of this, it is important to note the interface between them. The first is the type map used to set up the schema. The DocTable2 constructor provides a schema interface which accepts strings as types, so the type map appears here:</p>
+<h2 id="2.-Insert-Data-Into-the-Table">2. Insert Data Into the Table<a class="anchor-link" href="#2.-Insert-Data-Into-the-Table">&#182;</a></h2>
+</div>
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Now let's download and store the text into the database. Each loop downloads a text document and inserts it into the doctable, and we use the <code>.insert()</code> method to insert a single row at a time. The row to be inserted is represented as a dictionary, and any missing column information is left as NULL. The <code>ifnotunique</code> argument is set to false because if we were to re-run this code, it needs to replace the existing document of the same year. Recall that in the schema we placed a unique constraint on the year column.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">doctable</span><span class="o">.</span><span class="n">schemas</span><span class="o">.</span><span class="n">column_type_map</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">docmeta</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">nss_metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">download_nss</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">NSSDoc</span><span class="p">(</span>
+        <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> 
+        <span class="n">party</span><span class="o">=</span><span class="n">docmeta</span><span class="p">[</span><span class="s1">&#39;party&#39;</span><span class="p">],</span> 
+        <span class="n">president</span><span class="o">=</span><span class="n">docmeta</span><span class="p">[</span><span class="s1">&#39;president&#39;</span><span class="p">],</span> 
+        <span class="n">text</span><span class="o">=</span><span class="n">text</span>
+    <span class="p">),</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14544,34 +14602,674 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>100%|██████████| 17/17 [00:01&lt;00:00,  9.67it/s]</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>DocTable: SELECT _documents_.id, _documents_.year, _documents_.president, _documents_.party, _documents_.text, _documents_.parsed 
+FROM _documents_
+ LIMIT ? OFFSET ?
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>year</th>
+      <th>president</th>
+      <th>party</th>
+      <th>text</th>
+      <th>parsed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1987</td>
+      <td>Reagan</td>
+      <td>R</td>
+      <td>I. An American Perspective \n\nIn the early da...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>1993</td>
+      <td>H.W. Bush</td>
+      <td>R</td>
+      <td>Preface \n\nAmerican Leadership for Peaceful C...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>2002</td>
+      <td>W. Bush</td>
+      <td>R</td>
+      <td>The great struggles of the twentieth century b...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>2015</td>
+      <td>Obama</td>
+      <td>D</td>
+      <td>Today, the United States is stronger and bette...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>1994</td>
+      <td>Clinton</td>
+      <td>D</td>
+      <td>Preface \n\nProtecting our nation's security -...</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="3.-Query-Table-Data">3. Query Table Data<a class="anchor-link" href="#3.-Query-Table-Data">&#182;</a></h2><p>Now that we have inserted the NSS documents into the table, there are a few ways we can query the data. To select the first entry of the table use <code>.select_first()</code>. This method returns a simple <code>sqlalchemy.RowProxy</code> object which can be accessed like a dictionary or like a tuple.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">()</span>
+<span class="c1">#print(row)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;president&#39;</span><span class="p">])</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>DocTable: SELECT _documents_.id, _documents_.year, _documents_.president, _documents_.party, _documents_.text, _documents_.parsed 
+FROM _documents_
+ LIMIT ? OFFSET ?
+Reagan
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>To select more than one row, use the <code>.select()</code> method. If you'd only like to return the first few rows, you can use the <code>limit</code> argument.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;year&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;year&#39;</span><span class="p">])</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>DocTable: SELECT _documents_.id, _documents_.year, _documents_.president, _documents_.party, _documents_.text, _documents_.parsed 
+FROM _documents_
+ LIMIT ? OFFSET ?
+1987
+1993
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>We can also select only a few columns.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>DocTable: SELECT _documents_.year, _documents_.president 
+FROM _documents_
+ LIMIT ? OFFSET ?
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;biginteger&#39;: sqlalchemy.sql.sqltypes.BigInteger,
- &#39;boolean&#39;: sqlalchemy.sql.sqltypes.Boolean,
- &#39;date&#39;: sqlalchemy.sql.sqltypes.Date,
- &#39;datetime&#39;: sqlalchemy.sql.sqltypes.DateTime,
- &#39;enum&#39;: sqlalchemy.sql.sqltypes.Enum,
- &#39;float&#39;: sqlalchemy.sql.sqltypes.Float,
- &#39;integer&#39;: sqlalchemy.sql.sqltypes.Integer,
- &#39;interval&#39;: sqlalchemy.sql.sqltypes.Interval,
- &#39;largebinary&#39;: sqlalchemy.sql.sqltypes.LargeBinary,
- &#39;numeric&#39;: sqlalchemy.sql.sqltypes.Numeric,
- &#39;smallinteger&#39;: sqlalchemy.sql.sqltypes.SmallInteger,
- &#39;string&#39;: sqlalchemy.sql.sqltypes.String,
- &#39;text&#39;: sqlalchemy.sql.sqltypes.Text,
- &#39;time&#39;: sqlalchemy.sql.sqltypes.Time,
- &#39;unicode&#39;: sqlalchemy.sql.sqltypes.Unicode,
- &#39;unicodetext&#39;: sqlalchemy.sql.sqltypes.UnicodeText,
- &#39;json&#39;: doctable.coltypes.JSONType,
- &#39;pickle&#39;: doctable.coltypes.CpickleType,
- &#39;picklefile&#39;: doctable.coltypes.PickleFileType,
- &#39;textfile&#39;: doctable.coltypes.TextFileType}</pre>
+<pre>[NSSDoc(id=EmptyValue, year=1987, president=&#39;Reagan&#39;, party=EmptyValue, text=EmptyValue, parsed=EmptyValue),
+ NSSDoc(id=EmptyValue, year=1993, president=&#39;H.W. Bush&#39;, party=EmptyValue, text=EmptyValue, parsed=EmptyValue),
+ NSSDoc(id=EmptyValue, year=2002, president=&#39;W. Bush&#39;, party=EmptyValue, text=EmptyValue, parsed=EmptyValue)]</pre>
 </div>
 
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>For convenience, we can also use the <code>.select_df()</code> method to return directly as a pandas dataframe.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># use select_df to show a couple rows of our database</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>DocTable: SELECT _documents_.id, _documents_.year, _documents_.president, _documents_.party, _documents_.text, _documents_.parsed 
+FROM _documents_
+ LIMIT ? OFFSET ?
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>year</th>
+      <th>president</th>
+      <th>party</th>
+      <th>text</th>
+      <th>parsed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1987</td>
+      <td>Reagan</td>
+      <td>R</td>
+      <td>I. An American Perspective \n\nIn the early da...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>1993</td>
+      <td>H.W. Bush</td>
+      <td>R</td>
+      <td>Preface \n\nAmerican Leadership for Peaceful C...</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="4.-Create-a-Parser-for-Tokenization">4. Create a Parser for Tokenization<a class="anchor-link" href="#4.-Create-a-Parser-for-Tokenization">&#182;</a></h2><p>Now that the text is in the doctable, we can extract it using <code>.select()</code>, parse it, and store the parsed text back into the table using <code>.update()</code>.</p>
+<p>Now we create a parser using <code>ParsePipeline</code> and a list of functions to apply to the text sequentially. The <code>Comp</code> function returns a <a href="ref/doctable.parse.html">doctable parse function</a> with additional keyword arguments. For instance, the following two expressions would be the same.</p>
+
+<pre><code>doctable.component('keep_tok', keep_punct=True) # is equivalent to
+lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
+<p>Note in this example that the 'tokenize' function takes two function arguments <code>keep_tok_func</code> and <code>parse_tok_func</code> which are also specified using the <code>.Comp()</code> function. The available pipeline components are listed in the <a href="ref/doctable.parse.html">parse function documentation</a>.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># first load a spacy model</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en_core_web_sm&#39;</span><span class="p">)</span>
+
+<span class="c1"># add pipeline components</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParsePipeline</span><span class="p">([</span>
+    <span class="n">nlp</span><span class="p">,</span> <span class="c1"># first run spacy parser</span>
+    <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;tokenize&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
+        <span class="s1">&#39;split_sents&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s1">&#39;keep_tok_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;keep_tok&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;parse_tok_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;parse_tok&#39;</span><span class="p">),</span>
+    <span class="p">})</span>
+<span class="p">])</span>
+
+<span class="n">parser</span><span class="o">.</span><span class="n">components</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>[&lt;spacy.lang.en.English at 0x7f36c5715460&gt;,
+ functools.partial(&lt;function tokenize at 0x7f36ca139ca0&gt;, split_sents=False, keep_tok_func=functools.partial(&lt;function keep_tok at 0x7f36ca139dc0&gt;), parse_tok_func=functools.partial(&lt;function parse_tok at 0x7f36ca139d30&gt;))]</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Now we loop through rows in the doctable and for each iteration parse the text and insert it back into the table using <code>.update()</code>. We use the <code>ParsePipeline</code> method <code>.parsemany()</code> to parse paragraphs from each document in parallel. This is much faster.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">docs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">docs</span><span class="p">):</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">parsed</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parsemany</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">[:</span><span class="mi">1000</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">workers</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span> <span class="c1"># parse paragraphs in parallel</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">update_dataclass</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>  0%|          | 0/17 [00:00&lt;?, ?it/s]</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>DocTable: SELECT _documents_.id, _documents_.year, _documents_.president, _documents_.party, _documents_.text, _documents_.parsed 
+FROM _documents_
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>100%|██████████| 17/17 [00:01&lt;00:00, 12.87it/s]
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>See the 'parsed' column in the dataframe below to view the paragraphs.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>DocTable: SELECT _documents_.id, _documents_.year, _documents_.president, _documents_.party, _documents_.text, _documents_.parsed 
+FROM _documents_
+ LIMIT ? OFFSET ?
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>year</th>
+      <th>president</th>
+      <th>party</th>
+      <th>text</th>
+      <th>parsed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1987</td>
+      <td>Reagan</td>
+      <td>R</td>
+      <td>I. An American Perspective \n\nIn the early da...</td>
+      <td>[[I., An, American, Perspective], [in, the, ea...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>1993</td>
+      <td>H.W. Bush</td>
+      <td>R</td>
+      <td>Preface \n\nAmerican Leadership for Peaceful C...</td>
+      <td>[[preface], [American, leadership, for, peacef...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>2002</td>
+      <td>W. Bush</td>
+      <td>R</td>
+      <td>The great struggles of the twentieth century b...</td>
+      <td>[[the, great, struggles, of, the, twentieth, c...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>And here we show a few tokenized paragraphs.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">paragraphs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">(</span><span class="s1">&#39;parsed&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">paragraphs</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>DocTable: SELECT _documents_.parsed 
+FROM _documents_
+ LIMIT ? OFFSET ?
+[&#39;I.&#39;, &#39;An&#39;, &#39;American&#39;, &#39;Perspective&#39;] 
+
+[&#39;in&#39;, &#39;the&#39;, &#39;early&#39;, &#39;days&#39;, &#39;of&#39;, &#39;this&#39;, &#39;administration&#39;, &#39;we&#39;, &#39;laid&#39;, &#39;the&#39;, &#39;foundation&#39;, &#39;for&#39;, &#39;a&#39;, &#39;more&#39;, &#39;constructive&#39;, &#39;and&#39;, &#39;positive&#39;, &#39;American&#39;, &#39;role&#39;, &#39;in&#39;, &#39;world&#39;, &#39;affairs&#39;, &#39;by&#39;, &#39;clarifying&#39;, &#39;the&#39;, &#39;essential&#39;, &#39;elements&#39;, &#39;of&#39;, &#39;U.S.&#39;, &#39;foreign&#39;, &#39;and&#39;, &#39;defense&#39;, &#39;policy&#39;, &#39;.&#39;] 
+
+[&#39;over&#39;, &#39;the&#39;, &#39;intervening&#39;, &#39;years&#39;, &#39;,&#39;, &#39;we&#39;, &#39;have&#39;, &#39;looked&#39;, &#39;objectively&#39;, &#39;at&#39;, &#39;our&#39;, &#39;policies&#39;, &#39;and&#39;, &#39;performance&#39;, &#39;on&#39;, &#39;the&#39;, &#39;world&#39;, &#39;scene&#39;, &#39;to&#39;, &#39;ensure&#39;, &#39;they&#39;, &#39;reflect&#39;, &#39;the&#39;, &#39;dynamics&#39;, &#39;of&#39;, &#39;a&#39;, &#39;complex&#39;, &#39;and&#39;, &#39;ever&#39;, &#39;-&#39;, &#39;changing&#39;, &#39;world&#39;, &#39;.&#39;, &#39;where&#39;, &#39;course&#39;, &#39;adjustments&#39;, &#39;have&#39;, &#39;been&#39;, &#39;required&#39;, &#39;,&#39;, &#39;i&#39;, &#39;have&#39;, &#39;directed&#39;, &#39;changes&#39;, &#39;.&#39;, &#39;but&#39;, &#39;we&#39;, &#39;have&#39;, &#39;not&#39;, &#39;veered&#39;, &#39;and&#39;, &#39;will&#39;, &#39;not&#39;, &#39;veer&#39;, &#39;from&#39;, &#39;the&#39;, &#39;broad&#39;, &#39;aims&#39;, &#39;that&#39;, &#39;guide&#39;, &#39;America&#39;, &#34;&#39;s&#34;, &#39;leadership&#39;, &#39;role&#39;, &#39;in&#39;, &#39;today&#39;, &#34;&#39;s&#34;, &#39;world&#39;, &#39;:&#39;] 
+
+</pre>
+</div>
 </div>
 
 </div>
