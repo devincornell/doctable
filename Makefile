@@ -35,7 +35,7 @@ uninstall:
 
 ################################# CREATE DOCUMENTATION ##############################
 
-docs: example_html pydoc
+docs: pydoc example_html
 	git add README.md
 
 DOCS_FOLDER = docs/
@@ -49,9 +49,11 @@ example_html:
 
 
 DOCS_REF_FOLDER = $(DOCS_FOLDER)/ref/
+#pydoc -w doctable.ConnectEngine doctable.DocTable doctable.dbutils doctable.DocTableSchemas doctable.schemas.field_columns doctable.parse.pipeline doctable.parse.parsetree doctable.parse.parsefuncs doctable.Bootstrap doctable.Timer doctable.FSStore doctable.util.io
+#mv *.html $(DOCS_REF_FOLDER)
 pydoc:
-	pydoc -w doctable.ConnectEngine doctable.DocTable doctable.dbutils doctable.DocTableSchemas doctable.schemas.field_columns doctable.parse.pipeline doctable.parse.parsetree doctable.parse.parsefuncs doctable.Bootstrap doctable.Timer doctable.FSStore doctable.util.io
-	mv *.html $(DOCS_REF_FOLDER)
+	pdoc -o ./docs/ref ./doctable/
+	
 	git add --all $(DOCS_REF_FOLDER)*.html
 
 clean_docs:
