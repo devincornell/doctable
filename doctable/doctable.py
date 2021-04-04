@@ -14,7 +14,7 @@ import dataclasses
 #import sqlalchemy as sa
 import sqlalchemy
 
-from .coltypes import FileTypeBase
+from .schemas import FileTypeBase
 from .bootstrap import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine

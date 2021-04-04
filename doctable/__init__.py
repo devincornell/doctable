@@ -14,12 +14,12 @@ from .benchmark import *
 from .parsing import *
 
 # regular table features
-from .dataclass_schemas import *
+
 from .doctable import DocTable
-from .schemas import parse_schema, column_type_map
+#from .schemas import parse_schema, column_type_map
 from .connectengine import ConnectEngine
 from .bootstrap import DocBootstrap
-
+from .schemas import *
 
 # all legacy
 from .doctablelegacy import DocTableLegacy
