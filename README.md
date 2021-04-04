@@ -4,9 +4,9 @@
 
 Document database interface for text analysis.
 
-See the [DocTable website](https://devincornell.github.io/doctable/) for documentation and examples.
+See the [doctable website](https://devinjcornell.com/doctable/) for documentation and examples.
 
-Created by [Devin J. Cornell](https://devincornell.github.io/).
+Created by [Devin J. Cornell](https://devinjcornell.com).
 
 
 ### Thanks
