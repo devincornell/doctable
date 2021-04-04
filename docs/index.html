@@ -109,8 +109,8 @@
         <!--<br/>-->
         <!--<h2>Here's the thing.</h2>-->
 
-        <h3>DocTable Class     <a class="btn btn-outline-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> <a class="btn btn-outline-primary btn-sm" href="ref/doctable/doctable.html">Docs &raquo;</a></h3>
-        <p>Object representing a single database table. Accepts schema using either a dataclass or a list of column names and types.</p>
+        <h3>DocTable Objects <a class="btn btn-outline-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> <a class="btn btn-outline-primary btn-sm" href="ref/doctable/doctable.html">API &raquo;</a></h3>
+        <p>Object-oriented interface for querying and manipulating a single database table.</p>
         <p>Examples: 
           <i><a href="examples/doctable_insert_delete.html">insert and delete</a></i> /
           <i><a href="examples/doctable_select.html">select</a></i> /
@@ -119,48 +119,39 @@
         </p>
         <h6>Related functionality</h6>
         <ul>
-          <li>database functions:
-            <i><a href="ref/doctable/dbutils.html">api</a></i>
+          <li><b>ConnectEngine:</b> connect to database independent of any single table.
+            (<i><a href="examples/doctable_connectengine.html">examples</a></i> / 
+            <i><a href="ref/doctable/connectengine.html">api</a></i>)
           </li>
-          <li>ConnectEngine: 
-            <i><a href="examples/doctable_connectengine.html">examples</a></i> / 
-            <i><a href="ref/doctable/connectengine.html">api</a></i>
+          <li><b>Bootstrap:</b> bootstrap database rows for model training.
+            (<i><a href="examples/doctable_bootstrap.html">examples</a></i> / 
+            <i><a href="ref/doctable/model/bootstrap.html">api</a></i>)
           </li>
-          <li>Bootstrap: 
-            <i><a href="examples/doctable_bootstrap.html">examples</a></i> / 
-            <i><a href="ref/doctable/model/bootstrap.html">api</a></i>
+          <li><b>database functions </b>
+            (<i><a href="ref/doctable/dbutils.html">api</a></i>)
           </li>
         </ul>
         <hr/>
 
-        <h3>Parsing Functionality</h3>
-        <p>Various tools for parsing documents in parallel.</p>
+        <h3>Parsing Pipelines <a class="btn btn-outline-primary btn-sm" href="examples/parse_basics.html">Overview &raquo;</a></h3>
+        <p>Various tools for parsing and storing documents into databases.</p>
+        <h6>Related functionality</h6>
         <ul>
-          <li><b>ParsePipeline</b>:
-            <i><a href="examples/parse_basics.html">overview</a></i> / 
+          <li><b>ParsePipeline</b>: manages parallelized parsing pipelines using custom functions or pre-built doctable components.
+            (<i><a href="examples/parse_basics.html">overview</a></i> / 
             <i><a href="ref/doctable.parse.parsefuncs.html">parsing components</a></i> / 
-            <i><a href="ref/doctable.pipeline.html">api</a></i>
+            <i><a href="ref/doctable.pipeline.html">api</a></i>)
           </li>
-          <li><b>ParseTree</b>:
-            <i><a href="examples/parse_basics.html">overview</a></i> / 
-            <i><a href="ref/doctable.ParseTree.html">api</a></i>
+          <li><b>ParseTree</b>: minimal container for storing and manipulating parsetree objects. 
+            (<i><a href="examples/parse_basics.html">overview</a></i> / 
+            <i><a href="ref/doctable.ParseTree.html">api</a></i>)
           </li>
         </ul>
-
-        
-        <p>Also see: 
-          <i><a href="examples/parse_basics.html">ParsePipeline overview</a></i> / 
-          <i><a href="examples/doctable_insert_delete.html">insert and delete</a></i> /
-          <i><a href="examples/doctable_select.html">select</a></i> /
-          <i><a href="examples/doctable_update.html">update</a></i> /
-          <i><a href="examples/doctable_schema.html">schema guide</a></i> / 
-          <i><a href=".">column types</a></i>
-        </p>
         <hr/>
 
-        <h4>Example: US National Security Strategy Documents</h4>
+        <h3>Example: US National Security Strategy Documents</h3>
         <p>This demonstration shows a typical DocTable workflow. We show how to create a new DocTable, insert NSS document text and metadata, and parse data for storage in the table.</p>
-        <a class="btn btn-primary btn-lg" href="examples/example_nss_1_intro.html">See NSS Example &raquo;</a>
+        <a class="btn btn-primary btn-sm" href="examples/example_nss_1_intro.html">See NSS Example &raquo;</a>
         <hr/>
 
         <hr/><br/>
