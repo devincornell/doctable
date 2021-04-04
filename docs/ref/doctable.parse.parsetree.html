@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module doctable.parse.parsetree</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="doctable.html"><font color="#ffffff">doctable</font></a>.<a href="doctable.parse.html"><font color="#ffffff">parse</font></a>.parsetree</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/net/tts-nas.oit.duke.edu/dc326_research/code/doctable/doctable/parse/parsetree.py">/net/tts-nas.oit.duke.edu/dc326_research/code/doctable/doctable/parse/parsetree.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="doctable.parse.parsetree.html#ParseTree">ParseTree</a>
+</font></dt><dt><font face="helvetica, arial"><a href="doctable.parse.parsetree.html#Token">Token</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="doctable.parse.parsetree.html#NoneToken">NoneToken</a>
+</font></dt></dl>
+</dd>
+</dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="NoneToken">class <strong>NoneToken</strong></a>(<a href="doctable.parse.parsetree.html#Token">Token</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="doctable.parse.parsetree.html#NoneToken">NoneToken</a></dd>
+<dd><a href="doctable.parse.parsetree.html#Token">Token</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="NoneToken-__init__"><strong>__init__</strong></a>(self)</dt><dd><tt>Construct&nbsp;from&nbsp;either&nbsp;a&nbsp;dictionary&nbsp;or&nbsp;spacy&nbsp;token.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;node&nbsp;is&nbsp;spacy.<a href="#Token">Token</a>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node&nbsp;(spacy.<a href="#Token">Token</a>):&nbsp;token&nbsp;to&nbsp;extract&nbsp;info&nbsp;from<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text_parse_func&nbsp;(dict&lt;str:func&gt;):&nbsp;mapping&nbsp;to&nbsp;store&nbsp;text<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;info_func_map&nbsp;(dict&lt;str:func&gt;):&nbsp;data&nbsp;that&nbsp;will&nbsp;go&nbsp;into&nbsp;.info<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;node&nbsp;is&nbsp;dict:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node&nbsp;(dict&lt;str:any&gt;):&nbsp;dictionary&nbsp;of&nbsp;node&nbsp;properties<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parent&nbsp;(spacy.<a href="#Token">Token</a>):&nbsp;parent&nbsp;of&nbsp;current&nbsp;node<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text_parse_func:&nbsp;unused<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;info_func_map:&nbsp;unused</tt></dd></dl>
+
+<dl><dt><a name="NoneToken-__str__"><strong>__str__</strong></a>(self)</dt><dd><tt>Return&nbsp;str(self).</tt></dd></dl>
+
+<hr>
+Readonly properties defined here:<br>
+<dl><dt><strong>is_none</strong></dt>
+</dl>
+<hr>
+Methods inherited from <a href="doctable.parse.parsetree.html#Token">Token</a>:<br>
+<dl><dt><a name="NoneToken-__getitem__"><strong>__getitem__</strong></a>(self, ind)</dt></dl>
+
+<dl><dt><a name="NoneToken-__iter__"><strong>__iter__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="NoneToken-__repr__"><strong>__repr__</strong></a>(self)</dt><dd><tt>Return&nbsp;repr(self).</tt></dd></dl>
+
+<dl><dt><a name="NoneToken-bubble_accum"><strong>bubble_accum</strong></a>(self, func)</dt><dd><tt>##########################&nbsp;Accumulation&nbsp;Functions&nbsp;##########################</tt></dd></dl>
+
+<dl><dt><a name="NoneToken-bubble_reduce"><strong>bubble_reduce</strong></a>(self, func, agg_data)</dt></dl>
+
+<dl><dt><a name="NoneToken-get_child"><strong>get_child</strong></a>(self, *args, first=False, **kwargs)</dt><dd><tt>Get&nbsp;first&nbsp;child&nbsp;with&nbsp;the&nbsp;given&nbsp;dependency&nbsp;relation.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;deprel&nbsp;(sequence&nbsp;or&nbsp;string):&nbsp;dependency&nbsp;relations&nbsp;to&nbsp;match&nbsp;on.<br>
+Raises:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ValueError&nbsp;when&nbsp;the&nbsp;token&nbsp;has&nbsp;more&nbsp;than&nbsp;one&nbsp;dependency&nbsp;with&nbsp;the&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;given&nbsp;relation.</tt></dd></dl>
+
+<dl><dt><a name="NoneToken-get_childs"><strong>get_childs</strong></a>(self, dep=None, pos=None, matchfunc=None)</dt><dd><tt>Get&nbsp;children&nbsp;with&nbsp;the&nbsp;given&nbsp;dependency&nbsp;relation.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dep&nbsp;(sequence&nbsp;or&nbsp;string):&nbsp;dependency&nbsp;relations&nbsp;to&nbsp;match&nbsp;on.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pos&nbsp;(sequence&nbsp;or&nbsp;string):&nbsp;pos&nbsp;to&nbsp;match&nbsp;on.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;matchfunc&nbsp;(function&nbsp;or&nbsp;None):&nbsp;custom&nbsp;matching&nbsp;function.</tt></dd></dl>
+
+<dl><dt><a name="NoneToken-get_preps"><strong>get_preps</strong></a>(self, as_str=False)</dt><dd><tt>Gets&nbsp;chained&nbsp;prepositional&nbsp;phrases&nbsp;starting&nbsp;at&nbsp;the&nbsp;current&nbsp;token.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tuple&nbsp;of&nbsp;prep,&nbsp;pobj.</tt></dd></dl>
+
+<dl><dt><a name="NoneToken-to_dict"><strong>to_dict</strong></a>(self)</dt><dd><tt>Convert&nbsp;self&nbsp;to&nbsp;a&nbsp;dict&nbsp;-&nbsp;used&nbsp;when&nbsp;storing&nbsp;data.</tt></dd></dl>
+
+<hr>
+Readonly properties inherited from <a href="doctable.parse.parsetree.html#Token">Token</a>:<br>
+<dl><dt><strong>ent</strong></dt>
+</dl>
+<dl><dt><strong>pos</strong></dt>
+</dl>
+<dl><dt><strong>t</strong></dt>
+</dl>
+<hr>
+Data descriptors inherited from <a href="doctable.parse.parsetree.html#Token">Token</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="doctable.parse.parsetree.html#Token">Token</a>:<br>
+<dl><dt><strong>childs</strong> = []</dl>
+
+<dl><dt><strong>dep</strong> = None</dl>
+
+<dl><dt><strong>i</strong> = None</dl>
+
+<dl><dt><strong>info</strong> = None</dl>
+
+<dl><dt><strong>parent</strong> = None</dl>
+
+<dl><dt><strong>tag</strong> = None</dl>
+
+<dl><dt><strong>text</strong> = None</dl>
+
+<dl><dt><strong>tree</strong> = None</dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ParseTree">class <strong>ParseTree</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#ParseTree">ParseTree</a>(root_node,&nbsp;*args,&nbsp;**kwargs)<br>
+&nbsp;<br>
+<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="ParseTree-__getitem__"><strong>__getitem__</strong></a>(self, ind)</dt><dd><tt>Returns&nbsp;ith&nbsp;item&nbsp;in&nbsp;ordered&nbsp;list&nbsp;of&nbsp;_tokens.</tt></dd></dl>
+
+<dl><dt><a name="ParseTree-__init__"><strong>__init__</strong></a>(self, root_node, *args, **kwargs)</dt><dd><tt>Create&nbsp;from&nbsp;dict&nbsp;parsetree&nbsp;or&nbsp;spacy&nbsp;sentence&nbsp;root.</tt></dd></dl>
+
+<dl><dt><a name="ParseTree-__iter__"><strong>__iter__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="ParseTree-__len__"><strong>__len__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="ParseTree-__repr__"><strong>__repr__</strong></a>(self)</dt><dd><tt>Return&nbsp;repr(self).</tt></dd></dl>
+
+<dl><dt><a name="ParseTree-__str__"><strong>__str__</strong></a>(self)</dt><dd><tt>Return&nbsp;str(self).</tt></dd></dl>
+
+<dl><dt><a name="ParseTree-bubble_accum"><strong>bubble_accum</strong></a>(self, func)</dt><dd><tt>Applies&nbsp;func&nbsp;to&nbsp;each&nbsp;node&nbsp;and&nbsp;bubbles&nbsp;up&nbsp;accumulated&nbsp;result&nbsp;(like&nbsp;reduce).<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;func&nbsp;(function):&nbsp;apply&nbsp;function&nbsp;to&nbsp;an&nbsp;<a href="builtins.html#object">object</a>&nbsp;returning&nbsp;list.</tt></dd></dl>
+
+<dl><dt><a name="ParseTree-bubble_reduce"><strong>bubble_reduce</strong></a>(self, func, init_data)</dt><dd><tt>Applies&nbsp;func&nbsp;to&nbsp;each&nbsp;node&nbsp;and&nbsp;bubbles&nbsp;up&nbsp;accumulated&nbsp;list&nbsp;of&nbsp;results.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;func&nbsp;(function):&nbsp;apply&nbsp;function&nbsp;to&nbsp;an&nbsp;<a href="builtins.html#object">object</a>&nbsp;returning&nbsp;list.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;init_data&nbsp;(any&nbsp;type):&nbsp;initial&nbsp;data&nbsp;to&nbsp;pass&nbsp;through&nbsp;reduce&nbsp;function</tt></dd></dl>
+
+<dl><dt><a name="ParseTree-display"><strong>display</strong></a>(self, pad=15, base=10, **kwargs)</dt><dd><tt>Print&nbsp;out&nbsp;an&nbsp;ascii&nbsp;tree.</tt></dd></dl>
+
+<dl><dt><a name="ParseTree-to_dict"><strong>to_dict</strong></a>(self)</dt></dl>
+
+<hr>
+Class methods defined here:<br>
+<dl><dt><a name="ParseTree-print_tree_recursive"><strong>print_tree_recursive</strong></a>(tok, pad, base, level=0, root_str='{text}', dep_str=' -{dep}&gt; {text}')<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt></dl>
+
+<hr>
+Readonly properties defined here:<br>
+<dl><dt><strong>toks</strong></dt>
+<dd><tt>List&nbsp;of&nbsp;token&nbsp;texts.</tt></dd>
+</dl>
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>root</strong> = None</dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Token">class <strong>Token</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#Token">Token</a>(node,&nbsp;text_parse_func=None,&nbsp;info_func_map={},&nbsp;parent=None,&nbsp;tree=None)<br>
+&nbsp;<br>
+<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Token-__getitem__"><strong>__getitem__</strong></a>(self, ind)</dt></dl>
+
+<dl><dt><a name="Token-__init__"><strong>__init__</strong></a>(self, node, text_parse_func=None, info_func_map={}, parent=None, tree=None)</dt><dd><tt>Construct&nbsp;from&nbsp;either&nbsp;a&nbsp;dictionary&nbsp;or&nbsp;spacy&nbsp;token.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;node&nbsp;is&nbsp;spacy.<a href="#Token">Token</a>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node&nbsp;(spacy.<a href="#Token">Token</a>):&nbsp;token&nbsp;to&nbsp;extract&nbsp;info&nbsp;from<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text_parse_func&nbsp;(dict&lt;str:func&gt;):&nbsp;mapping&nbsp;to&nbsp;store&nbsp;text<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;info_func_map&nbsp;(dict&lt;str:func&gt;):&nbsp;data&nbsp;that&nbsp;will&nbsp;go&nbsp;into&nbsp;.info<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;node&nbsp;is&nbsp;dict:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node&nbsp;(dict&lt;str:any&gt;):&nbsp;dictionary&nbsp;of&nbsp;node&nbsp;properties<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parent&nbsp;(spacy.<a href="#Token">Token</a>):&nbsp;parent&nbsp;of&nbsp;current&nbsp;node<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text_parse_func:&nbsp;unused<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;info_func_map:&nbsp;unused</tt></dd></dl>
+
+<dl><dt><a name="Token-__iter__"><strong>__iter__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Token-__repr__"><strong>__repr__</strong></a>(self)</dt><dd><tt>Return&nbsp;repr(self).</tt></dd></dl>
+
+<dl><dt><a name="Token-__str__"><strong>__str__</strong></a>(self)</dt><dd><tt>Return&nbsp;str(self).</tt></dd></dl>
+
+<dl><dt><a name="Token-bubble_accum"><strong>bubble_accum</strong></a>(self, func)</dt><dd><tt>##########################&nbsp;Accumulation&nbsp;Functions&nbsp;##########################</tt></dd></dl>
+
+<dl><dt><a name="Token-bubble_reduce"><strong>bubble_reduce</strong></a>(self, func, agg_data)</dt></dl>
+
+<dl><dt><a name="Token-get_child"><strong>get_child</strong></a>(self, *args, first=False, **kwargs)</dt><dd><tt>Get&nbsp;first&nbsp;child&nbsp;with&nbsp;the&nbsp;given&nbsp;dependency&nbsp;relation.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;deprel&nbsp;(sequence&nbsp;or&nbsp;string):&nbsp;dependency&nbsp;relations&nbsp;to&nbsp;match&nbsp;on.<br>
+Raises:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ValueError&nbsp;when&nbsp;the&nbsp;token&nbsp;has&nbsp;more&nbsp;than&nbsp;one&nbsp;dependency&nbsp;with&nbsp;the&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;given&nbsp;relation.</tt></dd></dl>
+
+<dl><dt><a name="Token-get_childs"><strong>get_childs</strong></a>(self, dep=None, pos=None, matchfunc=None)</dt><dd><tt>Get&nbsp;children&nbsp;with&nbsp;the&nbsp;given&nbsp;dependency&nbsp;relation.<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dep&nbsp;(sequence&nbsp;or&nbsp;string):&nbsp;dependency&nbsp;relations&nbsp;to&nbsp;match&nbsp;on.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pos&nbsp;(sequence&nbsp;or&nbsp;string):&nbsp;pos&nbsp;to&nbsp;match&nbsp;on.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;matchfunc&nbsp;(function&nbsp;or&nbsp;None):&nbsp;custom&nbsp;matching&nbsp;function.</tt></dd></dl>
+
+<dl><dt><a name="Token-get_preps"><strong>get_preps</strong></a>(self, as_str=False)</dt><dd><tt>Gets&nbsp;chained&nbsp;prepositional&nbsp;phrases&nbsp;starting&nbsp;at&nbsp;the&nbsp;current&nbsp;token.<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tuple&nbsp;of&nbsp;prep,&nbsp;pobj.</tt></dd></dl>
+
+<dl><dt><a name="Token-to_dict"><strong>to_dict</strong></a>(self)</dt><dd><tt>Convert&nbsp;self&nbsp;to&nbsp;a&nbsp;dict&nbsp;-&nbsp;used&nbsp;when&nbsp;storing&nbsp;data.</tt></dd></dl>
+
+<hr>
+Readonly properties defined here:<br>
+<dl><dt><strong>ent</strong></dt>
+</dl>
+<dl><dt><strong>is_none</strong></dt>
+</dl>
+<dl><dt><strong>pos</strong></dt>
+</dl>
+<dl><dt><strong>t</strong></dt>
+</dl>
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>childs</strong> = []</dl>
+
+<dl><dt><strong>dep</strong> = None</dl>
+
+<dl><dt><strong>i</strong> = None</dl>
+
+<dl><dt><strong>info</strong> = None</dl>
+
+<dl><dt><strong>parent</strong> = None</dl>
+
+<dl><dt><strong>tag</strong> = None</dl>
+
+<dl><dt><strong>text</strong> = None</dl>
+
+<dl><dt><strong>tree</strong> = None</dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-reduce"><strong>reduce</strong></a>(...)</dt><dd><tt><a href="#-reduce">reduce</a>(function,&nbsp;sequence[,&nbsp;initial])&nbsp;-&gt;&nbsp;value<br>
+&nbsp;<br>
+Apply&nbsp;a&nbsp;function&nbsp;of&nbsp;two&nbsp;arguments&nbsp;cumulatively&nbsp;to&nbsp;the&nbsp;items&nbsp;of&nbsp;a&nbsp;sequence,<br>
+from&nbsp;left&nbsp;to&nbsp;right,&nbsp;so&nbsp;as&nbsp;to&nbsp;reduce&nbsp;the&nbsp;sequence&nbsp;to&nbsp;a&nbsp;single&nbsp;value.<br>
+For&nbsp;example,&nbsp;<a href="#-reduce">reduce</a>(lambda&nbsp;x,&nbsp;y:&nbsp;x+y,&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5])&nbsp;calculates<br>
+((((1+2)+3)+4)+5).&nbsp;&nbsp;If&nbsp;initial&nbsp;is&nbsp;present,&nbsp;it&nbsp;is&nbsp;placed&nbsp;before&nbsp;the&nbsp;items<br>
+of&nbsp;the&nbsp;sequence&nbsp;in&nbsp;the&nbsp;calculation,&nbsp;and&nbsp;serves&nbsp;as&nbsp;a&nbsp;default&nbsp;when&nbsp;the<br>
+sequence&nbsp;is&nbsp;empty.</tt></dd></dl>
+</td></tr></table>
+</body></html>
