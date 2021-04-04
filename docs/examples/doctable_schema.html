@@ -14259,8 +14259,12 @@ a.anchor-link {
 
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="DocTable-Example:-Schemas">DocTable Example: Schemas<a class="anchor-link" href="#DocTable-Example:-Schemas">&#182;</a></h1><p>In this example, we show column specifications for each available type, as well as the <a href="https://docs.sqlalchemy.org/en/13/core/type_basics.html">sqlalchemy equivalents</a> on which they were based. Note that .</p>
-<p>Each column in the schema passed to doctable is a 2+ tuple containing, in order, the column type, name, and arguments, and optionally the sqlalchemy type arguemnts.</p>
+<h1 id="DocTable-Schemas">DocTable Schemas<a class="anchor-link" href="#DocTable-Schemas">&#182;</a></h1><p>There are two ways to define schemas for a DocTable:</p>
+<ol>
+<li><strong>dataclass schema</strong>: a dataclass object which inherits from <code>DocTableSchema</code>.</li>
+<li><strong>list schema</strong>: sequence of column specifications according to a custom doctable format.</li>
+</ol>
+<p>The doctable package builds on sqlalchemy, so both types of schema specifications ultimately result in a sequence of <a href="https://docs.sqlalchemy.org/en/13/core/type_basics.html"><code>sqlalchemy</code> column types</a> that will be used to construct (or interface with) the database.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -14286,8 +14290,173 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Example-Schema">Example Schema<a class="anchor-link" href="#Example-Schema">&#182;</a></h2>
+<h2 id="Schema-Type-Maps">Schema Type Maps<a class="anchor-link" href="#Schema-Type-Maps">&#182;</a></h2><p>There are two lookup tables used to relate to sqlalchemy column types. The first is a map from Python datatypes to the sqlalchemy types. This is sufficient for the simplest possible dataclass schema specification.</p>
+
 </div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">doctable</span><span class="o">.</span><span class="n">python_to_slqlchemy_type</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{int: sqlalchemy.sql.sqltypes.Integer,
+ float: sqlalchemy.sql.sqltypes.Float,
+ str: sqlalchemy.sql.sqltypes.String,
+ bool: sqlalchemy.sql.sqltypes.Boolean,
+ datetime.datetime: sqlalchemy.sql.sqltypes.DateTime,
+ datetime.time: sqlalchemy.sql.sqltypes.Time,
+ datetime.date: sqlalchemy.sql.sqltypes.Date}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>The second is a string lookup that is provided for the list schema format. You can see that this offers a larger number of types compared to the Python type conversion.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">doctable</span><span class="o">.</span><span class="n">string_to_sqlalchemy_type</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;biginteger&#39;: sqlalchemy.sql.sqltypes.BigInteger,
+ &#39;boolean&#39;: sqlalchemy.sql.sqltypes.Boolean,
+ &#39;date&#39;: sqlalchemy.sql.sqltypes.Date,
+ &#39;datetime&#39;: sqlalchemy.sql.sqltypes.DateTime,
+ &#39;enum&#39;: sqlalchemy.sql.sqltypes.Enum,
+ &#39;float&#39;: sqlalchemy.sql.sqltypes.Float,
+ &#39;integer&#39;: sqlalchemy.sql.sqltypes.Integer,
+ &#39;interval&#39;: sqlalchemy.sql.sqltypes.Interval,
+ &#39;largebinary&#39;: sqlalchemy.sql.sqltypes.LargeBinary,
+ &#39;numeric&#39;: sqlalchemy.sql.sqltypes.Numeric,
+ &#39;smallinteger&#39;: sqlalchemy.sql.sqltypes.SmallInteger,
+ &#39;string&#39;: sqlalchemy.sql.sqltypes.String,
+ &#39;text&#39;: sqlalchemy.sql.sqltypes.Text,
+ &#39;time&#39;: sqlalchemy.sql.sqltypes.Time,
+ &#39;unicode&#39;: sqlalchemy.sql.sqltypes.Unicode,
+ &#39;unicodetext&#39;: sqlalchemy.sql.sqltypes.UnicodeText,
+ &#39;json&#39;: doctable.schemas.custom_coltypes.JSONType,
+ &#39;pickle&#39;: doctable.schemas.custom_coltypes.CpickleType,
+ &#39;picklefile&#39;: doctable.schemas.custom_coltypes.PickleFileType,
+ &#39;textfile&#39;: doctable.schemas.custom_coltypes.TextFileType}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Dataclass-Schemas">Dataclass Schemas<a class="anchor-link" href="#Dataclass-Schemas">&#182;</a></h2><p>The simplest way to specify a schema for doctable is to give a dataclass object which inherits from <code>DocTableSchema</code>. This object will represent a single row in the table, and</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Record</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableSchema</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">added</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> 
+
+<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">Record</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
