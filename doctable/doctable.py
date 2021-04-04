@@ -15,7 +15,7 @@ import dataclasses
 import sqlalchemy
 
 from .schemas import FileTypeBase
-from .modeling import DocBootstrap
+from .model import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
 from .schemas import parse_schema_strings, parse_schema_dataclass, DocTableSchema
