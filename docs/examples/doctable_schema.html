@@ -14296,7 +14296,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">doctable</span><span class="o">.</span><span class="n">python_to_slqlchemy_type</span>
@@ -14315,7 +14315,7 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
 
 
 
@@ -14345,7 +14345,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">doctable</span><span class="o">.</span><span class="n">string_to_sqlalchemy_type</span>
@@ -14364,7 +14364,7 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
 
 
 
@@ -14404,10 +14404,10 @@ a.anchor-link {
 <h2 id="Dataclass-Schemas">Dataclass Schemas<a class="anchor-link" href="#Dataclass-Schemas">&#182;</a></h2><p>The simplest way to specify a schema for doctable is to give a dataclass object which inherits from <code>DocTableSchema</code>. This object will represent a single row in the table, and</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
@@ -14415,13 +14415,60 @@ a.anchor-link {
 
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">Record</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableSchema</span><span class="p">):</span>
-    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
+    
+    <span class="c1"># custom doctable column types</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span> <span class="c1"># auto-increment primary key</span>
+    <span class="n">added</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span> <span class="n">AddedCol</span><span class="p">()</span> <span class="c1"># record when row was added</span>
+    <span class="n">updated</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">UpdatedCol</span><span class="p">()</span> <span class="c1"># record when row was updated</span>
+    
+    <span class="c1"># generic column object.</span>
+    <span class="c1"># Keyword arguments are passed directly to sqlalchemy Column constructor</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">added</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> 
-
+    
+    <span class="c1"># first argument is default value or factory (automatically determined)</span>
+    <span class="n">num_siblings</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        
+    <span class="c1"># this will be stored as a binary type in sql</span>
+    <span class="n">friends</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span> 
+    
+    <span class="c1"># can also use regular scalar default values</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">is_old</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+        
+    <span class="c1"># indices and constraints - these are used by DocTableSchema objects</span>
+    <span class="n">__indices__</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># SQLAlchemy: Index(&#39;name_index&#39;, &#39;name&#39;)</span>
+        <span class="s1">&#39;name_index&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,),</span>
+        
+        <span class="c1"># SQLAlchemy: Index(&#39;name_age_index&#39;, &#39;name&#39;, &#39;age&#39;, unique=True)</span>
+        <span class="s1">&#39;name_age_index&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;unique&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}),</span>
+    <span class="p">}</span>
+    
+    <span class="c1"># add constraints to table</span>
+    <span class="n">__constraints__</span> <span class="o">=</span> <span class="p">(</span>
+        
+        <span class="c1">#SQLAlchemy:  UniqueConstraint(&#39;name&#39;, &#39;age&#39;)</span>
+        <span class="p">(</span><span class="s1">&#39;unique&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">),</span>
+        
+        <span class="c1">#SQLAlchemy: CheckConstraint(&#39;age &gt; 0&#39;, name=&#39;check_age&#39;)</span>
+        <span class="p">(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;age &gt; 0&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;check_age&#39;</span><span class="p">}),</span> 
+        
+        <span class="c1">#(&#39;foreignkey&#39;, (&#39;a&#39;,&#39;b&#39;), (&#39;c&#39;,&#39;d&#39;)),</span>
+    <span class="p">)</span>
+        
+        
+    <span class="c1"># doctable method to execute after constructor is created</span>
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_old</span> <span class="o">=</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="mi">28</span>
+        
+    <span class="c1"># any custom method the user would like to add</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_friends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">friends</span><span class="p">)</span>
+    
+    
 <span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">Record</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14429,38 +14476,139 @@ a.anchor-link {
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
+<div class="jp-Cell-outputWrapper">
 
-     </div>
-</div>
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>added</td>
+      <td>DATETIME</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>updated</td>
+      <td>DATETIME</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>name</td>
+      <td>VARCHAR</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>num_siblings</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>friends</td>
+      <td>BLOB</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>age</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>is_old</td>
+      <td>BOOLEAN</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-     </div>
-</div>
-</div>
 </div>
 
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="List-Schemas">List Schemas<a class="anchor-link" href="#List-Schemas">&#182;</a></h2><p>And this is another example showing the list schema format.</p>
+
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
@@ -14560,7 +14708,7 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
 
 
 
@@ -14676,69 +14824,6 @@ a.anchor-link {
   </tbody>
 </table>
 </div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Type-Mappings">Type Mappings<a class="anchor-link" href="#Type-Mappings">&#182;</a></h1><p>DocTable2 provides a simplified interface into the <a href="https://docs.sqlalchemy.org/en/13/core/">SQLAlchemy core</a> package component (not the object-relational mapping component). With this interface DocTable2 is able to provide an object-oriented interface to execute SQL commands. This package simplifies that interface by working with the various objects within the class, allowing the user to create schemas and perform queries without working with the hundreds of classes required by SQLAlchemy core.</p>
-<p>Because of this, it is important to note the interface between them. The first is the type map used to set up the schema. The DocTable2 constructor provides a schema interface which accepts strings as types, so the type map appears here:</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">doctable</span><span class="o">.</span><span class="n">schemas</span><span class="o">.</span><span class="n">column_type_map</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;biginteger&#39;: sqlalchemy.sql.sqltypes.BigInteger,
- &#39;boolean&#39;: sqlalchemy.sql.sqltypes.Boolean,
- &#39;date&#39;: sqlalchemy.sql.sqltypes.Date,
- &#39;datetime&#39;: sqlalchemy.sql.sqltypes.DateTime,
- &#39;enum&#39;: sqlalchemy.sql.sqltypes.Enum,
- &#39;float&#39;: sqlalchemy.sql.sqltypes.Float,
- &#39;integer&#39;: sqlalchemy.sql.sqltypes.Integer,
- &#39;interval&#39;: sqlalchemy.sql.sqltypes.Interval,
- &#39;largebinary&#39;: sqlalchemy.sql.sqltypes.LargeBinary,
- &#39;numeric&#39;: sqlalchemy.sql.sqltypes.Numeric,
- &#39;smallinteger&#39;: sqlalchemy.sql.sqltypes.SmallInteger,
- &#39;string&#39;: sqlalchemy.sql.sqltypes.String,
- &#39;text&#39;: sqlalchemy.sql.sqltypes.Text,
- &#39;time&#39;: sqlalchemy.sql.sqltypes.Time,
- &#39;unicode&#39;: sqlalchemy.sql.sqltypes.Unicode,
- &#39;unicodetext&#39;: sqlalchemy.sql.sqltypes.UnicodeText,
- &#39;json&#39;: doctable.coltypes.JSONType,
- &#39;pickle&#39;: doctable.coltypes.CpickleType,
- &#39;picklefile&#39;: doctable.coltypes.PickleFileType,
- &#39;textfile&#39;: doctable.coltypes.TextFileType}</pre>
 </div>
 
 </div>
