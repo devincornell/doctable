@@ -50,7 +50,7 @@ example_html:
 
 DOCS_REF_FOLDER = $(DOCS_FOLDER)/ref/
 pydoc:
-	pydoc -w doctable.DocTableLegacy doctable.DocTable doctable.DocParser doctable.parsetree doctable.DocBootstrap doctable.Distribute doctable.parsefuncs doctable.pipeline doctable.util
+	pydoc -w doctable.ConnectEngine doctable.DocTable doctable.dbutils doctable.parsing doctable.modeling doctable.util doctable.DocTableLegacy doctable.DocParser
 	mv *.html $(DOCS_REF_FOLDER)
 	git add --all $(DOCS_REF_FOLDER)*.html
 
