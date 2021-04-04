@@ -2,9 +2,8 @@ import re
 from multiprocessing import Pipe, Process
 import math
 import os
-from .distribute import Distribute
-
-from .parsetree import ParseTree
+from .util import Distribute
+from .parsing import ParseTree
 
 
 
