@@ -18,7 +18,7 @@ from .coltypes import FileTypeBase
 from .bootstrap import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
-from .schemas import parse_schema, parse_schema_dataclass, DocTableSchema
+from .schemas import parse_schema_strings, parse_schema_dataclass, DocTableSchema
 
 class DocTable:
     ''' Class for managing a single database table.
@@ -153,7 +153,7 @@ class DocTable:
                 raise TypeError('A dataclass schema must inherit from doctable.DocTableSchema.')
             self._columns = parse_schema_dataclass(schema)
         elif isinstance(schema, list) or isinstance(schema, tuple):
-            self._columns = parse_schema(schema, target+'_'+tabname)
+            self._columns = parse_schema_strings(schema, target+'_'+tabname)
         else:
             self._columns = None # inferred from existing table
             

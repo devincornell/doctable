@@ -7,7 +7,7 @@ def is_ord_sequence(obj):
     return isinstance(obj, list) or isinstance(obj,tuple)
 
 
-def parse_schema(schema, default_fpath='./'):
+def parse_schema_strings(schema, default_fpath='./'):
     columns = list()
     for colinfo in schema:
         n = len(colinfo)
