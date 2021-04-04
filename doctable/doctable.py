@@ -290,10 +290,10 @@ class DocTable:
 
         if dataclasses.is_dataclass(self._schema):
             if isinstance(rowdat, DocTableSchema):
-                rowdat = rowdat.as_dict()
+                rowdat = rowdat._doctable_as_dict()
             
             elif is_sequence(rowdat) and len(rowdat) > 0 and isinstance(rowdat[0], DocTableSchema):
-                rowdat = [r.as_dict() for r in rowdat]
+                rowdat = [r._doctable_as_dict() for r in rowdat]
         
         q = sqlalchemy.sql.insert(self._table, rowdat)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
@@ -566,13 +566,13 @@ class DocTable:
         if isinstance(values,list) or isinstance(values,tuple):
             
             if is_sequence(values) and len(values) > 0 and isinstance(values[0], DocTableSchema):
-                values = [v.as_dict() for r in values]
+                values = [v._doctable_as_dict() for r in values]
             
             q = sqlalchemy.sql.update(self._table, preserve_parameter_order=True)
             q = q.values(values)
         else:
             if isinstance(values, DocTableSchema):
-                values = values.as_dict()
+                values = values._doctable_as_dict()
 
             q = sqlalchemy.sql.update(self._table)
             q = q.values(values)
