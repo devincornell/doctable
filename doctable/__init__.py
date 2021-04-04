@@ -18,7 +18,7 @@ from .parsing import *
 from .doctable import DocTable
 #from .schemas import parse_schema, column_type_map
 from .connectengine import ConnectEngine
-from .bootstrap import DocBootstrap
+from .modeling import *
 from .schemas import *
 
 # all legacy
