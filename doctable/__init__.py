@@ -11,6 +11,7 @@ from sqlalchemy.sql import and_, or_, not_
 from .util import read_pickle, write_pickle, read_json, write_json, showstopper, Timer, FSStore
 from .dbutils import list_tables, migrate_db
 from .parse import *
+from .parsing import *
 
 # regular table features
 
