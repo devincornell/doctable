@@ -2,10 +2,8 @@ import re
 from multiprocessing import Pipe, Process
 import math
 import os
-from .util import Distribute
-from .parse import ParseTree
-
-
+from doctable.util import Distribute
+from doctable.parse import ParseTree
 
 
 class DocParser:
