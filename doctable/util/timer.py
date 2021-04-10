@@ -22,11 +22,12 @@ class Step:
     
     def diff(self, other):
         delta = (self._ts - other._ts).total_seconds()
-
         if delta >= 3600:
             return f'{delta/3600:0.2f} hrs'
         elif delta >= 60:
             return f'{delta/60:0.2f} min'
+        elif delta < 1.0:
+            return f'{delta*1000:0.3f} ms'
         else:
             return f'{delta:0.2f} sec'
 
@@ -44,9 +45,9 @@ class Timer:
             with open(logfile, 'w') as f:
                 f.write('')
 
-        # add first timestamp
+        # add first timestamp (don't print star)
         self.steps = list()
-        self.step(message)
+        self.step(message, verbose=False)
 
     ######################## basic accessors ########################
     def __getitem__(self, ind):
@@ -58,8 +59,7 @@ class Timer:
         
     def __exit__(self, *args):
         self.step(verbose=False, save=True)
-        if self.verbose:
-            self._log(f'{self[0].msg} took {self[-1].diff(self[0])}.')
+        self._log(f'{self[0].msg} took {self[-1].diff(self[0])}.', show_ts=False)
     
     ######################## main functionality ########################
 
@@ -74,11 +74,14 @@ class Timer:
         else:
             self._log(f'(prev took {self[-1].diff(self[-2])}) {self[-1].msg}', **log_kwargs)
 
-    def _log(self, text, verbose=None, save=True):
+    def _log(self, text, verbose=None, save=True, show_ts=True):
         ''' Print and/or save, depending on settings. Possibly neither.
         '''
-        ts = datetime.now().strftime('%a %H:%M:%S')
-        output = f'{ts}: {text}'
+        if show_ts:
+            ts = datetime.now().strftime('%a %H:%M:%S')
+            output = f'{ts}: {text}'
+        else:
+            output = f'{text}'
         
         # print it
         if verbose or (verbose is None and self.verbose):
