@@ -88,7 +88,7 @@ test_examples: uninstall
 	# cleanup temp folder
 	rm -r $(TMP_TEST_FOLDER)
 
-test: pytest test_examples
+test: test_examples pytest
 	
 
 	
