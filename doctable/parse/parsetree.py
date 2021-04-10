@@ -39,8 +39,8 @@ class ParseTree:
     def __iter__(self):
         return iter(self._tokens)
     
-    def to_dict(self):
-        return self.root.to_dict()
+    def as_dict(self):
+        return self.root.as_dict()
     
     def bubble_accum(self, func):
         '''Applies func to each node and bubbles up accumulated result (like reduce).
@@ -66,9 +66,9 @@ class ParseTree:
     @classmethod
     def print_tree_recursive(cls, tok, pad, base, level=0, root_str='{text}', dep_str=' -{dep}> {text}'):
         if level == 0:
-            print(root_str.format(**tok.to_dict()).ljust(pad-(pad-base)), end='')
+            print(root_str.format(**tok.as_dict()).ljust(pad-(pad-base)), end='')
         else:
-            print(dep_str.format(**tok.to_dict()).ljust(pad), end='')
+            print(dep_str.format(**tok.as_dict()).ljust(pad), end='')
 
         if len(tok.childs)==0: # base case
             print('\n' + ' '*(level*pad-(pad-base)), end='')
@@ -129,7 +129,7 @@ class Token:
             self._pos = ndict['pos']
             self._ent = ndict['ent']
 
-    def to_dict(self):
+    def as_dict(self):
         '''Convert self to a dict - used when storing data.
         '''
         node = dict(
@@ -138,7 +138,7 @@ class Token:
             tag=self.tag,
             dep=self.dep,
             info=self.info,
-            childs=[c.to_dict() for c in self.childs],
+            childs=[c.as_dict() for c in self.childs],
             pos=self._pos,
             ent=self._ent,
         )
