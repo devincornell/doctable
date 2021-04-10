@@ -1,4 +1,5 @@
 
+import dataclasses
 from .emptyvalue import EmptyValue
 
 class DocTableSchema:
@@ -23,9 +24,8 @@ class DocTableSchema:
         return self.__dict__
     
     def __repr__(self):
-        #print([(v, isinstance(EmptyValue)) for k,v in dataclasses.asdict(self).items()])
         cn = ", ".join([(f'{k}=\'{v}\'' if isinstance(v,str) else f'{k}={v}') 
-            for k,v in dataclasses.asdict(self).items() if not isinstance(v, EmptyValue)])
+            for k,v in self._doctable_as_dict().items()])
         return f'{self.__class__.__name__}({cn})'
     
     ########################## Conversions ##########################
