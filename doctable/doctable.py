@@ -342,7 +342,7 @@ class DocTable:
         '''
         return self.select_df(limit=n)
     
-    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, from_obj=None, as_dataclass=True, **kwargs):
+    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, from_obj=None, as_dataclass=True, result_container=list, **kwargs):
         '''Perform select query, yield result for each row.
         
         Description: Because output must be iterable, returns special column results 
@@ -359,6 +359,8 @@ class DocTable:
             from_obj (sqlalchemy join): table from which to perform query (for joined tables)
             as_dataclass (bool): if schema was provided in dataclass format, should return as 
                 dataclass object?
+            result_container (class): container for result rows. constructor takes single arg
+                may be useful to provide a class that extends list
             **kwargs: passed to self.execute()
         Yields:
             sqlalchemy result object: row data
@@ -383,12 +385,15 @@ class DocTable:
         # row is an object that can be accessed by col keyword
         # i.e. row['id'] or num index, i.e. row[0].
         if return_single:
-            return [row[0] for row in result.fetchall()]
+            return result_container(row[0] for row in result.fetchall())
         else:
             if dataclasses.is_dataclass(self._schema) and as_dataclass:
-                return [self._schema(**row) for row in result.fetchall()]
+                return result_container(self._schema(**row) for row in result.fetchall())
             else:
-                return result.fetchall()
+                if result_container is list:
+                    return result.fetchall()
+                else:
+                    return result_container(result.fetchall())
     
     def select_first(self, *args, **kwargs):
         '''Perform regular select query returning only the first result.
