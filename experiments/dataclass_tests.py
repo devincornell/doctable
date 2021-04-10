@@ -26,11 +26,11 @@ class MyClass(doctable.DocTableSchema):
     elements: Sequence = doctable.Col(list) 
     
     # indices and constraints
-    __indices__ = {
+    _indices_ = {
         'lonlat_index': ('lon', 'lat', {'unique':True}),
         'name_index': ('name',),
     }
-    __constraints__ = (
+    _constraints_ = (
         ('check', 'lon > 0', {'name':'check_lon'}), 
         ('check', 'lat > 0'), 
         #('foreignkey', ('a','b'), ('c','d'))
