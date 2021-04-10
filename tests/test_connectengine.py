@@ -12,14 +12,14 @@ import pickle
     
     
 class Parent(doctable.DocTable):
-    __tabname__ = 'parent'
-    __args__ = {
+    _tabname_ = 'parent'
+    _doctable_args_ = {
         'engine_kwargs':{
             'foreign_keys':True,
             #'timeout': 30,
         },
     }
-    __schema__ = (
+    _schema_ = (
         ('idcol', 'id'),
         ('string', 'name', dict(unique=True)),
         ('integer', 'age', dict(default=10))
@@ -28,8 +28,8 @@ class Parent(doctable.DocTable):
         return Child(engine=self.engine, **kwargs)
     
 class Child(doctable.DocTable):
-    __tabname__ = 'child'
-    __schema__ = (
+    _tabname_ = 'child'
+    _schema_ = (
         ('idcol', 'id'),
         ('string', 'name'),
         ('string', 'parent_name'), 

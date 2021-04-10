@@ -30,12 +30,12 @@ class DocTable:
         execute queries without using the SQL language.
 
     Settable static attributes (overridden if related constructor argument passed):
-        __tabname__ (str): name of table to connect to (and create).
-        __schema__ (str): schema definition for this doctable, to be used
+        _tabname_ (str): name of table to connect to (and create).
+        _schema_ (str): schema definition for this doctable, to be used
             when creating a new table and to manage table information.
-        __target__ (str): target database to connect to - used when a doctable
+        _target_ (str): target database to connect to - used when a doctable
             will always connect to the same target (i.e., a server etc).
-        __args__ (dict): any other constructor arguments that should always
+        _doctable_args_ (dict): any other constructor arguments that should always
             be used when instantiating. Overridden by providing arguments
             to the constructor.
     '''
@@ -80,43 +80,43 @@ class DocTable:
             target = engine.target
         elif target is not None:
             pass # use constructor-provided target
-        elif hasattr(self, '__target__'):
-            target = self.__target__
-        elif hasattr(self, '__args__') and 'target' in self.__args__:
-            target = self.__args__.target
+        elif hasattr(self, '_target_'):
+            target = self._target_
+        elif hasattr(self, '_doctable_args_') and 'target' in self._doctable_args_:
+            target = self._doctable_args_.target
         else:
             raise ValueError('target has not been provided.')
 
         # tabname arguments
         if tabname is not None:
             pass # use constructor-provided tabname
-        elif hasattr(self, '__tabname__'):
-            tabname = self.__tabname__
-        elif hasattr(self, '__args__') and 'tabname' in self.__args__:
-            tabname = self.__args__.tabname
+        elif hasattr(self, '_tabname_'):
+            tabname = self._tabname_
+        elif hasattr(self, '_doctable_args_') and 'tabname' in self._doctable_args_:
+            tabname = self._doctable_args_.tabname
         else:
             tabname = self.__default_tabname__
 
         # schema arguments
         if schema is not None:
             pass # use constructor-provided schema
-        elif hasattr(self, '__schema__'):
-            schema = self.__schema__
-        elif hasattr(self, '__args__') and 'schema' in self.__args__:
-            schema = self.__args__.schema
+        elif hasattr(self, '_schema_'):
+            schema = self._schema_
+        elif hasattr(self, '_doctable_args_') and 'schema' in self._doctable_args_:
+            schema = self._doctable_args_.schema
         else:
             schema = None
         
-        # overwrite arg defaults if provided in __args__
-        if hasattr(self, '__args__'):
-            if dialect is None and 'dialect' in self.__args__:
-                dialect = self.__args__['dialect']
-            if verbose is None and 'verbose' in self.__args__:
-                verbose = self.__args__['verbose']
-            if new_db is None and 'new_db' in self.__args__:
-                new_db = self.__args__['new_db']
-            if engine_kwargs is None and 'engine_kwargs' in self.__args__:
-                engine_kwargs = self.__args__['engine_kwargs']
+        # overwrite arg defaults if provided in _doctable_args_
+        if hasattr(self, '_doctable_args_'):
+            if dialect is None and 'dialect' in self._doctable_args_:
+                dialect = self._doctable_args_['dialect']
+            if verbose is None and 'verbose' in self._doctable_args_:
+                verbose = self._doctable_args_['verbose']
+            if new_db is None and 'new_db' in self._doctable_args_:
+                new_db = self._doctable_args_['new_db']
+            if engine_kwargs is None and 'engine_kwargs' in self._doctable_args_:
+                engine_kwargs = self._doctable_args_['engine_kwargs']
         
         # dependent args
         if readonly:
