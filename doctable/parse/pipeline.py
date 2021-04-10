@@ -1,6 +1,14 @@
 
-from .distribute import Distribute
-from .parsefuncs import preprocess, tokenize, parse_tok, keep_tok, merge_tok_spans, merge_tok_ngrams, get_parsetrees
+from doctable.util.distribute import Distribute
+from .parsefuncs import (
+    preprocess, 
+    tokenize, 
+    parse_tok, 
+    keep_tok, 
+    merge_tok_spans, 
+    merge_tok_ngrams, 
+    get_parsetrees
+)
 import functools
 
 components = {
