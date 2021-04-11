@@ -6,22 +6,47 @@ from random import randrange
 import os
 import json
 
-class FileTypeBase(types.TypeDecorator):
-    file_ext = None # needs to be overloaded
-    impl = types.String # just stores filename
-    fname_num_size = 10**12
-    def __init__(self, *arg, fpath=None, **kw):
-        '''Define init to store fpath.'''
-        if fpath is None:
-            raise Exception('fpath must be defined when '
-                'initializing a file type.')
-        self.fpath = fpath+'/'
+import dataclasses
+
+@dataclasses.dataclass
+class FileTypeControl:
+    ''' All instances of FileTypeBase will have a reference to this object.
+    '''
+    folder: str
+    select_raw_fname: bool = False # retrieve data or just filename
+    def __post_init__(self):
+        if self.folder is None:
+            raise Exception('folder must be defined when initializing '
+                            'a file type.')
+        self.folder = self.folder+'/'
         
         # make directory if it doesn't exist
-        if not os.path.exists(fpath):
-            os.mkdir(fpath)
-        
-        types.TypeDecorator.__init__(self, *arg, **kw)
+        if not os.path.exists(self.folder):
+            os.mkdir(self.folder)
+    
+    def __enter__(self):
+        self.select_raw_fname = True
+        return self
+    
+    def __exit__(self, *args):
+        self.select_raw_fname = False
+
+    def full_path(self, fname):
+        return os.path.join(self.folder, fname)
+
+
+class FileTypeBase(types.TypeDecorator):
+    impl = types.String # just stores filename internally
+    file_ext = None # needs to be overloaded
+    
+    fname_num_size = 10**12
+    def __init__(self, *arg, folder=None, **kwargs):
+        self.control = FileTypeControl(folder)
+        types.TypeDecorator.__init__(self, *arg, **kwargs)
+
+    @property
+    def folder(self):
+        return self.control.folder
         
     # NEEDS TO BE DEFINED IN INHERITING CLASS
     @classmethod
@@ -34,19 +59,21 @@ class FileTypeBase(types.TypeDecorator):
     def process_bind_param(self, value, dialect):
         if value is not None:
             while True:
-                fname = os.path.join(self.fpath, '{}{}'
-                    ''.format(randrange(self.fname_num_size), self.file_ext))
-                if not os.path.exists(fname):
-                    break # after this, fname doesn't exist
-            with open(fname, 'wb') as f:
+                num = randrange(self.fname_num_size)
+                fpath = self.control.full_path(f'{num}{self.file_ext}')
+                if not os.path.exists(fpath):
+                    break # after this, fpath doesn't exist
+            with open(fpath, 'wb') as f:
                 self.dump_data(f, value, dialect)
-            return os.path.basename(fname)
+            return os.path.basename(fpath)
         else:
             return None
     
     def process_result_value(self, fname, dialect):
+        if self.control.select_raw_fname:
+            return self.control.full_path(fname)
         if fname is not None:
-            with open(os.path.join(self.fpath, fname), 'rb') as f:
+            with open(self.control.full_path(fname), 'rb') as f:
                 obj = self.load_data(f, dialect)
             return obj
         else:

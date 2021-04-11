@@ -132,7 +132,7 @@ class DocTable:
         
         # some error checking
         if dialect.startswith('sqlite'):
-            if schema is None and (target == ':memory:' or not os.path.exists(target)):
+            if schema is None and engine is None and (target == ':memory:' or not os.path.exists(target)):
                 raise ValueError('Schema must be provided if using memory database or '
                              'database file does not exist yet. Need to provide schema '
                              'when creating a new table.')
@@ -709,19 +709,25 @@ class DocTable:
             ignore_missing (bool): if False, throw an error when a db file doesn't exist.
         '''
         col = self.col(col)
-        if not isinstance(self.col(col).type, FileTypeBase):
-            raise ValueError('Only call clean_col_files for a file column types.')
+        if not isinstance(col.type, FileTypeBase):
+            raise ValueError(f'{col} is not a file type; only call clean_col_files for a file column types.')
         if not (check_missing or delete_extraneous):
             raise ValueError('Either check_missing or delete_extraneous should be set to true, '
                              'or else this method does nothing.')
         
         # get column filenames
-        db = DocTable(tabname=self._tabname, engine=self._engine)
-        dbcol = db[col.name]
-        db_fnames = {col.type.fpath+fn for fn in db.select(dbcol, where=dbcol != None)}
+        #db = self.__class__(target=self._target, tabname=self._tabname)
+        #dbcol = db.col(col.name)
+        #print(f'outside: {id(col.type.control)}')
+        #col.type.control.access_fname = True
+        #print(col.type.control.access_fname)
+        #print(self.select(col, where=col != None))
+        with col.type.control:
+            db_fnames = set(self.select(col, where=col != None))
         
         # get existing files from filesystem
-        exist_fnames = set(glob(col.type.fpath+'*'+col.type.file_ext))
+        fpath = f'{col.type.folder}/*{col.type.file_ext}'
+        exist_fnames = set(glob(fpath))
         intersect = db_fnames & exist_fnames
         
         # remove files not listed in db
