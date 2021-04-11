@@ -30,6 +30,7 @@ from .util import (
     showstopper, 
     Timer, 
     FSStore,
+    TempFolder,
     Distribute
 )
 from .dbutils import list_tables, migrate_db

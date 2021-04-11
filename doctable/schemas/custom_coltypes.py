@@ -5,24 +5,23 @@ import numpy as np
 from random import randrange
 import os
 import json
+import pathlib
 
 import dataclasses
 
-@dataclasses.dataclass
 class FileTypeControl:
     ''' All instances of FileTypeBase will have a reference to this object.
     '''
-    folder: str
-    select_raw_fname: bool = False # retrieve data or just filename
-    def __post_init__(self):
-        if self.folder is None:
+    select_raw_fname: bool = False
+    def __init__(self, folder):
+        if folder is None:
             raise Exception('folder must be defined when initializing '
                             'a file type.')
-        self.folder = self.folder+'/'
+        self.path = pathlib.Path(folder)
         
         # make directory if it doesn't exist
-        if not os.path.exists(self.folder):
-            os.mkdir(self.folder)
+        if not os.path.exists(self.path):
+            os.mkdir(self.path)
     
     def __enter__(self):
         self.select_raw_fname = True
@@ -32,7 +31,7 @@ class FileTypeControl:
         self.select_raw_fname = False
 
     def full_path(self, fname):
-        return os.path.join(self.folder, fname)
+        return str(self.path.joinpath(fname))
 
 
 class FileTypeBase(types.TypeDecorator):
@@ -45,13 +44,14 @@ class FileTypeBase(types.TypeDecorator):
         types.TypeDecorator.__init__(self, *arg, **kwargs)
 
     @property
-    def folder(self):
-        return self.control.folder
+    def path(self):
+        return self.control.path
         
     # NEEDS TO BE DEFINED IN INHERITING CLASS
     @classmethod
     def dump_data(cls, f, value, dialect):
         raise NotImplementedError
+    
     @classmethod
     def load_data(cls, f, dialect):
         raise NotImplementedError

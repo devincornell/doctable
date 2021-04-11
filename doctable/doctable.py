@@ -716,19 +716,14 @@ class DocTable:
                              'or else this method does nothing.')
         
         # get column filenames
-        #db = self.__class__(target=self._target, tabname=self._tabname)
-        #dbcol = db.col(col.name)
-        #print(f'outside: {id(col.type.control)}')
-        #col.type.control.access_fname = True
-        #print(col.type.control.access_fname)
-        #print(self.select(col, where=col != None))
         with col.type.control:
             db_fnames = set(self.select(col, where=col != None))
         
         # get existing files from filesystem
-        fpath = f'{col.type.folder}/*{col.type.file_ext}'
+        fpath = f'{col.type.path}/*{col.type.file_ext}'
         exist_fnames = set(glob(fpath))
         intersect = db_fnames & exist_fnames
+        print(db_fnames, exist_fnames)
         
         # remove files not listed in db
         extraneous_fnames = exist_fnames - intersect
