@@ -87,9 +87,14 @@ class DocTable:
         else:
             raise ValueError('target has not been provided.')
 
+        if hasattr(self, '__args__'):
+            raise NameError('The __args__ definition has changed to _doctable_args_.')
+
         # tabname arguments
         if tabname is not None:
             pass # use constructor-provided tabname
+        elif hasattr(self, '__tabname__'):
+            raise NameError('The __tabname__ definition has changed to _tabname_.')
         elif hasattr(self, '_tabname_'):
             tabname = self._tabname_
         elif hasattr(self, '_doctable_args_') and 'tabname' in self._doctable_args_:
@@ -100,6 +105,8 @@ class DocTable:
         # schema arguments
         if schema is not None:
             pass # use constructor-provided schema
+        elif hasattr(self, '__schema__'):
+            raise NameError('The __schema__ definition has changed to _schema_.')
         elif hasattr(self, '_schema_'):
             schema = self._schema_
         elif hasattr(self, '_doctable_args_') and 'schema' in self._doctable_args_:
