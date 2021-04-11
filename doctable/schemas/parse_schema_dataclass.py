@@ -14,14 +14,19 @@ def parse_schema_dataclass(dclass):
     # regular data columns (uses dataclass features)
     for f in fields(dclass):
         if f.init:
-            if 'coltype' in f.metadata: # specified type using string
-                use_type = string_to_sqlalchemy_type[f.metadata['coltype']]
-                del f.metadata['coltype']
+            metadata = f.metadata.copy()
+            if 'coltype' in metadata: # specified type using string
+                use_type = string_to_sqlalchemy_type[metadata['coltype']]
+                del metadata['coltype']
             
             else: # infer column type based on python datatype hints
                 use_type = python_to_slqlchemy_type.get(f.type, sa.PickleType)
+
+            if 'type_args' in metadata:
+                use_type = use_type(**metadata['type_args'])
+                del metadata['type_args']
             
-            col = sa.Column(f.name, use_type, **f.metadata)
+            col = sa.Column(f.name, use_type, **metadata)
             columns.append(col)
 
     #_indices_ = {
