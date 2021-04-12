@@ -163,7 +163,6 @@ class DocTable:
             self._columns = parse_schema_strings(schema, target+'_'+tabname)
         else:
             self._columns = None # inferred from existing table
-            
         
         self._table = self._engine.add_table(self._tabname, columns=self._columns, 
                                              new_table=self._new_table)
