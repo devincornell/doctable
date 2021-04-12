@@ -14271,7 +14271,7 @@ a.anchor-link {
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
-<span class="kn">import</span> <span class="nn">doctable</span> <span class="k">as</span> <span class="nn">dt</span>
+<span class="kn">import</span> <span class="nn">doctable</span>
 </pre></div>
 
      </div>
@@ -14285,10 +14285,16 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;tst3.db&#39;</span>
-<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),(</span><span class="s1">&#39;picklefile&#39;</span><span class="p">,</span> <span class="s1">&#39;pic&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;textfile&#39;</span><span class="p">,</span><span class="s1">&#39;text&#39;</span><span class="p">)],</span> <span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tmp</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">TempFolder</span><span class="p">(</span><span class="s1">&#39;./tmp&#39;</span><span class="p">)</span> <span class="c1"># will delete folder upon destruction</span>
+
+<span class="c1"># create column schema: each row corresponds to a pickle</span>
+<span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">FileEntry</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableSchema</span><span class="p">):</span>
+    <span class="n">pic</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="n">coltype</span><span class="o">=</span><span class="s1">&#39;picklefile&#39;</span><span class="p">,</span> <span class="n">type_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">tmp</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
+    <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
+    
+<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">FileEntry</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14296,14 +14302,21 @@ a.anchor-link {
 </div>
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>First we try inserting a basic object, where the data will be stored in a pickle file. We can see from the <code>select</code> statement that the data read/write is handled transparently by doctable.</p>
+
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">43</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;pic&#39;</span><span class="p">:</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)})</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">FileEntry</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span> <span class="c1"># regular select using the picklefile datatype</span>
 </pre></div>
 
      </div>
@@ -14325,7 +14338,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;sqlalchemy.engine.result.ResultProxy at 0x7f41a59502b0&gt;</pre>
+<pre>[FileEntry(pic=[1, 2, 3, 4, 5], idx=1)]</pre>
 </div>
 
 </div>
@@ -14334,13 +14347,21 @@ a.anchor-link {
 
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>We can also try turning off the transparent conversion, and instead retrieve the regular directory.</p>
+
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span> <span class="c1"># regular select using the picklefile datatype</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;pic&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">control</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<span class="n">r</span>
 </pre></div>
 
      </div>
@@ -14362,7 +14383,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, (1, 2, 43, 4, 5), &#39;(1, 2, 43, 4, 5)&#39;)]</pre>
+<pre>[FileEntry(pic=&#39;tmp/900545790335.pic&#39;, idx=1)]</pre>
 </div>
 
 </div>
@@ -14374,7 +14395,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Because doctable creates a transparent interface to work with these separate files, we need to use a new database to read the raw table schema and show the filenames that DocTable uses to reference stored data files.</p>
+<p>For performance reasons, DocTable never deletes stored file data unless you call the <code>.clean_col_files()</code> method directly. It will raise an exception if a referenced file is missing, and delete all files which are not referenced in the table. This is a costly function call, but a good way to make sure your database is 1-1 matched with your filesystem.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14383,78 +14404,8 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dbchecker</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span> <span class="c1"># schema is inferred from db file</span>
-<span class="n">dbchecker</span><span class="o">.</span><span class="n">select</span><span class="p">()</span> <span class="c1"># this version without the doctable wrapper</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;384272277333.pic&#39;, &#39;468571887065.txt&#39;)]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>For performance reasons, DocTable never deletes stored file data unless you call the <code>.clean_col_files()</code> method directly. It will raise an exception if a referenced file is missing, and delete all files which are not referenced in the table.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># deletes files not in db and raise error if some db files not in filesystem</span>
 <span class="n">db</span><span class="o">.</span><span class="n">clean_col_files</span><span class="p">(</span><span class="s1">&#39;pic&#39;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">clean_col_files</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Now I create another DocTable with a changed <code>fpath</code> argument. Because the argument changed, DocTable will raise an exception when selecting or calling <code>.clean_col_files()</code>. Be wary of this!</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># now specify fpath in column type arguments.</span>
-<span class="n">db2</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),(</span><span class="s1">&#39;picklefile&#39;</span><span class="p">,</span> <span class="s1">&#39;pic&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fpath</span><span class="o">=</span><span class="s1">&#39;custom_file_loc&#39;</span><span class="p">))],</span> <span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">db2</span><span class="o">.</span><span class="n">clean_col_files</span><span class="p">(</span><span class="s1">&#39;pic&#39;</span><span class="p">)</span>
-<span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;threw error because no files were found in the custom_file_loc folder, even though the db has a record.&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14474,13 +14425,33 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>threw error because no files were found in the custom_file_loc folder, even though the db has a record.
+<pre>{&#39;tmp/900545790335.pic&#39;} {&#39;tmp/900545790335.pic&#39;}
 </pre>
 </div>
 </div>
 
 </div>
 
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Now I create another DocTable with a changed <code>fpath</code> argument. Because the argument changed, DocTable will raise an exception when selecting or calling <code>.clean_col_files()</code>. Be wary of this!</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tmp</span><span class="o">.</span><span class="n">rmtree</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
 </div>
 
 </div>

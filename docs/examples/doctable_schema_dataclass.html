@@ -14311,11 +14311,11 @@ a.anchor-link {
     <span class="n">elements</span><span class="p">:</span> <span class="n">Sequence</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span> 
     
     <span class="c1"># indices and constraints</span>
-    <span class="n">__indices__</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">_indices_</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;lonlat_index&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;unique&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}),</span>
         <span class="s1">&#39;name_index&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,),</span>
     <span class="p">}</span>
-    <span class="n">__constraints__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">_constraints_</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;lon &gt; 0&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;check_lon&#39;</span><span class="p">}),</span> 
         <span class="p">(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;lat &gt; 0&#39;</span><span class="p">),</span> 
         <span class="c1">#(&#39;foreignkey&#39;, (&#39;a&#39;,&#39;b&#39;), (&#39;c&#39;,&#39;d&#39;))</span>

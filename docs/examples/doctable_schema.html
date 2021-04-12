@@ -14429,14 +14429,14 @@ a.anchor-link {
     <span class="n">num_siblings</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         
     <span class="c1"># this will be stored as a binary type in sql</span>
-    <span class="n">friends</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span> 
+    <span class="n">friends</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
     
     <span class="c1"># can also use regular scalar default values</span>
     <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span>
     <span class="n">is_old</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
         
     <span class="c1"># indices and constraints - these are used by DocTableSchema objects</span>
-    <span class="n">__indices__</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">_indices_</span> <span class="o">=</span> <span class="p">{</span>
         <span class="c1"># SQLAlchemy: Index(&#39;name_index&#39;, &#39;name&#39;)</span>
         <span class="s1">&#39;name_index&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,),</span>
         
@@ -14445,7 +14445,7 @@ a.anchor-link {
     <span class="p">}</span>
     
     <span class="c1"># add constraints to table</span>
-    <span class="n">__constraints__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">_constraints_</span> <span class="o">=</span> <span class="p">(</span>
         
         <span class="c1">#SQLAlchemy:  UniqueConstraint(&#39;name&#39;, &#39;age&#39;)</span>
         <span class="p">(</span><span class="s1">&#39;unique&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">),</span>

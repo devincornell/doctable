@@ -28,19 +28,37 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
+                    <a class="class" href="#FileTypeControl">FileTypeControl</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#FileTypeControl.__init__">FileTypeControl</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FileTypeControl.select_raw_fname">select_raw_fname</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#FileTypeControl.full_path">full_path</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#FileTypeBase">FileTypeBase</a>
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#FileTypeBase.__init__">FileTypeBase</a>
                         </li>
                         <li>
-                                <a class="variable" href="#FileTypeBase.file_ext">file_ext</a>
-                        </li>
-                        <li>
                                 <a class="class" href="#FileTypeBase.impl">FileTypeBase.impl</a>
                         </li>
                         <li>
+                                <a class="variable" href="#FileTypeBase.file_ext">file_ext</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#FileTypeBase.fname_num_size">fname_num_size</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FileTypeBase.path">path</a>
                         </li>
                         <li>
                                 <a class="function" href="#FileTypeBase.dump_data">dump_data</a>
@@ -160,28 +178,53 @@
 <span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randrange</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
 
-<span class="k">class</span> <span class="nc">FileTypeBase</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">TypeDecorator</span><span class="p">):</span>
-    <span class="n">file_ext</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># needs to be overloaded</span>
-    <span class="n">impl</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">String</span> <span class="c1"># just stores filename</span>
-    <span class="n">fname_num_size</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mi">12</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">fpath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Define init to store fpath.&#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">fpath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;fpath must be defined when &#39;</span>
-                <span class="s1">&#39;initializing a file type.&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fpath</span> <span class="o">=</span> <span class="n">fpath</span><span class="o">+</span><span class="s1">&#39;/&#39;</span>
+<span class="kn">import</span> <span class="nn">dataclasses</span>
+
+<span class="k">class</span> <span class="nc">FileTypeControl</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39; All instances of FileTypeBase will have a reference to this object.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">select_raw_fname</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">folder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;folder must be defined when initializing &#39;</span>
+                            <span class="s1">&#39;a file type.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
         
         <span class="c1"># make directory if it doesn&#39;t exist</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
-        
-        <span class="n">types</span><span class="o">.</span><span class="n">TypeDecorator</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">select_raw_fname</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">select_raw_fname</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">full_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">FileTypeBase</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">TypeDecorator</span><span class="p">):</span>
+    <span class="n">impl</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">String</span> <span class="c1"># just stores filename internally</span>
+    <span class="n">file_ext</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># needs to be overloaded</span>
+    
+    <span class="n">fname_num_size</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mi">12</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span> <span class="o">=</span> <span class="n">FileTypeControl</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">TypeDecorator</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">path</span>
         
     <span class="c1"># NEEDS TO BE DEFINED IN INHERITING CLASS</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">dump_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dialect</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">dialect</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -189,19 +232,21 @@
     <span class="k">def</span> <span class="nf">process_bind_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dialect</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fpath</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span>
-                    <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">randrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fname_num_size</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_ext</span><span class="p">))</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
-                    <span class="k">break</span> <span class="c1"># after this, fname doesn&#39;t exist</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="n">randrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fname_num_size</span><span class="p">)</span>
+                <span class="n">fpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">num</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_ext</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
+                    <span class="k">break</span> <span class="c1"># after this, fpath doesn&#39;t exist</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dump_data</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dialect</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
     
     <span class="k">def</span> <span class="nf">process_result_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">dialect</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">select_raw_fname</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fpath</span><span class="p">,</span> <span class="n">fname</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">fname</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dialect</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">obj</span>
         <span class="k">else</span><span class="p">:</span>
@@ -313,6 +358,102 @@
         </details>
 
             </section>
+                <section id="FileTypeControl">
+                                <div class="attr class">
+        <a class="headerlink" href="#FileTypeControl">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">FileTypeControl</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">FileTypeControl</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39; All instances of FileTypeBase will have a reference to this object.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">select_raw_fname</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">folder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;folder must be defined when initializing &#39;</span>
+                            <span class="s1">&#39;a file type.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+        
+        <span class="c1"># make directory if it doesn&#39;t exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">select_raw_fname</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">select_raw_fname</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">full_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>All instances of FileTypeBase will have a reference to this object.</p>
+</div>
+
+
+                            <div id="FileTypeControl.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#FileTypeControl.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">FileTypeControl</span><span class="signature">(folder)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">folder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;folder must be defined when initializing &#39;</span>
+                            <span class="s1">&#39;a file type.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+        
+        <span class="c1"># make directory if it doesn&#39;t exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="FileTypeControl.select_raw_fname" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#FileTypeControl.select_raw_fname">#&nbsp;&nbsp</a>
+
+        <span class="name">select_raw_fname</span><span class="annotation">: bool</span><span class="default_value"> = False</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="FileTypeControl.full_path" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#FileTypeControl.full_path">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">full_path</span><span class="signature">(self, fname)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">full_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                </section>
                 <section id="FileTypeBase">
                                 <div class="attr class">
         <a class="headerlink" href="#FileTypeBase">#&nbsp;&nbsp</a>
@@ -325,26 +466,23 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">FileTypeBase</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">TypeDecorator</span><span class="p">):</span>
+    <span class="n">impl</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">String</span> <span class="c1"># just stores filename internally</span>
     <span class="n">file_ext</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># needs to be overloaded</span>
-    <span class="n">impl</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">String</span> <span class="c1"># just stores filename</span>
+    
     <span class="n">fname_num_size</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mi">12</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">fpath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Define init to store fpath.&#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">fpath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;fpath must be defined when &#39;</span>
-                <span class="s1">&#39;initializing a file type.&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fpath</span> <span class="o">=</span> <span class="n">fpath</span><span class="o">+</span><span class="s1">&#39;/&#39;</span>
-        
-        <span class="c1"># make directory if it doesn&#39;t exist</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
-        
-        <span class="n">types</span><span class="o">.</span><span class="n">TypeDecorator</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span> <span class="o">=</span> <span class="n">FileTypeControl</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">TypeDecorator</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">path</span>
         
     <span class="c1"># NEEDS TO BE DEFINED IN INHERITING CLASS</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">dump_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dialect</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">dialect</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -352,19 +490,21 @@
     <span class="k">def</span> <span class="nf">process_bind_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dialect</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fpath</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span>
-                    <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">randrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fname_num_size</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_ext</span><span class="p">))</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
-                    <span class="k">break</span> <span class="c1"># after this, fname doesn&#39;t exist</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="n">randrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fname_num_size</span><span class="p">)</span>
+                <span class="n">fpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">num</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_ext</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
+                    <span class="k">break</span> <span class="c1"># after this, fpath doesn&#39;t exist</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dump_data</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dialect</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
     
     <span class="k">def</span> <span class="nf">process_result_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">dialect</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">select_raw_fname</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fpath</span><span class="p">,</span> <span class="n">fname</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">fname</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dialect</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">obj</span>
         <span class="k">else</span><span class="p">:</span>
@@ -482,28 +622,32 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
                                         <div class="attr function"><a class="headerlink" href="#FileTypeBase.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">FileTypeBase</span><span class="signature">(*arg, fpath=None, **kw)</span>
+            <span class="name">FileTypeBase</span><span class="signature">(*arg, folder=None, **kwargs)</span>
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">fpath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Define init to store fpath.&#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">fpath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;fpath must be defined when &#39;</span>
-                <span class="s1">&#39;initializing a file type.&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fpath</span> <span class="o">=</span> <span class="n">fpath</span><span class="o">+</span><span class="s1">&#39;/&#39;</span>
-        
-        <span class="c1"># make directory if it doesn&#39;t exist</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
-        
-        <span class="n">types</span><span class="o">.</span><span class="n">TypeDecorator</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span> <span class="o">=</span> <span class="n">FileTypeControl</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">TypeDecorator</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Define init to store fpath.</p>
+            <div class="docstring"><p>Construct a :class:<code>.TypeDecorator</code>.</p>
+
+<p>Arguments sent here are passed to the constructor
+of the class assigned to the <code><a href="#FileTypeBase.impl">impl</a></code> class level attribute,
+assuming the <code><a href="#FileTypeBase.impl">impl</a></code> is a callable, and the resulting
+object is assigned to the <code>self.impl</code> instance attribute
+(thus overriding the class attribute of the same name).</p>
+
+<p>If the class level <code><a href="#FileTypeBase.impl">impl</a></code> is not a callable (the unusual case),
+it will be assigned to the same instance attribute 'as-is',
+ignoring those arguments passed to the constructor.</p>
+
+<p>Subclasses can override this to customize the generation
+of <code>self.impl</code> entirely.</p>
 </div>
 
 
@@ -521,6 +665,15 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
                                             <div class="attr variable"><a class="headerlink" href="#FileTypeBase.fname_num_size">#&nbsp;&nbsp</a>
 
         <span class="name">fname_num_size</span><span class="default_value"> = 1000000000000</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="FileTypeBase.path" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#FileTypeBase.path">#&nbsp;&nbsp</a>
+
+        <span class="name">path</span>
     </div>
 
     
@@ -581,13 +734,13 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">process_bind_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dialect</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fpath</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span>
-                    <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">randrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fname_num_size</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_ext</span><span class="p">))</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
-                    <span class="k">break</span> <span class="c1"># after this, fname doesn&#39;t exist</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="n">randrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fname_num_size</span><span class="p">)</span>
+                <span class="n">fpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">num</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_ext</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
+                    <span class="k">break</span> <span class="c1"># after this, fpath doesn&#39;t exist</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dump_data</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dialect</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
@@ -627,8 +780,10 @@ this class.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">process_result_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">dialect</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">select_raw_fname</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fpath</span><span class="p">,</span> <span class="n">fname</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">fname</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dialect</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">obj</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1168,6 +1323,7 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
                                 <dd id="PickleFileType.__init__" class="function"><a href="#FileTypeBase.__init__">FileTypeBase</a></dd>
                 <dd id="PickleFileType.impl" class="class"><a href="#FileTypeBase.impl">impl</a></dd>
                 <dd id="PickleFileType.fname_num_size" class="variable"><a href="#FileTypeBase.fname_num_size">fname_num_size</a></dd>
+                <dd id="PickleFileType.path" class="variable"><a href="#FileTypeBase.path">path</a></dd>
                 <dd id="PickleFileType.process_bind_param" class="function"><a href="#FileTypeBase.process_bind_param">process_bind_param</a></dd>
                 <dd id="PickleFileType.process_result_value" class="function"><a href="#FileTypeBase.process_result_value">process_result_value</a></dd>
 
@@ -1398,6 +1554,7 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
                                 <dd id="TextFileType.__init__" class="function"><a href="#FileTypeBase.__init__">FileTypeBase</a></dd>
                 <dd id="TextFileType.impl" class="class"><a href="#FileTypeBase.impl">impl</a></dd>
                 <dd id="TextFileType.fname_num_size" class="variable"><a href="#FileTypeBase.fname_num_size">fname_num_size</a></dd>
+                <dd id="TextFileType.path" class="variable"><a href="#FileTypeBase.path">path</a></dd>
                 <dd id="TextFileType.process_bind_param" class="function"><a href="#FileTypeBase.process_bind_param">process_bind_param</a></dd>
                 <dd id="TextFileType.process_result_value" class="function"><a href="#FileTypeBase.process_result_value">process_result_value</a></dd>
 
@@ -1627,6 +1784,7 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
                                 <dd id="JSONFileType.__init__" class="function"><a href="#FileTypeBase.__init__">FileTypeBase</a></dd>
                 <dd id="JSONFileType.impl" class="class"><a href="#FileTypeBase.impl">impl</a></dd>
                 <dd id="JSONFileType.fname_num_size" class="variable"><a href="#FileTypeBase.fname_num_size">fname_num_size</a></dd>
+                <dd id="JSONFileType.path" class="variable"><a href="#FileTypeBase.path">path</a></dd>
                 <dd id="JSONFileType.process_bind_param" class="function"><a href="#FileTypeBase.process_bind_param">process_bind_param</a></dd>
                 <dd id="JSONFileType.process_result_value" class="function"><a href="#FileTypeBase.process_result_value">process_result_value</a></dd>
 

@@ -72,8 +72,16 @@
                 
                         <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">.distribute</span> <span class="kn">import</span> <span class="n">Distribute</span>
-<span class="kn">from</span> <span class="nn">.parsefuncs</span> <span class="kn">import</span> <span class="n">preprocess</span><span class="p">,</span> <span class="n">tokenize</span><span class="p">,</span> <span class="n">parse_tok</span><span class="p">,</span> <span class="n">keep_tok</span><span class="p">,</span> <span class="n">merge_tok_spans</span><span class="p">,</span> <span class="n">merge_tok_ngrams</span><span class="p">,</span> <span class="n">get_parsetrees</span>
+            <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">doctable.util.distribute</span> <span class="kn">import</span> <span class="n">Distribute</span>
+<span class="kn">from</span> <span class="nn">.parsefuncs</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">preprocess</span><span class="p">,</span> 
+    <span class="n">tokenize</span><span class="p">,</span> 
+    <span class="n">parse_tok</span><span class="p">,</span> 
+    <span class="n">keep_tok</span><span class="p">,</span> 
+    <span class="n">merge_tok_spans</span><span class="p">,</span> 
+    <span class="n">merge_tok_ngrams</span><span class="p">,</span> 
+    <span class="n">get_parsetrees</span>
+<span class="p">)</span>
 <span class="kn">import</span> <span class="nn">functools</span>
 
 <span class="n">components</span> <span class="o">=</span> <span class="p">{</span>

@@ -40,7 +40,7 @@
                                 <a class="variable" href="#ParseTree.toks">toks</a>
                         </li>
                         <li>
-                                <a class="function" href="#ParseTree.to_dict">to_dict</a>
+                                <a class="function" href="#ParseTree.as_dict">as_dict</a>
                         </li>
                         <li>
                                 <a class="function" href="#ParseTree.bubble_accum">bubble_accum</a>
@@ -88,7 +88,7 @@
                                 <a class="variable" href="#Token.tree">tree</a>
                         </li>
                         <li>
-                                <a class="function" href="#Token.to_dict">to_dict</a>
+                                <a class="function" href="#Token.as_dict">as_dict</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Token.t">t</a>
@@ -190,8 +190,8 @@
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">)</span>
     
-    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
     
     <span class="k">def</span> <span class="nf">bubble_accum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Applies func to each node and bubbles up accumulated result (like reduce).</span>
@@ -217,9 +217,9 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">print_tree_recursive</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">tok</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">root_str</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{text}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">dep_str</span><span class="o">=</span><span class="s1">&#39; -</span><span class="si">{dep}</span><span class="s1">&gt; </span><span class="si">{text}</span><span class="s1">&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">root_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">tok</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="n">base</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">root_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">tok</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="n">base</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">dep_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">tok</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">pad</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">dep_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">tok</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">pad</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tok</span><span class="o">.</span><span class="n">childs</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="c1"># base case</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">*</span><span class="p">(</span><span class="n">level</span><span class="o">*</span><span class="n">pad</span><span class="o">-</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="n">base</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -280,7 +280,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span> <span class="o">=</span> <span class="n">ndict</span><span class="p">[</span><span class="s1">&#39;pos&#39;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ent</span> <span class="o">=</span> <span class="n">ndict</span><span class="p">[</span><span class="s1">&#39;ent&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Convert self to a dict - used when storing data.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">node</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
@@ -289,7 +289,7 @@
             <span class="n">tag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span>
             <span class="n">dep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dep</span><span class="p">,</span>
             <span class="n">info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
-            <span class="n">childs</span><span class="o">=</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childs</span><span class="p">],</span>
+            <span class="n">childs</span><span class="o">=</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childs</span><span class="p">],</span>
             <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pos</span><span class="p">,</span>
             <span class="n">ent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ent</span><span class="p">,</span>
         <span class="p">)</span>
@@ -461,8 +461,8 @@
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">)</span>
     
-    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
     
     <span class="k">def</span> <span class="nf">bubble_accum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Applies func to each node and bubbles up accumulated result (like reduce).</span>
@@ -488,9 +488,9 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">print_tree_recursive</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">tok</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">root_str</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{text}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">dep_str</span><span class="o">=</span><span class="s1">&#39; -</span><span class="si">{dep}</span><span class="s1">&gt; </span><span class="si">{text}</span><span class="s1">&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">root_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">tok</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="n">base</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">root_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">tok</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="n">base</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">dep_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">tok</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">pad</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">dep_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">tok</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">pad</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tok</span><span class="o">.</span><span class="n">childs</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="c1"># base case</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">*</span><span class="p">(</span><span class="n">level</span><span class="o">*</span><span class="n">pad</span><span class="o">-</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="n">base</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -554,18 +554,18 @@
 
 
                             </div>
-                            <div id="ParseTree.to_dict" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#ParseTree.to_dict">#&nbsp;&nbsp</a>
+                            <div id="ParseTree.as_dict" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ParseTree.as_dict">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">to_dict</span><span class="signature">(self)</span>:
+            <span class="name">as_dict</span><span class="signature">(self)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -674,9 +674,9 @@ Args:
             <div class="codehilite"><pre><span></span>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">print_tree_recursive</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">tok</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">root_str</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{text}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">dep_str</span><span class="o">=</span><span class="s1">&#39; -</span><span class="si">{dep}</span><span class="s1">&gt; </span><span class="si">{text}</span><span class="s1">&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">root_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">tok</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="n">base</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">root_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">tok</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="n">base</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">dep_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">tok</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">pad</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">dep_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">tok</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">pad</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tok</span><span class="o">.</span><span class="n">childs</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="c1"># base case</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">*</span><span class="p">(</span><span class="n">level</span><span class="o">*</span><span class="n">pad</span><span class="o">-</span><span class="p">(</span><span class="n">pad</span><span class="o">-</span><span class="n">base</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -754,7 +754,7 @@ Args:
             <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span> <span class="o">=</span> <span class="n">ndict</span><span class="p">[</span><span class="s1">&#39;pos&#39;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ent</span> <span class="o">=</span> <span class="n">ndict</span><span class="p">[</span><span class="s1">&#39;ent&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Convert self to a dict - used when storing data.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">node</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
@@ -763,7 +763,7 @@ Args:
             <span class="n">tag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span>
             <span class="n">dep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dep</span><span class="p">,</span>
             <span class="n">info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
-            <span class="n">childs</span><span class="o">=</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childs</span><span class="p">],</span>
+            <span class="n">childs</span><span class="o">=</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childs</span><span class="p">],</span>
             <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pos</span><span class="p">,</span>
             <span class="n">ent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ent</span><span class="p">,</span>
         <span class="p">)</span>
@@ -1019,17 +1019,17 @@ Args:
     
 
                             </div>
-                            <div id="Token.to_dict" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Token.to_dict">#&nbsp;&nbsp</a>
+                            <div id="Token.as_dict" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Token.as_dict">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">to_dict</span><span class="signature">(self)</span>:
+            <span class="name">as_dict</span><span class="signature">(self)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Convert self to a dict - used when storing data.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">node</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
@@ -1038,7 +1038,7 @@ Args:
             <span class="n">tag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span>
             <span class="n">dep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dep</span><span class="p">,</span>
             <span class="n">info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
-            <span class="n">childs</span><span class="o">=</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childs</span><span class="p">],</span>
+            <span class="n">childs</span><span class="o">=</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childs</span><span class="p">],</span>
             <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pos</span><span class="p">,</span>
             <span class="n">ent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ent</span><span class="p">,</span>
         <span class="p">)</span>
@@ -1327,7 +1327,7 @@ Args:
                 <dd id="NoneToken.tag" class="variable"><a href="#Token.tag">tag</a></dd>
                 <dd id="NoneToken.info" class="variable"><a href="#Token.info">info</a></dd>
                 <dd id="NoneToken.tree" class="variable"><a href="#Token.tree">tree</a></dd>
-                <dd id="NoneToken.to_dict" class="function"><a href="#Token.to_dict">to_dict</a></dd>
+                <dd id="NoneToken.as_dict" class="function"><a href="#Token.as_dict">as_dict</a></dd>
                 <dd id="NoneToken.t" class="variable"><a href="#Token.t">t</a></dd>
                 <dd id="NoneToken.pos" class="variable"><a href="#Token.pos">pos</a></dd>
                 <dd id="NoneToken.ent" class="variable"><a href="#Token.ent">ent</a></dd>

@@ -179,12 +179,12 @@
 <span class="sd">        execute queries without using the SQL language.</span>
 
 <span class="sd">    Settable static attributes (overridden if related constructor argument passed):</span>
-<span class="sd">        __tabname__ (str): name of table to connect to (and create).</span>
-<span class="sd">        __schema__ (str): schema definition for this doctable, to be used</span>
+<span class="sd">        _tabname_ (str): name of table to connect to (and create).</span>
+<span class="sd">        _schema_ (str): schema definition for this doctable, to be used</span>
 <span class="sd">            when creating a new table and to manage table information.</span>
-<span class="sd">        __target__ (str): target database to connect to - used when a doctable</span>
+<span class="sd">        _target_ (str): target database to connect to - used when a doctable</span>
 <span class="sd">            will always connect to the same target (i.e., a server etc).</span>
-<span class="sd">        __args__ (dict): any other constructor arguments that should always</span>
+<span class="sd">        _doctable_args_ (dict): any other constructor arguments that should always</span>
 <span class="sd">            be used when instantiating. Overridden by providing arguments</span>
 <span class="sd">            to the constructor.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -229,20 +229,25 @@
             <span class="n">target</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">target</span>
         <span class="k">elif</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span> <span class="c1"># use constructor-provided target</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__target__&#39;</span><span class="p">):</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__target__</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;target&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="o">.</span><span class="n">target</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_target_&#39;</span><span class="p">):</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;target&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">target</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;target has not been provided.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __args__ definition has changed to _doctable_args_.&#39;</span><span class="p">)</span>
 
         <span class="c1"># tabname arguments</span>
         <span class="k">if</span> <span class="n">tabname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span> <span class="c1"># use constructor-provided tabname</span>
         <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__tabname__&#39;</span><span class="p">):</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__tabname__</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;tabname&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="o">.</span><span class="n">tabname</span>
+            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __tabname__ definition has changed to _tabname_.&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_tabname_&#39;</span><span class="p">):</span>
+            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tabname_</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;tabname&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">tabname</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__default_tabname__</span>
 
@@ -250,22 +255,24 @@
         <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span> <span class="c1"># use constructor-provided schema</span>
         <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__schema__&#39;</span><span class="p">):</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__schema__</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;schema&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="o">.</span><span class="n">schema</span>
+            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __schema__ definition has changed to _schema_.&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_schema_&#39;</span><span class="p">):</span>
+            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema_</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;schema&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">schema</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">schema</span> <span class="o">=</span> <span class="kc">None</span>
         
-        <span class="c1"># overwrite arg defaults if provided in __args__</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;dialect&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-                <span class="n">dialect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;verbose&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-                <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">new_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;new_db&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-                <span class="n">new_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">engine_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;engine_kwargs&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-                <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="s1">&#39;engine_kwargs&#39;</span><span class="p">]</span>
+        <span class="c1"># overwrite arg defaults if provided in _doctable_args_</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;dialect&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                <span class="n">dialect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;verbose&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">new_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;new_db&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                <span class="n">new_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">engine_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;engine_kwargs&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;engine_kwargs&#39;</span><span class="p">]</span>
         
         <span class="c1"># dependent args</span>
         <span class="k">if</span> <span class="n">readonly</span><span class="p">:</span>
@@ -274,7 +281,7 @@
         
         <span class="c1"># some error checking</span>
         <span class="k">if</span> <span class="n">dialect</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;sqlite&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target</span> <span class="o">==</span> <span class="s1">&#39;:memory:&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">target</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target</span> <span class="o">==</span> <span class="s1">&#39;:memory:&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">target</span><span class="p">)):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Schema must be provided if using memory database or &#39;</span>
                              <span class="s1">&#39;database file does not exist yet. Need to provide schema &#39;</span>
                              <span class="s1">&#39;when creating a new table.&#39;</span><span class="p">)</span>
@@ -305,7 +312,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_strings</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">target</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">tabname</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># inferred from existing table</span>
-            
         
         <span class="bp">self</span><span class="o">.</span><span class="n">_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">,</span> 
                                              <span class="n">new_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_new_table</span><span class="p">)</span>
@@ -439,10 +445,10 @@
 
         <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rowdat</span><span class="p">,</span> <span class="n">DocTableSchema</span><span class="p">):</span>
-                <span class="n">rowdat</span> <span class="o">=</span> <span class="n">rowdat</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+                <span class="n">rowdat</span> <span class="o">=</span> <span class="n">rowdat</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span>
             
             <span class="k">elif</span> <span class="n">is_sequence</span><span class="p">(</span><span class="n">rowdat</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">rowdat</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rowdat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">DocTableSchema</span><span class="p">):</span>
-                <span class="n">rowdat</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rowdat</span><span class="p">]</span>
+                <span class="n">rowdat</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rowdat</span><span class="p">]</span>
         
         <span class="n">q</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">,</span> <span class="n">rowdat</span><span class="p">)</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">prefix_with</span><span class="p">(</span><span class="s1">&#39;OR </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ifnotunique</span><span class="o">.</span><span class="n">upper</span><span class="p">()))</span>
@@ -491,7 +497,7 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
     
-    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">orderby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_obj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">orderby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_obj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">result_container</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Perform select query, yield result for each row.</span>
 <span class="sd">        </span>
 <span class="sd">        Description: Because output must be iterable, returns special column results </span>
@@ -508,6 +514,8 @@
 <span class="sd">            from_obj (sqlalchemy join): table from which to perform query (for joined tables)</span>
 <span class="sd">            as_dataclass (bool): if schema was provided in dataclass format, should return as </span>
 <span class="sd">                dataclass object?</span>
+<span class="sd">            result_container (class): container for result rows. constructor takes single arg</span>
+<span class="sd">                may be useful to provide a class that extends list</span>
 <span class="sd">            **kwargs: passed to self.execute()</span>
 <span class="sd">        Yields:</span>
 <span class="sd">            sqlalchemy result object: row data</span>
@@ -532,12 +540,15 @@
         <span class="c1"># row is an object that can be accessed by col keyword</span>
         <span class="c1"># i.e. row[&#39;id&#39;] or num index, i.e. row[0].</span>
         <span class="k">if</span> <span class="n">return_single</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+            <span class="k">return</span> <span class="n">result_container</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">)</span> <span class="ow">and</span> <span class="n">as_dataclass</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">(</span><span class="o">**</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+                <span class="k">return</span> <span class="n">result_container</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">(</span><span class="o">**</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">result_container</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">result_container</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
     
     <span class="k">def</span> <span class="nf">select_first</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Perform regular select query returning only the first result.</span>
@@ -715,13 +726,13 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="nb">tuple</span><span class="p">):</span>
             
             <span class="k">if</span> <span class="n">is_sequence</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">DocTableSchema</span><span class="p">):</span>
-                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
             
             <span class="n">q</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">,</span> <span class="n">preserve_parameter_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">DocTableSchema</span><span class="p">):</span>
-                <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span>
 
             <span class="n">q</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">)</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
@@ -846,20 +857,21 @@
 <span class="sd">            ignore_missing (bool): if False, throw an error when a db file doesn&#39;t exist.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">FileTypeBase</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only call clean_col_files for a file column types.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">FileTypeBase</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1"> is not a file type; only call clean_col_files for a file column types.&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">check_missing</span> <span class="ow">or</span> <span class="n">delete_extraneous</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Either check_missing or delete_extraneous should be set to true, &#39;</span>
                              <span class="s1">&#39;or else this method does nothing.&#39;</span><span class="p">)</span>
         
         <span class="c1"># get column filenames</span>
-        <span class="n">db</span> <span class="o">=</span> <span class="n">DocTable</span><span class="p">(</span><span class="n">tabname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
-        <span class="n">dbcol</span> <span class="o">=</span> <span class="n">db</span><span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-        <span class="n">db_fnames</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">fpath</span><span class="o">+</span><span class="n">fn</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">dbcol</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">dbcol</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">)}</span>
+        <span class="k">with</span> <span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">control</span><span class="p">:</span>
+            <span class="n">db_fnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">col</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">))</span>
         
         <span class="c1"># get existing files from filesystem</span>
-        <span class="n">exist_fnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">fpath</span><span class="o">+</span><span class="s1">&#39;*&#39;</span><span class="o">+</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">file_ext</span><span class="p">))</span>
+        <span class="n">fpath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/*</span><span class="si">{</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">file_ext</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">exist_fnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
         <span class="n">intersect</span> <span class="o">=</span> <span class="n">db_fnames</span> <span class="o">&amp;</span> <span class="n">exist_fnames</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">db_fnames</span><span class="p">,</span> <span class="n">exist_fnames</span><span class="p">)</span>
         
         <span class="c1"># remove files not listed in db</span>
         <span class="n">extraneous_fnames</span> <span class="o">=</span> <span class="n">exist_fnames</span> <span class="o">-</span> <span class="n">intersect</span>
@@ -906,12 +918,12 @@
 <span class="sd">        execute queries without using the SQL language.</span>
 
 <span class="sd">    Settable static attributes (overridden if related constructor argument passed):</span>
-<span class="sd">        __tabname__ (str): name of table to connect to (and create).</span>
-<span class="sd">        __schema__ (str): schema definition for this doctable, to be used</span>
+<span class="sd">        _tabname_ (str): name of table to connect to (and create).</span>
+<span class="sd">        _schema_ (str): schema definition for this doctable, to be used</span>
 <span class="sd">            when creating a new table and to manage table information.</span>
-<span class="sd">        __target__ (str): target database to connect to - used when a doctable</span>
+<span class="sd">        _target_ (str): target database to connect to - used when a doctable</span>
 <span class="sd">            will always connect to the same target (i.e., a server etc).</span>
-<span class="sd">        __args__ (dict): any other constructor arguments that should always</span>
+<span class="sd">        _doctable_args_ (dict): any other constructor arguments that should always</span>
 <span class="sd">            be used when instantiating. Overridden by providing arguments</span>
 <span class="sd">            to the constructor.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -956,20 +968,25 @@
             <span class="n">target</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">target</span>
         <span class="k">elif</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span> <span class="c1"># use constructor-provided target</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__target__&#39;</span><span class="p">):</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__target__</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;target&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="o">.</span><span class="n">target</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_target_&#39;</span><span class="p">):</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;target&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">target</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;target has not been provided.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __args__ definition has changed to _doctable_args_.&#39;</span><span class="p">)</span>
 
         <span class="c1"># tabname arguments</span>
         <span class="k">if</span> <span class="n">tabname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span> <span class="c1"># use constructor-provided tabname</span>
         <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__tabname__&#39;</span><span class="p">):</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__tabname__</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;tabname&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="o">.</span><span class="n">tabname</span>
+            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __tabname__ definition has changed to _tabname_.&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_tabname_&#39;</span><span class="p">):</span>
+            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tabname_</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;tabname&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">tabname</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__default_tabname__</span>
 
@@ -977,22 +994,24 @@
         <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span> <span class="c1"># use constructor-provided schema</span>
         <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__schema__&#39;</span><span class="p">):</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__schema__</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;schema&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="o">.</span><span class="n">schema</span>
+            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __schema__ definition has changed to _schema_.&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_schema_&#39;</span><span class="p">):</span>
+            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema_</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;schema&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">schema</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">schema</span> <span class="o">=</span> <span class="kc">None</span>
         
-        <span class="c1"># overwrite arg defaults if provided in __args__</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;dialect&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-                <span class="n">dialect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;verbose&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-                <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">new_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;new_db&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-                <span class="n">new_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">engine_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;engine_kwargs&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-                <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="s1">&#39;engine_kwargs&#39;</span><span class="p">]</span>
+        <span class="c1"># overwrite arg defaults if provided in _doctable_args_</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;dialect&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                <span class="n">dialect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;verbose&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">new_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;new_db&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                <span class="n">new_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">engine_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;engine_kwargs&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;engine_kwargs&#39;</span><span class="p">]</span>
         
         <span class="c1"># dependent args</span>
         <span class="k">if</span> <span class="n">readonly</span><span class="p">:</span>
@@ -1001,7 +1020,7 @@
         
         <span class="c1"># some error checking</span>
         <span class="k">if</span> <span class="n">dialect</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;sqlite&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target</span> <span class="o">==</span> <span class="s1">&#39;:memory:&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">target</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target</span> <span class="o">==</span> <span class="s1">&#39;:memory:&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">target</span><span class="p">)):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Schema must be provided if using memory database or &#39;</span>
                              <span class="s1">&#39;database file does not exist yet. Need to provide schema &#39;</span>
                              <span class="s1">&#39;when creating a new table.&#39;</span><span class="p">)</span>
@@ -1032,7 +1051,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_strings</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">target</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">tabname</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># inferred from existing table</span>
-            
         
         <span class="bp">self</span><span class="o">.</span><span class="n">_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">,</span> 
                                              <span class="n">new_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_new_table</span><span class="p">)</span>
@@ -1166,10 +1184,10 @@
 
         <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rowdat</span><span class="p">,</span> <span class="n">DocTableSchema</span><span class="p">):</span>
-                <span class="n">rowdat</span> <span class="o">=</span> <span class="n">rowdat</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+                <span class="n">rowdat</span> <span class="o">=</span> <span class="n">rowdat</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span>
             
             <span class="k">elif</span> <span class="n">is_sequence</span><span class="p">(</span><span class="n">rowdat</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">rowdat</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rowdat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">DocTableSchema</span><span class="p">):</span>
-                <span class="n">rowdat</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rowdat</span><span class="p">]</span>
+                <span class="n">rowdat</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rowdat</span><span class="p">]</span>
         
         <span class="n">q</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">,</span> <span class="n">rowdat</span><span class="p">)</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">prefix_with</span><span class="p">(</span><span class="s1">&#39;OR </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ifnotunique</span><span class="o">.</span><span class="n">upper</span><span class="p">()))</span>
@@ -1218,7 +1236,7 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
     
-    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">orderby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_obj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">orderby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_obj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">result_container</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Perform select query, yield result for each row.</span>
 <span class="sd">        </span>
 <span class="sd">        Description: Because output must be iterable, returns special column results </span>
@@ -1235,6 +1253,8 @@
 <span class="sd">            from_obj (sqlalchemy join): table from which to perform query (for joined tables)</span>
 <span class="sd">            as_dataclass (bool): if schema was provided in dataclass format, should return as </span>
 <span class="sd">                dataclass object?</span>
+<span class="sd">            result_container (class): container for result rows. constructor takes single arg</span>
+<span class="sd">                may be useful to provide a class that extends list</span>
 <span class="sd">            **kwargs: passed to self.execute()</span>
 <span class="sd">        Yields:</span>
 <span class="sd">            sqlalchemy result object: row data</span>
@@ -1259,12 +1279,15 @@
         <span class="c1"># row is an object that can be accessed by col keyword</span>
         <span class="c1"># i.e. row[&#39;id&#39;] or num index, i.e. row[0].</span>
         <span class="k">if</span> <span class="n">return_single</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+            <span class="k">return</span> <span class="n">result_container</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">)</span> <span class="ow">and</span> <span class="n">as_dataclass</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">(</span><span class="o">**</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+                <span class="k">return</span> <span class="n">result_container</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">(</span><span class="o">**</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">result_container</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">result_container</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
     
     <span class="k">def</span> <span class="nf">select_first</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Perform regular select query returning only the first result.</span>
@@ -1442,13 +1465,13 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="nb">tuple</span><span class="p">):</span>
             
             <span class="k">if</span> <span class="n">is_sequence</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">DocTableSchema</span><span class="p">):</span>
-                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
             
             <span class="n">q</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">,</span> <span class="n">preserve_parameter_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">DocTableSchema</span><span class="p">):</span>
-                <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span>
 
             <span class="n">q</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">)</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
@@ -1573,20 +1596,21 @@
 <span class="sd">            ignore_missing (bool): if False, throw an error when a db file doesn&#39;t exist.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">FileTypeBase</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only call clean_col_files for a file column types.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">FileTypeBase</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1"> is not a file type; only call clean_col_files for a file column types.&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">check_missing</span> <span class="ow">or</span> <span class="n">delete_extraneous</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Either check_missing or delete_extraneous should be set to true, &#39;</span>
                              <span class="s1">&#39;or else this method does nothing.&#39;</span><span class="p">)</span>
         
         <span class="c1"># get column filenames</span>
-        <span class="n">db</span> <span class="o">=</span> <span class="n">DocTable</span><span class="p">(</span><span class="n">tabname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
-        <span class="n">dbcol</span> <span class="o">=</span> <span class="n">db</span><span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-        <span class="n">db_fnames</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">fpath</span><span class="o">+</span><span class="n">fn</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">dbcol</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">dbcol</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">)}</span>
+        <span class="k">with</span> <span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">control</span><span class="p">:</span>
+            <span class="n">db_fnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">col</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">))</span>
         
         <span class="c1"># get existing files from filesystem</span>
-        <span class="n">exist_fnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">fpath</span><span class="o">+</span><span class="s1">&#39;*&#39;</span><span class="o">+</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">file_ext</span><span class="p">))</span>
+        <span class="n">fpath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/*</span><span class="si">{</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">file_ext</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">exist_fnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
         <span class="n">intersect</span> <span class="o">=</span> <span class="n">db_fnames</span> <span class="o">&amp;</span> <span class="n">exist_fnames</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">db_fnames</span><span class="p">,</span> <span class="n">exist_fnames</span><span class="p">)</span>
         
         <span class="c1"># remove files not listed in db</span>
         <span class="n">extraneous_fnames</span> <span class="o">=</span> <span class="n">exist_fnames</span> <span class="o">-</span> <span class="n">intersect</span>
@@ -1612,12 +1636,12 @@ Description: This class manages schema and connection information to provide
     execute queries without using the SQL language.</p>
 
 <p>Settable static attributes (overridden if related constructor argument passed):
-    __tabname__ (str): name of table to connect to (and create).
-    __schema__ (str): schema definition for this doctable, to be used
+    _tabname_ (str): name of table to connect to (and create).
+    _schema_ (str): schema definition for this doctable, to be used
         when creating a new table and to manage table information.
-    __target__ (str): target database to connect to - used when a doctable
+    _target_ (str): target database to connect to - used when a doctable
         will always connect to the same target (i.e., a server etc).
-    __args__ (dict): any other constructor arguments that should always
+    _doctable_args_ (dict): any other constructor arguments that should always
         be used when instantiating. Overridden by providing arguments
         to the constructor.</p>
 </div>
@@ -1684,20 +1708,25 @@ Description: This class manages schema and connection information to provide
             <span class="n">target</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">target</span>
         <span class="k">elif</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span> <span class="c1"># use constructor-provided target</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__target__&#39;</span><span class="p">):</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__target__</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;target&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="o">.</span><span class="n">target</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_target_&#39;</span><span class="p">):</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;target&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">target</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;target has not been provided.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __args__ definition has changed to _doctable_args_.&#39;</span><span class="p">)</span>
 
         <span class="c1"># tabname arguments</span>
         <span class="k">if</span> <span class="n">tabname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span> <span class="c1"># use constructor-provided tabname</span>
         <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__tabname__&#39;</span><span class="p">):</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__tabname__</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;tabname&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="o">.</span><span class="n">tabname</span>
+            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __tabname__ definition has changed to _tabname_.&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_tabname_&#39;</span><span class="p">):</span>
+            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tabname_</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;tabname&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">tabname</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__default_tabname__</span>
 
@@ -1705,22 +1734,24 @@ Description: This class manages schema and connection information to provide
         <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span> <span class="c1"># use constructor-provided schema</span>
         <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__schema__&#39;</span><span class="p">):</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__schema__</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;schema&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="o">.</span><span class="n">schema</span>
+            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __schema__ definition has changed to _schema_.&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_schema_&#39;</span><span class="p">):</span>
+            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema_</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;schema&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">schema</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">schema</span> <span class="o">=</span> <span class="kc">None</span>
         
-        <span class="c1"># overwrite arg defaults if provided in __args__</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;dialect&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-                <span class="n">dialect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;verbose&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-                <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">new_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;new_db&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-                <span class="n">new_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">engine_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;engine_kwargs&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">:</span>
-                <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="s1">&#39;engine_kwargs&#39;</span><span class="p">]</span>
+        <span class="c1"># overwrite arg defaults if provided in _doctable_args_</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;dialect&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                <span class="n">dialect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;verbose&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">new_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;new_db&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                <span class="n">new_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">engine_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;engine_kwargs&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;engine_kwargs&#39;</span><span class="p">]</span>
         
         <span class="c1"># dependent args</span>
         <span class="k">if</span> <span class="n">readonly</span><span class="p">:</span>
@@ -1729,7 +1760,7 @@ Description: This class manages schema and connection information to provide
         
         <span class="c1"># some error checking</span>
         <span class="k">if</span> <span class="n">dialect</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;sqlite&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target</span> <span class="o">==</span> <span class="s1">&#39;:memory:&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">target</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target</span> <span class="o">==</span> <span class="s1">&#39;:memory:&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">target</span><span class="p">)):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Schema must be provided if using memory database or &#39;</span>
                              <span class="s1">&#39;database file does not exist yet. Need to provide schema &#39;</span>
                              <span class="s1">&#39;when creating a new table.&#39;</span><span class="p">)</span>
@@ -1760,7 +1791,6 @@ Description: This class manages schema and connection information to provide
             <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_strings</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">target</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">tabname</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># inferred from existing table</span>
-            
         
         <span class="bp">self</span><span class="o">.</span><span class="n">_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">,</span> 
                                              <span class="n">new_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_new_table</span><span class="p">)</span>
@@ -2102,10 +2132,10 @@ Returns:
 
         <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rowdat</span><span class="p">,</span> <span class="n">DocTableSchema</span><span class="p">):</span>
-                <span class="n">rowdat</span> <span class="o">=</span> <span class="n">rowdat</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+                <span class="n">rowdat</span> <span class="o">=</span> <span class="n">rowdat</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span>
             
             <span class="k">elif</span> <span class="n">is_sequence</span><span class="p">(</span><span class="n">rowdat</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">rowdat</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rowdat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">DocTableSchema</span><span class="p">):</span>
-                <span class="n">rowdat</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rowdat</span><span class="p">]</span>
+                <span class="n">rowdat</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rowdat</span><span class="p">]</span>
         
         <span class="n">q</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">,</span> <span class="n">rowdat</span><span class="p">)</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">prefix_with</span><span class="p">(</span><span class="s1">&#39;OR </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ifnotunique</span><span class="o">.</span><span class="n">upper</span><span class="p">()))</span>
@@ -2228,13 +2258,14 @@ Returns:
     offset=None,
     from_obj=None,
     as_dataclass=True,
+    result_container=&lt;class &#39;list&#39;&gt;,
     **kwargs
 )</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">orderby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_obj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">orderby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_obj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">result_container</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Perform select query, yield result for each row.</span>
 <span class="sd">        </span>
 <span class="sd">        Description: Because output must be iterable, returns special column results </span>
@@ -2251,6 +2282,8 @@ Returns:
 <span class="sd">            from_obj (sqlalchemy join): table from which to perform query (for joined tables)</span>
 <span class="sd">            as_dataclass (bool): if schema was provided in dataclass format, should return as </span>
 <span class="sd">                dataclass object?</span>
+<span class="sd">            result_container (class): container for result rows. constructor takes single arg</span>
+<span class="sd">                may be useful to provide a class that extends list</span>
 <span class="sd">            **kwargs: passed to self.execute()</span>
 <span class="sd">        Yields:</span>
 <span class="sd">            sqlalchemy result object: row data</span>
@@ -2275,12 +2308,15 @@ Returns:
         <span class="c1"># row is an object that can be accessed by col keyword</span>
         <span class="c1"># i.e. row[&#39;id&#39;] or num index, i.e. row[0].</span>
         <span class="k">if</span> <span class="n">return_single</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+            <span class="k">return</span> <span class="n">result_container</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">)</span> <span class="ow">and</span> <span class="n">as_dataclass</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">(</span><span class="o">**</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+                <span class="k">return</span> <span class="n">result_container</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">(</span><span class="o">**</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">result_container</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">result_container</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
 </pre></div>
 
         </details>
@@ -2301,6 +2337,8 @@ Returns:
     from_obj (sqlalchemy join): table from which to perform query (for joined tables)
     as_dataclass (bool): if schema was provided in dataclass format, should return as 
         dataclass object?
+    result_container (class): container for result rows. constructor takes single arg
+        may be useful to provide a class that extends list
     **kwargs: passed to self.execute()
 Yields:
     sqlalchemy result object: row data</p>
@@ -2617,13 +2655,13 @@ Yields:
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="nb">tuple</span><span class="p">):</span>
             
             <span class="k">if</span> <span class="n">is_sequence</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">DocTableSchema</span><span class="p">):</span>
-                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
             
             <span class="n">q</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">,</span> <span class="n">preserve_parameter_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">DocTableSchema</span><span class="p">):</span>
-                <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span>
 
             <span class="n">q</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">)</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
@@ -2850,20 +2888,21 @@ Returns:
 <span class="sd">            ignore_missing (bool): if False, throw an error when a db file doesn&#39;t exist.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">FileTypeBase</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only call clean_col_files for a file column types.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">FileTypeBase</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1"> is not a file type; only call clean_col_files for a file column types.&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">check_missing</span> <span class="ow">or</span> <span class="n">delete_extraneous</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Either check_missing or delete_extraneous should be set to true, &#39;</span>
                              <span class="s1">&#39;or else this method does nothing.&#39;</span><span class="p">)</span>
         
         <span class="c1"># get column filenames</span>
-        <span class="n">db</span> <span class="o">=</span> <span class="n">DocTable</span><span class="p">(</span><span class="n">tabname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
-        <span class="n">dbcol</span> <span class="o">=</span> <span class="n">db</span><span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-        <span class="n">db_fnames</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">fpath</span><span class="o">+</span><span class="n">fn</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">dbcol</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">dbcol</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">)}</span>
+        <span class="k">with</span> <span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">control</span><span class="p">:</span>
+            <span class="n">db_fnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">col</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">))</span>
         
         <span class="c1"># get existing files from filesystem</span>
-        <span class="n">exist_fnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">fpath</span><span class="o">+</span><span class="s1">&#39;*&#39;</span><span class="o">+</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">file_ext</span><span class="p">))</span>
+        <span class="n">fpath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/*</span><span class="si">{</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">file_ext</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">exist_fnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
         <span class="n">intersect</span> <span class="o">=</span> <span class="n">db_fnames</span> <span class="o">&amp;</span> <span class="n">exist_fnames</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">db_fnames</span><span class="p">,</span> <span class="n">exist_fnames</span><span class="p">)</span>
         
         <span class="c1"># remove files not listed in db</span>
         <span class="n">extraneous_fnames</span> <span class="o">=</span> <span class="n">exist_fnames</span> <span class="o">-</span> <span class="n">intersect</span>

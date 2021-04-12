@@ -59,14 +59,6 @@ doctable    </h1>
 <span class="c1"># expose some features of sqlalchemy</span>
 <span class="kn">from</span> <span class="nn">sqlalchemy.sql</span> <span class="kn">import</span> <span class="n">and_</span><span class="p">,</span> <span class="n">or_</span><span class="p">,</span> <span class="n">not_</span>
 
-<span class="c1"># submodules (future?)</span>
-<span class="c1">#from .parse import *</span>
-<span class="c1">#from .doctable import *</span>
-
-<span class="c1"># convenience classes and functions</span>
-<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">read_pickle</span><span class="p">,</span> <span class="n">write_pickle</span><span class="p">,</span> <span class="n">read_json</span><span class="p">,</span> <span class="n">write_json</span><span class="p">,</span> <span class="n">showstopper</span><span class="p">,</span> <span class="n">Timer</span><span class="p">,</span> <span class="n">FSStore</span>
-<span class="kn">from</span> <span class="nn">.dbutils</span> <span class="kn">import</span> <span class="n">list_tables</span><span class="p">,</span> <span class="n">migrate_db</span>
-<span class="kn">from</span> <span class="nn">.parse</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="c1"># regular table features</span>
 
@@ -78,6 +70,28 @@ doctable    </h1>
 
 <span class="c1"># all legacy</span>
 <span class="kn">from</span> <span class="nn">.legacy</span> <span class="kn">import</span> <span class="n">DocTableLegacy</span>
+<span class="kn">from</span> <span class="nn">.legacy</span> <span class="kn">import</span> <span class="n">DocParser</span>
+
+
+<span class="c1"># submodules (future?)</span>
+<span class="c1">#from .parse import *</span>
+<span class="c1">#from .doctable import *</span>
+
+<span class="c1"># convenience classes and functions</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">read_pickle</span><span class="p">,</span> 
+    <span class="n">write_pickle</span><span class="p">,</span> 
+    <span class="n">read_json</span><span class="p">,</span> 
+    <span class="n">write_json</span><span class="p">,</span> 
+    <span class="n">showstopper</span><span class="p">,</span> 
+    <span class="n">Timer</span><span class="p">,</span> 
+    <span class="n">FSStore</span><span class="p">,</span>
+    <span class="n">TempFolder</span><span class="p">,</span>
+    <span class="n">Distribute</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.dbutils</span> <span class="kn">import</span> <span class="n">list_tables</span><span class="p">,</span> <span class="n">migrate_db</span>
+<span class="kn">from</span> <span class="nn">.parse</span> <span class="kn">import</span> <span class="o">*</span>
+
 
 <span class="c1">#__all__ = [&#39;parse&#39;, &#39;schemas&#39;, &#39;util&#39;, &#39;model&#39;]</span>
 </pre></div>

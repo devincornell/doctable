@@ -66,25 +66,36 @@
     <span class="c1"># regular data columns (uses dataclass features)</span>
     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="n">dclass</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">init</span><span class="p">:</span>
-            <span class="n">use_type</span> <span class="o">=</span> <span class="n">python_to_slqlchemy_type</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">PickleType</span><span class="p">)</span>
-            <span class="n">col</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">use_type</span><span class="p">,</span> <span class="o">**</span><span class="n">f</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;coltype&#39;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span> <span class="c1"># specified type using string</span>
+                <span class="n">use_type</span> <span class="o">=</span> <span class="n">string_to_sqlalchemy_type</span><span class="p">[</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;coltype&#39;</span><span class="p">]]</span>
+                <span class="k">del</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;coltype&#39;</span><span class="p">]</span>
+            
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># infer column type based on python datatype hints</span>
+                <span class="n">use_type</span> <span class="o">=</span> <span class="n">python_to_slqlchemy_type</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">PickleType</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s1">&#39;type_args&#39;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+                <span class="n">use_type</span> <span class="o">=</span> <span class="n">use_type</span><span class="p">(</span><span class="o">**</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type_args&#39;</span><span class="p">])</span>
+                <span class="k">del</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type_args&#39;</span><span class="p">]</span>
+            
+            <span class="n">col</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">use_type</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span>
             <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
 
-    <span class="c1">#__indices__ = {</span>
+    <span class="c1">#_indices_ = {</span>
     <span class="c1">#    &#39;my_index&#39;: (&#39;c1&#39;, &#39;c2&#39;, {&#39;unique&#39;:True}),</span>
     <span class="c1">#    &#39;other_index&#39;: (&#39;c1&#39;,),</span>
     <span class="c1">#}</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dclass</span><span class="p">,</span> <span class="s1">&#39;__indices__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dclass</span><span class="o">.</span><span class="n">__indices__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">dclass</span><span class="o">.</span><span class="n">__indices__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dclass</span><span class="p">,</span> <span class="s1">&#39;_indices_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_indices_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_indices_</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
             <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
-    <span class="c1">#__constraints__ = (</span>
+    <span class="c1">#_constraints_ = (</span>
     <span class="c1">#    (&#39;check&#39;, &#39;x &gt; 3&#39;, dict(name=&#39;salary_check&#39;)), </span>
     <span class="c1">#    (&#39;foreignkey&#39;, (&#39;a&#39;,&#39;b&#39;), (&#39;c&#39;,&#39;d&#39;))</span>
     <span class="c1">#)</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dclass</span><span class="p">,</span> <span class="s1">&#39;__constraints__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dclass</span><span class="o">.</span><span class="n">__constraints__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">dclass</span><span class="o">.</span><span class="n">__constraints__</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dclass</span><span class="p">,</span> <span class="s1">&#39;_constraints_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_constraints_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_constraints_</span><span class="p">:</span>
             <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
             <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint_lookup</span><span class="p">[</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]](</span><span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
@@ -118,25 +129,36 @@
     <span class="c1"># regular data columns (uses dataclass features)</span>
     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="n">dclass</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">init</span><span class="p">:</span>
-            <span class="n">use_type</span> <span class="o">=</span> <span class="n">python_to_slqlchemy_type</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">PickleType</span><span class="p">)</span>
-            <span class="n">col</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">use_type</span><span class="p">,</span> <span class="o">**</span><span class="n">f</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;coltype&#39;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span> <span class="c1"># specified type using string</span>
+                <span class="n">use_type</span> <span class="o">=</span> <span class="n">string_to_sqlalchemy_type</span><span class="p">[</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;coltype&#39;</span><span class="p">]]</span>
+                <span class="k">del</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;coltype&#39;</span><span class="p">]</span>
+            
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># infer column type based on python datatype hints</span>
+                <span class="n">use_type</span> <span class="o">=</span> <span class="n">python_to_slqlchemy_type</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">PickleType</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s1">&#39;type_args&#39;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+                <span class="n">use_type</span> <span class="o">=</span> <span class="n">use_type</span><span class="p">(</span><span class="o">**</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type_args&#39;</span><span class="p">])</span>
+                <span class="k">del</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type_args&#39;</span><span class="p">]</span>
+            
+            <span class="n">col</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">use_type</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span>
             <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
 
-    <span class="c1">#__indices__ = {</span>
+    <span class="c1">#_indices_ = {</span>
     <span class="c1">#    &#39;my_index&#39;: (&#39;c1&#39;, &#39;c2&#39;, {&#39;unique&#39;:True}),</span>
     <span class="c1">#    &#39;other_index&#39;: (&#39;c1&#39;,),</span>
     <span class="c1">#}</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dclass</span><span class="p">,</span> <span class="s1">&#39;__indices__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dclass</span><span class="o">.</span><span class="n">__indices__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">dclass</span><span class="o">.</span><span class="n">__indices__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dclass</span><span class="p">,</span> <span class="s1">&#39;_indices_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_indices_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_indices_</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
             <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
-    <span class="c1">#__constraints__ = (</span>
+    <span class="c1">#_constraints_ = (</span>
     <span class="c1">#    (&#39;check&#39;, &#39;x &gt; 3&#39;, dict(name=&#39;salary_check&#39;)), </span>
     <span class="c1">#    (&#39;foreignkey&#39;, (&#39;a&#39;,&#39;b&#39;), (&#39;c&#39;,&#39;d&#39;))</span>
     <span class="c1">#)</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dclass</span><span class="p">,</span> <span class="s1">&#39;__constraints__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dclass</span><span class="o">.</span><span class="n">__constraints__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">dclass</span><span class="o">.</span><span class="n">__constraints__</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dclass</span><span class="p">,</span> <span class="s1">&#39;_constraints_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_constraints_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_constraints_</span><span class="p">:</span>
             <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
             <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint_lookup</span><span class="p">[</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]](</span><span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
