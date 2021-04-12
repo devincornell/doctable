@@ -19,11 +19,11 @@ class TempFolder:
         if not os.path.exists(self.path):
             os.mkdir(self.path)
 
-    def rmtree(self, **kwargs):
+    def rmtree(self, ignore_errors=True, **kwargs):
         ''' Remove all files recursively in the folder.
         '''
         if os.path.exists(self.path):
-            shutil.rmtree(self.path, **kwargs)
+            shutil.rmtree(self.path, ignore_errors=ignore_errors, **kwargs)
     
     def rglob(self, p='*', **kwargs):
         ''' Get list of filenames in the directory.
