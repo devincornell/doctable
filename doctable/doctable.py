@@ -722,7 +722,7 @@ class DocTable:
         fpath = f'{col.type.path}/*{col.type.file_ext}'
         exist_fnames = set(glob(fpath))
         intersect = db_fnames & exist_fnames
-        print(db_fnames, exist_fnames)
+        #print(db_fnames, exist_fnames)
         
         # remove files not listed in db
         extraneous_fnames = exist_fnames - intersect
