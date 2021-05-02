@@ -11,6 +11,7 @@ from .doctable import DocTable
 from .connectengine import ConnectEngine
 from .model import *
 from .schemas import *
+from .api import *
 
 # all legacy
 from .legacy import DocTableLegacy
