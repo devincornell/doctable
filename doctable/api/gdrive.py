@@ -1,3 +1,9 @@
+
+
+# I used these tutorials to create this class. it involves first creating credentials
+# https://developers.google.com/drive/api/v3/quickstart/python
+# https://developers.google.com/workspace/guides/create-credentials
+
 #  pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 #   pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 
