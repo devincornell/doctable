@@ -33,6 +33,9 @@ reinstall:
 uninstall:
 	pip uninstall -y doctable
 
+install:
+	pip install .
+
 ################################# CREATE DOCUMENTATION ##############################
 
 docs: pydoc example_html
