@@ -9,6 +9,7 @@ import sys
 sys.path.append('..')
 import doctable
 
+
 folder = 'tmp'
 
 @dataclass
@@ -123,7 +124,7 @@ def main():
     run_test(ddb, fdb, sizeGB=0.001, num=1000)
     run_test(ddb, fdb, sizeGB=0.01, num=100)
     run_test(ddb, fdb, sizeGB=0.1, num=10)
-    run_test(ddb, fdb, sizeGB=1.0, num=10)
+    run_test(ddb, fdb, sizeGB=1.0, num=5)
 
 
 if __name__ == '__main__':
