@@ -108,10 +108,11 @@ class FSStore:
         if self.ct % self.save_every == 0:
             self.dump_file()
 
-    def dump_file(self):
+    def dump_file(self, check_readonly=False):
         ''' Save records to file and empty container.
         '''
-        self.check_readonly() # raise exception if set to readonly
+        if check_readonly:
+            self.check_readonly() # raise exception if set to readonly
 
         if len(self.records):
             fname = self.get_fname()
