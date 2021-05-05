@@ -18,7 +18,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
 from googleapiclient.http import MediaFileUpload
-
+from apiclient.http import MediaIoBaseDownload
 
 
 class Drive:
@@ -86,7 +86,26 @@ class Drive:
             for item in items:
                 print(u'{0} ({1})'.format(item['name'], item['id']))
 
+    def upload_file_large(self, fname, target_id):
+            
+        if isinstance(target_id, str):
+            target_id = [target_id]
 
+        media = MediaFileUpload(fname, mimetype=self.mimetype_lookup(fname))
+        
+        # prepare metadata
+        file_metadata = {
+            'name': os.path.basename(fname), 
+            'parents': target_id,
+        }
+
+        # may throw BrokenPipeError! IDK HOW TO FIX
+        file = self.service.files().create(body=file_metadata,
+                                            media_body=media,
+                                            fields='id').execute()
+        return file
+
+    
     def upload_file(self, fname, target_id):
             
         if isinstance(target_id, str):
@@ -105,6 +124,17 @@ class Drive:
                                             media_body=media,
                                             fields='id').execute()
         return file
+
+    def download_file(self, source_id, fname, verbose=True):
+        fpath = pathlib.Path(fname)
+        request = self.service.files().get_media(fileId=source_id)
+        with fpath.open('wb') as f:
+            downloader = MediaIoBaseDownload(f, request)
+            done = False
+            while done is False:
+                status, done = downloader.next_chunk()
+                print(f'{int(status.progress())*100} downloaded')
+
             
     def mimetype_lookup(self, fname):
         return 'application/octet-stream'
