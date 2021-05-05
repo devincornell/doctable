@@ -96,10 +96,11 @@ class FSStore:
         write_json(self.default_settings, self.settings_fname)
 
     ########################### Writing data ###########################
-    def insert(self, record):
+    def insert(self, record, check_readonly=True):
         ''' Add a single record.
         '''
-        self.check_readonly() # raise exception if set to readonly
+        if check_readonly:
+            self.check_readonly() # raise exception if set to readonly
 
         self.records.append(record)
         self.ct += 1
