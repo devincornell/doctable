@@ -11,8 +11,22 @@ class PropertyNotAvailable(Exception):
         super.__init__(self.message.format(prop, parsefeatname))
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False)
 class Token:
+    ''' Object representing a single token.
+    Attrs:
+        i: index of token in original sentence
+        text: text representation of token
+        dep: dependency relation estimated in spacy
+        tag: dependency tag estimated by spacy
+        childs: list of children Tokens
+        tree: reference to associated parsetree
+        otherdata: containes 'pos' and 'ent' data from spacy
+        userdata: data provided by user (usually generated 
+            from userdata_map in from_spacy()).
+        parent: reference to parent Token (populated in 
+            __post_init__).
+    '''
     i: int
     text: str
     dep: str
@@ -30,23 +44,22 @@ class Token:
         for child in self.childs:
             child.parent = self
 
-        # set up for subscripting
+        # set up for easy subscripting
         self.chainmap = collections.ChainMap(self.__dict__, 
                             self.otherdata, self.userdata)
     
     ########################## Factory methods ##########################
-
-    #def __init__(self, node, userdata_map=dict(), parent=None, tree=None):
-
     @classmethod
     def from_spacy(cls, doc: typing.Any, 
                         text_parse_func:typing.Callable=lambda x: x, 
                         userdata_map: dict[str,typing.Callable]=dict(), 
                         tree:doctable.ParseTree=None):
         ''' Return tokens recursively from doc object.
-                doc (spacy.Token): token to extract userdata from
-                text_parse_func: mapping to store text data
-                userdata_map: used to create custom user data
+        Args:
+            doc: token to extract userdata from
+            text_parse_func: mapping to store text data
+            userdata_map: used to create custom user data
+            tree: reference to associated ParseTree
         '''
         newtoken = cls.__class__(
             i = doc.i,
@@ -68,8 +81,11 @@ class Token:
         )
         return newtoken
 
-    def from_dict(self, tok_data, tree):
+    def from_dict(self, tok_data: dict, tree: doctable.ParseTree):
         ''' Create new token recursively using a dictionary tree structure.
+        Args:
+            tok_data: dictionary containing current token information
+            tree: reference to associated parsetree
         '''
         newtoken = self.__class__(
             i = tok_data['i'],
@@ -96,18 +112,13 @@ class Token:
             childs=[c.as_dict() for c in self.childs],
         )
         return data
-    
-    def as_pickle(self):
-        ''' Return pickled dictionary data.
-        '''
-        return pickle.dumps(self.as_dict())
         
     ########################## Built-In Methods ##########################
     def __str__(self):
         return self.text
     
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.text})'
+        return f'{self.__class__.__name__[:3]}({self.text})'
     
     def __getitem__(self,ind):
         return self.chainmap[ind]
@@ -136,7 +147,7 @@ class Token:
     def is_none(self):
         return False
 
-    ########################## Navigation Functions ##########################
+    ########################## ParseTree Navigation Functions ##########################
 
     def get_childs(self, dep=None, pos=None, matchfunc=None):
         ''' Get children with the specified relations.
@@ -185,9 +196,9 @@ class Token:
         preps = list()
         for prep in self.get_childs({'prep', 'dative'}):
             if as_str:
-                pairs = (prep.t, [p.t for p in prep.get_childs('pobj') if not p.is_none])
+                pairs = (prep.t, [p.t for p in prep.get_childs('pobj') if p is not None])
             else:
-                pairs = (prep, [p for p in prep.get_childs('pobj') if not p.is_none])
+                pairs = (prep, [p for p in prep.get_childs('pobj') if p is not None])
             preps.append(pairs)
         
         return preps
