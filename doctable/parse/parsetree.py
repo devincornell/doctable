@@ -1,5 +1,4 @@
 
-
 import doctable
 import pickle
 import typing
@@ -13,7 +12,8 @@ class MissingSpacyPipelineComponent(Exception):
         super().__init__(self.message)
 
 class ParseTree:
-    root = None
+    root: doctable.Token
+    tokens: list[doctable.Token]
     def __init__(self, root_token: doctable.Token):
         '''Create from dict parsetree or spacy sentence root.
         Args:
@@ -69,18 +69,17 @@ class ParseTree:
         return pickle.dumps(self.as_dict())
         
     ########################## Basic accessors ##########################
-    @property
-    def toks(self):
+    def token_texts(self):
         ''' List of token strings.
         '''
         return [n.text for n in self.tokens]
     
     ########################## Dunderscores ##########################
     def __str__(self):
-        return f"[{', '.join([str(t) for t in self.toks])}]"
+        return f"[{', '.join(self.token_texts())}]"
     
     def __repr__(self):
-        return 'ParseTree({})'.format(', '.join([t.__repr__() for t in self.toks]))
+        return 'ParseTree({})'.format(', '.join([t.__repr__() for t in self.tokens]))
         
     def __len__(self):
         ''' Number of tokens. '''
