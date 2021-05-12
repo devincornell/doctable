@@ -178,7 +178,7 @@ class Token:
                     if (matchfunc is None or matchfunc(c)):
                         childs.append(c)
         return childs
-
+    
     def get_child(self, *args, allow_multiple: bool=False, **kwargs):
         ''' Get first child with the given dependency relation.
         Args:
