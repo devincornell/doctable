@@ -3,10 +3,10 @@ import typing
 import dataclasses
 import collections
 import doctable
-import pickle
+
 
 class PropertyNotAvailable(Exception):
-    self.message = '{prop} is not available in Token because {parsefeatname} was not enabled while processing with Spacy.'
+    message = '{prop} is not available in Token because {parsefeatname} was not enabled while processing with Spacy.'
     def __init__(self, prop, parsefeatname):
         super.__init__(self.message.format(prop, parsefeatname))
 
@@ -50,34 +50,34 @@ class Token:
     
     ########################## Factory methods ##########################
     @classmethod
-    def from_spacy(cls, doc: typing.Any, 
+    def from_spacy(cls, spacy_tok: typing.Any, 
                         text_parse_func:typing.Callable=lambda x: x, 
                         userdata_map: dict[str,typing.Callable]=dict(), 
                         tree:doctable.ParseTree=None):
-        ''' Return tokens recursively from doc object.
+        ''' Return tokens recursively from spacy_tok object.
         Args:
-            doc: token to extract userdata from
+            spacy_tok: token to extract userdata from
             text_parse_func: mapping to store text data
             userdata_map: used to create custom user data
             tree: reference to associated ParseTree
         '''
         newtoken = cls.__class__(
-            i = doc.i,
-            dep = doc.dep_,
-            tag = doc.tag_,
-            text = text_parse_func(doc),
+            i = spacy_tok.i,
+            dep = spacy_tok.dep_,
+            tag = spacy_tok.tag_,
+            text = text_parse_func(spacy_tok),
             otherdata = {
-                'pos': doc.pos_ if doc.doc.is_tagged else None,
-                'ent': doc.ent_type_ if doc.doc.is_nered else None,
+                'pos': spacy_tok.pos_ if spacy_tok.doc.is_tagged else None,
+                'ent': spacy_tok.ent_type_ if spacy_tok.doc.is_nered else None,
             }
-            userdata = {attr:func(doc) for attr,func in userdata_map.items()}
+            userdata = {attr:func(spacy_tok) for attr,func in userdata_map.items()}
             
             # references
             parent = parent,
             tree=tree,
             childs = [cls.from_spacy(child, text_parse_func=text_parse_func, 
                         userdata_map=userdata_map, tree=tree) 
-                        for child in doc.children],
+                        for child in spacy_tok.children],
         )
         return newtoken
 
@@ -121,35 +121,44 @@ class Token:
         return f'{self.__class__.__name__[:3]}({self.text})'
     
     def __getitem__(self,ind):
+        ''' Access token attrs or user-provided data.
+        '''
         return self.chainmap[ind]
     
     def __iter__(self):
+        ''' Iterate over children.
+        '''
         return iter(self.childs)
 
     ########################## Properties ##########################
     @property
     def is_root(self):
+        ''' Check if token is root or not.'''
         return self.parent is None
 
     @property
     def pos(self):
+        ''' Access pos data.
+        Raises:
+            PropertyNotAvailable: pos was not included in original spacy object.
+        '''
         if self.otherdata['pos'] is None:
             raise PropertyNotAvailable('Part-of-speech tag', 'POS-tagging')
         return self.otherdata['pos']
 
     @property
     def ent(self):
+        ''' Access ent data.
+        Raises:
+            PropertyNotAvailable: ent was not included in original spacy object.
+        '''
         if self.otherdata['ent'] is None:
             raise PropertyNotAvailable('Entity type', 'NER')
         return self.otherdata['ent']
 
-    @property
-    def is_none(self):
-        return False
-
     ########################## ParseTree Navigation Functions ##########################
 
-    def get_childs(self, dep=None, pos=None, matchfunc=None):
+    def get_childs(self, dep: str=None, pos: str=None, matchfunc:typing.Callable=None):
         ''' Get children with the specified relations.
         Args:
             dep (sequence or string): dependency relations to match on.
@@ -188,7 +197,7 @@ class Token:
         else:
             raise ValueError(f'There is more than one dependency matching {args}, {kwargs}.')
     
-    def get_preps(self, as_str=False):
+    def get_preps(self, as_str:bool=False):
         ''' Gets chained prepositional phrases starting at the current token.
         Returns:
             tuple of prep, pobj.
@@ -203,4 +212,21 @@ class Token:
         
         return preps
     
+    def bubble_accum(self, func: typing.Callable[Token,list]):
+        ''' Bubble up results into a list.
+        Args:
+            func: function that accepts a Token and returns a list
+                of results that will be concatenated at each level
+                of the tree.
+        Example:
+            `self.bubble_accum(lambda n: [n])` would return a list
+                of (unordered) tokens in the tree below the given 
+                node.
+        '''
+        aggregated_list = func(self)
+        for child in self.childs:
+            aggregated_list += child.bubble_accum(func)
+        return aggregated_list
+
+
 
