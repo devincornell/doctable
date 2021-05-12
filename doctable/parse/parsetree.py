@@ -5,10 +5,14 @@ import typing
 
 from functools import reduce
 
-class MissingSpacyPipelineComponent(Exception):
+class DocTableExceptBase(Exception):
+    def __init__(self):
+        super().__init__(self.message)
+
+class MissingSpacyPipelineComponent(DocTableExceptBase):
     message = 'Both the Spacy tagger and parser must be enabled to make a ParseTree.'
 
-class TreeAlreadyAssigned(Exception):
+class TreeAlreadyAssigned(DocTableExceptBase):
     message = 'Current token already contains reference to a ParseTree.'
 
 class ParseTree:
@@ -37,13 +41,19 @@ class ParseTree:
                 can be assigned to only a single ParseTree.
         '''
         # make sure tree hasn't been assigned already
-        if not overwrite and tok.parent is not None and tok.parent is not self:
+        if not overwrite and tok.tree is not None and tok.tree is not self:
             raise TreeAlreadyAssigned()
-
+        
         # add reference recursively
-        tok.parent = self
+        tok.set_tree(self)
         for child in tok.childs:
             self.propogate_tree_ref(child)
+
+    def get_token_list(self):
+        ''' Return ordered list of tokens.
+        '''
+        tokens = self.root.bubble_accum(lambda n: [n])
+        return list(sorted(tokens, key=lambda n:n.i))
 
     ########################## Factory methods ##########################
     @classmethod
@@ -71,11 +81,7 @@ class ParseTree:
         root = Token.from_dict(root_tok_data, *args, **kwargs)
         return cls(root)
 
-    def get_token_list(self):
-        ''' Return ordered list of tokens.
-        '''
-        tokens = self.root.bubble_accum(lambda n: [n])
-        return list(sorted(tokens, key=lambda n:n.i))
+
 
     ########################## Data serialization ##########################
     def as_dict(self):

@@ -1,8 +1,8 @@
-
+from __future__ import annotations
 import typing
 import dataclasses
 import collections
-#from __future__ import annotations
+
 #from doctable.parse.parsetree import ParseTree
 
 class PropertyNotAvailable(Exception):
@@ -53,8 +53,8 @@ class Token:
     def from_spacy(cls, spacy_tok: typing.Any, 
                         text_parse_func:typing.Callable=lambda x: x, 
                         userdata_map: dict={}, 
-                        parent: Token = None,
-                        tree:typing.Any=None) -> :
+                        parent: Token = None, 
+                        tree:typing.Any=None) -> Token:
         ''' Return tokens recursively from spacy_tok object.
         Args:
             spacy_tok: token to extract userdata from
@@ -62,7 +62,7 @@ class Token:
             userdata_map: used to create custom user data
             tree (doctable.parse.ParseTree): reference to associated ParseTree
         '''
-        newtoken = cls.__class__(
+        newtoken = cls(
             i = spacy_tok.i,
             dep = spacy_tok.dep_,
             tag = spacy_tok.tag_,
@@ -74,7 +74,7 @@ class Token:
             userdata = {attr:func(spacy_tok) for attr,func in userdata_map.items()},
             
             # references
-            tree=tree,
+            tree = tree,
             childs = [cls.from_spacy(child, text_parse_func=text_parse_func, 
                         userdata_map=userdata_map, tree=tree) 
                         for child in spacy_tok.children],
@@ -97,6 +97,9 @@ class Token:
             childs = [self.from_dict(td) for td in ndict['childs']],
         )
         return newtoken
+
+    def set_tree(self, tree):
+        self.tree = tree
 
     ########################## Serialization ##########################
     def as_dict(self):
