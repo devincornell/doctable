@@ -2,8 +2,7 @@
 import typing
 import dataclasses
 import collections
-import doctable
-
+#from doctable.parse.parsetree import ParseTree
 
 class PropertyNotAvailable(Exception):
     message = '{prop} is not available in Token because {parsefeatname} was not enabled while processing with Spacy.'
@@ -31,11 +30,11 @@ class Token:
     text: str
     dep: str
     tag: str
-    childs: list[Token]
-    tree: doctable.ParseTree
-    otherdata: dict = {}
-    userdata: dict = {}
-    parent: Token = None
+    childs: list
+    tree: typing.Any #ParseTree
+    otherdata: dict = dataclasses.field(default_factory=dict)
+    userdata: dict = dataclasses.field(default_factory=dict)
+    parent: typing.Any = None
 
     def __post_init__(self):
         ''' Create references to parents recursively.
@@ -52,14 +51,14 @@ class Token:
     @classmethod
     def from_spacy(cls, spacy_tok: typing.Any, 
                         text_parse_func:typing.Callable=lambda x: x, 
-                        userdata_map: dict[str,typing.Callable]=dict(), 
-                        tree:doctable.ParseTree=None):
+                        userdata_map: dict={}, 
+                        tree:typing.Any=None):
         ''' Return tokens recursively from spacy_tok object.
         Args:
             spacy_tok: token to extract userdata from
             text_parse_func: mapping to store text data
             userdata_map: used to create custom user data
-            tree: reference to associated ParseTree
+            tree (doctable.parse.ParseTree): reference to associated ParseTree
         '''
         newtoken = cls.__class__(
             i = spacy_tok.i,
@@ -69,8 +68,8 @@ class Token:
             otherdata = {
                 'pos': spacy_tok.pos_ if spacy_tok.doc.is_tagged else None,
                 'ent': spacy_tok.ent_type_ if spacy_tok.doc.is_nered else None,
-            }
-            userdata = {attr:func(spacy_tok) for attr,func in userdata_map.items()}
+            },
+            userdata = {attr:func(spacy_tok) for attr,func in userdata_map.items()},
             
             # references
             parent = parent,
@@ -81,11 +80,11 @@ class Token:
         )
         return newtoken
 
-    def from_dict(self, tok_data: dict, tree: doctable.ParseTree):
+    def from_dict(self, tok_data: dict, tree: typing.Any):
         ''' Create new token recursively using a dictionary tree structure.
         Args:
             tok_data: dictionary containing current token information
-            tree: reference to associated parsetree
+            tree (ParseTree): reference to associated parsetree
         '''
         newtoken = self.__class__(
             i = tok_data['i'],
@@ -178,7 +177,7 @@ class Token:
                     if (matchfunc is None or matchfunc(c)):
                         childs.append(c)
         return childs
-    
+
     def get_child(self, *args, allow_multiple: bool=False, **kwargs):
         ''' Get first child with the given dependency relation.
         Args:
@@ -212,7 +211,7 @@ class Token:
         
         return preps
     
-    def bubble_accum(self, func: typing.Callable[Token,list]):
+    def bubble_accum(self, func: typing.Callable):
         ''' Bubble up results into a list.
         Args:
             func: function that accepts a Token and returns a list

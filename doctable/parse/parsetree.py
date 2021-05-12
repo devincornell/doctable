@@ -1,20 +1,22 @@
 
-import doctable
+from doctable.parse.token import Token
 import pickle
 import typing
 
 from functools import reduce
 
 class MissingSpacyPipelineComponent(Exception):
-    message = 'Both the Spacy tagger and parser must '
-                    'be enabled to make a ParseTree.'
+    message = 'Both the Spacy tagger and parser must be enabled to make a ParseTree.'
     def __init__(self):
         super().__init__(self.message)
 
 class ParseTree:
-    root: doctable.Token
-    tokens: list[doctable.Token]
-    def __init__(self, root_token: doctable.Token):
+    ''' Represents a single parsetree.
+    Properties:
+        root (Token): reference to root of parsetree
+        tokens list[Token]: ordered list of tokens
+    '''
+    def __init__(self, root_token: Token):
         '''Create from dict parsetree or spacy sentence root.
         Args:
             root_token: root token of parsetree.
@@ -37,7 +39,7 @@ class ParseTree:
             raise MissingSpacyPipelineComponent()
 
         # root is reference to root token
-        self.root = doctable.Token.from_spacy(sent.root, *args, tree=self, **kwargs)
+        self.root = Token.from_spacy(sent.root, *args, tree=self, **kwargs)
         
         # also store an ordered sequence of tokens
         self.get_token_list()
@@ -48,8 +50,7 @@ class ParseTree:
             root_tok_data: dict tree created from .as_dict()
         '''
         # root is reference to entire tree
-        self.root = doctable.Token.from_dict(root_tok_data, *args, tree=self, **kwargs)
-        
+        self.root = Token.from_dict(root_tok_data, *args, tree=self, **kwargs)
 
     def get_token_list(self):
         ''' Return ordered list of tokens.
