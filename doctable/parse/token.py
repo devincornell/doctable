@@ -192,19 +192,6 @@ class Token:
         
         return preps
     
-    ########################## Accumulation Functions ##########################
-    def bubble_accum(self, func):
-        aggregated_list = func(self)
-        for child in self.childs:
-            aggregated_list += child.bubble_accum(func)
-        return aggregated_list
-    
-    def bubble_reduce(self, func, agg_data):
-        agg_data = func(self, agg_data)
-        for child in self.childs:
-            agg_data = child.bubble_reduce(func, agg_data)
-        return agg_data
-    
 
 class NoneToken(Token):
     @property
