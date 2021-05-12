@@ -2,6 +2,7 @@
 import typing
 import dataclasses
 import collections
+#from __future__ import annotations
 #from doctable.parse.parsetree import ParseTree
 
 class PropertyNotAvailable(Exception):
@@ -52,7 +53,8 @@ class Token:
     def from_spacy(cls, spacy_tok: typing.Any, 
                         text_parse_func:typing.Callable=lambda x: x, 
                         userdata_map: dict={}, 
-                        tree:typing.Any=None):
+                        parent: Token = None,
+                        tree:typing.Any=None) -> :
         ''' Return tokens recursively from spacy_tok object.
         Args:
             spacy_tok: token to extract userdata from
@@ -72,7 +74,6 @@ class Token:
             userdata = {attr:func(spacy_tok) for attr,func in userdata_map.items()},
             
             # references
-            parent = parent,
             tree=tree,
             childs = [cls.from_spacy(child, text_parse_func=text_parse_func, 
                         userdata_map=userdata_map, tree=tree) 
@@ -80,7 +81,7 @@ class Token:
         )
         return newtoken
 
-    def from_dict(self, tok_data: dict, tree: typing.Any):
+    def from_dict(self, tok_data: dict, tree: typing.Any=None):
         ''' Create new token recursively using a dictionary tree structure.
         Args:
             tok_data: dictionary containing current token information

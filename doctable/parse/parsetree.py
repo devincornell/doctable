@@ -7,8 +7,9 @@ from functools import reduce
 
 class MissingSpacyPipelineComponent(Exception):
     message = 'Both the Spacy tagger and parser must be enabled to make a ParseTree.'
-    def __init__(self):
-        super().__init__(self.message)
+
+class TreeAlreadyAssigned(Exception):
+    message = 'Current token already contains reference to a ParseTree.'
 
 class ParseTree:
     ''' Represents a single parsetree.
@@ -16,18 +17,37 @@ class ParseTree:
         root (Token): reference to root of parsetree
         tokens list[Token]: ordered list of tokens
     '''
-    def __init__(self, root_token: Token):
+    def __init__(self, root_token: Token = None, overwrite_tree=False):
         '''Create from dict parsetree or spacy sentence root.
         Args:
-            root_token: root token of parsetree.
+            root_token (doctable.Token): root token of parsetree.
         '''
+        # keep root token and assign reference back to this tree
         self.root = root_token
+        self.propogate_tree_ref(self.root, overwrite=overwrite_tree)
 
         # create ordered sequence of tokens
         self.tokens = self.get_token_list()
 
+    def propogate_tree_ref(self, tok, overwrite=False):
+        ''' Recursively adds reference to current tree.
+        Raises:
+            TreeAlreadyAssigned: if the given token already 
+                maintains a reference to another tree. A token
+                can be assigned to only a single ParseTree.
+        '''
+        # make sure tree hasn't been assigned already
+        if not overwrite and tok.parent is not None and tok.parent is not self:
+            raise TreeAlreadyAssigned()
+
+        # add reference recursively
+        tok.parent = self
+        for child in tok.childs:
+            self.propogate_tree_ref(child)
+
     ########################## Factory methods ##########################
-    def from_spacy(self, spacy_sent: typing.Any, *args, **kwargs):
+    @classmethod
+    def from_spacy(cls, spacy_sent: typing.Any, *args, **kwargs):
         ''' Create new parsetree from spacy doc.
         Args:
             spacy_sent: Spacy sent object.
@@ -35,14 +55,12 @@ class ParseTree:
             kwargs: passed to Token.from_spacy()
         '''
         # check if didn't use SpaCy dependency parser
-        if not root_node.doc.is_parsed:
+        if not spacy_sent.root.doc.is_parsed:
             raise MissingSpacyPipelineComponent()
 
-        # root is reference to root token
-        self.root = Token.from_spacy(sent.root, *args, tree=self, **kwargs)
-        
-        # also store an ordered sequence of tokens
-        self.get_token_list()
+        # .root is reference to root token of sentence
+        root = Token.from_spacy(spacy_sent.root, *args, **kwargs)
+        return cls(root)
 
     def from_dict(self, root_tok_data: dict, *args, **kwargs):
         ''' Create new ParseTree from a dictionary tree created by as_dict().
@@ -50,7 +68,8 @@ class ParseTree:
             root_tok_data: dict tree created from .as_dict()
         '''
         # root is reference to entire tree
-        self.root = Token.from_dict(root_tok_data, *args, tree=self, **kwargs)
+        root = Token.from_dict(root_tok_data, *args, **kwargs)
+        return cls(root)
 
     def get_token_list(self):
         ''' Return ordered list of tokens.
