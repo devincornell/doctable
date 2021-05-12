@@ -184,7 +184,7 @@ class Token:
         if len(childs) == 1 or (len(childs) and allow_multiple):
             return childs[0]
         elif not len(childs):
-            return NoneToken()
+            return None
         else:
             raise ValueError(f'There is more than one dependency matching {args}, {kwargs}.')
     
@@ -204,9 +204,3 @@ class Token:
         return preps
     
 
-class NoneToken(Token):
-    @property
-    def is_none(self):
-        return True
-    def __str__(self):
-        return 'NoneToken()'
