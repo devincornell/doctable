@@ -1,71 +1,109 @@
 
-from .token import Token
+
+import doctable
+import pickle
+import typing
+
 from functools import reduce
+
+class MissingSpacyPipelineComponent(Exception):
+    message = 'Both the Spacy tagger and parser must '
+                    'be enabled to make a ParseTree.'
+    def __init__(self):
+        super().__init__(self.message)
 
 class ParseTree:
     root = None
-    def __init__(self, root_node, *args, **kwargs):
-        '''Create from dict parsetree or spacy sentence root.'''
+    def __init__(self, root_token: doctable.Token):
+        '''Create from dict parsetree or spacy sentence root.
+        Args:
+            root_token: root token of parsetree.
+        '''
+        self.root = root_token
+
+        # create ordered sequence of tokens
+        self.tokens = self.get_token_list()
+
+    ########################## Factory methods ##########################
+    def from_spacy(self, spacy_sent: typing.Any, *args, **kwargs):
+        ''' Create new parsetree from spacy doc.
+        Args:
+            spacy_sent: Spacy sent object.
+            args: passed to Token.from_spacy()
+            kwargs: passed to Token.from_spacy()
+        '''
+        # check if didn't use SpaCy dependency parser
+        if not root_node.doc.is_parsed:
+            raise MissingSpacyPipelineComponent()
+
+        # root is reference to root token
+        self.root = doctable.Token.from_spacy(sent.root, *args, tree=self, **kwargs)
         
-        # check that spacy token is good
-        if not isinstance(root_node, dict): # root node is spacy token
-            if not root_node.doc.is_parsed:
-                raise ValueError('Both the Spacy tagger and parser must '
-                    'be enabled to make a ParseTree.')
-        
+        # also store an ordered sequence of tokens
+        self.get_token_list()
+
+    def from_dict(self, root_tok_data: dict, *args, **kwargs):
+        ''' Create new ParseTree from a dictionary tree created by as_dict().
+        Args:
+            root_tok_data: dict tree created from .as_dict()
+        '''
         # root is reference to entire tree
-        self.root = Token(root_node, *args, tree=self, **kwargs)
-        _tokens = self.bubble_accum(lambda n: [n])
-        self._tokens = list(sorted(_tokens,key=lambda n:n.i))
+        self.root = doctable.Token.from_dict(root_tok_data, *args, tree=self, **kwargs)
         
+
+    def get_token_list(self):
+        ''' Return ordered list of tokens.
+        '''
+        tokens = self.root.bubble_accum(lambda n: [n])
+        return list(sorted(tokens, key=lambda n:n.i))
+
+    ########################## Data serialization ##########################
+    def as_dict(self):
+        ''' Convert to a dictionary tree.
+        '''
+        return self.root.as_dict()
+
+    def as_pickle(self):
+        ''' Return a pickled dictionary tree.
+        '''
+        return pickle.dumps(self.as_dict())
+        
+    ########################## Basic accessors ##########################
     @property
     def toks(self):
-        ''' List of token texts.
+        ''' List of token strings.
         '''
-        return [n.text for n in self._tokens]
-        
+        return [n.text for n in self.tokens]
+    
+    ########################## Dunderscores ##########################
     def __str__(self):
-        return 'ParseTree({})'.format(self.toks)
+        return f"[{', '.join([str(t) for t in self.toks])}]"
     
     def __repr__(self):
-        return str(self)
+        return 'ParseTree({})'.format(', '.join([t.__repr__() for t in self.toks]))
         
     def __len__(self):
-        return len(self._tokens)
+        ''' Number of tokens. '''
+        return len(self.tokens)
     
     def __getitem__(self,ind):
-        '''Returns ith item in ordered list of _tokens.'''
-        return self._tokens[ind]
+        '''Returns ith item in ordered list of tokens.'''
+        return self.tokens[ind]
     
     def __iter__(self):
-        return iter(self._tokens)
+        ''' Iterate over tokens.'''
+        return iter(self.tokens)
     
-    def as_dict(self):
-        return self.root.as_dict()
-    
-    def bubble_accum(self, func):
-        '''Applies func to each node and bubbles up accumulated result (like reduce).
-        Args:
-            func (function): apply function to an object returning list.
-        '''
-        return self.root.bubble_accum(func)
-    
-    def bubble_reduce(self, func, init_data):
-        '''Applies func to each node and bubbles up accumulated list of results.
-        Args:
-            func (function): apply function to an object returning list.
-            init_data (any type): initial data to pass through reduce function
-        '''
-        return self.root.bubble_reduce(func, init_data)
-    
-    
+    ########################## Visualization ##########################
     def display(self, pad=15, base=10, **kwargs):
-        ''' Print out an ascii tree.
+        ''' TODO Print out an ascii tree.
         '''
         self.print_tree_recursive(self.root, pad, base, **kwargs)
         
     @classmethod
     def print_tree_recursive(cls, tok, pad, base, level=0, root_str='{text}', dep_str=' -{dep}> {text}'):
+        ''' TODO Printing tree for visualization.
+        '''
         if level == 0:
             print(root_str.format(**tok.as_dict()).ljust(pad-(pad-base)), end='')
         else:
