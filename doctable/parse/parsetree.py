@@ -72,7 +72,8 @@ class ParseTree:
         root = Token.from_spacy(spacy_sent.root, *args, **kwargs)
         return cls(root)
 
-    def from_dict(self, root_tok_data: dict, *args, **kwargs):
+    @classmethod
+    def from_dict(cls, root_tok_data: dict, *args, **kwargs):
         ''' Create new ParseTree from a dictionary tree created by as_dict().
         Args:
             root_tok_data: dict tree created from .as_dict()
@@ -81,8 +82,10 @@ class ParseTree:
         root = Token.from_dict(root_tok_data, *args, **kwargs)
         return cls(root)
 
-
-
+    @classmethod
+    def from_pickle(cls, pickle_data):
+        return cls.from_dict(pickle.loads(pickle_data))
+    
     ########################## Data serialization ##########################
     def as_dict(self):
         ''' Convert to a dictionary tree.
@@ -102,10 +105,10 @@ class ParseTree:
     
     ########################## Dunderscores ##########################
     def __str__(self):
-        return f"[{', '.join(self.token_texts())}]"
+        return f"{self.__class__.__name__}({' '.join(self.token_texts())})"
     
     def __repr__(self):
-        return 'ParseTree({})'.format(', '.join([t.__repr__() for t in self.tokens]))
+        return f'{self.__class__.__name__}({repr(self.root.__repr__())[1:-1]})'
         
     def __len__(self):
         ''' Number of tokens. '''

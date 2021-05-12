@@ -6,12 +6,13 @@ import collections
 #from doctable.parse.parsetree import ParseTree
 
 class PropertyNotAvailable(Exception):
-    message = '{prop} is not available in Token because {parsefeatname} was not enabled while processing with Spacy.'
+    template = '{prop} is not available in Token because {parsefeatname} was not enabled while processing with Spacy.'
     def __init__(self, prop, parsefeatname):
-        super.__init__(self.message.format(prop, parsefeatname))
+        message = self.template.format(prop=prop, parsefeatname=parsefeatname)
+        super().__init__(message)
 
 
-@dataclasses.dataclass(repr=False)
+@dataclasses.dataclass(repr=True)
 class Token:
     ''' Object representing a single token.
     Attrs:
@@ -32,10 +33,12 @@ class Token:
     dep: str
     tag: str
     childs: list
-    tree: typing.Any #ParseTree
     otherdata: dict = dataclasses.field(default_factory=dict)
     userdata: dict = dataclasses.field(default_factory=dict)
-    parent: typing.Any = None
+    
+    # assigned by parsetree
+    tree: typing.Any = dataclasses.field(default=None, repr=False)
+    parent: typing.Any = dataclasses.field(default=None, repr=False)
 
     def __post_init__(self):
         ''' Create references to parents recursively.
@@ -51,7 +54,7 @@ class Token:
     ########################## Factory methods ##########################
     @classmethod
     def from_spacy(cls, spacy_tok: typing.Any, 
-                        text_parse_func:typing.Callable=lambda x: x, 
+                        text_parse_func:typing.Callable=lambda t: t.text, 
                         userdata_map: dict={}, 
                         parent: Token = None, 
                         tree:typing.Any=None) -> Token:
@@ -81,20 +84,21 @@ class Token:
         )
         return newtoken
 
-    def from_dict(self, tok_data: dict, tree: typing.Any=None):
+    @classmethod
+    def from_dict(cls, tok_data: dict, tree: typing.Any=None):
         ''' Create new token recursively using a dictionary tree structure.
         Args:
             tok_data: dictionary containing current token information
             tree (ParseTree): reference to associated parsetree
         '''
-        newtoken = self.__class__(
+        newtoken = cls(
             i = tok_data['i'],
             text = tok_data['text'],
             dep = tok_data['dep'],
             tag = tok_data['tag'],
-            otherdata = ndict['otherdata'],
-            userdata = ndict['userdata'],
-            childs = [self.from_dict(td) for td in ndict['childs']],
+            otherdata = tok_data['otherdata'],
+            userdata = tok_data['userdata'],
+            childs = [cls.from_dict(td) for td in tok_data['childs']],
         )
         return newtoken
 
@@ -120,8 +124,15 @@ class Token:
     def __str__(self):
         return self.text
     
-    def __repr__(self):
-        return f'{self.__class__.__name__[:3]}({self.text})'
+    #def __repr__(self):
+    #    return "{name}(i={i}, text={text}, dep={dep}, \
+    #        tag={tag}, otherdata={otherdata}, userdata={userdata}, \
+    #        childs={childs})".format(**dict(
+#                name=self.__class__.__name__,
+    #            i=self.i,
+    #            text=self.text,
+    #            dep = self.dep,
+    #        )
     
     def __getitem__(self,ind):
         ''' Access token attrs or user-provided data.

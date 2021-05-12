@@ -1,83 +1,50 @@
 
 import pytest
 
+import spacy
+
 import sys
 sys.path.append('..')
 import doctable
 
-ex_parsetree = {'i': 1,
- 'text': 'went',
- 'tag': 'VBD',
- 'dep': 'ROOT',
- 'info': {'random': None},
- 'childs': [{'i': 0,
-   'text': 'I',
-   'tag': 'PRP',
-   'dep': 'nsubj',
-   'info': {},
-   'childs': [],
-   'pos': 'PRON',
-   'ent': ''},
-  {'i': 2,
-   'text': 'to',
-   'tag': 'IN',
-   'dep': 'prep',
-   'info': {},
-   'childs': [{'i': 4,
-     'text': 'store',
-     'tag': 'NN',
-     'dep': 'pobj',
-     'info': {},
-     'childs': [{'i': 3,
-       'text': 'the',
-       'tag': 'DT',
-       'dep': 'det',
-       'info': {},
-       'childs': [],
-       'pos': 'DET',
-       'ent': ''}],
-     'pos': 'NOUN',
-     'ent': ''}],
-   'pos': 'ADP',
-   'ent': ''},
-  {'i': 5,
-   'text': 'today',
-   'tag': 'NN',
-   'dep': 'npadvmod',
-   'info': {},
-   'childs': [],
-   'pos': 'NOUN',
-   'ent': 'DATE'},
-  {'i': 6,
-   'text': '.',
-   'tag': '.',
-   'dep': 'punct',
-   'info': {},
-   'childs': [],
-   'pos': 'PUNCT',
-   'ent': ''}],
- 'pos': 'VERB',
- 'ent': ''}
-
-
+ex_sents = '''
+This is the best day ever, honestly. 
+I am having a ton of fun with you. 
+Programming is awesome!
+'''.replace('\n','')
 
 def test_basic():
-    tok = doctable.Token(ex_parsetree)
-    assert(tok.t == 'went')
-    assert(len(tok.childs) == 4)
-    assert(tok.i == 1)
-    assert(tok['random'] is None)
-    
+    nlp = spacy.load('en_core_web_sm', disable=['ner'])
+    tmp = doctable.TempFolder('tmp')
 
-    assert(len(tok.get_childs({'whatever'})) == 0)
-    assert(len(tok.get_childs({'nsubj'})) == 1)
+    # verify operation by pickling/dicting and undicting
+    trees = list()
+    for sent in nlp(ex_sents).sents:
+        
+        tree = doctable.ParseTree.from_spacy(sent)
+        trees.append(tree)
+        print(sent)
+        print(tree)
+        
+        assert(len(tree) == len(sent))
 
-    assert(tok.get_child({'nsubj'}).t == 'I')
-    assert(tok.get_child({'whatever'}, first=True).is_none)
-    
-    assert(not tok.get_child({'nsubj','prep'}, first=True).is_none)
-    with pytest.raises(ValueError):
-        tok.get_child({'nsubj','prep'})
+        fname = 'test_tree.pic'
+        with tmp.path.joinpath(fname).open('wb') as f:
+            f.write(tree.as_pickle())
+
+        with tmp.path.joinpath(fname).open('rb') as f:
+            othertree = doctable.ParseTree.from_pickle(f.read())
+
+        assert(repr(tree) == repr(othertree))
+
+    # now work with single tree
+    tree = trees[0]
+    assert(tree.root.text == 'is')
+    assert(tree.root.tag == 'VBZ')
+
+    # recall that ner was disabled
+    with pytest.raises(doctable.parse.token.PropertyNotAvailable):
+        tree.root.ent == ''
     
 
 if __name__ == '__main__':
