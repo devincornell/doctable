@@ -40,11 +40,11 @@ class DocTableMongo:
         return getattr(self.coll, ind)
 
     ############################# CRUD Methods ##################
-    def insert(self, data, **kwargs):
+    def insert(self, data, *args, **kwargs):
         if isinstance(data, dict):
-            result = self.coll.insert_one(data)
+            result = self.coll.insert_one(data, *args, **kwargs)
         else:
-            result = self.coll.insert_many()
+            result = self.coll.insert_many(data, *args, **kwargs)
         return result
 
     ############################# Other Access Methods ##################

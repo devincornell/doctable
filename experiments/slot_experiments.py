@@ -4,7 +4,11 @@ from dataclasses import dataclass
 class SimplePosition:
     name: str
     lon: float
-    lat: float
+    lat: float = None
+
+    @property
+    def d(self):
+        return self.__dict__
 
 @dataclass
 class SlotPosition:
@@ -15,5 +19,6 @@ class SlotPosition:
 
 if __name__ == '__main__':
     a = SlotPosition(name='a', lon=5.0, lat=0.5)
-    a.whatever = 'a'
+    b = SimplePosition(name='a', lon=5.0, lat=0.5)
+    print(b.d)
 
