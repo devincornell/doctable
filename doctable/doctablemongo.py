@@ -23,11 +23,9 @@ class DocTableMongo:
             raise ValueError('collection must be provided in constructor or '
                                 '_collection_ must be defined.')
 
-        
-
     ############################# Dunderscore Methods ##################
     def __getitem__(self, ind):
-        ''' Get property of collection.
+        ''' Get property of collection if not defined in this class.
         '''
         return getattr(self.coll, ind)
 
@@ -39,10 +37,7 @@ class DocTableMongo:
     def __getattr__(self, ind):
         ''' Access property of this class or the collection.
         '''
-        try:
-            return getattr(self, ind)
-        except AttributeError:
-            return getattr(self.coll, ind)
+        return getattr(self.coll, ind)
 
     ############################# CRUD Methods ##################
     def insert(self, data, **kwargs):
@@ -52,12 +47,8 @@ class DocTableMongo:
             result = self.coll.insert_many()
         return result
 
-    def find(self, *args, **kwargs):
-        return self.coll.find(*args, **kwargs)
-
     ############################# Other Access Methods ##################
-    def list_collections(self):
-        self.db.list_collection_names()
+
 
 
 

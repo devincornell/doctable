@@ -3,20 +3,25 @@ sys.path.append('..')
 import doctable
 
 def test_doctablemongo():
-    # make a bunch of centroids from which to sample
-    gmm = doctable.GMM([
-        doctable.Centroid(nsamp=1000), # specify any of the members of Centroid to change from defaults
-        doctable.Centroid(nsamp=100),
-        doctable.Centroid(nsamp=100),
-        doctable.Centroid(nsamp=100),
-        doctable.Centroid(nsamp=100),
-    ])
+    db = doctable.DocTableMongo('test', 'tester')
+    
+    # access property of pymongo.Collection through getattr
+    assert(db.full_name=='test.tester')
 
-    print([c.av_sim() for c in gmm])
+    # access property of pymongo through getitem
+    assert(db['full_name']=='test.tester')
+    #assert(not hasattr(db, 'full_name'))
+    
+    # assign property of DocTableMongo
+    db.full_name = 'whatever ye say'
 
-    # show the size of the output. Will be sum of nsamp from each centroid
-    X = gmm.get_sample()
-    print(X.shape)
+    # verify that property of DocTableMongo was overwritten
+    assert(db.full_name == 'whatever ye say')
+    
+    # .. but not the property of the underlying Collection
+    assert(db['full_name']=='test.tester')
+
+
 
 
 if __name__ == '__main__':
