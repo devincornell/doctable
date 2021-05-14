@@ -7,6 +7,7 @@ from sqlalchemy.sql import and_, or_, not_
 # regular table features
 
 from .doctable import DocTable
+from .doctablemongo import DocTableMongo
 #from .schemas import parse_schema, column_type_map
 from .connectengine import ConnectEngine
 from .model import *
