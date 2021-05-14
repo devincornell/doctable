@@ -26,7 +26,6 @@ def av_time(timer):
     av_diff = sum(diffs, datetime.timedelta(0))/len(diffs)
     return print_delta(av_diff)
 
-
 def time_call(func, *args, num_calls=10, **kwargs):
     timer = doctable.Timer(verbose=False)
     for i in (range(num_calls)):
