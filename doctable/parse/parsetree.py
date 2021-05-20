@@ -65,7 +65,7 @@ class ParseTree:
             kwargs: passed to Token.from_spacy()
         '''
         # check if didn't use SpaCy dependency parser
-        if not spacy_sent.root.doc.is_parsed:
+        if not spacy_sent.root.doc.has_annotation("DEP"):
             raise MissingSpacyPipelineComponent()
 
         # .root is reference to root token of sentence

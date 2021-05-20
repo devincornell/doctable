@@ -71,8 +71,8 @@ class Token:
             tag = spacy_tok.tag_,
             text = text_parse_func(spacy_tok),
             otherdata = {
-                'pos': spacy_tok.pos_ if spacy_tok.doc.is_tagged else None,
-                'ent': spacy_tok.ent_type_ if spacy_tok.doc.is_nered else None,
+                'pos': spacy_tok.pos_ if spacy_tok.doc.has_annotation("TAG") else None,
+                'ent': spacy_tok.ent_type_ if spacy_tok.doc.has_annotation("ENT_IOB") else None,
             },
             userdata = {attr:func(spacy_tok) for attr,func in userdata_map.items()},
             
