@@ -306,20 +306,21 @@ def merge_tok_ngrams(toks, ngrams=tuple(), ngram_sep='_'):
 
 
 
-def get_parsetrees(doc, text_parse_func=None, info_func_map=dict()):
+def get_parsetrees(doc, text_parse_func=lambda stok: stok.text, userdata_map=dict()):
     '''Extracts parsetree from spacy doc objects.
     Args:
         doc (spacy.Doc object): doc to generate parsetree from.
-        parse_tok_func (func): function used to convert token to 
+        parse_tok_func (func<spacy.Token, str>): function used to convert token to 
             a string representation. Usually a lambda function 
             wrapping some variant of self.parse_tok().
-        info_func_map (dict<str->func>): attribute to function 
+        userdata_map (dict<str->func>): attribute to function 
             mapping. Functions take a token and output a property
             that will be stored in each parsetree node.
     '''
-    return ParseTreeDoc.from_spacy(doc)
+    return ParseTreeDoc.from_spacy(doc, text_parse_func=text_parse_func, 
+                            userdata_map=userdata_map)
     #sent_trees = [
-    #    ParseTree(sent.root, text_parse_func=text_parse_func, info_func_map=info_func_map)
+    #    ParseTree(sent.root, text_parse_func=text_parse_func, userdata_map=userdata_map)
     #    for sent in doc.sents
     #]
     #return sent_trees
