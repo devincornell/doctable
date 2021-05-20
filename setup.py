@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-version = '0.9.0'
+version = '0.9.1'
 setup(name='doctable',
     version='{}'.format(version),
     description='Simple database interface for text analysis applications.',
