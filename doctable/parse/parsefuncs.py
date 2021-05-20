@@ -64,10 +64,10 @@ parser = doctable.ParsePipeline([
 '''
 
 
+from doctable.parse.documents.parsetreedoc import ParseTreeDoc
 import re
 
 #from .parsetree import ParseTree
-from doctable.parse.parsetree import ParseTree
 
 # xml for removing stuff    
 re_url = re.compile(r'http\S+', flags=re.MULTILINE)
@@ -317,11 +317,12 @@ def get_parsetrees(doc, text_parse_func=None, info_func_map=dict()):
             mapping. Functions take a token and output a property
             that will be stored in each parsetree node.
     '''
-    sent_trees = [
-        ParseTree(sent.root, text_parse_func=text_parse_func, info_func_map=info_func_map)
-        for sent in doc.sents
-    ]
-    return sent_trees
+    return ParseTreeDoc.from_spacy(doc)
+    #sent_trees = [
+    #    ParseTree(sent.root, text_parse_func=text_parse_func, info_func_map=info_func_map)
+    #    for sent in doc.sents
+    #]
+    #return sent_trees
 
 
 
