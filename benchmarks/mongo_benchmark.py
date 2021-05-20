@@ -15,16 +15,16 @@ import timing
 @dataclass
 class DataObj(doctable.DocTableSchema):
     arc: int = doctable.Col()
-    name1: str = doctable.Col()
-    name2: str = doctable.Col()
-    name3: str = doctable.Col()
-    name4: str = doctable.Col()
-    name5: str = doctable.Col()
-    name6: str = doctable.Col()
-    name7: str = doctable.Col()
-    name8: str = doctable.Col()
-    name9: str = doctable.Col()
-    name10: str = doctable.Col()
+    name1: str = doctable.Col(type_args={'length':32})
+    name2: str = doctable.Col(type_args={'length':32})
+    name3: str = doctable.Col(type_args={'length':32})
+    name4: str = doctable.Col(type_args={'length':32})
+    name5: str = doctable.Col(type_args={'length':32})
+    name6: str = doctable.Col(type_args={'length':32})
+    name7: str = doctable.Col(type_args={'length':32})
+    name8: str = doctable.Col(type_args={'length':32})
+    name9: str = doctable.Col(type_args={'length':32})
+    name10: str = doctable.Col(type_args={'length':32})
     def __post_init__(self):
         if self.name1 == doctable.EmptyValue():
             self.name1 = str(self.arc)
@@ -42,7 +42,14 @@ class DataObj(doctable.DocTableSchema):
 if __name__ == '__main__':
     timer = doctable.Timer()
     
-    timer.step('creating db')
+    timer.step('creating dbs')
+    
+    # no idea why I can't get this to work??
+    #?unix_socket="/var/run/mysqld/mysqld.sock"
+    #devin:@localhost:3306/
+    mdb = doctable.DocTable(schema=DataObj, target='nonprofits', dialect='mysql+pymysql', new_db=True)
+    #mdb.insert({'arc':5})
+    
     folder = 'tmp_mongo'
     tmpf = doctable.TempFolder(folder)
     db = doctable.DocTable(schema=DataObj, target=f'{folder}/test.db', new_db=True)
@@ -63,8 +70,15 @@ if __name__ == '__main__':
         payload_dict = [o._doctable_as_dict() for o in payload]
 
         print('\ttesting inserts')
-        print(f'\tsqlite insert: {timing.time_call(lambda: db.insert(payload_dict), num_calls=1)}')
-        print(f'\tmongo insert: {timing.time_call(lambda: test_col.insert_many(payload_dict), num_calls=1)}')
+        print(f'\t\tsqlite insert: {timing.time_call(lambda: db.insert(payload_dict), num_calls=1)}')
+        #print(f'\t\tmysql insert: {timing.time_call(lambda: mdb.insert(payload_dict), num_calls=1)}')
+        print(f'\t\tmongo insert: {timing.time_call(lambda: test_col.insert_many(payload_dict), num_calls=1)}')
+        exit()
+        print('\ttesting selects')
+        print(f'\t\tsqlite select: {timing.time_call(lambda: list(db.select(as_dataclass=False)), num_calls=10)}')
+        print(f'\t\tmysql select: {timing.time_call(lambda: list(mdb.select(as_dataclass=False)), num_calls=10)}')
+        print(f'\t\tmongo find: {timing.time_call(lambda: list(test_col.find()), num_calls=10)}')
+
         db.delete()
         test_col.delete_many({})
     print()
