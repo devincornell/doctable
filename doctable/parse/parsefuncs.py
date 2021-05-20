@@ -318,7 +318,7 @@ def get_parsetrees(doc, text_parse_func=None, info_func_map=dict()):
             that will be stored in each parsetree node.
     '''
     sent_trees = [
-        doctable.ParseTree(sent.root, text_parse_func=text_parse_func, info_func_map=info_func_map)
+        ParseTree(sent.root, text_parse_func=text_parse_func, info_func_map=info_func_map)
         for sent in doc.sents
     ]
     return sent_trees
