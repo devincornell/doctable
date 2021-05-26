@@ -1,0 +1,5 @@
+
+class BaseDoc(list):
+    pass
+
+

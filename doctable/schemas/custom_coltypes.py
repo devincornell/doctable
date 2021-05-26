@@ -6,6 +6,7 @@ from random import randrange
 import os
 import json
 import pathlib
+from doctable.parse.documents import ParseTreeDoc
 
 import dataclasses
 
@@ -89,6 +90,15 @@ class PickleFileType(FileTypeBase):
     def load_data(cls, f, dialect):
         return pickle.load(f)
 
+class ParseTreeDocFileType(FileTypeBase):
+    file_ext = 'parsetreedoc_.pic'
+    @classmethod
+    def dump_data(cls, f, value, dialect): # used in FileTypeBase.process_bind_param()
+        return pickle.dump(value.as_dict(), f, -1) # use highest protocol with negative number
+    @classmethod
+    def load_data(cls, f, dialect):
+        return ParseTreeDoc.from_dict(pickle.load(f))
+
 class TextFileType(FileTypeBase):
     file_ext = '.txt'
     @classmethod
@@ -109,6 +119,10 @@ class JSONFileType(FileTypeBase):
     def load_data(cls, f, dialect):
         return json.load(f)
     
+
+
+
+
 
 class CpickleType(types.TypeDecorator):
     impl = types.LargeBinary

@@ -1,0 +1,36 @@
+Sun 08:45:59: (prev took 0.027 ms) creating db
+Sun 08:45:59: (prev took 22.336 ms) creating mongo db
+mongo contents: 0
+===== Payload size 10 =====
+	making data payload
+	testing inserts
+		sqlite insert: 5.190 ms
+		mongo insert: 4.133 ms
+	testing selects
+		sqlite select: 0.638 ms
+		mongo find: 0.514 ms
+===== Payload size 100 =====
+	making data payload
+	testing inserts
+		sqlite insert: 18.576 ms
+		mongo insert: 3.003 ms
+	testing selects
+		sqlite select: 1.285 ms
+		mongo find: 0.890 ms
+===== Payload size 1000 =====
+	making data payload
+	testing inserts
+		sqlite insert: 133.704 ms
+		mongo insert: 22.353 ms
+	testing selects
+		sqlite select: 10.257 ms
+		mongo find: 5.491 ms
+===== Payload size 10000 =====
+	making data payload
+	testing inserts
+		sqlite insert: 1.70 sec
+		mongo insert: 202.329 ms
+	testing selects
+		sqlite select: 92.503 ms
+		mongo find: 68.652 ms
+

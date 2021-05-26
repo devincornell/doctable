@@ -1,4 +1,5 @@
-.vscode
+.vscode/
+
 examples/exdb/*
 *.db
 *.db-journal

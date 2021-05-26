@@ -2,7 +2,8 @@
 import datetime
 import sqlalchemy as sa
 
-from .custom_coltypes import CpickleType, PickleFileType, TextFileType, FileTypeBase, JSONType#, ParseTreeType
+from doctable.parse.documents import ParseTreeDoc
+from .custom_coltypes import CpickleType, ParseTreeDocFileType, PickleFileType, TextFileType, FileTypeBase, JSONType#, ParseTreeType
 
 #type_lookup = {
 python_to_slqlchemy_type = {
@@ -13,6 +14,7 @@ python_to_slqlchemy_type = {
     datetime.datetime: sa.DateTime,
     datetime.time: sa.Time,
     datetime.date: sa.Date,
+    ParseTreeDoc: ParseTreeDocFileType,
 }
 
 constraint_lookup = {
@@ -44,7 +46,7 @@ string_to_sqlalchemy_type = {
     'unicodetext':sa.UnicodeText,
     'json': JSONType, # custom datatype
     'pickle': CpickleType, # custom datatype
-    #'parsetree': ParseTreeType, # custom datatype
+    'parsetree': ParseTreeDocFileType, # custom datatype
     'picklefile': PickleFileType,
     'textfile': TextFileType,
 }

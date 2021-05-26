@@ -1,4 +1,3 @@
 {
-    "python.pythonPath": "/home/devin/anaconda3/bin/python",
-    "jupyter.jupyterServerType": "remote"
+    "python.pythonPath": "/home/devin/anaconda3/bin/python"
 }
