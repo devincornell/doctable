@@ -52,7 +52,7 @@ example_html:
 
 
 DOCS_REF_FOLDER = $(DOCS_FOLDER)/ref/
-#pydoc -w doctable.ConnectEngine doctable.DocTable doctable.dbutils doctable.DocTableSchemas doctable.schemas.field_columns doctable.parse.pipeline doctable.parse.parsetree doctable.parse.parsefuncs doctable.Bootstrap doctable.Timer doctable.FSStore doctable.util.io
+#pydoc -w doctable.ConnectEngine doctable.DocTable doctable.dbutils doctable.DocTableRows doctable.schemas.field_columns doctable.parse.pipeline doctable.parse.parsetree doctable.parse.parsefuncs doctable.Bootstrap doctable.Timer doctable.FSStore doctable.util.io
 #mv *.html $(DOCS_REF_FOLDER)
 pydoc:
 	pdoc -o ./docs/ref ./doctable/

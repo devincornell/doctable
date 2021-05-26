@@ -2,7 +2,7 @@
 import dataclasses
 from .emptyvalue import EmptyValue
 
-class DocTableSchema:
+class DocTableRow:
     ''' Base class for column objects.
     '''
     miss_col_message = 'The column "{name}" was not retreived in the select statement.'

@@ -9,7 +9,7 @@ import doctable
 
 
 @dataclass
-class MyClass(doctable.DocTableSchema):
+class MyClass(doctable.DocTableRow):
     name: str = doctable.Col(unique=True)
 
     # builtin column types
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     db.insert(MyClass('whatever'))
     print(db.head())
     print(db.schema_table())
-    print(isinstance(mc, doctable.DocTableSchema))
+    print(isinstance(mc, doctable.DocTableRow))
     for row in db.select(['idx', 'name']):
         print(f"{row.idx}: {row.name}")
     #print(fields(MyBaseClass))

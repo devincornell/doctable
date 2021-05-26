@@ -1,5 +1,5 @@
 
-#from .doctable import DocTable, DocTableSchema
+#from .doctable import DocTable, DocTableRow
 #from .util import Timer
 import sys
 sys.path.append('..')
@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 import random
 import time
 
-class TestObjBase(doctable.DocTableSchema):
+class TestObjBase(doctable.DocTableRow):
     idx: int = doctable.IDCol()
     size: int = 10000000
     def __post_init__(self):

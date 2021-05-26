@@ -1,5 +1,5 @@
 
-from .doctableschema import DocTableSchema
+from .doctablerow import DocTableRow
 from .emptyvalue import EmptyValue
 
 from .field_columns import Col, IDCol, UpdatedCol, AddedCol
@@ -11,7 +11,7 @@ from .coltype_map import python_to_slqlchemy_type, constraint_lookup, string_to_
 from .custom_coltypes import FileTypeBase, PickleFileType, TextFileType, JSONFileType, CpickleType, JSONType
 
 #__all__ = [
-#    'DocTableSchema',
+#    'DocTableRow',
 #    'EmptyValue',
 #    'Col', 'IDCol', 'UpdatedCol', 'AddedCol',
 #    'parse_schema_dataclass',

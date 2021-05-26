@@ -15,7 +15,7 @@ Programming is awesome!
 '''.split('\n')
 
 @dataclasses.dataclass
-class TestRow(doctable.DocTableSchema):
+class TestRow(doctable.DocTableRow):
     id: int = doctable.IDCol()
     doc: doctable.ParseTreeDoc = doctable.Col(type_args=dict(folder='tmp/parsed_trees'))
 

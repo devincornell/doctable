@@ -13,7 +13,7 @@ import timing
 
 
 @dataclass
-class DataObj(doctable.DocTableSchema):
+class DataObj(doctable.DocTableRow):
     arc: int = doctable.Col()
     name1: str = doctable.Col(type_args={'length':32})
     name2: str = doctable.Col(type_args={'length':32})

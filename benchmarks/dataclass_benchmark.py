@@ -12,7 +12,7 @@ import timing
 
 
 @dataclass
-class DataObj(doctable.DocTableSchema):
+class DataObj(doctable.DocTableRow):
     id: int = doctable.Col()
     name1: str = doctable.Col()
     name2: str = doctable.Col()

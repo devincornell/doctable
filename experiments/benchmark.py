@@ -1,12 +1,12 @@
 
-from .doctable import DocTable, DocTableSchema
+from .doctable import DocTable, DocTableRow
 from .util import Timer
 import pickle
 import os
 from dataclasses import dataclass, field
 
 @dataclass
-class TestObj(DocTableSchema):
+class TestObj(DocTableRow):
     i: int
     name: str = None
     value: float = None
