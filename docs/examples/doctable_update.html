@@ -14273,7 +14273,7 @@ a.anchor-link {
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
-<span class="kn">import</span> <span class="nn">doctable</span> <span class="k">as</span> <span class="nn">dt</span>
+<span class="kn">import</span> <span class="nn">doctable</span>
 </pre></div>
 
      </div>
@@ -14287,14 +14287,16 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;age&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">),</span>
-<span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">Record</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableRow</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">is_old</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+        
 <span class="k">def</span> <span class="nf">new_db</span><span class="p">():</span>
-    <span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="s1">&#39;mydocuments&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">Record</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">N</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
         <span class="n">age</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="c1"># number in [0,1]</span>
@@ -14323,10 +14325,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT count() AS count_1 
-FROM mydocuments
- LIMIT :param_1
-&lt;DocTable2::mydocuments ct: 10&gt;
+<pre>&lt;DocTable (4 cols)::sqlite:///:memory::_documents_&gt;
 </pre>
 </div>
 </div>
@@ -14361,9 +14360,9 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -14402,25 +14401,25 @@ FROM mydocuments
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
+      <th>0</th>
       <td>1</td>
       <td>user_0</td>
-      <td>0.156287</td>
+      <td>0.493092</td>
       <td>False</td>
     </tr>
     <tr>
-      <td>1</td>
+      <th>1</th>
       <td>2</td>
       <td>user_1</td>
-      <td>0.770439</td>
-      <td>True</td>
+      <td>0.400761</td>
+      <td>False</td>
     </tr>
     <tr>
-      <td>2</td>
+      <th>2</th>
       <td>3</td>
       <td>user_2</td>
-      <td>0.889879</td>
-      <td>True</td>
+      <td>0.483774</td>
+      <td>False</td>
     </tr>
   </tbody>
 </table>
@@ -14493,24 +14492,24 @@ FROM mydocuments
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
+      <th>0</th>
+      <td>1</td>
+      <td>user_0</td>
+      <td>0.604214</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>user_1</td>
+      <td>0.545287</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
       <td>3</td>
       <td>user_2</td>
-      <td>0.563325</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>5</td>
-      <td>user_4</td>
-      <td>0.829197</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>6</td>
-      <td>user_5</td>
-      <td>0.817841</td>
+      <td>0.785432</td>
       <td>True</td>
     </tr>
   </tbody>
@@ -14553,8 +14552,8 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: UPDATE mydocuments SET age=:age WHERE mydocuments.is_old = true
-DocTable2 Query: UPDATE mydocuments SET age=:age WHERE mydocuments.is_old = false
+<pre>DocTable: UPDATE _documents_ SET age=? WHERE _documents_.is_old = 1
+DocTable: UPDATE _documents_ SET age=? WHERE _documents_.is_old = 0
 </pre>
 </div>
 </div>
@@ -14593,21 +14592,21 @@ DocTable2 Query: UPDATE mydocuments SET age=:age WHERE mydocuments.is_old = fals
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
+      <th>0</th>
       <td>1</td>
       <td>user_0</td>
-      <td>1</td>
-      <td>True</td>
+      <td>0</td>
+      <td>False</td>
     </tr>
     <tr>
-      <td>1</td>
+      <th>1</th>
       <td>2</td>
       <td>user_1</td>
       <td>0</td>
       <td>False</td>
     </tr>
     <tr>
-      <td>2</td>
+      <th>2</th>
       <td>3</td>
       <td>user_2</td>
       <td>0</td>
@@ -14659,7 +14658,7 @@ DocTable2 Query: UPDATE mydocuments SET age=:age WHERE mydocuments.is_old = fals
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: UPDATE mydocuments SET name=(mydocuments.name || :name_1), age=(mydocuments.age + :age_1), is_old=:is_old
+<pre>DocTable: UPDATE _documents_ SET name=(_documents_.name || ?), age=(_documents_.age + ?), is_old=?
 </pre>
 </div>
 </div>
@@ -14698,24 +14697,24 @@ DocTable2 Query: UPDATE mydocuments SET age=:age WHERE mydocuments.is_old = fals
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
+      <th>0</th>
       <td>1</td>
       <td>user_0th</td>
-      <td>1.926072</td>
+      <td>1.341306</td>
       <td>True</td>
     </tr>
     <tr>
-      <td>1</td>
+      <th>1</th>
       <td>2</td>
       <td>user_1th</td>
-      <td>1.440472</td>
+      <td>1.306571</td>
       <td>True</td>
     </tr>
     <tr>
-      <td>2</td>
+      <th>2</th>
       <td>3</td>
       <td>user_2th</td>
-      <td>1.875261</td>
+      <td>1.559224</td>
       <td>True</td>
     </tr>
   </tbody>
@@ -14764,7 +14763,7 @@ DocTable2 Query: UPDATE mydocuments SET age=:age WHERE mydocuments.is_old = fals
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: UPDATE mydocuments SET name=(mydocuments.age - :age_1), age=(mydocuments.age + :age_2)
+<pre>DocTable: UPDATE _documents_ SET name=(_documents_.age - ?), age=(_documents_.age + ?)
 </pre>
 </div>
 </div>
@@ -14803,25 +14802,25 @@ DocTable2 Query: UPDATE mydocuments SET age=:age WHERE mydocuments.is_old = fals
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
+      <th>0</th>
       <td>1</td>
-      <td>-0.557324771408994</td>
-      <td>1.442675</td>
+      <td>-0.62221288787679</td>
+      <td>1.377787</td>
       <td>False</td>
     </tr>
     <tr>
-      <td>1</td>
+      <th>1</th>
       <td>2</td>
-      <td>-0.720820415168971</td>
-      <td>1.279180</td>
+      <td>-0.989215174598388</td>
+      <td>1.010785</td>
       <td>False</td>
     </tr>
     <tr>
-      <td>2</td>
+      <th>2</th>
       <td>3</td>
-      <td>-0.000447943230516556</td>
-      <td>1.999552</td>
-      <td>True</td>
+      <td>-0.911748768507688</td>
+      <td>1.088251</td>
+      <td>False</td>
     </tr>
   </tbody>
 </table>
@@ -14846,7 +14845,7 @@ DocTable2 Query: UPDATE mydocuments SET age=:age WHERE mydocuments.is_old = fals
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">new_db</span><span class="p">()</span>
-<span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="mf">1.00</span><span class="p">},</span><span class="n">whrstr</span><span class="o">=</span><span class="s1">&#39;is_old==true&#39;</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="mf">1.00</span><span class="p">},</span> <span class="n">wherestr</span><span class="o">=</span><span class="s1">&#39;is_old==true&#39;</span><span class="p">)</span>
 <span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
@@ -14867,7 +14866,7 @@ DocTable2 Query: UPDATE mydocuments SET age=:age WHERE mydocuments.is_old = fals
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: UPDATE mydocuments SET age=:age WHERE is_old==true
+<pre>DocTable: UPDATE _documents_ SET age=? WHERE is_old==true
 </pre>
 </div>
 </div>
@@ -14906,39 +14905,39 @@ DocTable2 Query: UPDATE mydocuments SET age=:age WHERE mydocuments.is_old = fals
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
+      <th>0</th>
       <td>1</td>
       <td>user_0</td>
-      <td>1.000000</td>
-      <td>True</td>
+      <td>0.347761</td>
+      <td>False</td>
     </tr>
     <tr>
-      <td>1</td>
+      <th>1</th>
       <td>2</td>
       <td>user_1</td>
-      <td>0.415172</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>3</td>
-      <td>user_2</td>
-      <td>0.131622</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>4</td>
-      <td>user_3</td>
-      <td>0.193966</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>5</td>
-      <td>user_4</td>
       <td>1.000000</td>
       <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>user_2</td>
+      <td>1.000000</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>user_3</td>
+      <td>1.000000</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>user_4</td>
+      <td>0.104578</td>
+      <td>False</td>
     </tr>
   </tbody>
 </table>

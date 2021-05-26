@@ -14273,7 +14273,7 @@ a.anchor-link {
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
-<span class="kn">import</span> <span class="nn">doctable</span> <span class="k">as</span> <span class="nn">dt</span>
+<span class="kn">import</span> <span class="nn">doctable</span>
 </pre></div>
 
      </div>
@@ -14287,15 +14287,15 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="s1">&#39;age&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">),</span>
-<span class="p">)</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="s1">&#39;mydocuments&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="c1"># defaults: #fname=&#39;:memory:&#39;, engine=&#39;sqlite&#39;, persistent_conn=True, new_db=True</span>
-<span class="c1"># fname=&#39;:memory:&#39; is special - it loads database into memory</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">Record</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableRow</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">is_old</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">Record</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
 </pre></div>
 
@@ -14316,10 +14316,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT count() AS count_1 
-FROM mydocuments
- LIMIT :param_1
-&lt;DocTable2::mydocuments ct: 0&gt;
+<pre>&lt;DocTable (4 cols)::sqlite:///:memory::_documents_&gt;
 </pre>
 </div>
 </div>
@@ -14359,10 +14356,7 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT count() AS count_1 
-FROM mydocuments
- LIMIT :param_1
-&lt;DocTable2::mydocuments ct: 10&gt;
+<pre>&lt;DocTable (4 cols)::sqlite:///:memory::_documents_&gt;
 </pre>
 </div>
 </div>
@@ -14406,9 +14400,9 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -14422,8 +14416,8 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;, 0.5302777968381023, True),
- (2, &#39;user_1&#39;, 0.43948787762004426, False)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
+ Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
 </div>
 
 </div>
@@ -14458,9 +14452,9 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name 
-FROM mydocuments
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name 
+FROM _documents_
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -14474,7 +14468,7 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=None, is_old=None)]</pre>
 </div>
 
 </div>
@@ -14511,9 +14505,9 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name 
-FROM mydocuments
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name 
+FROM _documents_
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -14527,7 +14521,7 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=None, is_old=None)]</pre>
 </div>
 
 </div>
@@ -14562,9 +14556,9 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -14578,7 +14572,7 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(1, &#39;user_0&#39;, 0.5302777968381023, True)</pre>
+<pre>Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True)</pre>
 </div>
 
 </div>
@@ -14613,9 +14607,9 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.name 
-FROM mydocuments
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.name 
+FROM _documents_
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -14664,9 +14658,9 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.age 
+FROM _documents_
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -14680,7 +14674,7 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>0.5302777968381023</pre>
+<pre>0.6643892612068403</pre>
 </div>
 
 </div>
@@ -14720,9 +14714,9 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id = :id_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id = ?
 </pre>
 </div>
 </div>
@@ -14736,7 +14730,7 @@ WHERE mydocuments.id = :id_1
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(2, &#39;user_1&#39;, 0.43948787762004426, False)]</pre>
+<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
 </div>
 
 </div>
@@ -14771,9 +14765,9 @@ WHERE mydocuments.id = :id_1
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id &lt; :id_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id &lt; ?
 </pre>
 </div>
 </div>
@@ -14787,8 +14781,8 @@ WHERE mydocuments.id &lt; :id_1
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;, 0.5302777968381023, True),
- (2, &#39;user_1&#39;, 0.43948787762004426, False)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
+ Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
 </div>
 
 </div>
@@ -14824,10 +14818,10 @@ WHERE mydocuments.id &lt; :id_1
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id % :id_1 = :param_1
- LIMIT :param_2
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id % ? = ?
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -14841,8 +14835,8 @@ WHERE mydocuments.id % :id_1 = :param_1
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(2, &#39;user_1&#39;, 0.43948787762004426, False),
- (4, &#39;user_3&#39;, 0.398902981426976, False)]</pre>
+<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True),
+ Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]</pre>
 </div>
 
 </div>
@@ -14878,9 +14872,9 @@ WHERE mydocuments.id % :id_1 = :param_1
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id &gt;= :id_1 AND mydocuments.id &lt;= :id_2 AND mydocuments.name != :name_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id &gt;= ? AND _documents_.id &lt;= ? AND _documents_.name != ?
 </pre>
 </div>
 </div>
@@ -14894,8 +14888,8 @@ WHERE mydocuments.id &gt;= :id_1 AND mydocuments.id &lt;= :id_2 AND mydocuments.
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(2, &#39;user_1&#39;, 0.43948787762004426, False),
- (4, &#39;user_3&#39;, 0.398902981426976, False)]</pre>
+<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True),
+ Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]</pre>
 </div>
 
 </div>
@@ -14930,9 +14924,9 @@ WHERE mydocuments.id &gt;= :id_1 AND mydocuments.id &lt;= :id_2 AND mydocuments.
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.name IN (:name_1, :name_2)
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.name IN (?, ?)
 </pre>
 </div>
 </div>
@@ -14946,8 +14940,8 @@ WHERE mydocuments.name IN (:name_1, :name_2)
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(3, &#39;user_2&#39;, 0.13789672737843706, False),
- (4, &#39;user_3&#39;, 0.398902981426976, False)]</pre>
+<pre>[Record(id=3, name=&#39;user_2&#39;, age=0.762910032919838, is_old=True),
+ Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]</pre>
 </div>
 
 </div>
@@ -14982,9 +14976,9 @@ WHERE mydocuments.name IN (:name_1, :name_2)
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id BETWEEN :id_1 AND :id_2
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id BETWEEN ? AND ?
 </pre>
 </div>
 </div>
@@ -14998,9 +14992,9 @@ WHERE mydocuments.id BETWEEN :id_1 AND :id_2
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(2, &#39;user_1&#39;, 0.43948787762004426, False),
- (3, &#39;user_2&#39;, 0.13789672737843706, False),
- (4, &#39;user_3&#39;, 0.398902981426976, False)]</pre>
+<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True),
+ Record(id=3, name=&#39;user_2&#39;, age=0.762910032919838, is_old=True),
+ Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15036,9 +15030,9 @@ WHERE mydocuments.id BETWEEN :id_1 AND :id_2
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.name NOT IN (:name_1, :name_2) AND mydocuments.id &lt; :id_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.name NOT IN (?, ?) AND _documents_.id &lt; ?
 </pre>
 </div>
 </div>
@@ -15052,8 +15046,8 @@ WHERE mydocuments.name NOT IN (:name_1, :name_2) AND mydocuments.id &lt; :id_1
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;, 0.5302777968381023, True),
- (2, &#39;user_1&#39;, 0.43948787762004426, False)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
+ Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15069,7 +15063,7 @@ WHERE mydocuments.name NOT IN (:name_1, :name_2) AND mydocuments.id &lt; :id_1
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># more verbose operators .and_, .or_, and .not_ are bound to the doctable package</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">or_</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">not_</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">4</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">or_</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">not_</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">4</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -15089,9 +15083,9 @@ WHERE mydocuments.name NOT IN (:name_1, :name_2) AND mydocuments.id &lt; :id_1
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id != :id_1 AND mydocuments.id &lt;= :id_2
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id != ? AND _documents_.id &lt;= ?
 </pre>
 </div>
 </div>
@@ -15105,8 +15099,8 @@ WHERE mydocuments.id != :id_1 AND mydocuments.id &lt;= :id_2
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;, 0.5302777968381023, True),
- (2, &#39;user_1&#39;, 0.43948787762004426, False)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
+ Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15144,12 +15138,12 @@ WHERE mydocuments.id != :id_1 AND mydocuments.id &lt;= :id_2
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
-DocTable2 Query: SELECT mydocuments.name 
-FROM mydocuments 
-WHERE mydocuments.age &gt; :age_1
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.age 
+FROM _documents_
+DocTable: SELECT _documents_.name 
+FROM _documents_ 
+WHERE _documents_.age &gt; ?
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -15163,7 +15157,7 @@ WHERE mydocuments.age &gt; :age_1
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&#39;user_0&#39;, &#39;user_4&#39;]</pre>
+<pre>[&#39;user_0&#39;, &#39;user_1&#39;]</pre>
 </div>
 
 </div>
@@ -15179,7 +15173,7 @@ WHERE mydocuments.age &gt; :age_1
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># apply .label() method to columns</span>
-<span class="nb">dict</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;myage&#39;</span><span class="p">),</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;myname&#39;</span><span class="p">)]))</span>
+<span class="nb">dict</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;myage&#39;</span><span class="p">),</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;myname&#39;</span><span class="p">)],</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -15199,9 +15193,9 @@ WHERE mydocuments.age &gt; :age_1
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.age AS myage, mydocuments.name AS myname 
-FROM mydocuments
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.age AS myage, _documents_.name AS myname 
+FROM _documents_
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -15215,7 +15209,7 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;myage&#39;: 0.5302777968381023, &#39;myname&#39;: &#39;user_0&#39;}</pre>
+<pre>{&#39;myage&#39;: 0.6643892612068403, &#39;myname&#39;: &#39;user_0&#39;}</pre>
 </div>
 
 </div>
@@ -15236,7 +15230,7 @@ FROM mydocuments
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]],</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15256,9 +15250,9 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT sum(mydocuments.age) AS sum_1, count(mydocuments.age) AS count_1, mydocuments.age 
-FROM mydocuments
- LIMIT :param_1
+<pre>DocTable: SELECT sum(_documents_.age) AS sum_1, count(_documents_.age) AS count_1, _documents_.age 
+FROM _documents_
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -15272,7 +15266,7 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(4.689441695567935, 10, 0.5302777968381023)</pre>
+<pre>(6.553875813756212, 10, 0.6643892612068403)</pre>
 </div>
 
 </div>
@@ -15288,7 +15282,7 @@ FROM mydocuments
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># with labels now</span>
-<span class="nb">dict</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;sum&#39;</span><span class="p">),</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;ct&#39;</span><span class="p">)]))</span>
+<span class="nb">dict</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;sum&#39;</span><span class="p">),</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;ct&#39;</span><span class="p">)],</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -15308,9 +15302,9 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT sum(mydocuments.age) AS sum, count(mydocuments.age) AS ct 
-FROM mydocuments
- LIMIT :param_1
+<pre>DocTable: SELECT sum(_documents_.age) AS sum, count(_documents_.age) AS ct 
+FROM _documents_
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -15324,7 +15318,7 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;sum&#39;: 4.689441695567935, &#39;ct&#39;: 10}</pre>
+<pre>{&#39;sum&#39;: 6.553875813756212, &#39;ct&#39;: 10}</pre>
 </div>
 
 </div>
@@ -15366,9 +15360,9 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -15382,8 +15376,8 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;, 0.5302777968381023, True),
- (2, &#39;user_1&#39;, 0.43948787762004426, False)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
+ Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15419,9 +15413,9 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments ORDER BY mydocuments.age DESC
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ ORDER BY _documents_.age DESC
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -15435,8 +15429,8 @@ FROM mydocuments ORDER BY mydocuments.age DESC
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(9, &#39;user_8&#39;, 0.9428636080674738, True),
- (10, &#39;user_9&#39;, 0.7836575155583511, True)]</pre>
+<pre>[Record(id=10, name=&#39;user_9&#39;, age=0.9390342979922199, is_old=True),
+ Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15472,9 +15466,9 @@ FROM mydocuments ORDER BY mydocuments.age DESC
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments ORDER BY mydocuments.age DESC, mydocuments.is_old ASC
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ ORDER BY _documents_.age DESC, _documents_.is_old ASC
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -15488,8 +15482,8 @@ FROM mydocuments ORDER BY mydocuments.age DESC, mydocuments.is_old ASC
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(9, &#39;user_8&#39;, 0.9428636080674738, True),
- (10, &#39;user_9&#39;, 0.7836575155583511, True)]</pre>
+<pre>[Record(id=10, name=&#39;user_9&#39;, age=0.9390342979922199, is_old=True),
+ Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15526,9 +15520,9 @@ FROM mydocuments ORDER BY mydocuments.age DESC, mydocuments.is_old ASC
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments ORDER BY mydocuments.age
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ ORDER BY _documents_.age
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -15542,8 +15536,8 @@ FROM mydocuments ORDER BY mydocuments.age
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(6, &#39;user_5&#39;, 0.04169970674398138, False),
- (3, &#39;user_2&#39;, 0.13789672737843706, False)]</pre>
+<pre>[Record(id=5, name=&#39;user_4&#39;, age=0.30235086526336663, is_old=False),
+ Record(id=6, name=&#39;user_5&#39;, age=0.32540985118674415, is_old=False)]</pre>
 </div>
 
 </div>
@@ -15580,8 +15574,8 @@ FROM mydocuments ORDER BY mydocuments.age
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments GROUP BY mydocuments.is_old
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ GROUP BY _documents_.is_old
 </pre>
 </div>
 </div>
@@ -15595,8 +15589,8 @@ FROM mydocuments GROUP BY mydocuments.is_old
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(2, &#39;user_1&#39;, 0.43948787762004426, False),
- (1, &#39;user_0&#39;, 0.5302777968381023, True)]</pre>
+<pre>[Record(id=5, name=&#39;user_4&#39;, age=0.30235086526336663, is_old=False),
+ Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15632,9 +15626,9 @@ FROM mydocuments GROUP BY mydocuments.is_old
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments GROUP BY mydocuments.is_old, mydocuments.name
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ GROUP BY _documents_.is_old, _documents_.name
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -15648,9 +15642,9 @@ FROM mydocuments GROUP BY mydocuments.is_old, mydocuments.name
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(2, &#39;user_1&#39;, 0.43948787762004426, False),
- (3, &#39;user_2&#39;, 0.13789672737843706, False),
- (4, &#39;user_3&#39;, 0.398902981426976, False)]</pre>
+<pre>[Record(id=5, name=&#39;user_4&#39;, age=0.30235086526336663, is_old=False),
+ Record(id=6, name=&#39;user_5&#39;, age=0.32540985118674415, is_old=False),
+ Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15687,8 +15681,8 @@ FROM mydocuments GROUP BY mydocuments.is_old, mydocuments.name
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT max(mydocuments.age) AS max_1 
-FROM mydocuments GROUP BY mydocuments.is_old
+<pre>DocTable: SELECT max(_documents_.age) AS max_1 
+FROM _documents_ GROUP BY _documents_.is_old
 </pre>
 </div>
 </div>
@@ -15702,7 +15696,7 @@ FROM mydocuments GROUP BY mydocuments.is_old
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[0.43948787762004426, 0.9428636080674738]</pre>
+<pre>[0.32540985118674415, 0.9390342979922199]</pre>
 </div>
 
 </div>
@@ -15745,7 +15739,7 @@ FROM mydocuments GROUP BY mydocuments.is_old
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT age,name FROM mydocuments WHERE id==&#34;1&#34;
+<pre>DocTable: SELECT age,name FROM _documents_ WHERE id==&#34;1&#34;
 </pre>
 </div>
 </div>
@@ -15759,7 +15753,7 @@ FROM mydocuments GROUP BY mydocuments.is_old
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;age&#39;: 0.5302777968381023, &#39;name&#39;: &#39;user_0&#39;}</pre>
+<pre>{&#39;age&#39;: 0.6643892612068403, &#39;name&#39;: &#39;user_0&#39;}</pre>
 </div>
 
 </div>
@@ -15774,8 +15768,8 @@ FROM mydocuments GROUP BY mydocuments.is_old
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">whrstr</span> <span class="o">=</span> <span class="s1">&#39;is_old==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">whrstr</span><span class="o">=</span><span class="n">whrstr</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">wherestr</span> <span class="o">=</span> <span class="s1">&#39;is_old==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">wherestr</span><span class="o">=</span><span class="n">wherestr</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15795,10 +15789,10 @@ FROM mydocuments GROUP BY mydocuments.is_old
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE is_old==&#34;1&#34;
- LIMIT :param_1
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE (is_old==&#34;1&#34;)
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -15812,8 +15806,8 @@ WHERE is_old==&#34;1&#34;
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;, 0.5302777968381023, True),
- (5, &#39;user_4&#39;, 0.6563434119131013, True)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
+ Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15829,8 +15823,8 @@ WHERE is_old==&#34;1&#34;
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># combine whrstr with structured query where clause</span>
-<span class="n">whrstr</span> <span class="o">=</span> <span class="s1">&#39;is_old==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">,</span> <span class="n">whrstr</span><span class="o">=</span><span class="n">whrstr</span><span class="p">)</span>
+<span class="n">wherestr</span> <span class="o">=</span> <span class="s1">&#39;is_old==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="n">wherestr</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15850,9 +15844,9 @@ WHERE is_old==&#34;1&#34;
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id &lt;= :id_1 AND is_old==&#34;1&#34;
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id &lt;= ? AND (is_old==&#34;1&#34;)
 </pre>
 </div>
 </div>
@@ -15866,8 +15860,10 @@ WHERE mydocuments.id &lt;= :id_1 AND is_old==&#34;1&#34;
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;, 0.5302777968381023, True),
- (5, &#39;user_4&#39;, 0.6563434119131013, True)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
+ Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True),
+ Record(id=3, name=&#39;user_2&#39;, age=0.762910032919838, is_old=True),
+ Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15883,8 +15879,8 @@ WHERE mydocuments.id &lt;= :id_1 AND is_old==&#34;1&#34;
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># combine whrstr with structured query where clause</span>
-<span class="n">whrstr</span> <span class="o">=</span> <span class="s1">&#39;is_old==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">,</span> <span class="n">whrstr</span><span class="o">=</span><span class="n">whrstr</span><span class="p">)</span>
+<span class="n">wherestr</span> <span class="o">=</span> <span class="s1">&#39;is_old==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="n">wherestr</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15904,9 +15900,9 @@ WHERE mydocuments.id &lt;= :id_1 AND is_old==&#34;1&#34;
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id &lt;= :id_1 AND is_old==&#34;1&#34;
+<pre>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id &lt;= ? AND (is_old==&#34;1&#34;)
 </pre>
 </div>
 </div>
@@ -15920,8 +15916,10 @@ WHERE mydocuments.id &lt;= :id_1 AND is_old==&#34;1&#34;
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(1, &#39;user_0&#39;, 0.5302777968381023, True),
- (5, &#39;user_4&#39;, 0.6563434119131013, True)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
+ Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True),
+ Record(id=3, name=&#39;user_2&#39;, age=0.762910032919838, is_old=True),
+ Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15963,9 +15961,9 @@ WHERE mydocuments.id &lt;= :id_1 AND is_old==&#34;1&#34;
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT count() AS count_1 
-FROM mydocuments
- LIMIT :param_1
+<pre>DocTable: SELECT count() AS count_1 
+FROM _documents_
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -16014,10 +16012,10 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT count() AS count_1 
-FROM mydocuments 
-WHERE mydocuments.age &lt; :age_1
- LIMIT :param_1
+<pre>DocTable: SELECT count() AS count_1 
+FROM _documents_ 
+WHERE _documents_.age &lt; ?
+ LIMIT ? OFFSET ?
 </pre>
 </div>
 </div>
@@ -16031,7 +16029,7 @@ WHERE mydocuments.age &lt; :age_1
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>6</pre>
+<pre>2</pre>
 </div>
 
 </div>
@@ -16073,8 +16071,8 @@ WHERE mydocuments.age &lt; :age_1
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
+<pre>DocTable: SELECT _documents_.age 
+FROM _documents_
 </pre>
 </div>
 </div>
@@ -16088,8 +16086,8 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>0    0.530278
-1    0.439488
+<pre>0    0.664389
+1    0.905378
 dtype: float64</pre>
 </div>
 
@@ -16125,8 +16123,8 @@ dtype: float64</pre>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
+<pre>DocTable: SELECT _documents_.age 
+FROM _documents_
 </pre>
 </div>
 </div>
@@ -16140,8 +16138,8 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>0.025    0.063344
-0.985    0.921371
+<pre>0.025    0.307539
+0.985    0.934491
 dtype: float64</pre>
 </div>
 
@@ -16177,8 +16175,8 @@ dtype: float64</pre>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.age 
-FROM mydocuments
+<pre>DocTable: SELECT _documents_.id, _documents_.age 
+FROM _documents_
 </pre>
 </div>
 </div>
@@ -16215,14 +16213,14 @@ FROM mydocuments
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
+      <th>0</th>
       <td>1</td>
-      <td>0.530278</td>
+      <td>0.664389</td>
     </tr>
     <tr>
-      <td>1</td>
+      <th>1</th>
       <td>2</td>
-      <td>0.439488</td>
+      <td>0.905378</td>
     </tr>
   </tbody>
 </table>
@@ -16261,8 +16259,8 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
+<pre>DocTable: SELECT _documents_.age 
+FROM _documents_
 </pre>
 </div>
 </div>
@@ -16298,12 +16296,12 @@ FROM mydocuments
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
-      <td>0.530278</td>
+      <th>0</th>
+      <td>0.664389</td>
     </tr>
     <tr>
-      <td>1</td>
-      <td>0.439488</td>
+      <th>1</th>
+      <td>0.905378</td>
     </tr>
   </tbody>
 </table>
@@ -16343,8 +16341,8 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.age 
-FROM mydocuments
+<pre>DocTable: SELECT _documents_.id, _documents_.age 
+FROM _documents_
 </pre>
 </div>
 </div>
@@ -16381,14 +16379,14 @@ FROM mydocuments
   </thead>
   <tbody>
     <tr>
-      <td>id</td>
-      <td>1.00000</td>
-      <td>0.42015</td>
+      <th>id</th>
+      <td>1.000000</td>
+      <td>0.092846</td>
     </tr>
     <tr>
-      <td>age</td>
-      <td>0.42015</td>
-      <td>1.00000</td>
+      <th>age</th>
+      <td>0.092846</td>
+      <td>1.000000</td>
     </tr>
   </tbody>
 </table>
@@ -16427,8 +16425,8 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.age 
-FROM mydocuments
+<pre>DocTable: SELECT _documents_.id, _documents_.age 
+FROM _documents_
 </pre>
 </div>
 </div>
@@ -16471,26 +16469,26 @@ FROM mydocuments
   </thead>
   <tbody>
     <tr>
-      <td>id</td>
+      <th>id</th>
       <td>10.0</td>
       <td>5.500000</td>
-      <td>3.027650</td>
-      <td>1.0000</td>
+      <td>3.02765</td>
+      <td>1.000000</td>
       <td>3.250000</td>
       <td>5.500000</td>
       <td>7.750000</td>
       <td>10.000000</td>
     </tr>
     <tr>
-      <td>age</td>
+      <th>age</th>
       <td>10.0</td>
-      <td>0.468944</td>
-      <td>0.274453</td>
-      <td>0.0417</td>
-      <td>0.364492</td>
-      <td>0.422389</td>
-      <td>0.624827</td>
-      <td>0.942864</td>
+      <td>0.655388</td>
+      <td>0.21455</td>
+      <td>0.302351</td>
+      <td>0.587977</td>
+      <td>0.664459</td>
+      <td>0.784954</td>
+      <td>0.939034</td>
     </tr>
   </tbody>
 </table>
@@ -16532,10 +16530,10 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
-DocTable2 Query: SELECT mydocuments.id, mydocuments.age 
-FROM mydocuments
+<pre>DocTable: SELECT _documents_.age 
+FROM _documents_
+DocTable: SELECT _documents_.id, _documents_.age 
+FROM _documents_
 </pre>
 </div>
 </div>
@@ -16614,42 +16612,42 @@ FROM mydocuments
   </thead>
   <tbody>
     <tr>
-      <td>False</td>
-      <td>6.0</td>
-      <td>5.00</td>
-      <td>2.366432</td>
-      <td>2.0</td>
-      <td>3.25</td>
-      <td>5.0</td>
-      <td>6.75</td>
-      <td>8.0</td>
-      <td>6.0</td>
-      <td>0.296050</td>
-      <td>0.164948</td>
-      <td>0.041700</td>
-      <td>0.191678</td>
-      <td>0.375962</td>
-      <td>0.403693</td>
-      <td>0.439488</td>
+      <th>False</th>
+      <td>4.0</td>
+      <td>5.5</td>
+      <td>1.290994</td>
+      <td>4.0</td>
+      <td>4.75</td>
+      <td>5.5</td>
+      <td>6.25</td>
+      <td>7.0</td>
+      <td>4.0</td>
+      <td>0.456334</td>
+      <td>0.165703</td>
+      <td>0.302351</td>
+      <td>0.319645</td>
+      <td>0.451288</td>
+      <td>0.587977</td>
+      <td>0.620407</td>
     </tr>
     <tr>
-      <td>True</td>
-      <td>4.0</td>
-      <td>6.25</td>
-      <td>4.112988</td>
+      <th>True</th>
+      <td>6.0</td>
+      <td>5.5</td>
+      <td>3.937004</td>
       <td>1.0</td>
-      <td>4.00</td>
-      <td>7.0</td>
-      <td>9.25</td>
+      <td>2.25</td>
+      <td>5.5</td>
+      <td>8.75</td>
       <td>10.0</td>
-      <td>4.0</td>
-      <td>0.728286</td>
-      <td>0.176534</td>
-      <td>0.530278</td>
-      <td>0.624827</td>
-      <td>0.720000</td>
-      <td>0.823459</td>
-      <td>0.942864</td>
+      <td>6.0</td>
+      <td>0.788090</td>
+      <td>0.116414</td>
+      <td>0.664389</td>
+      <td>0.689124</td>
+      <td>0.777606</td>
+      <td>0.877109</td>
+      <td>0.939034</td>
     </tr>
   </tbody>
 </table>
@@ -16696,10 +16694,10 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.age 
-FROM mydocuments
-DocTable2 Query: SELECT mydocuments.name, mydocuments.age 
-FROM mydocuments
+<pre>DocTable: SELECT _documents_.age 
+FROM _documents_
+DocTable: SELECT _documents_.name, _documents_.age 
+FROM _documents_
 </pre>
 </div>
 </div>
@@ -16741,14 +16739,14 @@ FROM mydocuments
   </thead>
   <tbody>
     <tr>
-      <td>False</td>
-      <td>user_1</td>
-      <td>0.027208</td>
+      <th>False</th>
+      <td>user_3</td>
+      <td>0.027457</td>
     </tr>
     <tr>
-      <td>True</td>
+      <th>True</th>
       <td>user_0</td>
-      <td>0.031164</td>
+      <td>0.013552</td>
     </tr>
   </tbody>
 </table>
@@ -16774,8 +16772,8 @@ FROM mydocuments
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[43]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select_chunk</span><span class="p">(</span><span class="n">chunksize</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_rows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">%</span><span class="k">2</span>)==0):
-    <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">row_chunk</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select_chunks</span><span class="p">(</span><span class="n">chunksize</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">%</span><span class="k">2</span>)==0, verbose=False):
+    <span class="nb">print</span><span class="p">(</span><span class="n">row_chunk</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -16795,17 +16793,10 @@ FROM mydocuments
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id % :id_1 = :param_1
- LIMIT :param_2 OFFSET :param_3
-(2, &#39;user_1&#39;, 0.43948787762004426, False)
-(4, &#39;user_3&#39;, 0.398902981426976, False)
-DocTable2 Query: SELECT mydocuments.id, mydocuments.name, mydocuments.age, mydocuments.is_old 
-FROM mydocuments 
-WHERE mydocuments.id % :id_1 = :param_1
- LIMIT :param_2 OFFSET :param_3
-(6, &#39;user_5&#39;, 0.04169970674398138, False)
+<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True), Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]
+[Record(id=6, name=&#39;user_5&#39;, age=0.32540985118674415, is_old=False), Record(id=8, name=&#39;user_7&#39;, age=0.7923015153822922, is_old=True)]
+[Record(id=10, name=&#39;user_9&#39;, age=0.9390342979922199, is_old=True)]
+[]
 </pre>
 </div>
 </div>
