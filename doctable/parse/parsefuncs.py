@@ -71,8 +71,8 @@ import re
 
 # xml for removing stuff    
 re_url = re.compile(r'http\S+', flags=re.MULTILINE)
-re_xml_tag = re.compile('<[^<]+>', flags=re.MULTILINE)
-re_digits = re.compile("\d*[-\./,]*\d+")
+re_xml_tag = re.compile(r'<[^<]+>', flags=re.MULTILINE)
+re_digits = re.compile(r"\d*[-\./,]*\d+")
 
 def preprocess(text, replace_url=None, replace_xml=None, replace_digits=None):
     ''' A few useful preprocessing functions for raw text.

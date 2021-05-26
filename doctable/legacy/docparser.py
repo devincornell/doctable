@@ -11,8 +11,8 @@ class DocParser:
     
     #CLOSE_SIGNAL = (math.pi + math.e)/3 # random number to indicate close
     re_url = re.compile(r'http\S+', flags=re.MULTILINE)
-    re_xml_tag = re.compile('<[^<]+>', flags=re.MULTILINE)
-    re_digits = re.compile("\d*[-\./,]*\d+")
+    re_xml_tag = re.compile(r'<[^<]+>', flags=re.MULTILINE)
+    re_digits = re.compile(r"\d*[-\./,]*\d+")
     
     @classmethod
     def preprocess(cls, text, replace_url=None, replace_xml=None, replace_digits=None):
@@ -257,7 +257,7 @@ class DocParser:
         
     @classmethod
     def parse_text_chunks(cls, text, nlp, parse_funcs={}, doc_transform=None,
-                             chunk_sents=1000, split_re='([\?\!\.]+)(?=[\WA-Z])'):
+                             chunk_sents=1000, split_re=r'([\?\!\.]+)(?=[\WA-Z])'):
         '''Parse text in paragraph by sentences.
         Args:
             text (str): (preprocessed) text document to parse
@@ -395,7 +395,7 @@ class DocParser:
         '''
         # sentence is smallest unit spacy analyzes
         # multiply by two since split includes punctuation too
-        sents = re.split('[\?\!\.]', text)
+        sents = re.split(r'[\?\!\.]', text)
         n_chunks = math.ciel(len(sents)/(chunk_size*2))
         sent_chunks = [sents[i*chunk_size*2:(i+1)*chunk_size*2] 
                            for i in range(n_chunks)]
