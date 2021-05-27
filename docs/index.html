@@ -113,7 +113,10 @@
         <pre><code>pip install --upgrade git+https://github.com/devincornell/doctable.git@master</code></pre>
 
         <hr/>
-        <h3>DocTable Objects <a class="btn btn-outline-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> <a class="btn btn-outline-primary btn-sm" href="ref/doctable/doctable.html">API &raquo;</a></h3>
+        <h3>DocTable Objects 
+          <a class="btn btn-outline-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> 
+          <a class="btn btn-outline-primary btn-sm" href="ref/doctable/doctable.html">API &raquo;</a> 
+          <a class="btn btn-outline-primary btn-sm" href="examples/example_nss_1_intro.html">Vignette &raquo;</a></h3>
         <p>Object-oriented interface for querying and manipulating a single database table.</p>
         <!--<h5>Examples</h5>-->
         <ul>
@@ -139,7 +142,7 @@
         </ul>
         <br/><hr/>
 
-        <h3>Parsing Pipelines <a class="btn btn-outline-primary btn-sm" href="examples/parse_basics.html">Overview &raquo;</a></h3>
+        <h3>Parsing Pipelines <a class="btn btn-outline-primary btn-sm" href="examples/parse_parsepipeline.html">Overview &raquo;</a></h3>
         <p>Various tools for parsing and storing documents into databases.</p>
         <!--<h5>Examples</h5>-->
         <ul>
@@ -155,6 +158,18 @@
             <i><a href="ref/doctable/parse/parsetree.html">ParseTree API</a></i> /
             <i><a href="ref/doctable/parse/documents/parsetreedoc.html">ParseTreeDoc API</a></i>
           </li>
+        </ul>
+        <br/><hr/>
+
+        <h3>Other Tools</h3>
+        <p><code>doctable</code> includes a number of other related tools for text analysis and database management.</p>
+        <ul>
+          <li><a href="ref/doctable/util/distribute.html">Distribute</a>: distributed processing interface similar to that used by <code>multiprocessing</code> 
+              (<a href="examples/distributed_basics.html">example</a>).</li>
+          <li><a href="ref/doctable/util/timer.html">Timer</a>: used to time function calls and logging scripts at different stages.</li>
+          <li><a href="ref/doctable/util/fsstore.html">FSStore</a>: interact with data rows directly on the filesystem. Great for parallel processing.</li>
+          <li><a href="ref/doctable/util/tempfolder.html">TempFolder</a>: create temporary folder that will be deleted upon garbage collection.</li>
+          <li><a href="ref/doctable/util/io.html">I/O</a>: thin read/write interfaces.</li>
         </ul>
         <br/><hr/>
         
