@@ -115,7 +115,7 @@
         <hr/>
         <h3>DocTable Objects <a class="btn btn-outline-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> <a class="btn btn-outline-primary btn-sm" href="ref/doctable/doctable.html">API &raquo;</a></h3>
         <p>Object-oriented interface for querying and manipulating a single database table.</p>
-        <h5>Examples</h5>
+        <!--<h5>Examples</h5>-->
         <ul>
           <li>Make schemas: <i><a href="examples/doctable_schema.html">schema guide</a></i> /
             <i><a href="examples/dataclass_example.html">dataclass schema example.</a></i>
@@ -131,9 +131,8 @@
           </li>
           <li>Query result containers: <i><a href="examples/doctable_custom_containers.html">custom result container example</a></i></li>
           <li>Store python objects: 
-            <i><a href="examples/TODO.html">Pickle column types</a></i> /
-            <i><a href="examples/TODO.html">Pickle and text file types</a></i> /
-            <i><a href="examples/TODO.html">parsetree file type</a></i>
+            <i><a href="examples/doctable_file_column_types.html">pickle and text file columntypes</a></i> /
+            <i><a href="examples/doctable_parsetreedoc_column.html">parsetree file column type</a></i>
           </li>
           <li>Manage low-level connections: <i><a href="examples/doctable_connectengine.html">ConnectEngine examples</a></i></li>
           <li>Bootstrap documents: <i><a href="examples/doctable_bootstrap.html">DocBootstrap examples</a></i></li>
@@ -142,15 +141,19 @@
 
         <h3>Parsing Pipelines <a class="btn btn-outline-primary btn-sm" href="examples/parse_basics.html">Overview &raquo;</a></h3>
         <p>Various tools for parsing and storing documents into databases.</p>
-        <h6>Related functionality</h6>
+        <!--<h5>Examples</h5>-->
         <ul>
-          <li><b>ParsePipeline</b>: manages parallelized parsing pipelines using custom functions or pre-built doctable components.
-            (<i><a href="examples/parse_basics.html">overview</a></i> / 
-            <i><a href="ref/doctable/parse/parsefuncs.html">components</a></i> / 
-            <i><a href="ref/doctable/parse/pipeline.html">api</a></i>)
+          <li>Create pipelines: ParsePipeline 
+            <i><a href="examples/parse_parsepipeline.html">overview</a></i> /
+            <i><a href="ref/doctable/parse/pipeline.html">API</a></i>
           </li>
-          <li><b>ParseTree</b>: minimal container for storing and manipulating parsetree objects. 
-            (<i><a href="ref/doctable/parse/parsetree.html">api</a></i>)
+          <li>Parse functions: 
+            <i><a href="ref/doctable/parse/parsefuncs.html">parse function api</a></i>
+          </li>
+          <li>Work with parsetrees: 
+            <i><a href="examples/parse_parsetrees.html">parsetree examples</a></i> /
+            <i><a href="ref/doctable/parse/parsetree.html">ParseTree API</a></i>
+            <i><a href="ref/doctable/parse/documents/parsetreedoc.html">ParseTreeDoc API</a></i>
           </li>
         </ul>
         <br/><hr/>
