@@ -42,4 +42,8 @@ def TextFileCol(folder, **kwargs):
     '''
     return Col(None, coltype='textfile', type_args=dict(folder=folder), **kwargs)
 
-
+def ParseTreeFileCol(folder, **kwargs):
+    ''' Column that will store text data in the filesystem and keep only a reference.
+    '''
+    return Col(None, coltype='parsetree', type_args=dict(folder=folder), **kwargs)
+    
