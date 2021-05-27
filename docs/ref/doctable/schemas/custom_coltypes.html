@@ -282,7 +282,7 @@
         <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
 <span class="k">class</span> <span class="nc">ParseTreeDocFileType</span><span class="p">(</span><span class="n">FileTypeBase</span><span class="p">):</span>
-    <span class="n">file_ext</span> <span class="o">=</span> <span class="s1">&#39;parsetreedoc_.pic&#39;</span>
+    <span class="n">file_ext</span> <span class="o">=</span> <span class="s1">&#39;_parsetreedoc.pic&#39;</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">dump_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dialect</span><span class="p">):</span> <span class="c1"># used in FileTypeBase.process_bind_param()</span>
         <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="n">f</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># use highest protocol with negative number</span>
@@ -1411,7 +1411,7 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ParseTreeDocFileType</span><span class="p">(</span><span class="n">FileTypeBase</span><span class="p">):</span>
-    <span class="n">file_ext</span> <span class="o">=</span> <span class="s1">&#39;parsetreedoc_.pic&#39;</span>
+    <span class="n">file_ext</span> <span class="o">=</span> <span class="s1">&#39;_parsetreedoc.pic&#39;</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">dump_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dialect</span><span class="p">):</span> <span class="c1"># used in FileTypeBase.process_bind_param()</span>
         <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="n">f</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># use highest protocol with negative number</span>
@@ -1530,7 +1530,7 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
                             <div id="ParseTreeDocFileType.file_ext" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#ParseTreeDocFileType.file_ext">#&nbsp;&nbsp</a>
 
-        <span class="name">file_ext</span><span class="default_value"> = &#39;parsetreedoc_.pic&#39;</span>
+        <span class="name">file_ext</span><span class="default_value"> = &#39;_parsetreedoc.pic&#39;</span>
     </div>
 
     

@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>parse_basics</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>doctable_parsetreedoc_column</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -14259,7 +14259,7 @@ a.anchor-link {
 
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="ParsePipeline-Basics"><code>ParsePipeline</code> Basics<a class="anchor-link" href="#ParsePipeline-Basics">&#182;</a></h1><p>Here I demonstrate the basics of parsing text using <a href="https://spacy.io/">Spacy</a> + doctable to tokenize text. Spacy does most of the heavy-lifting here to actually parse the document, and doctable methods handle the conversion from the Spacy Document object to a sequence of string tokens (words).</p>
+<h1 id="ParseTreeDoc-Column-Types">ParseTreeDoc Column Types<a class="anchor-link" href="#ParseTreeDoc-Column-Types">&#182;</a></h1><p>Creating parsetrees with spacy can be a computationally expensive task, so we may often want to store them in a database for better use. Because they may be large binary files, we will store them as pickle file column types, but with an additional serialization step.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -14268,10 +14268,17 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># import doctable</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">spacy</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en_core_web_sm&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">doctable</span>
+
+<span class="c1"># automatically clean up temp folder after python ends</span>
+<span class="n">tmpfolder</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">TempFolder</span><span class="p">(</span><span class="s1">&#39;tmp&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14279,20 +14286,27 @@ a.anchor-link {
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Create some test data and make a new <code>ParseTreeDoc</code> object.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ex_texts</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">&#39;I am pretty bored today. I have been stuck in quarantine for more than two months!&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;We are all waiting on Dr. Fauci to let us know when to return from quarantine.&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;On the bright side, I have more time to talk to my distant friends over video chat.&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;But still, I wish I could travel, go to bars, and go out to eat mrore often!&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Here we show an example URL: https://devincornell.github.io/doctable/&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;And also one with &lt;b&gt;&lt;i&gt;xml tags&lt;/i&gt;&lt;/b&gt;.&#39;</span><span class="p">,</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">texts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;Help me Obi-Wan Kenobi. You’re my only hope. &#39;</span><span class="p">,</span>
+    <span class="s1">&#39;I find your lack of faith disturbing. &#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Do, or do not. There is no try. &#39;</span>
 <span class="p">]</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParsePipeline</span><span class="p">([</span><span class="n">nlp</span><span class="p">,</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;get_parsetrees&#39;</span><span class="p">)])</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parsemany</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -14300,22 +14314,52 @@ a.anchor-link {
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>2
+1
+2
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="1.-Build-a-ParsePipeline-for-Tokenization">1. Build a <code>ParsePipeline</code> for Tokenization<a class="anchor-link" href="#1.-Build-a-ParsePipeline-for-Tokenization">&#182;</a></h2><p><code>ParsePipeline</code> makes it easy to define a processing pipeline as a list of functions (called components) to apply sequentially to each document in your corpus. You can use the <code>.parsemany()</code> method to run the pipeline on documents in paralel, or simply use the <code>.parse()</code> method to parse a single document.</p>
-<p>Our most basic pipeline uses a lambda function to split each text document by whitespace.</p>
+<p>Now we create a schema that includes the <code>doc</code> column and the <code>ParseTreeFileCol</code> default value. Notice that using the type hint <code>ParseTreeDoc</code> and giving a generic <code>Col</code> default value is also sufficient.</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">parser_split</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParsePipeline</span><span class="p">([</span>
-    <span class="k">lambda</span> <span class="n">text</span><span class="p">:</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span>
-<span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">DocRow</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableRow</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
+    <span class="n">doc</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParseTreeDoc</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParseTreeFileCol</span><span class="p">(</span><span class="s1">&#39;tmp/parsetree_pickle_files&#39;</span><span class="p">)</span>
+        
+    <span class="c1"># could also use this:</span>
+    <span class="c1">#doc: doctable.ParseTreeDoc = doctable.Col(type_args=dict(folder=&#39;tmp/parsetree_pickle_files&#39;))</span>
+    
+<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;tmp/test_ptrees.db&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">DocRow</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">schema_info</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14323,20 +14367,50 @@ a.anchor-link {
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>[{&#39;name&#39;: &#39;id&#39;,
+  &#39;type&#39;: INTEGER(),
+  &#39;nullable&#39;: False,
+  &#39;default&#39;: None,
+  &#39;autoincrement&#39;: &#39;auto&#39;,
+  &#39;primary_key&#39;: 1},
+ {&#39;name&#39;: &#39;doc&#39;,
+  &#39;type&#39;: VARCHAR(),
+  &#39;nullable&#39;: True,
+  &#39;default&#39;: None,
+  &#39;autoincrement&#39;: &#39;auto&#39;,
+  &#39;primary_key&#39;: 0}]</pre>
 </div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We then use the <code>.parse()</code> method to apply the pipeline to a single document.</p>
 
 </div>
+
+</div>
+
+</div>
+
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">parsed_text</span> <span class="o">=</span> <span class="n">parser_split</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">ex_texts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">parsed_text</span><span class="p">[:</span><span class="mi">7</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#db.insert([{&#39;doc&#39;:doc} for doc in docs])</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">:</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;doc&#39;</span><span class="p">:</span> <span class="n">doc</span><span class="p">})</span>
+<span class="n">db</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14352,12 +14426,51 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[&#39;I&#39;, &#39;am&#39;, &#39;pretty&#39;, &#39;bored&#39;, &#39;today.&#39;, &#39;I&#39;, &#39;have&#39;]
-</pre>
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>doc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>[(Help, me, Obi, -, Wan, Kenobi, .), (You, ’re...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>[(I, find, your, lack, of, faith, disturbing, .)]</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>[(Do, ,, or, do, not, .), (There, is, no, try,...</td>
+    </tr>
+  </tbody>
+</table>
 </div>
 </div>
 
@@ -14366,20 +14479,17 @@ a.anchor-link {
 </div>
 
 </div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We can also use the <code>.parsemany()</code> method to parse all of our texts at once. Use the <code>workers</code> parameter to specify the number of processes to use if you want to use parallelization.</p>
 
-</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">parsed_texts</span> <span class="o">=</span> <span class="n">parser_split</span><span class="o">.</span><span class="n">parsemany</span><span class="p">(</span><span class="n">ex_texts</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># processes in parallel</span>
-<span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">parsed_texts</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">[:</span><span class="mi">7</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">as_dataclass</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;doc id </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sent</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">sent </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">sent</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14399,12 +14509,14 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[&#39;I&#39;, &#39;am&#39;, &#39;pretty&#39;, &#39;bored&#39;, &#39;today.&#39;, &#39;I&#39;, &#39;have&#39;]
-[&#39;We&#39;, &#39;are&#39;, &#39;all&#39;, &#39;waiting&#39;, &#39;on&#39;, &#39;Dr.&#39;, &#39;Fauci&#39;]
-[&#39;On&#39;, &#39;the&#39;, &#39;bright&#39;, &#39;side,&#39;, &#39;I&#39;, &#39;have&#39;, &#39;more&#39;]
-[&#39;But&#39;, &#39;still,&#39;, &#39;I&#39;, &#39;wish&#39;, &#39;I&#39;, &#39;could&#39;, &#39;travel,&#39;]
-[&#39;Here&#39;, &#39;we&#39;, &#39;show&#39;, &#39;an&#39;, &#39;example&#39;, &#39;URL:&#39;, &#39;https://devincornell.github.io/doctable/&#39;]
-[&#39;And&#39;, &#39;also&#39;, &#39;one&#39;, &#39;with&#39;, &#39;&lt;b&gt;&lt;i&gt;xml&#39;, &#39;tags&lt;/i&gt;&lt;/b&gt;.&#39;]
+<pre>doc id 1:
+	sent 0: [&#39;Help&#39;, &#39;me&#39;, &#39;Obi&#39;, &#39;-&#39;, &#39;Wan&#39;, &#39;Kenobi&#39;, &#39;.&#39;]
+	sent 1: [&#39;You&#39;, &#39;’re&#39;, &#39;my&#39;, &#39;only&#39;, &#39;hope&#39;, &#39;.&#39;]
+doc id 2:
+	sent 0: [&#39;I&#39;, &#39;find&#39;, &#39;your&#39;, &#39;lack&#39;, &#39;of&#39;, &#39;faith&#39;, &#39;disturbing&#39;, &#39;.&#39;]
+doc id 3:
+	sent 0: [&#39;Do&#39;, &#39;,&#39;, &#39;or&#39;, &#39;do&#39;, &#39;not&#39;, &#39;.&#39;]
+	sent 1: [&#39;There&#39;, &#39;is&#39;, &#39;no&#39;, &#39;try&#39;, &#39;.&#39;]
 </pre>
 </div>
 </div>
@@ -14416,7 +14528,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="2.-Use-doctable-Parsing-Components">2. Use doctable Parsing Components<a class="anchor-link" href="#2.-Use-doctable-Parsing-Components">&#182;</a></h2><p>doctable has some built-in methods for pre- and post-processing Spacy documents. This list includes all functions in the <a href="ref/doctable.parse.html">doctable.parse</a> namespace, and you can access them using the <code>doctable.Comp</code> function.</p>
+<p>See that the files exist, and we can remove/clean them just as any other file column type.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14425,7 +14537,8 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -14445,7 +14558,9 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>{&#39;preprocess&#39;: &lt;function preprocess at 0x7f326ea92b70&gt;, &#39;tokenize&#39;: &lt;function tokenize at 0x7f326ea92c80&gt;, &#39;parse_tok&#39;: &lt;function parse_tok at 0x7f326ea92d08&gt;, &#39;keep_tok&#39;: &lt;function keep_tok at 0x7f326ea92d90&gt;, &#39;merge_tok_spans&#39;: &lt;function merge_tok_spans at 0x7f326ea92e18&gt;, &#39;merge_tok_ngrams&#39;: &lt;function merge_tok_ngrams at 0x7f326ea92ea0&gt;, &#39;get_parsetrees&#39;: &lt;function get_parsetrees at 0x7f326ea92f28&gt;}
+<pre>tmp/parsetree_pickle_files/929092661969_parsetreedoc.pic
+tmp/parsetree_pickle_files/249450122285_parsetreedoc.pic
+tmp/parsetree_pickle_files/228187728659_parsetreedoc.pic
 </pre>
 </div>
 </div>
@@ -14460,9 +14575,10 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">preproc</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;preprocess&#39;</span><span class="p">,</span> <span class="n">replace_url</span><span class="o">=</span><span class="s1">&#39;_URL_&#39;</span><span class="p">,</span> <span class="n">replace_xml</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">ex_texts</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
-<span class="n">preproc</span><span class="p">(</span><span class="n">ex_texts</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
+<span class="n">db</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14482,7 +14598,9 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Here we show an example URL: https://devincornell.github.io/doctable/
+<pre>tmp/parsetree_pickle_files/929092661969_parsetreedoc.pic
+tmp/parsetree_pickle_files/249450122285_parsetreedoc.pic
+tmp/parsetree_pickle_files/228187728659_parsetreedoc.pic
 </pre>
 </div>
 </div>
@@ -14494,9 +14612,43 @@ a.anchor-link {
 
 
 
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&#39;Here we show an example URL: _URL_&#39;</pre>
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>doc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2</td>
+      <td>[(I, find, your, lack, of, faith, disturbing, .)]</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>3</td>
+      <td>[(Do, ,, or, do, not, .), (There, is, no, try,...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 </div>
 
 </div>
@@ -14505,31 +14657,15 @@ a.anchor-link {
 
 </div>
 
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Now we show a pipeline that uses the doctable <code>preprocess</code> method to remove xml tags and urls, the <a href="https://spacy.io/usage/spacy-101">Spacy nlp model</a> to parse the document, and the built-in <code>tokenize</code> method to convert the spacy doc object to a list of tokens.</p>
-
-</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">doctable</span> <span class="kn">import</span> <span class="n">Comp</span>
-<span class="kn">import</span> <span class="nn">spacy</span>
-<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en&#39;</span><span class="p">)</span>
-
-<span class="n">parser_tok</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParsePipeline</span><span class="p">([</span>
-    <span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;preprocess&#39;</span><span class="p">,</span> <span class="n">replace_xml</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">replace_url</span><span class="o">=</span><span class="s1">&#39;XXURLXX&#39;</span><span class="p">),</span>
-    <span class="n">nlp</span><span class="p">,</span>
-    <span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;tokenize&#39;</span><span class="p">,</span> <span class="n">split_sents</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-<span class="p">])</span>
-
-<span class="n">docs</span> <span class="o">=</span> <span class="n">parser_tok</span><span class="o">.</span><span class="n">parsemany</span><span class="p">(</span><span class="n">ex_texts</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">clean_col_files</span><span class="p">(</span><span class="s1">&#39;doc&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -14549,12 +14685,8 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[I, am, pretty, bored, today, ., I, have, been, stuck]
-[We, are, all, waiting, on, Dr., Fauci, to, let, us]
-[On, the, bright, side, ,, I, have, more, time, to]
-[But, still, ,, I, wish, I, could, travel, ,, go]
-[Here, we, show, an, example, URL, :, XXURLXX]
-[And, also, one, with, xml, tags, .]
+<pre>tmp/parsetree_pickle_files/249450122285_parsetreedoc.pic
+tmp/parsetree_pickle_files/228187728659_parsetreedoc.pic
 </pre>
 </div>
 </div>
@@ -14563,128 +14695,6 @@ a.anchor-link {
 
 </div>
 
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="3.-More-Complicated-Pipelines">3. More Complicated Pipelines<a class="anchor-link" href="#3.-More-Complicated-Pipelines">&#182;</a></h2><p>Now we show a more complicated mode. The function <code>tokenize</code> also takes two additional methods: <code>keep_tok_func</code> determines whether a Spacy token should be included in the final document, and the <code>parse_tok_func</code> determines how the spacy token objects should be converted to strings. We access the doctable <code>keep_tok</code> and <code>parse_tok</code> methods using the same <code>Comp</code> function to create nested parameter lists.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">parser_full</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParsePipeline</span><span class="p">([</span>
-    
-    <span class="c1"># preprocess to remove xml tags and replace URLs (doctable.parse.preprocess)</span>
-    <span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;preprocess&#39;</span><span class="p">,</span> <span class="n">replace_xml</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">replace_url</span><span class="o">=</span><span class="s1">&#39;XXURLXX&#39;</span><span class="p">),</span>
-    <span class="n">nlp</span><span class="p">,</span> <span class="c1"># spacy nlp parser object</span>
-    
-    <span class="c1"># merge spacy multi-word named entities (doctable.parse.merge_tok_spans)</span>
-    <span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;merge_tok_spans&#39;</span><span class="p">,</span> <span class="n">merge_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">merge_noun_chunks</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-    
-    <span class="c1"># tokenize document</span>
-    <span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;tokenize&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
-        <span class="s1">&#39;split_sents&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        
-        <span class="c1"># choose tokens to keep (doctable.parse.keep_tok)</span>
-        <span class="s1">&#39;keep_tok_func&#39;</span><span class="p">:</span> <span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;keep_tok&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
-            <span class="s1">&#39;keep_whitespace&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># don&#39;t keep whitespace</span>
-            <span class="s1">&#39;keep_punct&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># keep punctuation and stopwords</span>
-            <span class="s1">&#39;keep_stop&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="p">}),</span>
-        
-        <span class="c1"># choose how to convert Spacy token t text (doctable.parse.parse_tok)</span>
-        <span class="s1">&#39;parse_tok_func&#39;</span><span class="p">:</span> <span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;parse_tok&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
-            <span class="s1">&#39;format_ents&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s1">&#39;lemmatize&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s1">&#39;num_replacement&#39;</span><span class="p">:</span> <span class="s1">&#39;NUM&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;ent_convert&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="c1"># function to capitalize named entities</span>
-        <span class="p">})</span>
-    <span class="p">})</span>
-<span class="p">])</span>
-<span class="nb">len</span><span class="p">(</span><span class="n">parser_full</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>4</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">time</span> parsed_docs = parser_full.parsemany(ex_texts)
-<span class="k">for</span> <span class="n">tokens</span> <span class="ow">in</span> <span class="n">parsed_docs</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">tokens</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>CPU times: user 113 ms, sys: 1.92 ms, total: 115 ms
-Wall time: 112 ms
-[&#39;i&#39;, &#39;am&#39;, &#39;pretty&#39;, &#39;bored&#39;, &#39;TODAY&#39;, &#39;.&#39;, &#39;i&#39;, &#39;have&#39;, &#39;been&#39;, &#39;stuck&#39;]
-[&#39;we&#39;, &#39;are&#39;, &#39;all&#39;, &#39;waiting&#39;, &#39;on&#39;, &#39;dr.&#39;, &#39;FAUCI&#39;, &#39;to&#39;, &#39;let&#39;, &#39;us&#39;]
-[&#39;on&#39;, &#39;the&#39;, &#39;bright&#39;, &#39;side&#39;, &#39;,&#39;, &#39;i&#39;, &#39;have&#39;, &#39;more&#39;, &#39;time&#39;, &#39;to&#39;]
-[&#39;but&#39;, &#39;still&#39;, &#39;,&#39;, &#39;i&#39;, &#39;wish&#39;, &#39;i&#39;, &#39;could&#39;, &#39;travel&#39;, &#39;,&#39;, &#39;go&#39;]
-[&#39;here&#39;, &#39;we&#39;, &#39;show&#39;, &#39;an&#39;, &#39;example&#39;, &#39;url&#39;, &#39;:&#39;, &#39;xxurlxx&#39;]
-[&#39;and&#39;, &#39;also&#39;, &#39;NUM&#39;, &#39;with&#39;, &#39;XML&#39;, &#39;tags&#39;, &#39;.&#39;]
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>These are the fundamentals of building <code>ParsePipeline</code>s in doctable. While these tools are totally optional, I believe they make it easier to structure your code for text analysis applications.</p>
-
-</div>
 </div>
 </body>
 
