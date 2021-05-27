@@ -91,7 +91,7 @@ class PickleFileType(FileTypeBase):
         return pickle.load(f)
 
 class ParseTreeDocFileType(FileTypeBase):
-    file_ext = 'parsetreedoc_.pic'
+    file_ext = '_parsetreedoc.pic'
     @classmethod
     def dump_data(cls, f, value, dialect): # used in FileTypeBase.process_bind_param()
         return pickle.dump(value.as_dict(), f, -1) # use highest protocol with negative number
