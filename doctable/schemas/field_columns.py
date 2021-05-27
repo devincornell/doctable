@@ -23,7 +23,23 @@ def IDCol():
     return Col(primary_key=True, autoincrement=True)
 
 def UpdatedCol():
+    ''' Column that will automatically update the date/time when the row is modified.
+    '''
     return Col(default=datetime.now)
 
 def AddedCol():
+    ''' Column that will automatically update the date/time when the row is inserted.
+    '''
     return Col(default=datetime.now, onupdate=datetime.now)
+
+def PickleFileCol(folder, **kwargs):
+    ''' Column that will store arbitrary python data in the filesystem and keep only a reference.
+    '''
+    return Col(None, coltype='picklefile', type_args=dict(folder=folder), **kwargs)
+
+def TextFileCol(folder, **kwargs):
+    ''' Column that will store text data in the filesystem and keep only a reference.
+    '''
+    return Col(None, coltype='textfile', type_args=dict(folder=folder), **kwargs)
+
+

@@ -2,7 +2,7 @@
 from .doctablerow import DocTableRow
 from .emptyvalue import EmptyValue
 
-from .field_columns import Col, IDCol, UpdatedCol, AddedCol
+from .field_columns import Col, IDCol, UpdatedCol, AddedCol, PickleFileCol, TextFileCol
 
 from .parse_schema_dataclass import parse_schema_dataclass
 from .parse_schema_strings import parse_schema_strings
