@@ -33,7 +33,8 @@ from .util import (
     Timer, 
     FSStore,
     TempFolder,
-    Distribute
+    Distribute,
+    QueueInserter
 )
 from .dbutils import list_tables, migrate_db
 from .parse import *

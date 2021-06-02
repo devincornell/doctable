@@ -19,6 +19,7 @@ from .model import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
 from .schemas import parse_schema_strings, parse_schema_dataclass, DocTableRow
+from .util import QueueInserter
 
 class DocTable:
     ''' Class for managing a single database table.
@@ -501,7 +502,7 @@ class DocTable:
         return self._table.join(other._table, *args, **kwargs)
     
     
-    #################### Select in Chunk Methods ###################
+    #################### Select/Insert in Chunk Methods ###################
     
     def select_chunks(self, cols=None, chunksize=100, limit=None, **kwargs):
         ''' Performs select while querying only a subset of the results at a time.
@@ -548,7 +549,11 @@ class DocTable:
             for row in chunk:
                 yield row
                 
-    
+    def get_queueinserter(self, **kwargs):
+        ''' Get an object that will queue rows for insertion.
+        '''
+        return QueueInserter(self, **kwargs)
+
     #################### Update Methods ###################
     
     def update(self, values, where=None, wherestr=None, **kwargs):

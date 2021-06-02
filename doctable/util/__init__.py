@@ -5,3 +5,4 @@ from .timer import Timer
 from .fsstore import FSStore
 from .distribute import Distribute
 from .tempfolder import TempFolder
+from .queueinserter import QueueInserter
