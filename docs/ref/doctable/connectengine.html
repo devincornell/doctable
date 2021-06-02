@@ -52,6 +52,9 @@
                                 <a class="variable" href="#ConnectEngine.tables">tables</a>
                         </li>
                         <li>
+                                <a class="function" href="#ConnectEngine.get_session">get_session</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#ConnectEngine.connect">connect</a>
                         </li>
                         <li>
@@ -62,6 +65,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#ConnectEngine.clear_metadata">clear_metadata</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ConnectEngine.create_all">create_all</a>
                         </li>
                         <li>
                                 <a class="function" href="#ConnectEngine.schema">schema</a>
@@ -104,6 +110,8 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">sqlalchemy</span><span class="c1"># as sa</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="kn">import</span> <span class="n">declarative_base</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">sessionmaker</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span> <span class="nn">typing</span>
@@ -114,14 +122,14 @@
     <span class="sd">&#39;&#39;&#39; Class to maintain sqlalchemy engine and metadata information for doctables.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dialect</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">new_db</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-                    <span class="n">foreign_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">echo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-                    <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
+                    <span class="n">foreign_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">echo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
+                    <span class="n">orm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">engine_kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">connect_args</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Initializes sqlalchemy engine  and metadata objects.</span>
 <span class="sd">            Args:</span>
 <span class="sd">                target: choose target database for connection.</span>
 <span class="sd">                echo: sets the echo status used in sqlalchemy.create_engine().</span>
 <span class="sd">                    This will output every sql query upon execution.</span>
-<span class="sd">                engine_kwargs: passed directly to sqlalchemy.create_engine().</span>
+<span class="sd">                connect_args: passed to sqlalchemy.create_engine() as the connect_args param.</span>
 <span class="sd">                    See more options in the official docs:</span>
 <span class="sd">                    https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -133,8 +141,8 @@
                     <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s1">&#39;new_db is set to False but the database </span><span class="si">{}</span><span class="s1"> does not &#39;</span>
                                      <span class="s1">&#39;exist yet.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
 
-            <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">engine_kwargs</span><span class="p">,</span> <span class="s1">&#39;timeout&#39;</span><span class="p">:</span><span class="n">timeout</span><span class="p">}</span>
+            <span class="c1">#if timeout is not None:</span>
+            <span class="c1">#    connect_args = {**connect_args, &#39;timeout&#39;:timeout}</span>
 
         
         <span class="bp">self</span><span class="o">.</span><span class="n">_echo</span> <span class="o">=</span> <span class="n">echo</span>
@@ -147,11 +155,17 @@
         
         <span class="c1"># create sqlalchemy engine</span>
         <span class="c1">#self._engine_kwargs = engine_kwargs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connstr</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_echo</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">MetaData</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
-        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connstr</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_echo</span><span class="p">,</span> <span class="n">connect_args</span><span class="o">=</span><span class="n">connect_args</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_foreign_keys</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;pragma foreign_keys=ON&#39;</span><span class="p">)</span>
+
+        <span class="c1"># create metadata object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">MetaData</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
+
+        <span class="c1"># create declarative base if orm is desired</span>
+        <span class="k">if</span> <span class="n">orm</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Base</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">(</span><span class="n">metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Session</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
         
         
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -187,6 +201,9 @@
         <span class="sd">&#39;&#39;&#39; Get table objects stored in metadata.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">tables</span>
+    
+    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
     
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;&lt;ConnectEngine::</span><span class="si">{}</span><span class="s1">&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
@@ -225,6 +242,10 @@
     
     
     <span class="c1">######################### Table Management ######################</span>
+    <span class="k">def</span> <span class="nf">create_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Create tables from metadata object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
     
     <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tabname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">sqlalchemy</span><span class="o">.</span><span class="n">Column</span><span class="p">]:</span>
         <span class="sd">&#39;&#39;&#39; Read schema information for single table.</span>
@@ -342,14 +363,14 @@
     <span class="sd">&#39;&#39;&#39; Class to maintain sqlalchemy engine and metadata information for doctables.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dialect</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">new_db</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-                    <span class="n">foreign_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">echo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-                    <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
+                    <span class="n">foreign_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">echo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
+                    <span class="n">orm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">engine_kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">connect_args</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Initializes sqlalchemy engine  and metadata objects.</span>
 <span class="sd">            Args:</span>
 <span class="sd">                target: choose target database for connection.</span>
 <span class="sd">                echo: sets the echo status used in sqlalchemy.create_engine().</span>
 <span class="sd">                    This will output every sql query upon execution.</span>
-<span class="sd">                engine_kwargs: passed directly to sqlalchemy.create_engine().</span>
+<span class="sd">                connect_args: passed to sqlalchemy.create_engine() as the connect_args param.</span>
 <span class="sd">                    See more options in the official docs:</span>
 <span class="sd">                    https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -361,8 +382,8 @@
                     <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s1">&#39;new_db is set to False but the database </span><span class="si">{}</span><span class="s1"> does not &#39;</span>
                                      <span class="s1">&#39;exist yet.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
 
-            <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">engine_kwargs</span><span class="p">,</span> <span class="s1">&#39;timeout&#39;</span><span class="p">:</span><span class="n">timeout</span><span class="p">}</span>
+            <span class="c1">#if timeout is not None:</span>
+            <span class="c1">#    connect_args = {**connect_args, &#39;timeout&#39;:timeout}</span>
 
         
         <span class="bp">self</span><span class="o">.</span><span class="n">_echo</span> <span class="o">=</span> <span class="n">echo</span>
@@ -375,11 +396,17 @@
         
         <span class="c1"># create sqlalchemy engine</span>
         <span class="c1">#self._engine_kwargs = engine_kwargs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connstr</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_echo</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">MetaData</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
-        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connstr</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_echo</span><span class="p">,</span> <span class="n">connect_args</span><span class="o">=</span><span class="n">connect_args</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_foreign_keys</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;pragma foreign_keys=ON&#39;</span><span class="p">)</span>
+
+        <span class="c1"># create metadata object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">MetaData</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
+
+        <span class="c1"># create declarative base if orm is desired</span>
+        <span class="k">if</span> <span class="n">orm</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Base</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">(</span><span class="n">metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Session</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
         
         
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -415,6 +442,9 @@
         <span class="sd">&#39;&#39;&#39; Get table objects stored in metadata.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">tables</span>
+    
+    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
     
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;&lt;ConnectEngine::</span><span class="si">{}</span><span class="s1">&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
@@ -453,6 +483,10 @@
     
     
     <span class="c1">######################### Table Management ######################</span>
+    <span class="k">def</span> <span class="nf">create_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Create tables from metadata object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
     
     <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tabname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">sqlalchemy</span><span class="o">.</span><span class="n">Column</span><span class="p">]:</span>
         <span class="sd">&#39;&#39;&#39; Read schema information for single table.</span>
@@ -558,23 +592,24 @@
     dialect: str = &#39;sqlite&#39;,
     new_db: bool = False,
     foreign_keys: bool = False,
-    timeout: int = None,
     echo: bool = False,
-    **engine_kwargs
+    orm: bool = False,
+    engine_kwargs={},
+    **connect_args
 )</span>
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dialect</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">new_db</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-                    <span class="n">foreign_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">echo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-                    <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
+                    <span class="n">foreign_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">echo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
+                    <span class="n">orm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">engine_kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">connect_args</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Initializes sqlalchemy engine  and metadata objects.</span>
 <span class="sd">            Args:</span>
 <span class="sd">                target: choose target database for connection.</span>
 <span class="sd">                echo: sets the echo status used in sqlalchemy.create_engine().</span>
 <span class="sd">                    This will output every sql query upon execution.</span>
-<span class="sd">                engine_kwargs: passed directly to sqlalchemy.create_engine().</span>
+<span class="sd">                connect_args: passed to sqlalchemy.create_engine() as the connect_args param.</span>
 <span class="sd">                    See more options in the official docs:</span>
 <span class="sd">                    https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -586,8 +621,8 @@
                     <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s1">&#39;new_db is set to False but the database </span><span class="si">{}</span><span class="s1"> does not &#39;</span>
                                      <span class="s1">&#39;exist yet.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
 
-            <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">engine_kwargs</span><span class="p">,</span> <span class="s1">&#39;timeout&#39;</span><span class="p">:</span><span class="n">timeout</span><span class="p">}</span>
+            <span class="c1">#if timeout is not None:</span>
+            <span class="c1">#    connect_args = {**connect_args, &#39;timeout&#39;:timeout}</span>
 
         
         <span class="bp">self</span><span class="o">.</span><span class="n">_echo</span> <span class="o">=</span> <span class="n">echo</span>
@@ -600,11 +635,17 @@
         
         <span class="c1"># create sqlalchemy engine</span>
         <span class="c1">#self._engine_kwargs = engine_kwargs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connstr</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_echo</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">MetaData</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
-        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connstr</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_echo</span><span class="p">,</span> <span class="n">connect_args</span><span class="o">=</span><span class="n">connect_args</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_foreign_keys</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;pragma foreign_keys=ON&#39;</span><span class="p">)</span>
+
+        <span class="c1"># create metadata object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">MetaData</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
+
+        <span class="c1"># create declarative base if orm is desired</span>
+        <span class="k">if</span> <span class="n">orm</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Base</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">(</span><span class="n">metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Session</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -614,7 +655,7 @@ Args:
     target: choose target database for connection.
     echo: sets the echo status used in sqlalchemy.create_engine().
         This will output every sql query upon execution.
-    engine_kwargs: passed directly to sqlalchemy.create_engine().
+    connect_args: passed to sqlalchemy.create_engine() as the connect_args param.
         See more options in the official docs:
         https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine</p>
 </div>
@@ -694,6 +735,25 @@ Args:
             <div class="docstring"><p>Get table objects stored in metadata.</p>
 </div>
 
+
+                            </div>
+                            <div id="ConnectEngine.get_session" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ConnectEngine.get_session">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">get_session</span><span class="signature">(self)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+</pre></div>
+
+        </details>
+
+    
 
                             </div>
                             <div id="ConnectEngine.connect" class="classattr">
@@ -791,6 +851,29 @@ Args:
         </details>
 
     
+
+                            </div>
+                            <div id="ConnectEngine.create_all" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ConnectEngine.create_all">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">create_all</span><span class="signature">(self)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">create_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Create tables from metadata object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Create tables from metadata object.</p>
+</div>
+
 
                             </div>
                             <div id="ConnectEngine.schema" class="classattr">
