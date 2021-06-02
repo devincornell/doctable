@@ -1,5 +1,7 @@
 import pandas as pd
 import sqlalchemy# as sa
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 import os
 from datetime import datetime
 import typing
@@ -10,14 +12,14 @@ class ConnectEngine:
     ''' Class to maintain sqlalchemy engine and metadata information for doctables.
     '''
     def __init__(self, target: str = None, dialect:str = 'sqlite', new_db: bool = False, 
-                    foreign_keys: bool = False, timeout: int = None, echo: bool = False, 
-                    **engine_kwargs):
+                    foreign_keys: bool = False, echo: bool = False, 
+                    orm: bool = False, engine_kwargs={}, **connect_args):
         ''' Initializes sqlalchemy engine  and metadata objects.
             Args:
                 target: choose target database for connection.
                 echo: sets the echo status used in sqlalchemy.create_engine().
                     This will output every sql query upon execution.
-                engine_kwargs: passed directly to sqlalchemy.create_engine().
+                connect_args: passed to sqlalchemy.create_engine() as the connect_args param.
                     See more options in the official docs:
                     https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine
         '''
@@ -29,8 +31,8 @@ class ConnectEngine:
                     raise FileNotFoundError('new_db is set to False but the database {} does not '
                                      'exist yet.'.format(target))
 
-            if timeout is not None:
-                engine_kwargs = {**engine_kwargs, 'timeout':timeout}
+            #if timeout is not None:
+            #    connect_args = {**connect_args, 'timeout':timeout}
 
         
         self._echo = echo
@@ -43,11 +45,17 @@ class ConnectEngine:
         
         # create sqlalchemy engine
         #self._engine_kwargs = engine_kwargs
-        self._engine = sqlalchemy.create_engine(self._connstr, echo=self._echo, **engine_kwargs)
-        self._metadata = sqlalchemy.MetaData(bind=self._engine)
-        
+        self._engine = sqlalchemy.create_engine(self._connstr, echo=self._echo, connect_args=connect_args, **engine_kwargs)
         if self._foreign_keys:
             self.execute('pragma foreign_keys=ON')
+
+        # create metadata object
+        self._metadata = sqlalchemy.MetaData(bind=self._engine)
+
+        # create declarative base if orm is desired
+        if orm:
+            self.Base = declarative_base(metadata=self._metadata)
+            self.Session = sessionmaker(bind=self._engine)
         
         
     def __del__(self):
@@ -83,6 +91,9 @@ class ConnectEngine:
         ''' Get table objects stored in metadata.
         '''
         return self._metadata.tables
+    
+    def get_session(self):
+        return self.Session()
     
     def __str__(self) -> str:
         return '<ConnectEngine::{}>'.format(repr(self))
@@ -121,6 +132,10 @@ class ConnectEngine:
     
     
     ######################### Table Management ######################
+    def create_all(self):
+        ''' Create tables from metadata object.
+        '''
+        return self._metadata.create_all(self._engine)
     
     def schema(self, tabname: str) -> Sequence[sqlalchemy.Column]:
         ''' Read schema information for single table.

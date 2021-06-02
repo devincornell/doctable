@@ -42,7 +42,7 @@ class DocTable:
     __default_tabname__ = '_documents_'
     def __init__(self, target: str = None, tabname: str = None, schema: Sequence[Sequence] = None,
                 dialect='sqlite', engine=None, readonly=False, new_db=False, new_table=True, 
-                persistent_conn=True, verbose=False, **engine_kwargs):
+                persistent_conn=True, verbose=False, **connect_args):
         '''Create new database.
         Args:
             target (str): filename for database to connect to. ":memory:" is a 
@@ -67,8 +67,8 @@ class DocTable:
                 that a schema is provided and the db file doesn't exist.
             new_table (bool): Allow doctable to create a new table if one 
                 doesn't exist already.
-            engine_kwargs (**kwargs): Pass directly to the sqlalchemy
-                .create_engine(). Args typically vary by dialect.
+            connect_args (**kwargs): Pass directly to the sqlalchemy
+                .create_engine() as connect_args. Args typically vary by dialect.
                 Example: connect_args={'timeout': 15} for sqlite
                 or connect_args={'connect_timeout': 15} for PostgreSQL.
             verbose (bool): Print every sql command before executing.
@@ -122,8 +122,8 @@ class DocTable:
                 verbose = self._doctable_args_['verbose']
             if new_db is None and 'new_db' in self._doctable_args_:
                 new_db = self._doctable_args_['new_db']
-            if engine_kwargs is None and 'engine_kwargs' in self._doctable_args_:
-                engine_kwargs = self._doctable_args_['engine_kwargs']
+            if connect_args is None and 'connect_args' in self._doctable_args_:
+                connect_args = self._doctable_args_['connect_args']
         
         # dependent args
         if readonly:
@@ -150,7 +150,7 @@ class DocTable:
         # establish an engine connection
         if engine is None:
             self._engine = ConnectEngine(target=target, dialect=dialect, new_db=new_db, 
-                                     **engine_kwargs)
+                                     **connect_args)
         else:
             self._engine = engine
         
