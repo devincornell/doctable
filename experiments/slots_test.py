@@ -6,6 +6,7 @@ import functools
 import random
 import time
 import gc
+import 
 
 #class BaseClass:
 #    @classmethod
@@ -16,25 +17,21 @@ import sys
 sys.path.append('..')
 import doctable
 
-class Test1:
-    __slots__ = ['a']
-    a: int = 5
+#class Test1:
+#    __slots__ = ['a']
+#    a: int = 5
 
 
-@doctable.row
+@doctable.row(repr=False)
 class CustomClass:
     '''This is my doc.'''
     __slots__ = []
     a: int
     b: int = doctable.Col(5)
     c: int = doctable.Col()
-    def __init__(self, a, b=5, c=doctable.EmptyValue()):
-        self.a = a
-        self.b = b
-        self.c = c
 
-    @property
-    def ab(self):
+    # example method
+    def aplusb(self):
         return self.a + self.b
 
     def __repr__(self):
@@ -45,6 +42,15 @@ if __name__ == '__main__':
 
     timer = doctable.Timer()
 
+    sc = CustomClass(10)
+
+    # make sure it is a slots class
+    assert(not hasattr(sc, '__dict__'))
+    assert(sc.aplusb() == 15)
+    assert(len(sc._doctable_as_dict()) == 2)
+
+
+    exit()
     if True:
         sc = CustomClass(10)
         print(sc)
