@@ -92,7 +92,7 @@ test_examples: uninstall
 	rm -r $(TMP_TEST_FOLDER)
 
 test: test_examples pytest
-	
+tests: test # alias	
 
 	
 clean_tests:
