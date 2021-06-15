@@ -577,7 +577,7 @@ class DocTable:
         if isinstance(values,list) or isinstance(values,tuple):
             
             if is_sequence(values) and len(values) > 0 and isinstance(values[0], DocTableRow):
-                values = [v._doctable_as_dict() for r in values]
+                values = [v._doctable_as_dict() for v in values]
             
             q = sqlalchemy.sql.update(self._table, preserve_parameter_order=True)
             q = q.values(values)
