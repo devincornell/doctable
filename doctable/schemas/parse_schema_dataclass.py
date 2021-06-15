@@ -6,13 +6,17 @@ from .coltype_map import python_to_slqlchemy_type, string_to_sqlalchemy_type, co
 
 
 
-def parse_schema_dataclass(dclass):
+def parse_schema_dataclass(Cls, indices: dict, constraints: list):
     ''' Convert a dataclass definition to a list of sqlalchemy columns.
     '''
+    return parse_columns(Cls) + parse_indices(indices) + parse_constraints(constraints)
+
+
+def parse_columns(Cls):
+    ''' Convert the dataclass member variables to sqlalchemy columns.
+    '''
     columns = list()
-    
-    # regular data columns (uses dataclass features)
-    for f in fields(dclass):
+    for f in fields(Cls):
         if f.init:
             metadata = f.metadata.copy()
             if 'coltype' in metadata: # specified type using string
@@ -29,27 +33,37 @@ def parse_schema_dataclass(dclass):
             col = sa.Column(f.name, use_type, **metadata)
             columns.append(col)
 
-    #_indices_ = {
-    #    'my_index': ('c1', 'c2', {'unique':True}),
-    #    'other_index': ('c1',),
-    #}
-    if hasattr(dclass, '_indices_') and dclass._indices_ is not None:
-        for name, vals in dclass._indices_.items():
-            args, kwargs = get_kwargs(vals)
-            columns.append(sa.Index(name, *args, **kwargs))
+    return columns
 
-    #_constraints_ = (
-    #    ('check', 'x > 3', dict(name='salary_check')), 
-    #    ('foreignkey', ('a','b'), ('c','d'))
-    #)
-    if hasattr(dclass, '_constraints_') and dclass._constraints_ is not None:
-        for vals in dclass._constraints_:
-            args, kwargs = get_kwargs(vals)
-            columns.append(constraint_lookup[args[0]](*args[1:], **kwargs))
+
+#_indices_ = {
+#    'my_index': ('c1', 'c2', {'unique':True}),
+#    'other_index': ('c1',),
+#}
+def parse_indices(indices):
+    columns = list()
+    for name, vals in indices.items():
+        args, kwargs = get_kwargs(vals)
+        columns.append(sa.Index(name, *args, **kwargs))
+    return columns
+
+#_constraints_ = (
+#    ('check', 'x > 3', dict(name='salary_check')), 
+#    ('foreignkey', ('a','b'), ('c','d'))
+#)
+#if hasattr(Cls, '_constraints_') and Cls._constraints_ is not None:
+def parse_constraints(constraints):
+    columns = list()
+    for vals in constraints:
+        args, kwargs = get_kwargs(vals)
+        columns.append(constraint_lookup[args[0]](*args[1:], **kwargs))
 
     return columns
 
+
 def get_kwargs(vals):
+    ''' Logic to parse out ordered and keyword arguments.
+    '''
     args = vals[:-1] if isinstance(vals[-1], dict) else vals
     kwargs = vals[-1] if isinstance(vals[-1], dict) else dict()
     #print(f'args={args}, kwargs={kwargs}')

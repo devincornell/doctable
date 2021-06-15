@@ -20,6 +20,8 @@ from .model import DocBootstrap
 from .connectengine import ConnectEngine
 from .schemas import parse_schema_strings, parse_schema_dataclass, DocTableRow
 
+DEFAULT_TABNAME = '_documents_'
+
 class DocTable:
     ''' Class for managing a single database table.
     Description: This class manages schema and connection information to provide
@@ -41,7 +43,6 @@ class DocTable:
             be used when instantiating. Overridden by providing arguments
             to the constructor.
     '''
-    __default_tabname__ = '_documents_'
     def __init__(self, target: str = None, tabname: str = None, 
                 schema: Sequence[Sequence] = None, indices: dict = None, constraints = None,
                 dialect: str = 'sqlite', engine=None, 
@@ -78,146 +79,114 @@ class DocTable:
             verbose (bool): Print every sql command before executing.
             echo (bool): Print sqlalchemy engine log for each query.
         '''
-        args = {
-            'target': target,
-            'tabname': tabname,
+        arg_defaults = {
+            # connection info
+            'target': (target, None),
+            'tabname': (tabname, DEFAULT_TABNAME),
+            'dialect': (dialect, 'sqlite'),
 
-            'schema': schema,
-            'indices': indices,
-            'constraints': constraints,
+            # schema-related
+            'schema': (schema, None),
+            'indices': (indices, dict()),
+            'constraints': (constraints, list()),
 
-            'engine_kwargs': engine_kwargs if len(engine_kwargs) > 0 else None,
-        
+            # misc flags
+            'persistent_conn': (persistent_conn, True),
+            'readonly': (readonly, False),
+            'verbose': (verbose, False),
+            'new_db': (new_db, False),
+            'new_table': (new_table, False),
         }
 
-        for name in args:
-            if args[name] is None:
-                undername = f'_{name}_'
+        # parse all specified variables
+        args = dict()
+        for argname, (val, default) in arg_defaults.items():
+            undername = f'_{argname}_'
+            dundername = f'__{argname}__' # should not be used (error check)
+
+            if hasattr(self, dundername):
+                raise NameError(f'The "{dundername}" member has been changed to "{undername}".')
+
+            if val is None:
 
                 # is statically defined
                 if hasattr(self, undername) and getattr(self, undername) is not None:
-                    args[name] = getattr(self, undername)
+                    args[argname] = getattr(self, undername)
                 
                 # defined in _doctable_args_
-                if hasattr(self, f'_doctable_args_') and name in self._doctable_args_:
-                    args[name] = self._doctable_args_[name]
+                elif hasattr(self, f'_doctable_args_') and argname in self._doctable_args_:
+                    args[argname] = self._doctable_args_[argname]
 
-                
+                else:
+                    # default
+                    args[argname] = default
+
             else:
-                pass # do what?
+                args[argname] = val
 
-
-
-
-        argnames = [
-            ('target', target),
-            ('tabname', tabname),
-            ('dialect', dialect),
-            
-            ('schema', schema),
-            ('indices', indices),
-            ('constraints', constraints),
-            
-            ('engine', engine),
-            ('engine_kwargs', engine_kwargs),
-            
-            ('verbose', verbose),
-        ]
-
-
-
-
-        schema_args = ['schema', 'indices', 'constraints']
-        namespace = locals()
-        for argstr in schema_args():
-            namespace
-        
-        # target argument
-        if engine is not None:
-            target = engine.target
-        elif target is not None:
-            pass # use constructor-provided target
-        elif hasattr(self, '_target_'):
-            target = self._target_
-        elif hasattr(self, '_doctable_args_') and 'target' in self._doctable_args_:
-            target = self._doctable_args_.target
-        else:
-            raise ValueError('target has not been provided.')
-
+        # check for old implementation features
         if hasattr(self, '__args__'):
             raise NameError('The __args__ definition has changed to _doctable_args_.')
 
-        # tabname arguments
-        if tabname is not None:
-            pass # use constructor-provided tabname
-        elif hasattr(self, '__tabname__'):
-            raise NameError('The __tabname__ definition has changed to _tabname_.')
-        elif hasattr(self, '_tabname_'):
-            tabname = self._tabname_
-        elif hasattr(self, '_doctable_args_') and 'tabname' in self._doctable_args_:
-            tabname = self._doctable_args_.tabname
-        else:
-            tabname = self.__default_tabname__
-
-        # schema arguments
-        if schema is not None:
-            pass # use constructor-provided schema
-        elif hasattr(self, '__schema__'):
-            raise NameError('The __schema__ definition has changed to _schema_.')
-        elif hasattr(self, '_schema_'):
-            schema = self._schema_
-        elif hasattr(self, '_doctable_args_') and 'schema' in self._doctable_args_:
-            schema = self._doctable_args_.schema
-        else:
-            schema = None
+        ######## input combinations ########
+        if hasattr(self, '_engine_kwargs_'):
+            engine_kwargs = {**engine_kwargs, **getattr(self, '_engine_kwargs_')}
         
-        # overwrite arg defaults if provided in _doctable_args_
-        if hasattr(self, '_doctable_args_'):
-            if dialect is None and 'dialect' in self._doctable_args_:
-                dialect = self._doctable_args_['dialect']
-            if verbose is None and 'verbose' in self._doctable_args_:
-                verbose = self._doctable_args_['verbose']
-            if new_db is None and 'new_db' in self._doctable_args_:
-                new_db = self._doctable_args_['new_db']
-            if engine_kwargs is None and 'engine_kwargs' in self._doctable_args_:
-                engine_kwargs = self._doctable_args_['engine_kwargs']
+        if hasattr(self, '_doctable_args_') and 'engine_kwargs' in self._doctable_args_:
+            engine_kwargs = {**engine_kwargs, **self._doctable_args_['engine_kwargs']}
         
         # dependent args
-        if readonly:
-            new_db = False
-            new_table = False
-        
-        # some error checking
-        if dialect.startswith('sqlite'):
-            if schema is None and engine is None and (target == ':memory:' or not os.path.exists(target)):
+        if args['readonly']:
+            args['new_db'] = False
+            args['new_table'] = False
+
+        ######## error checking ########
+        if args['dialect'].startswith('sqlite'):
+            if args['schema'] is None and engine is None and (args['target'] == ':memory:' or not os.path.exists(args['target'])):
                 raise ValueError('Schema must be provided if using memory database or '
                              'database file does not exist yet. Need to provide schema '
                              'when creating a new table.')
+
+
+        # set target from engine if provided
+        if engine is not None:
+            if args['target'] is not None:
+                raise ValueError('"target" parameter should not be provided when engine is provided.')
+            args['target'] = engine.target
+        
+        # ensure target was specified
+        if args['target'] is None:
+            raise ValueError('target has not been provided.')
         
         # store arguments as-is
-        self._tabname = tabname
-        self._target = target
-        self.verbose = verbose
-        self._schema = schema
-        self.persistent_conn = persistent_conn
-        self._readonly = readonly
-        self._new_db = new_db
-        self._new_table = new_table
+        self._tabname = args['tabname'] if args['tabname'] is not None else DEFAULT_TABNAME
+        self._target = args['target']
+        self._schema = args['schema']
+        self._indices = args['indices']
+        self._constraints = args['constraints']
+        self.dialect = args['dialect']
+
+        # flags
+        self.verbose = args['verbose']
+        self.persistent_conn = args['persistent_conn']
+        self._readonly = args['readonly']
+        self._new_db = args['new_db']
+        self._new_table = args['new_table']
         
         # establish an engine connection
         if engine is None:
-            self._engine = ConnectEngine(target=target, dialect=dialect, new_db=new_db, 
+            self._engine = ConnectEngine(target=self._target, dialect=self.dialect, new_db=self._new_db, 
                                      **engine_kwargs)
         else:
             self._engine = engine
         
         # connect to existing table or create new one
-        if dataclasses.is_dataclass(schema):
-            if not issubclass(schema, DocTableRow):
+        if dataclasses.is_dataclass(self._schema):
+            if not issubclass(self._schema, DocTableRow):
                 raise TypeError('A dataclass schema must inherit from doctable.DocTableRow.')
-            self._columns = parse_schema_dataclass(schema)
-        elif isinstance(schema, list) or isinstance(schema, tuple):
-            self._columns = parse_schema_strings(schema, target+'_'+tabname)
+            self._columns = parse_schema_dataclass(self._schema, self._indices, self._constraints)
+        elif isinstance(self._schema, list) or isinstance(self._schema, tuple):
+            self._columns = parse_schema_strings(self._schema, self._target+'_'+self._tabname)
         else:
             self._columns = None # inferred from existing table
         
