@@ -30,19 +30,23 @@ class DocTable:
         execute queries without using the SQL language.
 
     Settable static attributes (overridden if related constructor argument passed):
-        _tabname_ (str): name of table to connect to (and create).
-        _schema_ (str): schema definition for this doctable, to be used
-            when creating a new table and to manage table information.
         _target_ (str): target database to connect to - used when a doctable
             will always connect to the same target (i.e., a server etc).
+        _tabname_ (str): name of table to connect to (and create).
+        _schema_ (list or class): schema definition for this doctable, to be used
+            when creating a new table and to manage table information.
+        _indices_ (dict): indices to apply to the table
+        _constraints_ (list): constraints to apply to the table
         _doctable_args_ (dict): any other constructor arguments that should always
             be used when instantiating. Overridden by providing arguments
             to the constructor.
     '''
     __default_tabname__ = '_documents_'
-    def __init__(self, target: str = None, tabname: str = None, schema: Sequence[Sequence] = None,
-                dialect='sqlite', engine=None, readonly=False, new_db=False, new_table=True, 
-                persistent_conn=True, verbose=False, **engine_kwargs):
+    def __init__(self, target: str = None, tabname: str = None, 
+                schema: Sequence[Sequence] = None, indices: dict = None, constraints = None,
+                dialect: str = 'sqlite', engine=None, 
+                readonly: bool=False, new_db: bool=False, new_table: bool=True, 
+                persistent_conn: bool=True, verbose: bool=False, **engine_kwargs):
         '''Create new database.
         Args:
             target (str): filename for database to connect to. ":memory:" is a 
@@ -74,6 +78,59 @@ class DocTable:
             verbose (bool): Print every sql command before executing.
             echo (bool): Print sqlalchemy engine log for each query.
         '''
+        args = {
+            'target': target,
+            'tabname': tabname,
+
+            'schema': schema,
+            'indices': indices,
+            'constraints': constraints,
+
+            'engine_kwargs': engine_kwargs if len(engine_kwargs) > 0 else None,
+        
+        }
+
+        for name in args:
+            if args[name] is None:
+                undername = f'_{name}_'
+
+                # is statically defined
+                if hasattr(self, undername) and getattr(self, undername) is not None:
+                    args[name] = getattr(self, undername)
+                
+                # defined in _doctable_args_
+                if hasattr(self, f'_doctable_args_') and name in self._doctable_args_:
+                    args[name] = self._doctable_args_[name]
+
+                
+            else:
+                pass # do what?
+
+
+
+
+        argnames = [
+            ('target', target),
+            ('tabname', tabname),
+            ('dialect', dialect),
+            
+            ('schema', schema),
+            ('indices', indices),
+            ('constraints', constraints),
+            
+            ('engine', engine),
+            ('engine_kwargs', engine_kwargs),
+            
+            ('verbose', verbose),
+        ]
+
+
+
+
+        schema_args = ['schema', 'indices', 'constraints']
+        namespace = locals()
+        for argstr in schema_args():
+            namespace
         
         # target argument
         if engine is not None:
