@@ -194,6 +194,14 @@ def main():
         (1.0, 3),
         (1.0, 5),
     ]
+    
+    import itertools
+    params = list(itertools.product(
+        [0.001, 0.005, 0.01, 0.05],
+        [10, 50, 100, 250, 500]
+    ))
+    print(f'running {len(params)} param sets')
+
 
     for sizeGB, num in params:
         print(f'========== Running Test (sizeGB={sizeGB}, num={num}) ==========')
