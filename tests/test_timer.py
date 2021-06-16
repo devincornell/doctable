@@ -43,7 +43,6 @@ def test_timer():
     test_func()
 
     timer.step('that\'s all folks.')
-    #timer.print_table()
 
 
 if __name__ == '__main__':
