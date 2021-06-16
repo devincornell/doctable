@@ -172,6 +172,8 @@
 <span class="kn">from</span> <span class="nn">.connectengine</span> <span class="kn">import</span> <span class="n">ConnectEngine</span>
 <span class="kn">from</span> <span class="nn">.schemas</span> <span class="kn">import</span> <span class="n">parse_schema_strings</span><span class="p">,</span> <span class="n">parse_schema_dataclass</span><span class="p">,</span> <span class="n">DocTableRow</span>
 
+<span class="n">DEFAULT_TABNAME</span> <span class="o">=</span> <span class="s1">&#39;_documents_&#39;</span>
+
 <span class="k">class</span> <span class="nc">DocTable</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39; Class for managing a single database table.</span>
 <span class="sd">    Description: This class manages schema and connection information to provide</span>
@@ -182,19 +184,22 @@
 <span class="sd">        execute queries without using the SQL language.</span>
 
 <span class="sd">    Settable static attributes (overridden if related constructor argument passed):</span>
-<span class="sd">        _tabname_ (str): name of table to connect to (and create).</span>
-<span class="sd">        _schema_ (str): schema definition for this doctable, to be used</span>
-<span class="sd">            when creating a new table and to manage table information.</span>
 <span class="sd">        _target_ (str): target database to connect to - used when a doctable</span>
 <span class="sd">            will always connect to the same target (i.e., a server etc).</span>
+<span class="sd">        _tabname_ (str): name of table to connect to (and create).</span>
+<span class="sd">        _schema_ (list or class): schema definition for this doctable, to be used</span>
+<span class="sd">            when creating a new table and to manage table information.</span>
+<span class="sd">        _indices_ (dict): indices to apply to the table</span>
+<span class="sd">        _constraints_ (list): constraints to apply to the table</span>
 <span class="sd">        _doctable_args_ (dict): any other constructor arguments that should always</span>
 <span class="sd">            be used when instantiating. Overridden by providing arguments</span>
 <span class="sd">            to the constructor.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">__default_tabname__</span> <span class="o">=</span> <span class="s1">&#39;_documents_&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tabname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">dialect</span><span class="o">=</span><span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">readonly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_table</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-                <span class="n">persistent_conn</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tabname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                <span class="n">schema</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">constraints</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">dialect</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                <span class="n">readonly</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_db</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_table</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                <span class="n">persistent_conn</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Create new database.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            target (str): filename for database to connect to. &quot;:memory:&quot; is a </span>
@@ -226,93 +231,114 @@
 <span class="sd">            verbose (bool): Print every sql command before executing.</span>
 <span class="sd">            echo (bool): Print sqlalchemy engine log for each query.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        
-        <span class="c1"># target argument</span>
-        <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">target</span>
-        <span class="k">elif</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">pass</span> <span class="c1"># use constructor-provided target</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_target_&#39;</span><span class="p">):</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;target&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">target</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;target has not been provided.&#39;</span><span class="p">)</span>
+        <span class="n">arg_defaults</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1"># connection info</span>
+            <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;tabname&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">tabname</span><span class="p">,</span> <span class="n">DEFAULT_TABNAME</span><span class="p">),</span>
+            <span class="s1">&#39;dialect&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">dialect</span><span class="p">,</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">),</span>
 
+            <span class="c1"># schema-related</span>
+            <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;indices&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="nb">dict</span><span class="p">()),</span>
+            <span class="s1">&#39;constraints&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="nb">list</span><span class="p">()),</span>
+
+            <span class="c1"># misc flags</span>
+            <span class="s1">&#39;persistent_conn&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">persistent_conn</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="s1">&#39;readonly&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s1">&#39;verbose&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">verbose</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s1">&#39;new_db&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">new_db</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s1">&#39;new_table&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">new_table</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="c1"># parse all specified variables</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">argname</span><span class="p">,</span> <span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span> <span class="ow">in</span> <span class="n">arg_defaults</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">undername</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">argname</span><span class="si">}</span><span class="s1">_&#39;</span>
+            <span class="n">dundername</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;__</span><span class="si">{</span><span class="n">argname</span><span class="si">}</span><span class="s1">__&#39;</span> <span class="c1"># should not be used (error check)</span>
+
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dundername</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The &quot;</span><span class="si">{</span><span class="n">dundername</span><span class="si">}</span><span class="s1">&quot; member has been changed to &quot;</span><span class="si">{</span><span class="n">undername</span><span class="si">}</span><span class="s1">&quot;.&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+                <span class="c1"># is statically defined</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">undername</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">undername</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">args</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">undername</span><span class="p">)</span>
+                
+                <span class="c1"># defined in _doctable_args_</span>
+                <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">argname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                    <span class="n">args</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># default</span>
+                    <span class="n">args</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="n">default</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="c1"># check for old implementation features</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __args__ definition has changed to _doctable_args_.&#39;</span><span class="p">)</span>
 
-        <span class="c1"># tabname arguments</span>
-        <span class="k">if</span> <span class="n">tabname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">pass</span> <span class="c1"># use constructor-provided tabname</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__tabname__&#39;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __tabname__ definition has changed to _tabname_.&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_tabname_&#39;</span><span class="p">):</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tabname_</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;tabname&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">tabname</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__default_tabname__</span>
-
-        <span class="c1"># schema arguments</span>
-        <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">pass</span> <span class="c1"># use constructor-provided schema</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__schema__&#39;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __schema__ definition has changed to _schema_.&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_schema_&#39;</span><span class="p">):</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema_</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;schema&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">schema</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1">######## input combinations ########</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_engine_kwargs_&#39;</span><span class="p">):</span>
+            <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">engine_kwargs</span><span class="p">,</span> <span class="o">**</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_engine_kwargs_&#39;</span><span class="p">)}</span>
         
-        <span class="c1"># overwrite arg defaults if provided in _doctable_args_</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;dialect&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-                <span class="n">dialect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;verbose&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-                <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">new_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;new_db&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-                <span class="n">new_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">engine_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;engine_kwargs&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-                <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;engine_kwargs&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;engine_kwargs&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+            <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">engine_kwargs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;engine_kwargs&#39;</span><span class="p">]}</span>
         
         <span class="c1"># dependent args</span>
-        <span class="k">if</span> <span class="n">readonly</span><span class="p">:</span>
-            <span class="n">new_db</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">new_table</span> <span class="o">=</span> <span class="kc">False</span>
-        
-        <span class="c1"># some error checking</span>
-        <span class="k">if</span> <span class="n">dialect</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;sqlite&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target</span> <span class="o">==</span> <span class="s1">&#39;:memory:&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">target</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;readonly&#39;</span><span class="p">]:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;new_table&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1">######## error checking ########</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;sqlite&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;:memory:&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Schema must be provided if using memory database or &#39;</span>
                              <span class="s1">&#39;database file does not exist yet. Need to provide schema &#39;</span>
                              <span class="s1">&#39;when creating a new table.&#39;</span><span class="p">)</span>
+
+
+        <span class="c1"># set target from engine if provided</span>
+        <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;&quot;target&quot; parameter should not be provided when engine is provided.&#39;</span><span class="p">)</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">target</span>
+        
+        <span class="c1"># ensure target was specified</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;target has not been provided.&#39;</span><span class="p">)</span>
         
         <span class="c1"># store arguments as-is</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span> <span class="o">=</span> <span class="n">tabname</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">target</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">schema</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">persistent_conn</span> <span class="o">=</span> <span class="n">persistent_conn</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_readonly</span> <span class="o">=</span> <span class="n">readonly</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_new_db</span> <span class="o">=</span> <span class="n">new_db</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_new_table</span> <span class="o">=</span> <span class="n">new_table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;tabname&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;tabname&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">DEFAULT_TABNAME</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;indices&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;constraints&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dialect</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
+
+        <span class="c1"># flags</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persistent_conn</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;persistent_conn&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_readonly</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;readonly&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_new_db</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_new_table</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;new_table&#39;</span><span class="p">]</span>
         
         <span class="c1"># establish an engine connection</span>
         <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">ConnectEngine</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="n">dialect</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="n">new_db</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">ConnectEngine</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dialect</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_new_db</span><span class="p">,</span> 
                                      <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">engine</span>
         
         <span class="c1"># connect to existing table or create new one</span>
-        <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="n">schema</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">DocTableRow</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="n">DocTableRow</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;A dataclass schema must inherit from doctable.DocTableRow.&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_dataclass</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_strings</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">target</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">tabname</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_dataclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_strings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># inferred from existing table</span>
         
@@ -729,7 +755,7 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="nb">tuple</span><span class="p">):</span>
             
             <span class="k">if</span> <span class="n">is_sequence</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">DocTableRow</span><span class="p">):</span>
-                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
             
             <span class="n">q</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">,</span> <span class="n">preserve_parameter_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
@@ -921,19 +947,22 @@
 <span class="sd">        execute queries without using the SQL language.</span>
 
 <span class="sd">    Settable static attributes (overridden if related constructor argument passed):</span>
-<span class="sd">        _tabname_ (str): name of table to connect to (and create).</span>
-<span class="sd">        _schema_ (str): schema definition for this doctable, to be used</span>
-<span class="sd">            when creating a new table and to manage table information.</span>
 <span class="sd">        _target_ (str): target database to connect to - used when a doctable</span>
 <span class="sd">            will always connect to the same target (i.e., a server etc).</span>
+<span class="sd">        _tabname_ (str): name of table to connect to (and create).</span>
+<span class="sd">        _schema_ (list or class): schema definition for this doctable, to be used</span>
+<span class="sd">            when creating a new table and to manage table information.</span>
+<span class="sd">        _indices_ (dict): indices to apply to the table</span>
+<span class="sd">        _constraints_ (list): constraints to apply to the table</span>
 <span class="sd">        _doctable_args_ (dict): any other constructor arguments that should always</span>
 <span class="sd">            be used when instantiating. Overridden by providing arguments</span>
 <span class="sd">            to the constructor.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">__default_tabname__</span> <span class="o">=</span> <span class="s1">&#39;_documents_&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tabname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">dialect</span><span class="o">=</span><span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">readonly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_table</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-                <span class="n">persistent_conn</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tabname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                <span class="n">schema</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">constraints</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">dialect</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                <span class="n">readonly</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_db</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_table</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                <span class="n">persistent_conn</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Create new database.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            target (str): filename for database to connect to. &quot;:memory:&quot; is a </span>
@@ -965,93 +994,114 @@
 <span class="sd">            verbose (bool): Print every sql command before executing.</span>
 <span class="sd">            echo (bool): Print sqlalchemy engine log for each query.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        
-        <span class="c1"># target argument</span>
-        <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">target</span>
-        <span class="k">elif</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">pass</span> <span class="c1"># use constructor-provided target</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_target_&#39;</span><span class="p">):</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;target&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">target</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;target has not been provided.&#39;</span><span class="p">)</span>
+        <span class="n">arg_defaults</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1"># connection info</span>
+            <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;tabname&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">tabname</span><span class="p">,</span> <span class="n">DEFAULT_TABNAME</span><span class="p">),</span>
+            <span class="s1">&#39;dialect&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">dialect</span><span class="p">,</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">),</span>
 
+            <span class="c1"># schema-related</span>
+            <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;indices&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="nb">dict</span><span class="p">()),</span>
+            <span class="s1">&#39;constraints&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="nb">list</span><span class="p">()),</span>
+
+            <span class="c1"># misc flags</span>
+            <span class="s1">&#39;persistent_conn&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">persistent_conn</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="s1">&#39;readonly&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s1">&#39;verbose&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">verbose</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s1">&#39;new_db&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">new_db</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s1">&#39;new_table&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">new_table</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="c1"># parse all specified variables</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">argname</span><span class="p">,</span> <span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span> <span class="ow">in</span> <span class="n">arg_defaults</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">undername</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">argname</span><span class="si">}</span><span class="s1">_&#39;</span>
+            <span class="n">dundername</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;__</span><span class="si">{</span><span class="n">argname</span><span class="si">}</span><span class="s1">__&#39;</span> <span class="c1"># should not be used (error check)</span>
+
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dundername</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The &quot;</span><span class="si">{</span><span class="n">dundername</span><span class="si">}</span><span class="s1">&quot; member has been changed to &quot;</span><span class="si">{</span><span class="n">undername</span><span class="si">}</span><span class="s1">&quot;.&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+                <span class="c1"># is statically defined</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">undername</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">undername</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">args</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">undername</span><span class="p">)</span>
+                
+                <span class="c1"># defined in _doctable_args_</span>
+                <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">argname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                    <span class="n">args</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># default</span>
+                    <span class="n">args</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="n">default</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="c1"># check for old implementation features</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __args__ definition has changed to _doctable_args_.&#39;</span><span class="p">)</span>
 
-        <span class="c1"># tabname arguments</span>
-        <span class="k">if</span> <span class="n">tabname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">pass</span> <span class="c1"># use constructor-provided tabname</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__tabname__&#39;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __tabname__ definition has changed to _tabname_.&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_tabname_&#39;</span><span class="p">):</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tabname_</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;tabname&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">tabname</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__default_tabname__</span>
-
-        <span class="c1"># schema arguments</span>
-        <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">pass</span> <span class="c1"># use constructor-provided schema</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__schema__&#39;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __schema__ definition has changed to _schema_.&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_schema_&#39;</span><span class="p">):</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema_</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;schema&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">schema</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1">######## input combinations ########</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_engine_kwargs_&#39;</span><span class="p">):</span>
+            <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">engine_kwargs</span><span class="p">,</span> <span class="o">**</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_engine_kwargs_&#39;</span><span class="p">)}</span>
         
-        <span class="c1"># overwrite arg defaults if provided in _doctable_args_</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;dialect&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-                <span class="n">dialect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;verbose&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-                <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">new_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;new_db&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-                <span class="n">new_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">engine_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;engine_kwargs&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-                <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;engine_kwargs&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;engine_kwargs&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+            <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">engine_kwargs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;engine_kwargs&#39;</span><span class="p">]}</span>
         
         <span class="c1"># dependent args</span>
-        <span class="k">if</span> <span class="n">readonly</span><span class="p">:</span>
-            <span class="n">new_db</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">new_table</span> <span class="o">=</span> <span class="kc">False</span>
-        
-        <span class="c1"># some error checking</span>
-        <span class="k">if</span> <span class="n">dialect</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;sqlite&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target</span> <span class="o">==</span> <span class="s1">&#39;:memory:&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">target</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;readonly&#39;</span><span class="p">]:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;new_table&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1">######## error checking ########</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;sqlite&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;:memory:&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Schema must be provided if using memory database or &#39;</span>
                              <span class="s1">&#39;database file does not exist yet. Need to provide schema &#39;</span>
                              <span class="s1">&#39;when creating a new table.&#39;</span><span class="p">)</span>
+
+
+        <span class="c1"># set target from engine if provided</span>
+        <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;&quot;target&quot; parameter should not be provided when engine is provided.&#39;</span><span class="p">)</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">target</span>
+        
+        <span class="c1"># ensure target was specified</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;target has not been provided.&#39;</span><span class="p">)</span>
         
         <span class="c1"># store arguments as-is</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span> <span class="o">=</span> <span class="n">tabname</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">target</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">schema</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">persistent_conn</span> <span class="o">=</span> <span class="n">persistent_conn</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_readonly</span> <span class="o">=</span> <span class="n">readonly</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_new_db</span> <span class="o">=</span> <span class="n">new_db</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_new_table</span> <span class="o">=</span> <span class="n">new_table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;tabname&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;tabname&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">DEFAULT_TABNAME</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;indices&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;constraints&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dialect</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
+
+        <span class="c1"># flags</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persistent_conn</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;persistent_conn&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_readonly</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;readonly&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_new_db</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_new_table</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;new_table&#39;</span><span class="p">]</span>
         
         <span class="c1"># establish an engine connection</span>
         <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">ConnectEngine</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="n">dialect</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="n">new_db</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">ConnectEngine</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dialect</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_new_db</span><span class="p">,</span> 
                                      <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">engine</span>
         
         <span class="c1"># connect to existing table or create new one</span>
-        <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="n">schema</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">DocTableRow</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="n">DocTableRow</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;A dataclass schema must inherit from doctable.DocTableRow.&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_dataclass</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_strings</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">target</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">tabname</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_dataclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_strings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># inferred from existing table</span>
         
@@ -1468,7 +1518,7 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="nb">tuple</span><span class="p">):</span>
             
             <span class="k">if</span> <span class="n">is_sequence</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">DocTableRow</span><span class="p">):</span>
-                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
             
             <span class="n">q</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">,</span> <span class="n">preserve_parameter_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
@@ -1639,11 +1689,13 @@ Description: This class manages schema and connection information to provide
     execute queries without using the SQL language.</p>
 
 <p>Settable static attributes (overridden if related constructor argument passed):
-    _tabname_ (str): name of table to connect to (and create).
-    _schema_ (str): schema definition for this doctable, to be used
-        when creating a new table and to manage table information.
     _target_ (str): target database to connect to - used when a doctable
         will always connect to the same target (i.e., a server etc).
+    _tabname_ (str): name of table to connect to (and create).
+    _schema_ (list or class): schema definition for this doctable, to be used
+        when creating a new table and to manage table information.
+    _indices_ (dict): indices to apply to the table
+    _constraints_ (list): constraints to apply to the table
     _doctable_args_ (dict): any other constructor arguments that should always
         be used when instantiating. Overridden by providing arguments
         to the constructor.</p>
@@ -1658,22 +1710,26 @@ Description: This class manages schema and connection information to provide
     target: str = None,
     tabname: str = None,
     schema: Sequence[Sequence] = None,
-    dialect=&#39;sqlite&#39;,
+    indices: dict = None,
+    constraints=None,
+    dialect: str = &#39;sqlite&#39;,
     engine=None,
-    readonly=False,
-    new_db=False,
-    new_table=True,
-    persistent_conn=True,
-    verbose=False,
+    readonly: bool = False,
+    new_db: bool = False,
+    new_table: bool = True,
+    persistent_conn: bool = True,
+    verbose: bool = False,
     **engine_kwargs
 )</span>
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tabname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">dialect</span><span class="o">=</span><span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">readonly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_table</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-                <span class="n">persistent_conn</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tabname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                <span class="n">schema</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">constraints</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">dialect</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                <span class="n">readonly</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_db</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_table</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                <span class="n">persistent_conn</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Create new database.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            target (str): filename for database to connect to. &quot;:memory:&quot; is a </span>
@@ -1705,93 +1761,114 @@ Description: This class manages schema and connection information to provide
 <span class="sd">            verbose (bool): Print every sql command before executing.</span>
 <span class="sd">            echo (bool): Print sqlalchemy engine log for each query.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        
-        <span class="c1"># target argument</span>
-        <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">target</span>
-        <span class="k">elif</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">pass</span> <span class="c1"># use constructor-provided target</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_target_&#39;</span><span class="p">):</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;target&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">target</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;target has not been provided.&#39;</span><span class="p">)</span>
+        <span class="n">arg_defaults</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1"># connection info</span>
+            <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;tabname&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">tabname</span><span class="p">,</span> <span class="n">DEFAULT_TABNAME</span><span class="p">),</span>
+            <span class="s1">&#39;dialect&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">dialect</span><span class="p">,</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">),</span>
 
+            <span class="c1"># schema-related</span>
+            <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;indices&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="nb">dict</span><span class="p">()),</span>
+            <span class="s1">&#39;constraints&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="nb">list</span><span class="p">()),</span>
+
+            <span class="c1"># misc flags</span>
+            <span class="s1">&#39;persistent_conn&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">persistent_conn</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="s1">&#39;readonly&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s1">&#39;verbose&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">verbose</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s1">&#39;new_db&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">new_db</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s1">&#39;new_table&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">new_table</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="c1"># parse all specified variables</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">argname</span><span class="p">,</span> <span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span> <span class="ow">in</span> <span class="n">arg_defaults</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">undername</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">argname</span><span class="si">}</span><span class="s1">_&#39;</span>
+            <span class="n">dundername</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;__</span><span class="si">{</span><span class="n">argname</span><span class="si">}</span><span class="s1">__&#39;</span> <span class="c1"># should not be used (error check)</span>
+
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dundername</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The &quot;</span><span class="si">{</span><span class="n">dundername</span><span class="si">}</span><span class="s1">&quot; member has been changed to &quot;</span><span class="si">{</span><span class="n">undername</span><span class="si">}</span><span class="s1">&quot;.&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+                <span class="c1"># is statically defined</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">undername</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">undername</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">args</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">undername</span><span class="p">)</span>
+                
+                <span class="c1"># defined in _doctable_args_</span>
+                <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">argname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+                    <span class="n">args</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># default</span>
+                    <span class="n">args</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="n">default</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="c1"># check for old implementation features</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__args__&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __args__ definition has changed to _doctable_args_.&#39;</span><span class="p">)</span>
 
-        <span class="c1"># tabname arguments</span>
-        <span class="k">if</span> <span class="n">tabname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">pass</span> <span class="c1"># use constructor-provided tabname</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__tabname__&#39;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __tabname__ definition has changed to _tabname_.&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_tabname_&#39;</span><span class="p">):</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tabname_</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;tabname&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">tabname</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__default_tabname__</span>
-
-        <span class="c1"># schema arguments</span>
-        <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">pass</span> <span class="c1"># use constructor-provided schema</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;__schema__&#39;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;The __schema__ definition has changed to _schema_.&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_schema_&#39;</span><span class="p">):</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema_</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;schema&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="o">.</span><span class="n">schema</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1">######## input combinations ########</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_engine_kwargs_&#39;</span><span class="p">):</span>
+            <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">engine_kwargs</span><span class="p">,</span> <span class="o">**</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_engine_kwargs_&#39;</span><span class="p">)}</span>
         
-        <span class="c1"># overwrite arg defaults if provided in _doctable_args_</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;dialect&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-                <span class="n">dialect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;verbose&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-                <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">new_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;new_db&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-                <span class="n">new_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">engine_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;engine_kwargs&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
-                <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;engine_kwargs&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_doctable_args_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;engine_kwargs&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">:</span>
+            <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">engine_kwargs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_doctable_args_</span><span class="p">[</span><span class="s1">&#39;engine_kwargs&#39;</span><span class="p">]}</span>
         
         <span class="c1"># dependent args</span>
-        <span class="k">if</span> <span class="n">readonly</span><span class="p">:</span>
-            <span class="n">new_db</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">new_table</span> <span class="o">=</span> <span class="kc">False</span>
-        
-        <span class="c1"># some error checking</span>
-        <span class="k">if</span> <span class="n">dialect</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;sqlite&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target</span> <span class="o">==</span> <span class="s1">&#39;:memory:&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">target</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;readonly&#39;</span><span class="p">]:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;new_table&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1">######## error checking ########</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;sqlite&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;:memory:&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Schema must be provided if using memory database or &#39;</span>
                              <span class="s1">&#39;database file does not exist yet. Need to provide schema &#39;</span>
                              <span class="s1">&#39;when creating a new table.&#39;</span><span class="p">)</span>
+
+
+        <span class="c1"># set target from engine if provided</span>
+        <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;&quot;target&quot; parameter should not be provided when engine is provided.&#39;</span><span class="p">)</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">target</span>
+        
+        <span class="c1"># ensure target was specified</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;target has not been provided.&#39;</span><span class="p">)</span>
         
         <span class="c1"># store arguments as-is</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span> <span class="o">=</span> <span class="n">tabname</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">target</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">schema</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">persistent_conn</span> <span class="o">=</span> <span class="n">persistent_conn</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_readonly</span> <span class="o">=</span> <span class="n">readonly</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_new_db</span> <span class="o">=</span> <span class="n">new_db</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_new_table</span> <span class="o">=</span> <span class="n">new_table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;tabname&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;tabname&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">DEFAULT_TABNAME</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;indices&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;constraints&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dialect</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
+
+        <span class="c1"># flags</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persistent_conn</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;persistent_conn&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_readonly</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;readonly&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_new_db</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;new_db&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_new_table</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;new_table&#39;</span><span class="p">]</span>
         
         <span class="c1"># establish an engine connection</span>
         <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">ConnectEngine</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="n">dialect</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="n">new_db</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">ConnectEngine</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dialect</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_new_db</span><span class="p">,</span> 
                                      <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">engine</span>
         
         <span class="c1"># connect to existing table or create new one</span>
-        <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="n">schema</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">DocTableRow</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="n">DocTableRow</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;A dataclass schema must inherit from doctable.DocTableRow.&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_dataclass</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_strings</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">target</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">tabname</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_dataclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">parse_schema_strings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># inferred from existing table</span>
         
@@ -2658,7 +2735,7 @@ Yields:
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="nb">tuple</span><span class="p">):</span>
             
             <span class="k">if</span> <span class="n">is_sequence</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">DocTableRow</span><span class="p">):</span>
-                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">_doctable_as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
             
             <span class="n">q</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">,</span> <span class="n">preserve_parameter_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>

@@ -34,6 +34,15 @@
                     <a class="function" href="#parse_schema_dataclass">parse_schema_dataclass</a>
             </li>
             <li>
+                    <a class="function" href="#parse_columns">parse_columns</a>
+            </li>
+            <li>
+                    <a class="function" href="#parse_indices">parse_indices</a>
+            </li>
+            <li>
+                    <a class="function" href="#parse_constraints">parse_constraints</a>
+            </li>
+            <li>
                     <a class="function" href="#get_kwargs">get_kwargs</a>
             </li>
     </ul>
@@ -61,13 +70,17 @@
 
 
 
-<span class="k">def</span> <span class="nf">parse_schema_dataclass</span><span class="p">(</span><span class="n">dclass</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">parse_schema_dataclass</span><span class="p">(</span><span class="n">Cls</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">constraints</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Convert a dataclass definition to a list of sqlalchemy columns.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">parse_columns</span><span class="p">(</span><span class="n">Cls</span><span class="p">)</span> <span class="o">+</span> <span class="n">parse_indices</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">+</span> <span class="n">parse_constraints</span><span class="p">(</span><span class="n">constraints</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parse_columns</span><span class="p">(</span><span class="n">Cls</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Convert the dataclass member variables to sqlalchemy columns.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    
-    <span class="c1"># regular data columns (uses dataclass features)</span>
-    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="n">dclass</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="n">Cls</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">init</span><span class="p">:</span>
             <span class="n">metadata</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="k">if</span> <span class="s1">&#39;coltype&#39;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span> <span class="c1"># specified type using string</span>
@@ -84,27 +97,37 @@
             <span class="n">col</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">use_type</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span>
             <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
 
-    <span class="c1">#_indices_ = {</span>
-    <span class="c1">#    &#39;my_index&#39;: (&#39;c1&#39;, &#39;c2&#39;, {&#39;unique&#39;:True}),</span>
-    <span class="c1">#    &#39;other_index&#39;: (&#39;c1&#39;,),</span>
-    <span class="c1">#}</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dclass</span><span class="p">,</span> <span class="s1">&#39;_indices_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_indices_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_indices_</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
-            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">columns</span>
 
-    <span class="c1">#_constraints_ = (</span>
-    <span class="c1">#    (&#39;check&#39;, &#39;x &gt; 3&#39;, dict(name=&#39;salary_check&#39;)), </span>
-    <span class="c1">#    (&#39;foreignkey&#39;, (&#39;a&#39;,&#39;b&#39;), (&#39;c&#39;,&#39;d&#39;))</span>
-    <span class="c1">#)</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dclass</span><span class="p">,</span> <span class="s1">&#39;_constraints_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_constraints_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_constraints_</span><span class="p">:</span>
-            <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
-            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint_lookup</span><span class="p">[</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]](</span><span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+<span class="c1">#_indices_ = {</span>
+<span class="c1">#    &#39;my_index&#39;: (&#39;c1&#39;, &#39;c2&#39;, {&#39;unique&#39;:True}),</span>
+<span class="c1">#    &#39;other_index&#39;: (&#39;c1&#39;,),</span>
+<span class="c1">#}</span>
+<span class="k">def</span> <span class="nf">parse_indices</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">indices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">columns</span>
+
+<span class="c1">#_constraints_ = (</span>
+<span class="c1">#    (&#39;check&#39;, &#39;x &gt; 3&#39;, dict(name=&#39;salary_check&#39;)), </span>
+<span class="c1">#    (&#39;foreignkey&#39;, (&#39;a&#39;,&#39;b&#39;), (&#39;c&#39;,&#39;d&#39;))</span>
+<span class="c1">#)</span>
+<span class="c1">#if hasattr(Cls, &#39;_constraints_&#39;) and Cls._constraints_ is not None:</span>
+<span class="k">def</span> <span class="nf">parse_constraints</span><span class="p">(</span><span class="n">constraints</span><span class="p">):</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">constraints</span><span class="p">:</span>
+        <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint_lookup</span><span class="p">[</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]](</span><span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">columns</span>
 
+
 <span class="k">def</span> <span class="nf">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Logic to parse out ordered and keyword arguments.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">vals</span>
     <span class="n">kwargs</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="c1">#print(f&#39;args={args}, kwargs={kwargs}&#39;)</span>
@@ -119,18 +142,39 @@
 
         
             <span class="def">def</span>
-            <span class="name">parse_schema_dataclass</span><span class="signature">(dclass)</span>:
+            <span class="name">parse_schema_dataclass</span><span class="signature">(Cls, indices: dict, constraints: list)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse_schema_dataclass</span><span class="p">(</span><span class="n">dclass</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse_schema_dataclass</span><span class="p">(</span><span class="n">Cls</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">constraints</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Convert a dataclass definition to a list of sqlalchemy columns.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">parse_columns</span><span class="p">(</span><span class="n">Cls</span><span class="p">)</span> <span class="o">+</span> <span class="n">parse_indices</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">+</span> <span class="n">parse_constraints</span><span class="p">(</span><span class="n">constraints</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Convert a dataclass definition to a list of sqlalchemy columns.</p>
+</div>
+
+
+                </section>
+                <section id="parse_columns">
+                            <div class="attr function"><a class="headerlink" href="#parse_columns">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">parse_columns</span><span class="signature">(Cls)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse_columns</span><span class="p">(</span><span class="n">Cls</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Convert the dataclass member variables to sqlalchemy columns.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    
-    <span class="c1"># regular data columns (uses dataclass features)</span>
-    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="n">dclass</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="n">Cls</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">init</span><span class="p">:</span>
             <span class="n">metadata</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="k">if</span> <span class="s1">&#39;coltype&#39;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span> <span class="c1"># specified type using string</span>
@@ -147,32 +191,61 @@
             <span class="n">col</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">use_type</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span>
             <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
 
-    <span class="c1">#_indices_ = {</span>
-    <span class="c1">#    &#39;my_index&#39;: (&#39;c1&#39;, &#39;c2&#39;, {&#39;unique&#39;:True}),</span>
-    <span class="c1">#    &#39;other_index&#39;: (&#39;c1&#39;,),</span>
-    <span class="c1">#}</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dclass</span><span class="p">,</span> <span class="s1">&#39;_indices_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_indices_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_indices_</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
-            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">columns</span>
+</pre></div>
 
-    <span class="c1">#_constraints_ = (</span>
-    <span class="c1">#    (&#39;check&#39;, &#39;x &gt; 3&#39;, dict(name=&#39;salary_check&#39;)), </span>
-    <span class="c1">#    (&#39;foreignkey&#39;, (&#39;a&#39;,&#39;b&#39;), (&#39;c&#39;,&#39;d&#39;))</span>
-    <span class="c1">#)</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dclass</span><span class="p">,</span> <span class="s1">&#39;_constraints_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_constraints_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">dclass</span><span class="o">.</span><span class="n">_constraints_</span><span class="p">:</span>
-            <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
-            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint_lookup</span><span class="p">[</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]](</span><span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+        </details>
+
+            <div class="docstring"><p>Convert the dataclass member variables to sqlalchemy columns.</p>
+</div>
+
+
+                </section>
+                <section id="parse_indices">
+                            <div class="attr function"><a class="headerlink" href="#parse_indices">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">parse_indices</span><span class="signature">(indices)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse_indices</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">indices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">columns</span>
+</pre></div>
+
+        </details>
+
+    
+
+                </section>
+                <section id="parse_constraints">
+                            <div class="attr function"><a class="headerlink" href="#parse_constraints">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">parse_constraints</span><span class="signature">(constraints)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse_constraints</span><span class="p">(</span><span class="n">constraints</span><span class="p">):</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">constraints</span><span class="p">:</span>
+        <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint_lookup</span><span class="p">[</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]](</span><span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">columns</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Convert a dataclass definition to a list of sqlalchemy columns.</p>
-</div>
-
+    
 
                 </section>
                 <section id="get_kwargs">
@@ -186,6 +259,8 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_kwargs</span><span class="p">(</span><span class="n">vals</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Logic to parse out ordered and keyword arguments.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">vals</span>
     <span class="n">kwargs</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="c1">#print(f&#39;args={args}, kwargs={kwargs}&#39;)</span>
@@ -194,7 +269,9 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Logic to parse out ordered and keyword arguments.</p>
+</div>
+
 
                 </section>
     </main>

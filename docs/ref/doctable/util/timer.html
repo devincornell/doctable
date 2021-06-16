@@ -31,37 +31,55 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
-                    <a class="class" href="#Step">Step</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#Step.__init__">Step</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Step.msg">msg</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Step.ts">ts</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Step.diff">diff</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
                     <a class="class" href="#Timer">Timer</a>
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#Timer.__init__">Timer</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Timer.last">last</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Timer.first">first</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Timer.step">step</a>
                         </li>
                         <li>
-                                <a class="function" href="#Timer.total_diff">total_diff</a>
+                                <a class="function" href="#Timer.print_step">print_step</a>
                         </li>
                         <li>
-                                <a class="function" href="#Timer.print_table">print_table</a>
+                                <a class="function" href="#Timer.write_log">write_log</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Timer.rm_log">rm_log</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#Step">Step</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#Step.__init__">Step</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Step.i">i</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Step.ts">ts</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Step.mem">mem</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Step.msg">msg</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Step.ts_diff">ts_diff</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Step.format">format</a>
                         </li>
                 </ul>
 
@@ -87,244 +105,151 @@
             <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypeVar</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">psutil</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">collections</span>
 
+<span class="kn">import</span> <span class="nn">doctable</span>
+
+<span class="n">StepType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;StepType&#39;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Timer</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Times a task.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Add single step for current datetime.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span> <span class="k">if</span> <span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enterstack</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">()</span>
+        
+        <span class="c1"># create a new logfile if needed</span>
+        <span class="k">if</span> <span class="n">new_log</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rm_log</span><span class="p">()</span>
+
+        <span class="c1"># add first timestamp (don&#39;t print star)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1">######################## basic accessors ########################</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">first</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1">######################## enter/exit methods ########################</span>
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enterstack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+        
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterstack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;END </span><span class="si">{</span><span class="n">start</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="c1">######################## main functionality ########################</span>
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Add a new step, print and log it if needed.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># create new step</span>
+        <span class="n">newstep</span> <span class="o">=</span> <span class="n">Step</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">))</span>
+        <span class="c1">#print(f&#39;making step: {newstep}&#39;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_step</span><span class="p">(</span><span class="n">newstep</span><span class="p">)</span>
+
+        <span class="c1"># add step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newstep</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">newstep</span>
+    
+    <span class="c1">######################## logging functionality ########################</span>
+    <span class="k">def</span> <span class="nf">print_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="n">StepType</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">out_str</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">**</span><span class="n">format_args</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out_str</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">format_args</span><span class="p">)</span>
+        
+        <span class="c1"># write to log if enabled</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="n">out_str</span><span class="p">)</span>
+        
+        <span class="c1"># print to output if requested</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="p">(</span><span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">out_str</span><span class="p">)</span>
+
+
+
+    <span class="k">def</span> <span class="nf">write_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Write text to log file.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># create new log file if does not exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="c1"># append to log file</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">rm_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Delete log file.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+    <span class="c1">#def print_table(self):</span>
+    <span class="c1">#    &#39;&#39;&#39; Print table showing how long each step took.</span>
+    <span class="c1">#    &#39;&#39;&#39;</span>
+    <span class="c1">#    print(f&#39;{self.__class__.__name__} started {self[0].ts}: {self[0].msg}&#39;)</span>
+    <span class="c1">#    for i, step in enumerate(self.steps[:-1]):</span>
+    <span class="c1">#        print(f&#39;    {step.ts}: (took {self[i+1].diff(step)}) {step.msg}&#39;)</span>
+
+        
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">Step</span><span class="p">:</span>
-    <span class="n">_msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">_ts</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+    <span class="n">_msg</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">i</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">ts</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+    <span class="n">mem</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">used</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">msg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_msg</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_msg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;.&#39;</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Formatted timestamp of given index.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ts</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%a</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ts</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">_ts</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;=</span> <span class="mi">3600</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delta</span><span class="o">/</span><span class="mi">3600</span><span class="si">:</span><span class="s1">0.2f</span><span class="si">}</span><span class="s1"> hrs&#39;</span>
-        <span class="k">elif</span> <span class="n">delta</span> <span class="o">&gt;=</span> <span class="mi">60</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delta</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s1">0.2f</span><span class="si">}</span><span class="s1"> min&#39;</span>
-        <span class="k">elif</span> <span class="n">delta</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delta</span><span class="o">*</span><span class="mi">1000</span><span class="si">:</span><span class="s1">0.3f</span><span class="si">}</span><span class="s1"> ms&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delta</span><span class="si">:</span><span class="s1">0.2f</span><span class="si">}</span><span class="s1"> sec&#39;</span>
+    <span class="k">def</span> <span class="nf">ts_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">StepType</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">ts</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
 
-<span class="k">class</span> <span class="nc">Timer</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot; Times a task. </span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freshlog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Add single step for current datetime.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">logfile</span>
-
-        <span class="k">if</span> <span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">freshlog</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">logfile</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">logfile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-
-        <span class="c1"># add first timestamp (don&#39;t print star)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-    <span class="c1">######################## basic accessors ########################</span>
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
-
-    <span class="c1">######################## enter/exit methods ########################</span>
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span>
-        
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1"> took </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="n">show_ts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    
-    <span class="c1">######################## main functionality ########################</span>
-
-    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">log_kwargs</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Add and log a new step.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Step</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
-    
-        <span class="c1"># log the new step</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;START </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">log_kwargs</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;(prev took </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="si">}</span><span class="s1">) </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">log_kwargs</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_ts</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Print and/or save, depending on settings. Possibly neither.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prev_step</span><span class="p">:</span> <span class="n">StepType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">show_ts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_delta</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_mem</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">show_ts</span><span class="p">:</span>
-            <span class="n">ts</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%a</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ts</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">ts_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%a</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s1">&#39;</span>
-        
-        <span class="c1"># print it</span>
-        <span class="k">if</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="p">(</span><span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
-        
-        <span class="c1"># write to log file</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">save</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">ts_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">total_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Get time from first to last step.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">show_mem</span><span class="p">:</span>
+            <span class="n">mem_usage</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_memory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">)</span><span class="si">:</span><span class="s2">6</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mem_usage</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">print_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Print table showing how long each step took.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> started </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ts</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">ts</span><span class="si">}</span><span class="s1">: (took </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">step</span><span class="p">)</span><span class="si">}</span><span class="s1">) </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_delta</span> <span class="ow">and</span> <span class="n">prev_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ts_diff</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">prev_step</span><span class="p">))</span><span class="si">:</span><span class="s2">6</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ts_diff</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-        
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;starting&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">test_func</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">100000000</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
-    
-    <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s1">&#39;trying out enter and exit&#39;</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">test_func</span><span class="p">())</span>
-
-    <span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="s1">&#39;testing verbose stepping&#39;</span><span class="p">)</span>
-    <span class="n">timer</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s1">&#39;running one thing&#39;</span><span class="p">)</span>
-    <span class="n">test_func</span><span class="p">()</span>
-    <span class="n">timer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-    <span class="n">test_func</span><span class="p">()</span>
-    <span class="n">timer</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s1">&#39;running last thing&#39;</span><span class="p">)</span>
-
-    <span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="s1">&#39;testing non-verbose stepping&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="s1">&#39;../TMP.txt&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">test_func</span><span class="p">())</span>
-
-    <span class="n">timer</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s1">&#39;whatever this step is&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">test_func</span><span class="p">())</span>
-
-    <span class="n">timer</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s1">&#39;next step&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">test_func</span><span class="p">())</span>
-
-    <span class="n">timer</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s1">&#39;that</span><span class="se">\&#39;</span><span class="s1">s all folks.&#39;</span><span class="p">)</span>
-    <span class="n">timer</span><span class="o">.</span><span class="n">print_table</span><span class="p">()</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ts_str</span><span class="si">}{</span><span class="n">mem_usage</span><span class="si">}{</span><span class="n">ts_diff</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="si">:</span><span class="s1">2</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span>
 </pre></div>
 
         </details>
 
             </section>
-                <section id="Step">
-                                <div class="attr class">
-        <a class="headerlink" href="#Step">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">Step</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Step</span><span class="p">:</span>
-    <span class="n">_msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">_ts</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">msg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_msg</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_msg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;.&#39;</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Formatted timestamp of given index.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ts</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%a</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ts</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">_ts</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;=</span> <span class="mi">3600</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delta</span><span class="o">/</span><span class="mi">3600</span><span class="si">:</span><span class="s1">0.2f</span><span class="si">}</span><span class="s1"> hrs&#39;</span>
-        <span class="k">elif</span> <span class="n">delta</span> <span class="o">&gt;=</span> <span class="mi">60</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delta</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s1">0.2f</span><span class="si">}</span><span class="s1"> min&#39;</span>
-        <span class="k">elif</span> <span class="n">delta</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delta</span><span class="o">*</span><span class="mi">1000</span><span class="si">:</span><span class="s1">0.3f</span><span class="si">}</span><span class="s1"> ms&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delta</span><span class="si">:</span><span class="s1">0.2f</span><span class="si">}</span><span class="s1"> sec&#39;</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Step(_msg: str = None, _ts: datetime.datetime = <factory>)</p>
-</div>
-
-
-                            <div id="Step.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Step.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">Step</span><span class="signature">(_msg: str = None, _ts: datetime.datetime = &lt;factory&gt;)</span>
-    </div>
-
-        
-    
-
-                            </div>
-                            <div id="Step.msg" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Step.msg">#&nbsp;&nbsp</a>
-
-        <span class="name">msg</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="Step.ts" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Step.ts">#&nbsp;&nbsp</a>
-
-        <span class="name">ts</span>
-    </div>
-
-            <div class="docstring"><p>Formatted timestamp of given index.</p>
-</div>
-
-
-                            </div>
-                            <div id="Step.diff" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Step.diff">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">diff</span><span class="signature">(self, other)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ts</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">_ts</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;=</span> <span class="mi">3600</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delta</span><span class="o">/</span><span class="mi">3600</span><span class="si">:</span><span class="s1">0.2f</span><span class="si">}</span><span class="s1"> hrs&#39;</span>
-        <span class="k">elif</span> <span class="n">delta</span> <span class="o">&gt;=</span> <span class="mi">60</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delta</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s1">0.2f</span><span class="si">}</span><span class="s1"> min&#39;</span>
-        <span class="k">elif</span> <span class="n">delta</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delta</span><span class="o">*</span><span class="mi">1000</span><span class="si">:</span><span class="s1">0.3f</span><span class="si">}</span><span class="s1"> ms&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delta</span><span class="si">:</span><span class="s1">0.2f</span><span class="si">}</span><span class="s1"> sec&#39;</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                </section>
                 <section id="Timer">
                                 <div class="attr class">
         <a class="headerlink" href="#Timer">#&nbsp;&nbsp</a>
@@ -337,77 +262,95 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Timer</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot; Times a task. </span>
+    <span class="sd">&quot;&quot;&quot; Times a task.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freshlog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Add single step for current datetime.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">logfile</span>
-
-        <span class="k">if</span> <span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">freshlog</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">logfile</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">logfile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span> <span class="k">if</span> <span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enterstack</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">()</span>
+        
+        <span class="c1"># create a new logfile if needed</span>
+        <span class="k">if</span> <span class="n">new_log</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rm_log</span><span class="p">()</span>
 
         <span class="c1"># add first timestamp (don&#39;t print star)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="c1">######################## basic accessors ########################</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+    
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">first</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="c1">######################## enter/exit methods ########################</span>
     <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enterstack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
         
     <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1"> took </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="n">show_ts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterstack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;END </span><span class="si">{</span><span class="n">start</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     
     <span class="c1">######################## main functionality ########################</span>
-
-    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">log_kwargs</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Add and log a new step.</span>
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Add a new step, print and log it if needed.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Step</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+        <span class="c1"># create new step</span>
+        <span class="n">newstep</span> <span class="o">=</span> <span class="n">Step</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">))</span>
+        <span class="c1">#print(f&#39;making step: {newstep}&#39;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_step</span><span class="p">(</span><span class="n">newstep</span><span class="p">)</span>
+
+        <span class="c1"># add step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newstep</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">newstep</span>
     
-        <span class="c1"># log the new step</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;START </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">log_kwargs</span><span class="p">)</span>
+    <span class="c1">######################## logging functionality ########################</span>
+    <span class="k">def</span> <span class="nf">print_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="n">StepType</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">out_str</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">**</span><span class="n">format_args</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;(prev took </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="si">}</span><span class="s1">) </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">log_kwargs</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_ts</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Print and/or save, depending on settings. Possibly neither.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">show_ts</span><span class="p">:</span>
-            <span class="n">ts</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%a</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ts</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">out_str</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">format_args</span><span class="p">)</span>
         
-        <span class="c1"># print it</span>
+        <span class="c1"># write to log if enabled</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="n">out_str</span><span class="p">)</span>
+        
+        <span class="c1"># print to output if requested</span>
         <span class="k">if</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="p">(</span><span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
-        
-        <span class="c1"># write to log file</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">save</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">out_str</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">total_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Get time from first to last step.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">print_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Print table showing how long each step took.</span>
+
+    <span class="k">def</span> <span class="nf">write_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Write text to log file.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> started </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ts</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">ts</span><span class="si">}</span><span class="s1">: (took </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">step</span><span class="p">)</span><span class="si">}</span><span class="s1">) </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># create new log file if does not exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="c1"># append to log file</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">rm_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Delete log file.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -420,25 +363,25 @@
                                         <div class="attr function"><a class="headerlink" href="#Timer.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">Timer</span><span class="signature">(message=&#39;&#39;, logfile=None, freshlog=True, verbose=True)</span>
+            <span class="name">Timer</span><span class="signature">(message: str = None, logfile=None, new_log=True, verbose=True)</span>
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freshlog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Add single step for current datetime.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">logfile</span>
-
-        <span class="k">if</span> <span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">freshlog</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">logfile</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">logfile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span> <span class="k">if</span> <span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enterstack</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">()</span>
+        
+        <span class="c1"># create a new logfile if needed</span>
+        <span class="k">if</span> <span class="n">new_log</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rm_log</span><span class="p">()</span>
 
         <span class="c1"># add first timestamp (don&#39;t print star)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -448,81 +391,298 @@
 
 
                             </div>
+                            <div id="Timer.last" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Timer.last">#&nbsp;&nbsp</a>
+
+        <span class="name">last</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="Timer.first" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Timer.first">#&nbsp;&nbsp</a>
+
+        <span class="name">first</span>
+    </div>
+
+    
+
+                            </div>
                             <div id="Timer.step" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Timer.step">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">step</span><span class="signature">(self, message=None, **log_kwargs)</span>:
+            <span class="name">step</span><span class="signature">(self, message=None, verbose=None, **format_args)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">log_kwargs</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Add and log a new step.</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Add a new step, print and log it if needed.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Step</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
-    
-        <span class="c1"># log the new step</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;START </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">log_kwargs</span><span class="p">)</span>
+        <span class="c1"># create new step</span>
+        <span class="n">newstep</span> <span class="o">=</span> <span class="n">Step</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">))</span>
+        <span class="c1">#print(f&#39;making step: {newstep}&#39;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_step</span><span class="p">(</span><span class="n">newstep</span><span class="p">)</span>
+
+        <span class="c1"># add step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newstep</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">newstep</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a new step, print and log it if needed.</p>
+</div>
+
+
+                            </div>
+                            <div id="Timer.print_step" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Timer.print_step">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">print_step</span><span class="signature">(self, step: ~StepType, verbose=None, **format_args)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">print_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="n">StepType</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">out_str</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">**</span><span class="n">format_args</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;(prev took </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="si">}</span><span class="s1">) </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">log_kwargs</span><span class="p">)</span>
+            <span class="n">out_str</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">format_args</span><span class="p">)</span>
+        
+        <span class="c1"># write to log if enabled</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="n">out_str</span><span class="p">)</span>
+        
+        <span class="c1"># print to output if requested</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="p">(</span><span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">out_str</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Add and log a new step.</p>
-</div>
-
+    
 
                             </div>
-                            <div id="Timer.total_diff" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Timer.total_diff">#&nbsp;&nbsp</a>
+                            <div id="Timer.write_log" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Timer.write_log">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">total_diff</span><span class="signature">(self)</span>:
+            <span class="name">write_log</span><span class="signature">(self, text: str)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">total_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Get time from first to last step.</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">write_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Write text to log file.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># create new log file if does not exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="c1"># append to log file</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Get time from first to last step.</p>
+            <div class="docstring"><p>Write text to log file.</p>
 </div>
 
 
                             </div>
-                            <div id="Timer.print_table" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Timer.print_table">#&nbsp;&nbsp</a>
+                            <div id="Timer.rm_log" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Timer.rm_log">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">print_table</span><span class="signature">(self)</span>:
+            <span class="name">rm_log</span><span class="signature">(self)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">print_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Print table showing how long each step took.</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">rm_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Delete log file.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> started </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ts</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">ts</span><span class="si">}</span><span class="s1">: (took </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">step</span><span class="p">)</span><span class="si">}</span><span class="s1">) </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Print table showing how long each step took.</p>
+            <div class="docstring"><p>Delete log file.</p>
 </div>
 
+
+                            </div>
+                </section>
+                <section id="Step">
+                                <div class="attr class">
+        <a class="headerlink" href="#Step">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">Step</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Step</span><span class="p">:</span>
+    <span class="n">_msg</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">i</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">ts</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+    <span class="n">mem</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">used</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">msg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_msg</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_msg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;.&#39;</span>
+
+    <span class="k">def</span> <span class="nf">ts_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">StepType</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">ts</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prev_step</span><span class="p">:</span> <span class="n">StepType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">show_ts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_delta</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_mem</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">show_ts</span><span class="p">:</span>
+            <span class="n">ts_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%a</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ts_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">show_mem</span><span class="p">:</span>
+            <span class="n">mem_usage</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_memory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">)</span><span class="si">:</span><span class="s2">6</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mem_usage</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">show_delta</span> <span class="ow">and</span> <span class="n">prev_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ts_diff</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">prev_step</span><span class="p">))</span><span class="si">:</span><span class="s2">6</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ts_diff</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ts_str</span><span class="si">}{</span><span class="n">mem_usage</span><span class="si">}{</span><span class="n">ts_diff</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="si">:</span><span class="s1">2</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Step(_msg: str, i: int, ts: datetime.datetime = <factory>, mem: int = <factory>)</p>
+</div>
+
+
+                            <div id="Step.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Step.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">Step</span><span class="signature">(
+    _msg: str,
+    i: int,
+    ts: datetime.datetime = &lt;factory&gt;,
+    mem: int = &lt;factory&gt;
+)</span>
+    </div>
+
+        
+    
+
+                            </div>
+                            <div id="Step.i" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Step.i">#&nbsp;&nbsp</a>
+
+        <span class="name">i</span><span class="annotation">: int</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="Step.ts" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Step.ts">#&nbsp;&nbsp</a>
+
+        <span class="name">ts</span><span class="annotation">: datetime.datetime</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="Step.mem" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Step.mem">#&nbsp;&nbsp</a>
+
+        <span class="name">mem</span><span class="annotation">: int</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="Step.msg" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Step.msg">#&nbsp;&nbsp</a>
+
+        <span class="name">msg</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="Step.ts_diff" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Step.ts_diff">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">ts_diff</span><span class="signature">(self, other: ~StepType)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">ts_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">StepType</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">ts</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="Step.format" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Step.format">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">format</span><span class="signature">(
+    self,
+    prev_step: ~StepType = None,
+    show_ts=True,
+    show_delta=True,
+    show_mem=True
+)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prev_step</span><span class="p">:</span> <span class="n">StepType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">show_ts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_delta</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_mem</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">show_ts</span><span class="p">:</span>
+            <span class="n">ts_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%a</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ts_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">show_mem</span><span class="p">:</span>
+            <span class="n">mem_usage</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_memory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">)</span><span class="si">:</span><span class="s2">6</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mem_usage</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">show_delta</span> <span class="ow">and</span> <span class="n">prev_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ts_diff</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">prev_step</span><span class="p">))</span><span class="si">:</span><span class="s2">6</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ts_diff</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ts_str</span><span class="si">}{</span><span class="n">mem_usage</span><span class="si">}{</span><span class="n">ts_diff</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="si">:</span><span class="s1">2</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span>
+</pre></div>
+
+        </details>
+
+    
 
                             </div>
                 </section>
