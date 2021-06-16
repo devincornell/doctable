@@ -1,5 +1,8 @@
 .vscode/
-
+*.png
+*.gif
+*.jpg
+*.jpeg
 examples/exdb/*
 *.db
 *.db-journal
