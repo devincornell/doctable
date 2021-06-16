@@ -15,7 +15,7 @@ StepType = TypeVar('StepType')
 class Timer:
     """ Times a task.
     """
-    def __init__(self, message: str = None, logfile=None, new_log=True, verbose=True):
+    def __init__(self, message: str = None, logfile=None, new_log=False, verbose=True):
         ''' Add single step for current datetime.
         '''
         self.verbose = verbose
