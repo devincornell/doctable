@@ -132,12 +132,12 @@ class Step:
             ts_str = ''
 
         if show_mem:
-            mem_usage = f"+{doctable.format_memory(self.mem):6}/"
+            mem_usage = f"{doctable.format_memory(self.mem):6}/"
         else:
             mem_usage = ''
 
         if show_delta and prev_step is not None:
-            ts_diff = f"{doctable.format_time(self.ts_diff(prev_step)):6}/"
+            ts_diff = f"+{doctable.format_time(self.ts_diff(prev_step)):6}/"
         else:
             ts_diff = ''
 
