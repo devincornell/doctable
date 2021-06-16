@@ -26,7 +26,6 @@ class Timer:
         # create a new logfile if needed
         if new_log and self.logfile is not None:
             self.rm_log()
-            self.write_log(f"\n{'='*10} New Timer {'='*10}")
 
         # add first timestamp (don't print star)
         self.step(message=message, verbose=message is not None)
@@ -59,6 +58,9 @@ class Timer:
     def step(self, message=None, verbose=None, **format_args):
         ''' Add a new step, print and log it if needed.
         '''
+        if not len(self):
+            self.write_log(f"\n{'='*10} New Timer {'='*10}")
+
         # create new step
         newstep = Step(message, len(self.steps))
         #print(f'making step: {newstep}')
@@ -131,12 +133,15 @@ class Step:
             ts_str = ''
 
         if show_mem:
-            mem_usage = f"{doctable.format_memory(self.mem):6}/"
+            mem_usage = f"{doctable.format_memory(self.mem):<9}/"
         else:
             mem_usage = ''
 
-        if show_delta and prev_step is not None:
-            ts_diff = f"+{doctable.format_time(self.ts_diff(prev_step)):6}/"
+        if show_delta:
+            if prev_step is not None:
+                ts_diff = f"+{doctable.format_time(self.ts_diff(prev_step)):<10}/"
+            else:
+                ts_diff = f'{" "*11}/'
         else:
             ts_diff = ''
 

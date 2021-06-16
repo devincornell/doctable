@@ -7,7 +7,7 @@ def format_time(num_seconds: int):
     elif num_seconds >= 60:
         return f'{num_seconds/60:0.2f} min'
     elif num_seconds < 1.0:
-        return f'{num_seconds*1000:0.3f} ms'
+        return f'{num_seconds*1000:0.2f} ms'
     else:
         return f'{num_seconds:0.2f} sec'
 
