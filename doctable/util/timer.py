@@ -26,6 +26,7 @@ class Timer:
         # create a new logfile if needed
         if new_log and self.logfile is not None:
             self.rm_log()
+            self.write_log(f"{'='*10} New Timer {'='*10}")
 
         # add first timestamp (don't print star)
         self.step(message=message, verbose=message is not None)
@@ -81,8 +82,6 @@ class Timer:
         # print to output if requested
         if verbose or (verbose is None and self.verbose):
             print(out_str)
-
-
 
     def write_log(self, text: str):
         ''' Write text to log file.
