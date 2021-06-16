@@ -105,7 +105,7 @@ def speed_benchmark(folder='tmp'):
     fs.delete_all_completely(force=True)
 
     timer.step('finished!')    
-    timer.print_table()
+    #timer.print_table()
 
 
 if __name__ == '__main__':

@@ -50,7 +50,7 @@ def run_benchmark(num_vals = 10):
     print(f'===========================================')
     print(f'===== Total took: {timer.total_diff()} =================')
     print(f'===========================================')
-    timer.print_table()
+    #timer.print_table()
 
 if __name__ == '__main__':
     run_benchmark()

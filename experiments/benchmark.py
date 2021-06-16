@@ -58,7 +58,7 @@ def run_benchmark(fname = '.tmp.pic', num_vals = 1000, num_pickle_files = 10):
     print(f'===========================================')
     print(f'===== Total took: {timer.total_diff()} =================')
     print(f'===========================================')
-    timer.print_table()
+    #timer.print_table()
 
 
 
