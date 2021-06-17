@@ -58,7 +58,8 @@ class Timer:
     def step(self, message=None, verbose=None, **format_args):
         ''' Add a new step, print and log it if needed.
         '''
-        if not len(self):
+        # little printout to log if timer is just starting
+        if not len(self) and self.logfile is not None:
             self.write_log(f"\n{'='*10} New Timer {'='*10}")
 
         # create new step
@@ -133,13 +134,13 @@ class Step:
             ts_str = ''
 
         if show_mem:
-            mem_usage = f"{doctable.format_memory(self.mem):<9}/"
+            mem_usage = f"{doctable.format_memory(self.mem):>9}/"
         else:
             mem_usage = ''
 
         if show_delta:
             if prev_step is not None:
-                ts_diff = f"+{doctable.format_time(self.ts_diff(prev_step)):<10}/"
+                ts_diff = f"+{doctable.format_time(self.ts_diff(prev_step)):>10}/"
             else:
                 ts_diff = f'{" "*11}/'
         else:
