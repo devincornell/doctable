@@ -2,11 +2,13 @@
 import time
 from datetime import datetime
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, TypeVar
+from typing import Callable, List, Dict, Any, TypeVar
 import os
 import psutil
 import pathlib
 import collections
+import statistics
+from .unit_format import format_time
 
 import doctable
 
@@ -15,9 +17,13 @@ StepType = TypeVar('StepType')
 class Timer:
     """ Times a task.
     """
-    def __init__(self, message: str = None, logfile=None, new_log=False, verbose=True):
+    def __init__(self, message: str = None, logfile=None, new_log=False, 
+            verbose=True, show_ts=True, show_delta=True, show_mem=True):
         ''' Add single step for current datetime.
         '''
+        self.show_ts = show_ts
+        self.show_delta = show_delta
+        self.show_mem = show_mem
         self.verbose = verbose
         self.logfile = pathlib.Path(logfile) if logfile is not None else None
         self.steps = list()
@@ -73,6 +79,13 @@ class Timer:
     
     ######################## logging functionality ########################
     def print_step(self, step: StepType, verbose=None, **format_args):
+
+        # apply defaults
+        default_format_args = dict(show_ts=self.show_ts, show_delta=self.show_delta, 
+                        show_mem=self.show_mem)
+        format_args = {**default_format_args, **format_args}
+        
+        # execute format method
         if len(self):
             out_str = step.format(self.steps[step.i-1], **format_args)
         else:
@@ -105,6 +118,44 @@ class Timer:
         if self.logfile.exists():
             return self.logfile.unlink()
 
+    ######################## logging functionality ########################
+    def get_diff_stat(self, stat: str = 'mean', as_str: bool = False):
+        '''Get stats on differences between time points.
+        Args:
+            stat: name of function in "statistics" module to call
+        '''
+        if not hasattr(statistics, stat):
+            raise ValueError('The stat was not a function in the "statistics" module.')
+        prev = self.first
+        diffs = list()
+        for t in self[1:]:
+            diffs.append(t.ts_diff(prev))
+            prev = t
+
+        result = getattr(statistics, stat)(diffs)
+        if as_str:
+            return format_time(result)
+        else:
+            return result
+
+    @classmethod
+    def time_call(cls, func: Callable, *args, num_calls=1, as_str = False, **kwargs):
+        ''' Time function call with 0.05 ms latency per call.
+        '''
+        timer = cls(verbose=False)
+        timer = doctable.Timer(verbose=False)
+        for i in range(10):
+            func(*args, **kwargs)
+            timer.step()
+        
+        if as_str:
+            mean = timer.get_diff_stat(stat='mean', as_str=True)
+            med = timer.get_diff_stat(stat='median', as_str=True)
+            stdev = timer.get_diff_stat(stat='stdev', as_str=True)
+            return f'{mean} ({med}) ± {stdev}'
+        else:
+            return timer.get_diff_stat(stat='mean', as_str=False)
+
     #def print_table(self):
     #    ''' Print table showing how long each step took.
     #    '''
@@ -123,6 +174,9 @@ class Step:
     @property
     def msg(self):
         return self._msg if self._msg is not None else '.'
+
+    def __sub__(self, other: StepType):
+        return self.ts_diff(other)
 
     def ts_diff(self, other: StepType):
         return (self.ts - other.ts).total_seconds()

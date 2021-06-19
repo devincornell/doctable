@@ -18,7 +18,7 @@ import time
 def test_timer():
     tmp = doctable.TempFolder('logs')
 
-    def test_func(sec=0.2):
+    def test_func(sec=0.02):
         time.sleep(sec)
     #    return sum(i for i in range(n))
     
@@ -43,6 +43,25 @@ def test_timer():
     test_func()
 
     timer.step('that\'s all folks.')
+
+    timer = doctable.Timer(verbose=False)
+    for i in range(10):
+        time.sleep(0.01)
+        timer.step()
+    
+    mean = timer.get_diff_stat(stat='mean', as_str=False)
+    assert(mean >= 0.01 and mean < 0.011)
+
+    med = timer.get_diff_stat(stat='median', as_str=False)
+    assert(mean >= 0.01 and mean < 0.011)
+
+    stdev = timer.get_diff_stat(stat='stdev', as_str=False)
+    assert(stdev > 0 and stdev <= 0.001)
+    print(mean, med, stdev)
+
+    print(doctable.Timer.time_call(lambda: time.sleep(0.001), num_calls=10))
+    print(doctable.Timer.time_call(lambda: time.sleep(0.001), num_calls=10, as_str=True))
+
 
 
 if __name__ == '__main__':
