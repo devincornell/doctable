@@ -7,18 +7,18 @@ import collections
 
 
 
-
+@dataclasses.dataclass
 class Worker:
     '''Basic worker process.'''
     pipe: multiprocessing.Pipe
     def __call__(self):
-        print(f'Launched thread proces {os.getpid()}')
+        #print(f'Launched thread proces {os.getpid()}')
         self.pid = os.getpid()
         
         # send data right back
         while True:
             indata = self.pipe.recv()
-            print(f'proc {self.pid}: {indata}')
+            #print(f'proc {self.pid}: {indata}')
             self.pipe.send(indata)
 
 
@@ -53,14 +53,22 @@ class AsyncWorkerPool:
         
         # send first data to each process
         for proc, pipe in zip(self.procs, self.pipes):
-            proc.start()
-            pipe.send(next(payload))
+            print(f'getting next data for {proc.pid}')
+            nextdata = next(payload)
+            print(f'sending {nextdata} to {proc.pid}')
+            pipe.send(nextdata)
+            print(f'sent to {proc.pid}')
 
-        while True:
+        datas = list()
+        for pipe in self.pipes:
+            if pipe.poll():
+                datas.append()
+        
+        print('finished sending to processes')
 
-
-
-
+        # wait for processes to close
+        for proc in self.procs:
+            proc.join()
 
 
 if __name__ == '__main__':
@@ -68,4 +76,5 @@ if __name__ == '__main__':
 
     # create pool and pipes
     pool = AsyncWorkerPool(2)
-
+    pool.send_data(range(100))
+    print('waiting on processes')
