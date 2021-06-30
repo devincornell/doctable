@@ -5,6 +5,13 @@ import dataclasses
 from typing import Iterable, Callable, List, Dict, Any
 import collections
 
+@dataclasses.dataclass
+class DataPayload:
+    ind: int
+    data: Any
+
+class CloseWorkerSignal:
+    pass
 
 
 @dataclasses.dataclass
@@ -39,36 +46,52 @@ class AsyncWorkerPool:
             proc.start()
 
     def __exit__(self, type, value, traceback):
-        for proc in self.procs:
-            proc.terminate()
+        self.terminate()
     
     def __len__(self):
         return len(self.procs)
+
+    def terminate(self):
+        for proc in self.procs:
+            proc.terminate()
     
-    def send_data(self, payload):
-        payload = iter(payload)
+    def send_data(self, elements: Iterable[Any]):
+        elem_iter = iter(elements)
 
         # use subset of processes if needed
         #procs, pipes = self.processes], self.pipes[use_proc]
         
         # send first data to each process
+        ind = 0
         for proc, pipe in zip(self.procs, self.pipes):
-            print(f'getting next data for {proc.pid}')
-            nextdata = next(payload)
-            print(f'sending {nextdata} to {proc.pid}')
-            pipe.send(nextdata)
-            print(f'sent to {proc.pid}')
+            #print(f'getting next data for {proc.pid}')
+            try:
+                nextdata = next(elem_iter)
+            except StopIteration:
+                break
+            #print(f'sending {nextdata} to {proc.pid}')
+            pipe.send(DataPayload(ind, nextdata))
+            ind += 1
+            #print(f'sent to {proc.pid}')
 
         datas = list()
-        for pipe in self.pipes:
-            if pipe.poll():
-                datas.append()
+        do_loop = True
+        while do_loop:
+            for pipe in self.pipes:
+                if pipe.poll():
+                    datas.append(pipe.recv())
+                    try:
+                        nextdata = next(elem_iter)
+                        ind += 1
+                    except StopIteration:
+                        do_loop = False
+                        break
+                    pipe.send(nextdata)
         
         print('finished sending to processes')
+        print(datas)
 
-        # wait for processes to close
-        for proc in self.procs:
-            proc.join()
+        self.terminate()
 
 
 if __name__ == '__main__':
