@@ -3,6 +3,7 @@ import multiprocessing
 import os
 import dataclasses
 from typing import Iterable, Callable, List, Dict, Any
+import collections
 
 @dataclasses.dataclass
 class ReadyForWork:
@@ -18,11 +19,12 @@ class CloseWorkerSignal:
 
 @dataclasses.dataclass
 class Worker:
+    '''Basic worker process.'''
     pipe: multiprocessing.Pipe
     def __call__(self, *args, **kwargs):
         '''Main loop.
         '''
-        print('ARE WE ACTUALLY CALLING?')
+        print(f'Launch thread proces {os.getpid()}')
         # get process id
         self.pid = os.getpid()
         
@@ -43,20 +45,48 @@ class Worker:
                 raise ValueError(f'Did not recognized received object type: {type(newdata)}')
 
         exit(0) # close thread
-            
-    def send(self, payload: DataPayload):
-        return self.pipe.send(payload)
 
-    def receive_data(self):
-        '''Tell main process that we're ready for more work.
-        '''
-        self.pipe.send(ReadyForWork(self.pid))
-        return self.pipe.recv()
+
+class WorkManager:
+    '''Sends/receives data to/from workers.'''
+    def __init__(self, manager_pipe: Pipe, worker_pipes: List[Pipe]):
+        self.in_pipe = manager_pipe
+        self.worker_pipes = worker_pipes
+
+    def __call__(self, *args, **kwargs):
+        worker_init = set()
+        while True:
+            # first get new data element, block until receive
+            if self.in_pipe.poll():
+                recvdata = self.in_pipe.recv()
+            else:
+                newdata = None
+
+            # wait for worker to be available
+            for i, p in enumerate(self.worker_pipes):
+                if p.poll() or i not in worker_init:
+                    olddata = p.recv()
+                    worker_init.add(i)
+
+        
+    def get_ready_workers(self):
+        for p in self.worker_pipes:
+            if p.poll():
+                pass
+
+
+    def send(self, payload: Any):
+        '''Send data to available worker.'''
+        for p in self.worker_pipes:
+            if p.poll():
+                return p.recv()
+
+    
+
 
 class AsyncWorkerPool:
     def __init__(self, num_workers: int):
-        
-        self.needs_work = None # keep track of workers that need jobs
+        self.queue = collections.deque()
         
         self.pipes = list()
         self.processes = list()
@@ -69,11 +99,14 @@ class AsyncWorkerPool:
                 target=Worker(worker_pipe),
             ))
 
+    def map_chunk(self, items: Iterable) -> Iterable:
+        for item in items:
+            pass
+
     ######################### Start/Stop Processes #########################
     def start(self):
         for p in self.processes:
             p.start()
-        self.needs_work = dict()
 
     def join(self):
         for p in self.processes:
@@ -85,10 +118,14 @@ class AsyncWorkerPool:
             p.terminate()
 
     ######################### Send/Receive Data #########################
+    def add_send(self, payload: DataPayload):
+        '''Add to send queue.
+        '''
+        self.queue.append(payload)
+
     def recv(self) -> DataPayload:
         for p in self.pipes:
-            if p.poll():
-                return p.recv()
+            return p.recv()
 
 
 @staticmethod
@@ -108,6 +145,7 @@ if __name__ == '__main__':
     #p_main, p_worker = Pipe(True)
     #p = Process(target=worker, args=(p_worker,))
     pool = AsyncWorkerPool(2)
+    exit()
     pool.start()
     
     import time
