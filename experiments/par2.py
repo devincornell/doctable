@@ -10,7 +10,7 @@ class DataPayload:
     ind: int
     data: Any
 
-class CloseWorkerSignal:
+class SigClose:
     pass
 
 
@@ -19,67 +19,93 @@ class Worker:
     '''Basic worker process.'''
     pipe: multiprocessing.Pipe
     def __call__(self):
-        #print(f'Launched thread proces {os.getpid()}')
         self.pid = os.getpid()
         
         # send data right back
         while True:
             indata = self.pipe.recv()
-            #print(f'proc {self.pid}: {indata}')
+            if isinstance(indata, SigClose):
+                break
             self.pipe.send(indata)
 
 
 class AsyncWorkerPool:
+    pipes = None
+    procs = None
     def __init__(self, num_workers: int):
-        
-        self.pipes = list()
-        self.procs = list()
-        for i in range(num_workers):
-            main_pipe, worker_pipe = Pipe(True)
-            self.pipes.append(main_pipe)
-            
-            self.procs.append(Process(
-                name=f'worker_{i}',
-                target=Worker(worker_pipe),
-            ))
-        for proc in self.procs:
-            proc.start()
+        self.num_workers = num_workers
+
+    def __enter__(self):
+        self.create_workers()
 
     def __exit__(self, type, value, traceback):
+        pass
+
+    def __del__(self):
         self.terminate()
     
     def __len__(self):
         return len(self.procs)
 
-    def terminate(self):
-        for proc in self.procs:
-            proc.terminate()
-    
-    def send_data(self, elements: Iterable[Any]):
-        elem_iter = iter(elements)
 
-        # use subset of processes if needed
-        #procs, pipes = self.processes], self.pipes[use_proc]
+    ####################### Process Management #######################
+    def create_workers(self):
+        '''Creates and starts a new set of workers.
+        '''
+        self.pipes = list()
+        self.procs = list()
+        for i in range(self.num_workers):
+            main_pipe, worker_pipe = Pipe(True)
+            self.pipes.append(main_pipe)
+            
+            self.procs.append(Process(
+                name=f'worker_{i}', 
+                target=Worker(worker_pipe), 
+            ))
+        
+        self.start()
+        return self
+
+    def start(self):
+        if self.procs is not None:
+            for proc in self.procs:
+                proc.start()
+        else:
+            raise ValueError('Workers have not been created yet '
+            '(call .start_workers() first).')
+
+    def terminate(self):
+        if self.procs is not None:
+            for proc in self.procs:
+                proc.terminate()
+    
+    def join(self):
+        if self.procs is not None:
+            for proc in self.procs:
+                proc.send(SigClose())
+                proc.join()
+    
+    ####################### Data Transmission #######################
+    def map(self, elements: Iterable[Any]):
+        elem_iter = iter(elements)
         
         # send first data to each process
         ind = 0
         for proc, pipe in zip(self.procs, self.pipes):
-            #print(f'getting next data for {proc.pid}')
             try:
                 nextdata = next(elem_iter)
             except StopIteration:
                 break
-            #print(f'sending {nextdata} to {proc.pid}')
+            
             pipe.send(DataPayload(ind, nextdata))
             ind += 1
-            #print(f'sent to {proc.pid}')
 
-        datas = list()
+        results = list()
         do_loop = True
         while do_loop:
             for pipe in self.pipes:
                 if pipe.poll():
-                    datas.append(pipe.recv())
+                    results.append(pipe.recv())
                     try:
                         nextdata = next(elem_iter)
                         ind += 1
@@ -88,16 +114,16 @@ class AsyncWorkerPool:
                         break
                     pipe.send(nextdata)
         
-        print('finished sending to processes')
-        print(datas)
-
-        self.terminate()
+        return [r.data for r in sorted(results, key=lambda x: x.ind)]
 
 
 if __name__ == '__main__':
     data = range(100)
 
     # create pool and pipes
-    pool = AsyncWorkerPool(2)
-    pool.send_data(range(100))
+    pool = AsyncWorkerPool(2).create_workers()
+    results = pool.map(range(100))
+    
+    print(len(results))
+
     print('waiting on processes')
