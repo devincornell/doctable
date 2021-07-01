@@ -81,9 +81,6 @@ class WorkManager:
             if p.poll():
                 return p.recv()
 
-    
-
-
 class AsyncWorkerPool:
     def __init__(self, num_workers: int):
         self.queue = collections.deque()
