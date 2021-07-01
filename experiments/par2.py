@@ -26,6 +26,7 @@ class Worker:
             indata = self.pipe.recv()
             if isinstance(indata, SigClose):
                 break
+            outdata.data = 
             self.pipe.send(indata)
 
 
@@ -36,7 +37,7 @@ class AsyncWorkerPool:
         self.num_workers = num_workers
 
     def __enter__(self):
-        self.create_workers()
+        self.start_workers()
 
     def __exit__(self, type, value, traceback):
         pass
@@ -49,7 +50,7 @@ class AsyncWorkerPool:
 
 
     ####################### Process Management #######################
-    def create_workers(self):
+    def start_workers(self):
         '''Creates and starts a new set of workers.
         '''
         self.pipes = list()
@@ -74,6 +75,14 @@ class AsyncWorkerPool:
             raise ValueError('Workers have not been created yet '
             '(call .start_workers() first).')
 
+    def close_workers(self):
+        '''Close and kill worker processes.
+        '''
+        self.join()
+        self.terminate()
+        self.procs = None
+        self.pipes = None
+
     def terminate(self):
         if self.procs is not None:
             for proc in self.procs:
@@ -91,7 +100,7 @@ class AsyncWorkerPool:
         
         # send first data to each process
         ind = 0
-        for proc, pipe in zip(self.procs, self.pipes):
+        for pipe in self.pipes:
             try:
                 nextdata = next(elem_iter)
             except StopIteration:
@@ -121,7 +130,7 @@ if __name__ == '__main__':
     data = range(100)
 
     # create pool and pipes
-    pool = AsyncWorkerPool(2).create_workers()
+    pool = AsyncWorkerPool(2).start_workers()
     results = pool.map(range(100))
     
     print(len(results))
