@@ -22,8 +22,6 @@ no_function_error_msg = ('Worker {pid} was not provided '
     'the worker is created or send a NewFunction via '
     'the pipe.')
 
-
-
 @dataclasses.dataclass
 class Worker:
     '''Basic worker process.'''
@@ -58,6 +56,27 @@ class WorkerResource:
             target=Worker(worker_pipe, func), 
             args=args,
         )
+    def start(self):
+        '''Start process.'''
+        self.proc.start()
+    
+    def join(self):
+        '''Send close signal and wait for finish.
+        '''
+        self.proc.send(SigClose())
+        return self.proc.join()
+    
+    def terminate(self):
+        '''Terminate processes.'''
+        return self.proc.terminate()
+
+    def send(self, payload: DataPayload):
+        '''Send data wrapped in data payload.'''
+        return self.proc.send(payload)
+    
+    def recv(self):
+        '''Receive data.'''
+        return self.proc.recv()
 
 class WorkerPool(list):
 
@@ -96,37 +115,41 @@ class AsyncWorkerPool:
         self.num_workers = num_workers
 
     def __enter__(self):
-        self.start_workers(self.num_workers)
+        #if self.workers is None:
+        #    self.start_workers(self.num_workers)
         return self
 
     def __exit__(self, type, value, traceback):
-        if self.workers is not None:
-            self.workers.terminate()
-        workers = None
+        if self.has_workers():
+            self.close_workers()
+        self.workers = None
 
     def __del__(self):
-        if self.workers is not None:
+        if self.has_workers():
             self.workers.terminate()
 
     ####################### Process Management #######################
+    def has_workers(self):
+        return self.workers is not None
+
     def start_workers(self, func: Callable = None, *worker_args):
-        '''Creates and starts a new set of workers.
+        '''Creates a new set of workers, removes old set if needed.
         '''
-        self.workers.close()
+        if self.has_workers():
+            self.close_workers()
         self.workers = WorkerPool.new_pool(func, self.num_workers, *worker_args)
 
     def close_workers(self):
         '''Close and kill worker processes.
         '''
-        if self.workers is not None:
+        if self.has_workers():
             self.workers.close()
         self.workers = None
     
     ####################### Data Transmission #######################
     def map(self, func: Callable, elements: Iterable[Any]):
 
-        started_here = self.workers is None
-        if started_here:
+        if not self.has_workers():
             self.start_workers()
 
         elem_iter = iter(elements)
