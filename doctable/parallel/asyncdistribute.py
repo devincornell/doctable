@@ -5,36 +5,38 @@ import dataclasses
 from typing import Iterable, Callable, List, Dict, Any
 import collections
 from .workerpool import WorkerPool, DataPayload
+from .exceptions import WorkerDied
 
 class AsyncDistribute:
     def __init__(self, num_workers: int):
+        self.num_workers = num_workers
         self.workers = WorkerPool()
 
-    def __del__(self): self.workers.terminate()
+    def __del__(self):
+        if self.workers.is_alive():
+            self.workers.terminate()
     def __enter__(self): return self
-    def __exit__(self, type, value, traceback): self.workers.close()
+    def __exit__(self, *args):
+        if self.workers.is_alive():
+            self.workers.close()
 
     ####################### Process Management #######################
-    def start_workers(self, func: Callable = None, *worker_args):
+    def close_workers(self): 
+        if self.workers.is_alive():
+            self.workers.close()
+    def start_workers(self, func: Callable = None, *args, **kwargs):
         '''Creates a new set of workers, removes old set if needed.
         '''
-        if self.workers.is_open():
-            raise ValueError('This pool already has workers.')
-        self.close_workers()
-        self.workers = WorkerPool.new_pool(func, self.num_workers, *worker_args)
-
-    def close_workers(self):
-        '''Close and kill worker processes.
-        '''
-        if not self.has_workers():
-            raise ValueError('This pool does not have workers.')
-        self.workers = None
+        if self.workers.is_alive():
+            self.workers.update_userfunc(func)
+        else:
+            self.workers.start(self.num_workers, func, *args, **kwargs)
     
     ####################### Data Transmission #######################
     def map(self, func: Callable, elements: Iterable[Any]):
 
-        if not self.has_workers():
-            self.start_workers()
+        was_alive = self.workers.is_alive()
+        self.start_workers(func)
 
         elem_iter = iter(elements)
         
@@ -46,7 +48,7 @@ class AsyncDistribute:
             except StopIteration:
                 break
             
-            worker.send(DataPayload(ind, nextdata))
+            worker.send(ind, nextdata)
             ind += 1
 
         # send data to each process
@@ -55,7 +57,10 @@ class AsyncDistribute:
         while do_loop:
             for worker in self.workers:
                 if worker.poll():
-                    results.append(worker.recv())
+                    try:
+                        results.append(worker.recv())
+                    except EOFError as e:
+                        raise WorkerDied(worker.pid)
                     try:
                         nextdata = next(elem_iter)
                     except StopIteration:
@@ -67,15 +72,10 @@ class AsyncDistribute:
         # sort results
         results = [r.data for r in sorted(results)]
 
+        if not was_alive:
+            print(f'{was_alive=}')
+            self.close_workers()
+
         return results
 
 
-if __name__ == '__main__':
-    data = range(100)
-
-    # create pool and pipes
-    pool = AsyncDistribute(2)
-    results = pool.map(lambda x: x, range(100))
-    
-    print(len(results))
-    print('waiting on processes')

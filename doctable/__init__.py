@@ -13,6 +13,7 @@ from .connectengine import ConnectEngine
 from .model import *
 from .schemas import *
 from .api import *
+from .parallel import *
 
 # all legacy
 from .legacy import DocTableLegacy

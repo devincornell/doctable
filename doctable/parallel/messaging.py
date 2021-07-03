@@ -6,7 +6,6 @@ from multiprocessing import Lock, Pipe, Pool, Process, Value
 from typing import Any, Callable, Dict, Iterable, List
 import gc
 from .exceptions import WorkerIsDeadError, UnidentifiedMessageReceived, WorkerHasNoUserFunction
-from .messaging import DataPayload, SigClose, ChangeUserFunction
 
 
 class BaseMessage:
@@ -15,10 +14,10 @@ class BaseMessage:
 
 @dataclasses.dataclass
 class DataPayload(BaseMessage):
-    __slots__ = ['ind', 'data', 'pid']
+    #__slots__ = ['ind', 'data', 'pid']
     ind: int
     data: Any
-    pid: int
+    pid: int = None
 
 @dataclasses.dataclass
 class ChangeUserFunction(BaseMessage):

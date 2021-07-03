@@ -27,7 +27,10 @@ class Worker:
         
         # process received data
         while True:
-            payload = self.pipe.recv()
+            try:
+                payload = self.pipe.recv()
+            except EOFError:
+                break
 
             # process received data payload
             if isinstance(payload, DataPayload):

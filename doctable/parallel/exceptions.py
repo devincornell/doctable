@@ -1,8 +1,19 @@
 import doctable
 
+class WorkerDied(Exception):
+    def __init__(self, pid: int, *args, **kwargs):
+        message = f'Worker {pid} died before finishing.'
+        super().__init__(message, *args, **kwargs)
+
+
 class WorkerIsDeadError(Exception):
     def __init__(self, functionality: str, pid: int, *args, **kwargs):
         message = f'Worker {pid} cannot {functionality} because it is closed.'
+        super().__init__(message, *args, **kwargs)
+
+class WorkerIsAliveError(Exception):
+    def __init__(self, functionality: str, pid: int, *args, **kwargs):
+        message = f'Worker {pid} cannot {functionality} because it is already alive.'
         super().__init__(message, *args, **kwargs)
 
 class UnidentifiedMessageReceived(Exception):

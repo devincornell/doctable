@@ -5,9 +5,37 @@ import os
 from multiprocessing import Lock, Pipe, Pool, Process, Value
 from typing import Any, Callable, Dict, Iterable, List
 import gc
-from .exceptions import WorkerIsDeadError, UnidentifiedMessageReceived, WorkerHasNoUserFunction
+from .exceptions import WorkerIsDeadError, UnidentifiedMessageReceived, WorkerHasNoUserFunction, WorkerIsAliveError
 from .worker import Worker
-from .messaging import *
+from .messaging import DataPayload, ChangeUserFunction, SigClose
+
+class WorkerPool(list):
+
+    ############### Worker Creation ###############
+    def is_alive(self): 
+        return len(self) > 0 and all([w.is_alive() for w in self])
+    def start(self, num_workers: int, func: Callable = None, *worker_args):
+        if self.is_alive():
+            raise ValueError('This WorkerPool already has running workers.')
+        
+        # start each worker
+        for ind in range(num_workers):
+            self.append(WorkerResource(ind, func, *worker_args))
+        
+        return self
+
+    def update_userfunc(self, userfunc: Callable):
+        return [w.update_userfunc(userfunc) for w in self]
+
+    ############### Low-Level Process Operations ###############
+    def join(self): [w.join() for w in self]
+    def terminate(self): 
+        [w.terminate() for w in self]
+        self.clear()
+    def close(self):
+        [w.close() for w in self]
+        self.clear()
+
 
 class WorkerResource:
     '''Manages a worker process and pipe to it.'''
@@ -22,66 +50,45 @@ class WorkerResource:
         self.proc.start()
 
     ############### Pipe interface ###############
-    def recv(self): return self.pipe.recv()
-    def send(self): return self.pipe.send()
     def poll(self): return self.pipe.poll()
+    def recv(self): return self.pipe.recv()
+    def send(self, ind: int, data: Any):
+        return self.pipe.send(DataPayload(ind, data))
     
     ############### Process interface ###############
+    @property
+    def pid(self):
+        return self.proc.pid
+    def is_alive(self, *arsg, **kwargs):
+        return self.proc.is_alive(*arsg, **kwargs)
+    
     def start(self):
+        print(f'{self.proc.is_alive()}')
         if self.proc.is_alive():
-            raise WorkerIsDeadError('.start()', self.proc.pid)
+            raise WorkerIsAliveError('.start()', self.proc.pid)
         return self.proc.start()
+    
+    def update_userfunc(self, userfunc: Callable):
+        if not self.proc.is_alive():
+            raise WorkerIsDeadError('.update_userfunc()', self.proc.pid)
+        return self.proc.send(ChangeUserFunction(userfunc))
+
+    def close(self):
+        self.join()
+        self.terminate()
+    
+    def join(self):
+        if not self.proc.is_alive():
+            raise WorkerIsDeadError('.join()', self.proc.pid)
+        self.proc.send(SigClose())
+        return self.proc.join()
+
     def terminate(self): 
         if not self.proc.is_alive():
             raise WorkerIsDeadError('.terminate()', self.proc.pid)
         return self.proc.terminate()
+
     
-    def update_userfunc(self, userfunc: Callable):
-        return self.proc.send(ChangeUserFunction(userfunc))
-    
-    def join(self):
-        if not self.proc.is_alive():
-            raise ValueError('Cannot join a worker that is not alive.')
-        self.proc.send(SigClose())
-        return self.proc.join()
-    
-    def close(self):
-        if not self.proc.is_alive():
-            raise ValueError('Cannot close a worker that is not alive.')
-        self.join()
-        self.terminate()
-
-
-class WorkerPool(list):
-
-    ############### Worker Creation ###############
-    def open(self, num_workers: int, func: Callable = None, *worker_args):
-        if len(self) > 0:
-            raise ValueError('This WorkerPool already has running workers.')
-        
-        # start each worker
-        for ind in range(num_workers):
-            self.append(WorkerResource(ind, func, *worker_args))
-        return self
-
-    ############### Low-Level Process Operations ###############
-    def start(self): [w.start() for w in self]
-    def join(self): [w.join() for w in self]
-    def terminate(self): 
-        [w.terminate() for w in self]
-        self.clear()
-    def close(self):
-        [w.close() for w in self]
-        self.clear()
-    
-
-
-
-
-
-
-
-
 
 
 
