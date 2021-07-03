@@ -28,19 +28,18 @@ class WorkerPool(list):
         return [w.update_userfunc(userfunc) for w in self]
 
     ############### Low-Level Process Operations ###############
-    def join(self): [w.join() for w in self]
+    def join(self):
+        [w.join() for w in self]
+        self.clear()
     def terminate(self): 
         [w.terminate() for w in self]
-        self.clear()
-    def close(self):
-        [w.close() for w in self]
         self.clear()
 
 
 class WorkerResource:
     '''Manages a worker process and pipe to it.'''
     __slots__ = ['pipe', 'proc']
-    def __init__(self, func: Callable, ind: int, *args):
+    def __init__(self, ind: int, func: Callable = None, *args):
         self.pipe, worker_pipe = Pipe(True)
         self.proc = Process(
             name=f'worker_{ind}', 
@@ -53,7 +52,7 @@ class WorkerResource:
     def poll(self): return self.pipe.poll()
     def recv(self): return self.pipe.recv()
     def send(self, ind: int, data: Any):
-        return self.pipe.send(DataPayload(ind, data))
+        return self.pipe.send(DataPayload(ind, data, pid=self.proc.pid))
     
     ############### Process interface ###############
     @property
@@ -72,15 +71,11 @@ class WorkerResource:
         if not self.proc.is_alive():
             raise WorkerIsDeadError('.update_userfunc()', self.proc.pid)
         return self.proc.send(ChangeUserFunction(userfunc))
-
-    def close(self):
-        self.join()
-        self.terminate()
     
     def join(self):
         if not self.proc.is_alive():
             raise WorkerIsDeadError('.join()', self.proc.pid)
-        self.proc.send(SigClose())
+        self.pipe.send(SigClose())
         return self.proc.join()
 
     def terminate(self): 

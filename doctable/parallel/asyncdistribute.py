@@ -4,7 +4,8 @@ import os
 import dataclasses
 from typing import Iterable, Callable, List, Dict, Any
 import collections
-from .workerpool import WorkerPool, DataPayload
+
+from .workerpool import WorkerPool
 from .exceptions import WorkerDied
 
 class AsyncDistribute:
@@ -18,12 +19,12 @@ class AsyncDistribute:
     def __enter__(self): return self
     def __exit__(self, *args):
         if self.workers.is_alive():
-            self.workers.close()
+            self.workers.join()
 
     ####################### Process Management #######################
     def close_workers(self): 
         if self.workers.is_alive():
-            self.workers.close()
+            self.workers.join()
     def start_workers(self, func: Callable = None, *args, **kwargs):
         '''Creates a new set of workers, removes old set if needed.
         '''
@@ -55,7 +56,8 @@ class AsyncDistribute:
         results = list()
         do_loop = True
         worker_died = False
-        while do_loop:
+        while do_loop or len(results) < ind:
+            print(len(results), ind)
             for worker in self.workers:
                 if worker.poll():
                     try:
@@ -69,7 +71,8 @@ class AsyncDistribute:
                     except StopIteration:
                         do_loop = False
                         break
-                    worker.send(DataPayload(ind, nextdata))
+                
+                    worker.send(ind, nextdata)
                     ind += 1
 
         if worker_died:
@@ -79,7 +82,6 @@ class AsyncDistribute:
         results = [r.data for r in sorted(results)]
 
         if not was_alive:
-            print(f'{was_alive=}')
             self.close_workers()
 
         return results

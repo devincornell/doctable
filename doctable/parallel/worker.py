@@ -30,6 +30,7 @@ class Worker:
             try:
                 payload = self.pipe.recv()
             except EOFError:
+                # parent process died
                 break
 
             # process received data payload
@@ -39,6 +40,7 @@ class Worker:
             
             # load new function
             elif isinstance(payload, ChangeUserFunction):
+                print(f'{payload.userfunc=}')
                 self.userfunc = payload.userfunc
             
             # kill worker
