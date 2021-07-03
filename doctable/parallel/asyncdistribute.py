@@ -54,13 +54,16 @@ class AsyncDistribute:
         # send data to each process
         results = list()
         do_loop = True
+        worker_died = False
         while do_loop:
             for worker in self.workers:
                 if worker.poll():
                     try:
                         results.append(worker.recv())
                     except EOFError as e:
-                        raise WorkerDied(worker.pid)
+                        worker_died = True
+                        do_loop = False
+                        break
                     try:
                         nextdata = next(elem_iter)
                     except StopIteration:
@@ -68,6 +71,9 @@ class AsyncDistribute:
                         break
                     worker.send(DataPayload(ind, nextdata))
                     ind += 1
+
+        if worker_died:
+            raise WorkerDied(worker.pid)
         
         # sort results
         results = [r.data for r in sorted(results)]
