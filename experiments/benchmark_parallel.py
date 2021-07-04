@@ -28,6 +28,10 @@ def find_prime_chunk(ns):
 def timed_test(num):
     time.sleep((num**2)/10000)
 
+def timed_step(num):
+    time.sleep(num/10)
+
+
 def simple_primefinder(n=1000):
     '''Tests ability to solve tasks when tasks take an 
         unequal ammount of time to execute.
@@ -36,15 +40,16 @@ def simple_primefinder(n=1000):
     timer = doctable.Timer(logfile='logs/parallel_primefinder.log')
 
     timer.step('making elements')
-    elements = list(range(n))
-    random.shuffle(elements)
+    elements = [100] + [1]*100
+    #elements = list(range(n))
+    #random.shuffle(elements)
 
-    test_func = timed_test
+    test_func = find_prime
 
     if False:
         timer.step('single-core find primes')
         prime_single = list(map(test_func, elements))
-
+ 
     timer.step('multi-core find primes')
     with multiprocessing.Pool(6) as p:
         prime_multi = p.map(test_func, elements)
@@ -69,6 +74,8 @@ def simple_primefinder(n=1000):
     timer.step('doctable.AsyncDistribute')
     with doctable.AsyncDistribute(6) as d:
         prime_async = d.map(test_func, elements)
+
+    assert(prime_multi == prime_async)
 
     timer.step('done')
 
