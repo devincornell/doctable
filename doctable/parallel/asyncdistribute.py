@@ -57,7 +57,6 @@ class AsyncDistribute:
         do_loop = True
         worker_died = False
         while do_loop or len(results) < ind:
-            print(len(results), ind)
             for worker in self.workers:
                 if worker.poll():
                     try:
