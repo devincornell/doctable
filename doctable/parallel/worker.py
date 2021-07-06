@@ -8,7 +8,7 @@ from typing import Any, Callable, Dict, Iterable, List
 
 from .exceptions import (UnidentifiedMessageReceived, WorkerHasNoUserFunction,
                          WorkerIsDeadError)
-from .messaging import DataPayload, SigClose, ChangeUserFunction
+from .messaging import DataPayload, SigClose, ChangeUserFunction, WorkerRaisedException
 
 @dataclasses.dataclass
 class Worker:
@@ -35,12 +35,16 @@ class Worker:
 
             # process received data payload
             if isinstance(payload, DataPayload):
-                payload = self.execute_userfunc([payload], args, kwargs)
+                try:
+                    payload = self.execute_userfunc([payload], args, kwargs)
+                except Exception as e:
+                    self.pipe.send(WorkerRaisedException())
+                    raise e
+
                 self.pipe.send(payload)
             
             # load new function
             elif isinstance(payload, ChangeUserFunction):
-                print(f'{payload.userfunc=}')
                 self.userfunc = payload.userfunc
             
             # kill worker
@@ -52,12 +56,13 @@ class Worker:
 
     def execute_userfunc(self, payloads: Iterable[DataPayload], args, kwargs):
         '''Execute the provide function on the payload (modifies in-place).
-        ''' 
+        '''
         # check if worker has a user function
         if self.userfunc is None:
             raise WorkerHasNoUserFunction(self.pid)
 
         # process each provided payload
+        died = False
         for payload in payloads:
             payload.pid = self.pid
             payload.data = self.userfunc(payload.data, *args, **kwargs)

@@ -31,6 +31,9 @@ def timed_test(num):
 def timed_step(num):
     time.sleep(num/10)
 
+def array_test(a):
+    return a.dot(a)
+
 
 def simple_primefinder(n=1000):
     '''Tests ability to solve tasks when tasks take an 
@@ -40,26 +43,31 @@ def simple_primefinder(n=1000):
     timer = doctable.Timer(logfile='logs/parallel_primefinder.log')
 
     timer.step('making elements')
-    elements = [100] + [1]*100
+    import numpy as np
+    elements = [np.ones((int(5e7)*(i+1),)) for i in range(10)]
+    for a in elements:
+        a[0] = 0
+    print(len(elements), elements[0].shape)
     #elements = list(range(n))
     #random.shuffle(elements)
-
-    test_func = find_prime
+    timer.step('check ram')
+    
+    test_func = array_test
 
     if False:
-        timer.step('single-core find primes')
+        timer.step('single-core eval')
         prime_single = list(map(test_func, elements))
  
-    timer.step('multi-core find primes')
-    with multiprocessing.Pool(6) as p:
+    timer.step('multi-core eval')
+    with multiprocessing.Pool(5) as p:
         prime_multi = p.map(test_func, elements)
 
     if False:
-        timer.step('async find primes')
+        timer.step('async eval')
         with multiprocessing.Pool(6) as p:
             prime_async = list(p.map_async(test_func, elements).get())
             
-        timer.step('imap find primes')
+        timer.step('imap eval')
         with multiprocessing.Pool(6) as p:
             prime_imap = list(p.imap(test_func, elements, 100))
 
@@ -72,7 +80,7 @@ def simple_primefinder(n=1000):
             prime_distribute = d.map_chunk(test_func, elements)
 
     timer.step('doctable.AsyncDistribute')
-    with doctable.AsyncDistribute(6) as d:
+    with doctable.AsyncDistribute(5) as d:
         prime_async = d.map(test_func, elements)
 
     assert(prime_multi == prime_async)

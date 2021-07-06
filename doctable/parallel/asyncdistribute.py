@@ -9,41 +9,49 @@ from .workerpool import WorkerPool
 from .exceptions import WorkerDied
 
 class AsyncDistribute:
-    def __init__(self, num_workers: int):
+    def __init__(self, num_workers: int, 
+            func: Callable = None, start_workers: bool = True,
+            *worker_args, **worker_kwargs):
         self.num_workers = num_workers
-        self.workers = WorkerPool()
-
+        
+        # start workers
+        self.pool = WorkerPool()
+    
     def __del__(self):
-        if self.workers.is_alive():
-            self.workers.terminate()
-    def __enter__(self): return self
+        if self.pool.is_alive():
+            self.pool.terminate()
+    
+    def __enter__(self):
+        return self
+
     def __exit__(self, *args):
-        if self.workers.is_alive():
-            self.workers.join()
+        if self.pool.is_alive():
+            self.pool.join()
 
     ####################### Process Management #######################
     def close_workers(self): 
-        if self.workers.is_alive():
-            self.workers.join()
-    def start_workers(self, func: Callable = None, *args, **kwargs):
+        if self.pool.is_alive():
+            self.pool.join()
+    
+    def start_workers(self, *args, func: Callable = None, **kwargs):
         '''Creates a new set of workers, removes old set if needed.
         '''
-        if self.workers.is_alive():
-            self.workers.update_userfunc(func)
+        if self.pool.is_alive():
+            self.pool.update_userfunc(func)
         else:
-            self.workers.start(self.num_workers, func, *args, **kwargs)
+            self.pool.start(self.num_workers, *args, func=func, **kwargs)
     
     ####################### Data Transmission #######################
-    def map(self, func: Callable, elements: Iterable[Any]):
+    def map(self, func: Callable, elements: Iterable[Any], *args, **kwargs):
 
-        was_alive = self.workers.is_alive()
-        self.start_workers(func)
+        was_alive = self.pool.is_alive()
+        self.start_workers(*args, func=func, **kwargs)
 
         elem_iter = iter(elements)
         
         # send first data to each process
         ind = 0
-        for worker in self.workers:
+        for worker in self.pool:
             try:
                 nextdata = next(elem_iter)
             except StopIteration:
@@ -57,7 +65,7 @@ class AsyncDistribute:
         do_loop = True
         worker_died = False
         while do_loop or len(results) < ind:
-            for worker in self.workers:
+            for worker in self.pool:
                 if worker.poll():
                     try:
                         results.append(worker.recv())

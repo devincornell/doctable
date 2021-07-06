@@ -30,6 +30,11 @@ class ChangeUserFunction(BaseMessage):
     userfunc: Callable
 
 class SigClose(BaseMessage):
+    '''Sent from main to worker when worker needs to be closed.'''
+    pass
+
+class WorkerRaisedException(BaseMessage):
+    '''Sent from worker to main when worker encountered exception.'''
     pass
 
 

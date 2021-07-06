@@ -7,20 +7,21 @@ from typing import Any, Callable, Dict, Iterable, List
 import gc
 from .exceptions import WorkerIsDeadError, UnidentifiedMessageReceived, WorkerHasNoUserFunction, WorkerIsAliveError
 from .worker import Worker
-from .messaging import DataPayload, ChangeUserFunction, SigClose
+from .messaging import DataPayload, ChangeUserFunction, SigClose, WorkerRaisedException
 
 class WorkerPool(list):
 
     ############### Worker Creation ###############
     def is_alive(self): 
         return len(self) > 0 and all([w.is_alive() for w in self])
-    def start(self, num_workers: int, func: Callable = None, *worker_args):
+    
+    def start(self, num_workers: int, *args, func: Callable = None, **kwargs):
         if self.is_alive():
             raise ValueError('This WorkerPool already has running workers.')
         
         # start each worker
         for ind in range(num_workers):
-            self.append(WorkerResource(ind, func, *worker_args))
+            self.append(WorkerResource(ind, *args, func=func, **kwargs))
         
         return self
 
@@ -39,18 +40,28 @@ class WorkerPool(list):
 class WorkerResource:
     '''Manages a worker process and pipe to it.'''
     __slots__ = ['pipe', 'proc']
-    def __init__(self, ind: int, func: Callable = None, *args):
+    def __init__(self, ind: int, *args, func: Callable = None, **kwargs):
         self.pipe, worker_pipe = Pipe(True)
         self.proc = Process(
             name=f'worker_{ind}', 
-            target=Worker(worker_pipe, func), 
+            target=Worker(worker_pipe, *args, userfunc=func, **kwargs), 
             args=args,
         )
         self.proc.start()
 
     ############### Pipe interface ###############
     def poll(self): return self.pipe.poll()
-    def recv(self): return self.pipe.recv()
+    def recv(self):
+        msg = f'Worker {self.proc.pid} raised an exception.'
+        
+        received_data = self.pipe.recv()
+        
+        # raise the exception if one was passed
+        if isinstance(received_data, WorkerRaisedException):
+            print(msg)
+            exit()
+        
+        return received_data
     def send(self, ind: int, data: Any):
         return self.pipe.send(DataPayload(ind, data, pid=self.proc.pid))
     
@@ -62,7 +73,6 @@ class WorkerResource:
         return self.proc.is_alive(*arsg, **kwargs)
     
     def start(self):
-        print(f'{self.proc.is_alive()}')
         if self.proc.is_alive():
             raise WorkerIsAliveError('.start()', self.proc.pid)
         return self.proc.start()
@@ -70,7 +80,7 @@ class WorkerResource:
     def update_userfunc(self, userfunc: Callable):
         if not self.proc.is_alive():
             raise WorkerIsDeadError('.update_userfunc()', self.proc.pid)
-        return self.proc.send(ChangeUserFunction(userfunc))
+        return self.pipe.send(ChangeUserFunction(userfunc))
     
     def join(self):
         if not self.proc.is_alive():
