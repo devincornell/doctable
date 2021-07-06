@@ -8,7 +8,7 @@ import random
 import multiprocessing
 
 def test_func(x):
-    return (x**2).join()
+    return x**2
 
 def test_asyncdistribute(n=100):
     '''Tests ability to solve tasks when tasks take an 
