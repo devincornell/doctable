@@ -53,11 +53,12 @@ class WorkerResource:
     def poll(self): return self.pipe.poll()
     def recv(self):
         msg = f'Worker {self.proc.pid} raised an exception.'
-        
+
         received_data = self.pipe.recv()
         
         # raise the exception if one was passed
         if isinstance(received_data, WorkerRaisedException):
+            self.join()
             print(msg)
             exit()
         
@@ -85,7 +86,10 @@ class WorkerResource:
     def join(self):
         if not self.proc.is_alive():
             raise WorkerIsDeadError('.join()', self.proc.pid)
-        self.pipe.send(SigClose())
+        try:
+            self.pipe.send(SigClose())
+        except BrokenPipeError:
+            pass
         return self.proc.join()
 
     def terminate(self): 
