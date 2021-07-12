@@ -4,11 +4,17 @@ import gc
 import multiprocessing
 import os
 from multiprocessing import Lock, Pipe, Pool, Process, Value
-from typing import Any, Callable, Dict, Iterable, List
+from typing import Any, Callable, Dict, Iterable, List, Tuple
 
 from .exceptions import (UnidentifiedMessageReceived, WorkerHasNoUserFunction,
                          WorkerIsDeadError)
 from .messaging import DataPayload, SigClose, ChangeUserFunction, WorkerRaisedException
+
+
+class UserFuncArgs:
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
 
 @dataclasses.dataclass
 class Worker:
@@ -16,32 +22,35 @@ class Worker:
     pipe: multiprocessing.Pipe
     userfunc: Callable = None
     gcollect: bool = False
-    def __call__(self, *args, payloads: Iterable[DataPayload] = None, **kwargs):
-        '''Call when opening the process.
-        '''
-        self.pid = os.getpid()
+    verbose: bool = False
 
-        # process payloads provided at init
-        if payloads is not None:
-            self.execute_userfunc(payloads, args, kwargs)
+    @property
+    def pid(self):
+        return os.getpid()
+
+    def __call__(self, payloads: List[DataPayload], userfunc_args: UserFuncArgs):
+        '''Call when opening the process.
+        Args:
+            userfunc_args: args to be passed to current userfunc on every execution.
+            payloads: payloads to be parsed when worker starts
+        '''
         
-        # process received data
+        # process payloads provided at init
+        for payload in payloads:
+            self.execute_userfunc(payload, userfunc_args)
+        
+        # main receive/send loop
         while True:
             try:
-                payload = self.pipe.recv()
+                payload = self.recv()
             except EOFError:
                 # parent process died
                 break
 
             # process received data payload
             if isinstance(payload, DataPayload):
-                try:
-                    payload = self.execute_userfunc([payload], args, kwargs)
-                except Exception as e:
-                    self.pipe.send(WorkerRaisedException())
-                    raise e
-
-                self.pipe.send(payload)
+                payload = self.execute_userfunc(payload, userfunc_args)
+                self.send(payload)
             
             # load new function
             elif isinstance(payload, ChangeUserFunction):
@@ -54,19 +63,34 @@ class Worker:
             else:
                 raise UnidentifiedMessageReceived(self.pid)
 
-    def execute_userfunc(self, payloads: Iterable[DataPayload], args, kwargs):
-        '''Execute the provide function on the payload (modifies in-place).
+    def recv(self):
+        payload = self.pipe.recv()
+        if self.verbose: print(f'Worker({self.pid}) received: {payload}')
+        return payload
+
+    def send(self, data: Any):
+        if self.verbose: print(f'Worker({self.pid}) sending: {data}')
+        return self.pipe.send(data)
+
+    def execute_userfunc(self, payload: DataPayload, userfunc_args: UserFuncArgs):
+        '''Execute the provide function on the payload (modifies in-place), and return it.
         '''
         # check if worker has a user function
         if self.userfunc is None:
             raise WorkerHasNoUserFunction(self.pid)
 
-        # process each provided payload
-        died = False
-        for payload in payloads:
-            payload.pid = self.pid
-            payload.data = self.userfunc(payload.data, *args, **kwargs)
-            if self.gcollect:
-                gc.collect()
+        # update pid and apply userfunc
+        payload.pid = self.pid
+        
+        try:
+            payload.data = self.userfunc(payload.data, *userfunc_args.args, **userfunc_args.kwargs)
+        except BaseException as e:
+            self.pipe.send(WorkerRaisedException())
+            raise e
+        
+        # garbage collect if needed
+        if self.gcollect:
+            gc.collect()
+        
         return payload
             

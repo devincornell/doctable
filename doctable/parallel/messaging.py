@@ -6,23 +6,22 @@ from multiprocessing import Lock, Pipe, Pool, Process, Value
 from typing import Any, Callable, Dict, Iterable, List
 import gc
 from .exceptions import WorkerIsDeadError, UnidentifiedMessageReceived, WorkerHasNoUserFunction
-
+import doctable.util
 
 class BaseMessage:
     pass
 
-
-@dataclasses.dataclass
+@doctable.util.slots_dataclass
 class DataPayload(BaseMessage):
-    __slots__ = ['ind', 'data', 'pid']
-    ind: int
+    __slots__ = []    
     data: Any
-    pid: int# = None
+    ind: int = 0
+    pid: int = None
     def __lt__(self, other): return self.ind < other.ind
-    def __le__(self, other): return self.ind <= other.ind
-    def __gt__(self, other): return self.ind > other.ind
-    def __ge__(self, other): return self.ind >= other.ind
-    def __eq__(self, other): return self.ind == other.ind
+    #def __le__(self, other): return self.ind <= other.ind
+    #def __gt__(self, other): return self.ind > other.ind
+    #def __ge__(self, other): return self.ind >= other.ind
+    #def __eq__(self, other): return self.ind == other.ind
 
 @dataclasses.dataclass
 class ChangeUserFunction(BaseMessage):
