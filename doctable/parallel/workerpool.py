@@ -1,105 +1,119 @@
-import collections
-import dataclasses
+from multiprocessing import Pipe, Process, Lock, Pool, Value
 import multiprocessing
 import os
-from multiprocessing import Lock, Pipe, Pool, Process, Value
-from typing import Any, Callable, Dict, Iterable, List
-import gc
-from .exceptions import WorkerIsDeadError, UnidentifiedMessageReceived, WorkerHasNoUserFunction, WorkerIsAliveError
-from .worker import Worker
-from .messaging import DataPayload, ChangeUserFunction, SigClose, WorkerRaisedException
+import dataclasses
+from typing import Iterable, Callable, List, Dict, Any, Tuple, NewType
+import collections
 
-class WorkerPool(list):
+from .workerresource import WorkerResource
+from .exceptions import WorkerDied
 
-    ############### Worker Creation ###############
-    def is_alive(self): 
-        return len(self) > 0 and all([w.is_alive() for w in self])
+
+class WorkerPool:
+    def __init__(self, num_workers: int, 
+            func: Callable = None, start_workers: bool = True,
+            *worker_args, **worker_kwargs):
+        self.num_workers = num_workers
+        
+        self.workers = None
+        if start_workers:
+            self.start(num_workers, func=func, args=(worker_args, worker_kwargs))
     
-    def start(self, num_workers: int, *args, func: Callable = None, **kwargs):
+    def __del__(self):
+        if self.pool.is_alive():
+            self.terminate()
+    
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close_workers()
+
+    ####################### Process Management #######################
+    def is_alive(self):
+        return self.workers is not None and all([w.is_alive() for w in self])
+    
+    def start(self, num_workers: int, func: Callable = None, worker_args: Tuple[Tuple, Dict[str,Any]]):
         if self.is_alive():
-            raise ValueError('This WorkerPool already has running workers.')
+            raise ValueError('This Pool already has running workers.')
         
         # start each worker
         for ind in range(num_workers):
-            self.append(WorkerResource(ind, *args, func=func, **kwargs))
+            self.workers.append(WorkerResource(ind, func=func, worker_args=args, start=True))
         
         return self
 
-    def update_userfunc(self, userfunc: Callable):
-        return [w.update_userfunc(userfunc) for w in self]
+    def close_workers(self): 
+        if self.is_alive():
+            self.join()
+    
+    def start_workers(self, func: Callable = None, args=):
+        '''Creates a new set of workers, removes old set if needed.
+        '''
+        if self.is_alive():
+            self.pool.update_userfunc(func)
+        else:
+            self.pool.start(self.num_workers, *args, func=func, **kwargs)
 
     ############### Low-Level Process Operations ###############
     def join(self):
-        [w.join() for w in self]
-        self.clear()
+        [w.join() for w in self.workers]
+        self.workers = None
+    
     def terminate(self): 
-        [w.terminate() for w in self]
-        self.clear()
+        [w.terminate() for w in self.workers]
+        self.workers = None
+    
+    ####################### Data Transmission #######################
+    def map(self, func: Callable, elements: Iterable[Any], *args, **kwargs):
 
+        was_alive = self.pool.is_alive()
+        self.start_workers(*args, func=func, **kwargs)
 
-class WorkerResource:
-    '''Manages a worker process and pipe to it.'''
-    __slots__ = ['pipe', 'proc']
-    def __init__(self, ind: int, *args, func: Callable = None, **kwargs):
-        self.pipe, worker_pipe = Pipe(True)
-        self.proc = Process(
-            name=f'worker_{ind}', 
-            target=Worker(worker_pipe, *args, userfunc=func, **kwargs), 
-            args=args,
-        )
-        self.proc.start()
-
-    ############### Pipe interface ###############
-    def poll(self): return self.pipe.poll()
-    def recv(self):
-        msg = f'Worker {self.proc.pid} raised an exception.'
-
-        received_data = self.pipe.recv()
+        elem_iter = iter(elements)
         
-        # raise the exception if one was passed
-        if isinstance(received_data, WorkerRaisedException):
-            self.join()
-            print(msg)
-            exit()
+        # send first data to each process
+        ind = 0
+        for worker in self.pool:
+            try:
+                nextdata = next(elem_iter)
+            except StopIteration:
+                break
+            
+            worker.send(ind, nextdata)
+            ind += 1
+
+        # send data to each process
+        results = list()
+        do_loop = True
+        worker_died = False
+        while do_loop or len(results) < ind:
+            for worker in self.pool:
+                if worker.poll():
+                    try:
+                        results.append(worker.recv())
+                    except EOFError as e:
+                        worker_died = True
+                        do_loop = False
+                        break
+                    try:
+                        nextdata = next(elem_iter)
+                    except StopIteration:
+                        do_loop = False
+                        break
+                
+                    worker.send(ind, nextdata)
+                    ind += 1
+
+        if worker_died:
+            raise WorkerDied(worker.pid)
         
-        return received_data
-    def send(self, ind: int, data: Any):
-        return self.pipe.send(DataPayload(ind, data, pid=self.proc.pid))
-    
-    ############### Process interface ###############
-    @property
-    def pid(self):
-        return self.proc.pid
-    def is_alive(self, *arsg, **kwargs):
-        return self.proc.is_alive(*arsg, **kwargs)
-    
-    def start(self):
-        if self.proc.is_alive():
-            raise WorkerIsAliveError('.start()', self.proc.pid)
-        return self.proc.start()
-    
-    def update_userfunc(self, userfunc: Callable):
-        if not self.proc.is_alive():
-            raise WorkerIsDeadError('.update_userfunc()', self.proc.pid)
-        return self.pipe.send(ChangeUserFunction(userfunc))
-    
-    def join(self):
-        if not self.proc.is_alive():
-            raise WorkerIsDeadError('.join()', self.proc.pid)
-        try:
-            self.pipe.send(SigClose())
-        except BrokenPipeError:
-            pass
-        return self.proc.join()
+        # sort results
+        results = [r.data for r in sorted(results)]
 
-    def terminate(self): 
-        if not self.proc.is_alive():
-            raise WorkerIsDeadError('.terminate()', self.proc.pid)
-        return self.proc.terminate()
+        if not was_alive:
+            self.close_workers()
 
-    
-
-
-
+        return results
 
 
