@@ -46,7 +46,6 @@ def test_workerresource(n=100):
     try:
         print(worker1.recv())
     except doctable.WorkerDiedError:
-        print('joining other worker')
         worker1.join()
         worker2.join()
 

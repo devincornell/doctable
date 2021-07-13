@@ -12,6 +12,7 @@ from .messaging import DataPayload, SigClose, ChangeUserFunction, WorkerRaisedEx
 
 
 class UserFuncArgs:
+    __slots__ = ['args', 'kwargs']
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
@@ -28,16 +29,11 @@ class Worker:
     def pid(self):
         return os.getpid()
 
-    def __call__(self, payloads: List[DataPayload], userfunc_args: UserFuncArgs):
+    def __call__(self, userfunc_args: UserFuncArgs):
         '''Call when opening the process.
         Args:
             userfunc_args: args to be passed to current userfunc on every execution.
-            payloads: payloads to be parsed when worker starts
         '''
-        
-        # process payloads provided at init
-        for payload in payloads:
-            self.execute_userfunc(payload, userfunc_args)
         
         # main receive/send loop
         while True:

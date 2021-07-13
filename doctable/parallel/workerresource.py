@@ -12,23 +12,20 @@ from .messaging import DataPayload, ChangeUserFunction, SigClose, WorkerRaisedEx
 
 class WorkerResource:
     '''Manages a worker process and pipe to it.'''
-    __slots__ = ['pipe', 'proc', 'verbose']
+    __slots__ = ['pipe', 'proc']
     verbose = False
 
-    def __init__(self, ind: int = 0, userfunc: Callable = None, datas: Iterable[Any] = None, userfunc_args: UserFuncArgs = None, start: bool = True):
+    def __init__(self, userfunc: Callable = None, userfunc_args: UserFuncArgs = None, start: bool = True):
         '''Open Process and pipe to it.
         '''
-        if datas is None:
-            datas = list()
 
         if userfunc_args is None:
             userfunc_args = UserFuncArgs()
 
         self.pipe, worker_pipe = Pipe(True)
         self.proc = Process(
-            name=f'worker_{ind}', 
             target=Worker(worker_pipe, userfunc=userfunc), 
-            args=[datas, userfunc_args], 
+            args=[userfunc_args], 
         )
 
         # start worker if requested
