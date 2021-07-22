@@ -5,7 +5,7 @@ from dataclasses import dataclass, field, fields
 
 
 def Col(obj_default=EmptyValue(), **colargs):
-    ''' Returns .field() after setting convienient params.
+    ''' Returns dataclasses.field() after setting convienient params.
     Args:
         obj_default (any): default value of the object property.
             NOT stored in database, just set when returning select 
