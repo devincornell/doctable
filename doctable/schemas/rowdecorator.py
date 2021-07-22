@@ -9,7 +9,7 @@ class SlotsRequiredError(ValueError):
     message = 'Slots must be enabled by including "__slots__ = []". \
                 Otherwise set doctable.row(require_slots=False).'
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, message=self.message, **kwargs)
+        super().__init__(self.message, *args, **kwargs)
 
 
 
