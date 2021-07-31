@@ -3,12 +3,13 @@ import dataclasses
 import gc
 import multiprocessing
 import os
+import traceback
 from multiprocessing import Lock, Pipe, Pool, Process, Value
 from typing import Any, Callable, Dict, Iterable, List, Tuple
 
 from .exceptions import (UnidentifiedMessageReceivedError,
                          WorkerHasNoUserFunctionError, WorkerIsDeadError)
-from .messaging import (DataPayload, WorkerErrorMessage, SigClose, UserFunc,
+from .messaging import (DataPayload, UserFuncRaisedException, SigClose, UserFunc,
                         WorkerRaisedException)
 
 
@@ -46,21 +47,21 @@ class Worker:
 
             # process received data payload
             elif isinstance(payload, DataPayload):
-                payload = self.execute_and_send(payload)
+                self.execute_and_send(payload)
             
             # load new function
             elif isinstance(payload, UserFunc):
                 self.userfunc = payload
             
             else:
-                self.send(WorkerErrorMessage(UnidentifiedMessageReceivedError()))
+                self.send(WorkerRaisedException(UnidentifiedMessageReceivedError()))
 
     def execute_and_send(self, payload: DataPayload):
         '''Execute the provide function on the payload (modifies in-place), and return it.
         '''
         # check if worker has a user function
         if self.userfunc is None:
-            self.send(WorkerErrorMessage(WorkerHasNoUserFunctionError()))
+            self.send(WorkerRaisedException(WorkerHasNoUserFunctionError()))
             return
             
         # update pid and apply userfunc
@@ -70,8 +71,9 @@ class Worker:
         try:
             payload.data = self.userfunc.execute(payload.data)
         except BaseException as e:
-            self.send(WorkerRaisedException(e))
-            raise e
+            self.send(UserFuncRaisedException(e))
+            #traceback.print_exc()
+            return
 
         # send result back to WorkerResource
         self.send(payload)

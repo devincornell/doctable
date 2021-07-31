@@ -40,9 +40,9 @@ class SigClose(BaseMessage):
     '''WorkerResource telling Worker to close.'''
     pass
 
-class WorkerErrorMessage(BaseMessage):
-    '''Passes exception from user function to main thread (and lets it know 
-        there was an error).
+class WorkerRaisedException(BaseMessage):
+    '''Sent from Worker to WorkerResource when any worker exception is passed 
+    (not userfunc).
     '''
     def __init__(self, exception):
         self.e = exception
@@ -50,8 +50,12 @@ class WorkerErrorMessage(BaseMessage):
         return f'{self.__class__.__name__}({self.e})'
 
 
-class WorkerRaisedException(BaseMessage):
-    '''Sent from Worker to WorkerResource when worker encountered exception.'''
+class UserFuncRaisedException(BaseMessage):
+    '''Passes exception from user function to main thread (and lets it know 
+        there was an error with the user function).
+    '''
     def __init__(self, exception=None):
         self.e = exception
+    def __str__(self):
+        return f'{self.__class__.__name__}({self.e.__class__.__name__})'
 

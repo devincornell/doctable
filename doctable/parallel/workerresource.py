@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, Iterable, List, NewType, Tuple, Union
 from .exceptions import (WorkerDiedError,
                          WorkerIsAliveError,
                          WorkerIsDeadError, WorkerResourceReceivedUnidentifiedMessage)
-from .messaging import DataPayload, SigClose, UserFunc, WorkerRaisedException, WorkerErrorMessage
+from .messaging import DataPayload, SigClose, UserFunc, WorkerRaisedException, UserFuncRaisedException
 from .worker import Worker
 
 
@@ -79,10 +79,9 @@ class WorkerResource:
             return payload
 
         elif isinstance(payload, WorkerRaisedException):
-            self.join()
-            raise WorkerDiedError(self.proc.pid)
+            raise payload.e
 
-        elif isinstance(payload, WorkerErrorMessage):
+        elif isinstance(payload, UserFuncRaisedException):
             raise payload.e
         
         else:
