@@ -15,23 +15,27 @@ from .worker import Worker
 
 class WorkerResource:
     '''Manages a worker process and pipe to it.'''
-    __slots__ = ['pipe', 'proc']
-    verbose = False
+    __slots__ = ['pipe', 'proc', 'verbose']
 
     def __repr__(self):
         return f'{self.__class__.__name__}[{self.pid}]'
 
-    def __init__(self, target: Callable = None, start: bool = True, args=None, kwargs=None):
+    def __init__(self, target: Callable = None, start: bool = True, args=None, kwargs=None, verbose=False):
         '''Open Process and pipe to it.
         '''
+        self.verbose = verbose
+
         # set up userfunc
-        args = args if args is not None else tuple()
-        kwargs = kwargs if kwargs is not None else dict()
-        userfunc = UserFunc(target, *args, **kwargs)
+        if target is not None:
+            args = args if args is not None else tuple()
+            kwargs = kwargs if kwargs is not None else dict()
+            userfunc = UserFunc(target, *args, **kwargs)
+        else:
+            userfunc = None
 
         self.pipe, worker_pipe = Pipe(True)
         self.proc = Process(
-            target=Worker(worker_pipe, userfunc=userfunc), 
+            target=Worker(worker_pipe, userfunc=userfunc, verbose=verbose), 
         )
 
         # start worker if requested

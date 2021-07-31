@@ -22,15 +22,15 @@ def test_workerresource(n=100):
     '''Tests ability to solve tasks when tasks take an 
         unequal ammount of time to execute.
     '''
-    worker = doctable.WorkerResource(start=False)
+    worker = doctable.WorkerResource(start=False, verbose=True)
     assert(not worker.is_alive())
     worker.start()
     assert(worker.is_alive())
     
-    #with pytest.raises(doctable.WorkerHasNoUserFunctionError):
-    worker.execute(1)
+    with pytest.raises(doctable.WorkerHasNoUserFunctionError):
+        worker.execute(1)
     
-    worker.join()
+    #worker.join()
     exit()
 
     x = doctable.DataPayload(2)

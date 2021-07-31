@@ -37,25 +37,51 @@ class Worker:
             # wait to receive data
             try:
                 payload = self.recv()
-            except EOFError:
-                # parent process died
-                break
+            except (EOFError, BrokenPipeError):
+                exit(1)
+
+            # kill worker
+            if isinstance(payload, SigClose):
+                exit(1)
 
             # process received data payload
-            if isinstance(payload, DataPayload):
-                payload = self.execute_userfunc(payload)
-                self.send(payload)
+            elif isinstance(payload, DataPayload):
+                payload = self.execute_and_send(payload)
             
             # load new function
             elif isinstance(payload, UserFunc):
                 self.userfunc = payload
             
-            # kill worker
-            elif isinstance(payload, SigClose):
-                exit(0)
-            
             else:
-                self.pipe.send(WorkerErrorMessage(UnidentifiedMessageReceivedError()))
+                self.send(WorkerErrorMessage(UnidentifiedMessageReceivedError()))
+
+    def execute_and_send(self, payload: DataPayload):
+        '''Execute the provide function on the payload (modifies in-place), and return it.
+        '''
+        # check if worker has a user function
+        if self.userfunc is None:
+            self.send(WorkerErrorMessage(WorkerHasNoUserFunctionError()))
+            return
+            
+        # update pid and apply userfunc
+        payload.pid = self.pid
+        
+        # try to execute function and raise any errors
+        try:
+            payload.data = self.userfunc.execute(payload.data)
+        except BaseException as e:
+            self.send(WorkerRaisedException(e))
+            raise e
+
+        # send result back to WorkerResource
+        self.send(payload)
+        
+        # garbage collect if needed
+        if self.gcollect:
+            gc.collect()
+        
+
+    ############## Basic Send/Receive ##############
 
     def recv(self):
         payload = self.pipe.recv()
@@ -63,30 +89,6 @@ class Worker:
         return payload
 
     def send(self, data: Any):
-        if self.verbose: print(f'{self} sending: {data}')
+        if self.verbose: print(f'{self} sending: ({type}) {data}')
         return self.pipe.send(data)
 
-    def execute_userfunc(self, payload: DataPayload):
-        '''Execute the provide function on the payload (modifies in-place), and return it.
-        '''
-        # check if worker has a user function
-        if self.userfunc.is_valid:
-            
-            # update pid and apply userfunc
-            payload.pid = self.pid
-            
-            # try to execute function and raise any errors
-            try:
-                payload.data = self.userfunc.execute(payload.data)
-            except BaseException as e:
-                self.pipe.send(WorkerRaisedException(e))
-                raise e
-            
-            # garbage collect if needed
-            if self.gcollect:
-                gc.collect()
-            
-            return payload
-        
-        else:
-            self.pipe.send(WorkerErrorMessage(WorkerHasNoUserFunctionError()))
