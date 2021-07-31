@@ -2,6 +2,7 @@
 import time
 import random
 import multiprocessing
+import pytest
 
 import sys
 sys.path.append('..')
@@ -25,10 +26,15 @@ def test_workerresource(n=100):
     assert(not worker.is_alive())
     worker.start()
     assert(worker.is_alive())
+    
+    #with pytest.raises(doctable.WorkerHasNoUserFunctionError):
+    worker.execute(1)
+    
     worker.join()
+    exit()
 
     x = doctable.DataPayload(2)
-    worker = doctable.WorkerResource(userfunc_args=doctable.UserFuncArgs(y=2))
+    worker = doctable.WorkerResource(kwargs=dict(y=2))
     worker.update_userfunc(example_func)
     worker.send_payload(x)
     xr = worker.recv()

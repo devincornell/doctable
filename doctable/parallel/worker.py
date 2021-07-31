@@ -6,22 +6,17 @@ import os
 from multiprocessing import Lock, Pipe, Pool, Process, Value
 from typing import Any, Callable, Dict, Iterable, List, Tuple
 
-from .exceptions import (UnidentifiedMessageReceived, WorkerHasNoUserFunction,
-                         WorkerIsDeadError)
-from .messaging import DataPayload, SigClose, ChangeUserFunction, WorkerRaisedException
+from .exceptions import (UnidentifiedMessageReceivedError,
+                         WorkerHasNoUserFunctionError, WorkerIsDeadError)
+from .messaging import (DataPayload, WorkerErrorMessage, SigClose, UserFunc,
+                        WorkerRaisedException)
 
-
-class UserFuncArgs:
-    __slots__ = ['args', 'kwargs']
-    def __init__(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
 
 @dataclasses.dataclass
 class Worker:
     '''Basic worker meant to be run in a process.'''
     pipe: multiprocessing.Pipe
-    userfunc: Callable = None
+    userfunc: UserFunc = None
     gcollect: bool = False
     verbose: bool = False
 
@@ -29,14 +24,17 @@ class Worker:
     def pid(self):
         return os.getpid()
 
-    def __call__(self, userfunc_args: UserFuncArgs):
+    def __repr__(self):
+        return f'{self.__class__.__name__}[{self.pid}]'
+
+    def __call__(self):
         '''Call when opening the process.
-        Args:
-            userfunc_args: args to be passed to current userfunc on every execution.
         '''
         
         # main receive/send loop
         while True:
+
+            # wait to receive data
             try:
                 payload = self.recv()
             except EOFError:
@@ -45,48 +43,50 @@ class Worker:
 
             # process received data payload
             if isinstance(payload, DataPayload):
-                payload = self.execute_userfunc(payload, userfunc_args)
+                payload = self.execute_userfunc(payload)
                 self.send(payload)
             
             # load new function
-            elif isinstance(payload, ChangeUserFunction):
-                self.userfunc = payload.userfunc
+            elif isinstance(payload, UserFunc):
+                self.userfunc = payload
             
             # kill worker
             elif isinstance(payload, SigClose):
                 exit(0)
             
             else:
-                raise UnidentifiedMessageReceived(self.pid)
+                self.pipe.send(WorkerErrorMessage(UnidentifiedMessageReceivedError()))
 
     def recv(self):
         payload = self.pipe.recv()
-        if self.verbose: print(f'Worker({self.pid}) received: {payload}')
+        if self.verbose: print(f'{self} received: {payload}')
         return payload
 
     def send(self, data: Any):
-        if self.verbose: print(f'Worker({self.pid}) sending: {data}')
+        if self.verbose: print(f'{self} sending: {data}')
         return self.pipe.send(data)
 
-    def execute_userfunc(self, payload: DataPayload, userfunc_args: UserFuncArgs):
+    def execute_userfunc(self, payload: DataPayload):
         '''Execute the provide function on the payload (modifies in-place), and return it.
         '''
         # check if worker has a user function
-        if self.userfunc is None:
-            raise WorkerHasNoUserFunction(self.pid)
-
-        # update pid and apply userfunc
-        payload.pid = self.pid
-        
-        try:
-            payload.data = self.userfunc(payload.data, *userfunc_args.args, **userfunc_args.kwargs)
-        except BaseException as e:
-            self.pipe.send(WorkerRaisedException())
-            raise e
-        
-        # garbage collect if needed
-        if self.gcollect:
-            gc.collect()
-        
-        return payload
+        if self.userfunc.is_valid:
             
+            # update pid and apply userfunc
+            payload.pid = self.pid
+            
+            # try to execute function and raise any errors
+            try:
+                payload.data = self.userfunc.execute(payload.data)
+            except BaseException as e:
+                self.pipe.send(WorkerRaisedException(e))
+                raise e
+            
+            # garbage collect if needed
+            if self.gcollect:
+                gc.collect()
+            
+            return payload
+        
+        else:
+            self.pipe.send(WorkerErrorMessage(WorkerHasNoUserFunctionError()))
