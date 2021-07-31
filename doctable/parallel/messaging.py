@@ -6,7 +6,7 @@ from multiprocessing import Lock, Pipe, Pool, Process, Value
 from typing import Any, Callable, Dict, Iterable, List
 import gc
 import doctable.util
-
+from .exceptions import WorkerHasNoUserFunctionError
 class BaseMessage:
     pass
 
@@ -28,14 +28,12 @@ class UserFunc(BaseMessage):
         self.func = func
         self.args = args
         self.kwargs = kwargs
-    
-    @property
-    def is_valid(self):
-        return self.func is not None
 
     def execute(self, data: Any):
         '''Call function passing *args and **kwargs.
         '''
+        if self.func is None:
+            raise WorkerHasNoUserFunctionError()
         return self.func(data, *self.args, **self.kwargs)
 
 class SigClose(BaseMessage):
@@ -43,10 +41,13 @@ class SigClose(BaseMessage):
     pass
 
 class WorkerErrorMessage(BaseMessage):
-    '''Sent from Worker to WorkerResource when there is a problem (must provide the exception to raise).
+    '''Passes exception from user function to main thread (and lets it know 
+        there was an error).
     '''
     def __init__(self, exception):
         self.e = exception
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.e})'
 
 
 class WorkerRaisedException(BaseMessage):
