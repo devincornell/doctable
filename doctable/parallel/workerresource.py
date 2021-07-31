@@ -83,7 +83,6 @@ class WorkerResource:
             raise WorkerDiedError(self.proc.pid)
 
         elif isinstance(payload, WorkerErrorMessage):
-            self.join()
             raise payload.e
         
         else:

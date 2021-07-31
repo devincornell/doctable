@@ -30,7 +30,9 @@ def test_workerresource(n=100):
     with pytest.raises(doctable.WorkerHasNoUserFunctionError):
         worker.execute(1)
     
-    #worker.join()
+    worker.update_userfunc(example_func, y=2)
+    
+    worker.join()
     exit()
 
     x = doctable.DataPayload(2)
