@@ -43,6 +43,7 @@ class WorkerResource:
             self.start()
     
     def __del__(self):
+        print('WorkerResource.__del__ was called!')
         self.terminate(check_alive=False)
 
     ############### Pipe interface ###############
@@ -66,12 +67,8 @@ class WorkerResource:
             payload = self.pipe.recv()
             if self.verbose: print(f'{self} received: {payload}')
         
-        except BrokenPipeError:
-            if self.verbose: print('caught BrokenPipeError')
-            raise WorkerDiedError(self.proc.pid)
-
-        except EOFError:
-            if self.verbose: print('caught EOFError')
+        except (BrokenPipeError, EOFError, ConnectionResetError):
+            if self.verbose: print('caught one of (BrokenPipeError, EOFError, ConnectionResetError)')
             raise WorkerDiedError(self.proc.pid)
         
         # handle incoming data
@@ -79,6 +76,7 @@ class WorkerResource:
             return payload
 
         elif isinstance(payload, WorkerRaisedException):
+            #self.terminate(check_alive=True)
             raise payload.e
 
         elif isinstance(payload, UserFuncRaisedException):
@@ -107,8 +105,9 @@ class WorkerResource:
         if not self.proc.is_alive():
             raise WorkerIsDeadError('.update_userfunc()', self.proc.pid)
         try:
-            if self.verbose: print(f'{self} changing userfunc: {func}')
-            return self.pipe.send(UserFunc(func, *args, **kwargs))
+            newfunc = UserFunc(func, *args, **kwargs)
+            if self.verbose: print(f'{self} changing userfunc: {newfunc}')
+            return self.pipe.send(newfunc)
         except BrokenPipeError:
             raise WorkerDiedError(self.proc.pid)
 

@@ -34,6 +34,11 @@ def test_workerresource(n=100):
         worker.execute(1)
 
     worker.update_userfunc(example_func, y=2)
+    assert(worker.execute(1) == 1)
+    assert(worker.execute(2) == 4)
+    worker.join()
+    print('this test is over')
+    exit()
 
     with pytest.raises(doctable.WorkerDiedError):
         worker.execute('a')

@@ -21,6 +21,9 @@ class Worker:
     gcollect: bool = False
     verbose: bool = False
 
+    #def __del__(self):
+    #    if self.verbose: print(f'{self}.__del__ called')
+
     @property
     def pid(self):
         return os.getpid()
@@ -86,11 +89,12 @@ class Worker:
     ############## Basic Send/Receive ##############
 
     def recv(self):
+        if self.verbose: print(f'{self} waiting to receive')
         payload = self.pipe.recv()
         if self.verbose: print(f'{self} received: {payload}')
         return payload
 
     def send(self, data: Any):
-        if self.verbose: print(f'{self} sending: ({type}) {data}')
+        if self.verbose: print(f'{self} sending: {data}')
         return self.pipe.send(data)
 

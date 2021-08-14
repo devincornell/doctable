@@ -29,6 +29,11 @@ class UserFunc(BaseMessage):
         self.args = args
         self.kwargs = kwargs
 
+    def __repr__(self):
+        argstr = ', '.join(self.args)
+        kwargstr = ', '.join([f'{k}={v}' for k,v in self.kwargs.items()])
+        return f'{self.__class__.__name__}({self.func.__name__}(x, {argstr}, {kwargstr}))'
+
     def execute(self, data: Any):
         '''Call function passing *args and **kwargs.
         '''
