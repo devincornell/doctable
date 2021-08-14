@@ -51,7 +51,7 @@ def test_workerresource(n=100):
     y = 2
     with doctable.WorkerResource(example_sleep_func) as worker:
         print('started executing')
-        ys = [worker.execute(i/20000) for i in range(1000)]
+        ys = [worker.execute(i/100000) for i in range(100)]
         print('stopped executing')
         status = worker.get_status()
         print(status)
