@@ -10,7 +10,7 @@ from typing import Any, Callable, Dict, Iterable, List, Tuple
 from .exceptions import (UnidentifiedMessageReceivedError,
                          WorkerHasNoUserFunctionError, WorkerIsDeadError)
 from .messaging import (DataPayload, UserFuncRaisedException, SigClose, UserFunc,
-                        WorkerRaisedException)
+                        WorkerError)
 
 
 @dataclasses.dataclass
@@ -57,14 +57,14 @@ class Worker:
                 self.userfunc = payload
             
             else:
-                self.send(WorkerRaisedException(UnidentifiedMessageReceivedError()))
+                self.send(WorkerError(UnidentifiedMessageReceivedError()))
 
     def execute_and_send(self, payload: DataPayload):
         '''Execute the provide function on the payload (modifies in-place), and return it.
         '''
         # check if worker has a user function
         if self.userfunc is None:
-            self.send(WorkerRaisedException(WorkerHasNoUserFunctionError()))
+            self.send(WorkerError(WorkerHasNoUserFunctionError()))
             return
             
         # update pid and apply userfunc

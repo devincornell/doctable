@@ -45,7 +45,7 @@ class SigClose(BaseMessage):
     '''WorkerResource telling Worker to close.'''
     pass
 
-class WorkerRaisedException(BaseMessage):
+class WorkerError(BaseMessage):
     '''Sent from Worker to WorkerResource when any worker exception is passed 
     (not userfunc).
     '''
