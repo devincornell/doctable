@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, Iterable, List, Tuple
 
 from .exceptions import (UnidentifiedMessageReceivedError,
                          WorkerHasNoUserFunctionError, WorkerIsDeadError)
-from .messaging import (DataPayload, UserFuncRaisedException, SigClose, UserFunc,
+from .messaging import (DataPayload, UserFuncException, SigClose, UserFunc,
                         WorkerError)
 
 
@@ -74,8 +74,8 @@ class Worker:
         try:
             payload.data = self.userfunc.execute(payload.data)
         except BaseException as e:
-            self.send(UserFuncRaisedException(e))
-            #traceback.print_exc()
+            self.send(UserFuncException(e))
+            traceback.print_exc()
             return
 
         # send result back to WorkerResource

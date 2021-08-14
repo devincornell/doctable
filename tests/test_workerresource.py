@@ -9,17 +9,8 @@ import sys
 sys.path.append('..')
 import doctable
 
-def example_func(x, y=None):
+def example_func(x, y=2):
     return x**y
-
-
-def example_func2(x):
-    return x + 'a'
-
-
-def example_func3(x):
-    return x + 1
-
 
 def test_workerresource(n=100):
     '''Tests ability to solve tasks when tasks take an 
@@ -36,35 +27,24 @@ def test_workerresource(n=100):
     worker.update_userfunc(example_func, y=2)
     assert(worker.execute(1) == 1)
     assert(worker.execute(2) == 4)
-    worker.join()
-    print('this test is over')
-    exit()
 
-    with pytest.raises(doctable.WorkerDiedError):
+    with pytest.raises(doctable.UserFuncRaisedException):
         worker.execute('a')
 
     worker.join()
-    exit()
 
-    x = doctable.DataPayload(2)
-    worker = doctable.WorkerResource(kwargs=dict(y=2))
-    worker.update_userfunc(example_func)
-    worker.send_payload(x)
-    xr = worker.recv()
-    print(x, xr)
-    worker.join()
-    assert(example_func(x.data, y=2) == xr.data)
+    x = 5
+    y = 2
+    with doctable.WorkerResource(example_func, kwargs=dict(y=y)) as worker:
+        worker.send_data(x)
+        z = worker.recv_data()
+        assert(z == x**y)
 
-    worker1 = doctable.WorkerResource(userfunc=example_func2)
-    worker2 = doctable.WorkerResource(userfunc=example_func3)
-
-    worker1.send_payload(doctable.DataPayload(0))
-
-    try:
-        print(worker1.recv())
-    except doctable.WorkerDiedError:
-        worker1.join()
-        worker2.join()
+    y = 3    
+    with doctable.WorkerResource(example_func, kwargs=dict(y=y)) as worker:
+        worker.send_data(x)
+        z = worker.recv_data()
+        assert(z == x**y)
 
 
 if __name__ == '__main__':

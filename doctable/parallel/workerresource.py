@@ -8,8 +8,10 @@ from typing import Any, Callable, Dict, Iterable, List, NewType, Tuple, Union
 
 from .exceptions import (WorkerDiedError,
                          WorkerIsAliveError,
-                         WorkerIsDeadError, WorkerResourceReceivedUnidentifiedMessage)
-from .messaging import DataPayload, SigClose, UserFunc, WorkerError, UserFuncRaisedException
+                         WorkerIsDeadError, 
+                         WorkerResourceReceivedUnidentifiedMessage, 
+                         UserFuncRaisedException)
+from .messaging import DataPayload, SigClose, UserFunc, WorkerError, UserFuncException
 from .worker import Worker
 
 
@@ -17,10 +19,7 @@ class WorkerResource:
     '''Manages a worker process and pipe to it.'''
     __slots__ = ['pipe', 'proc', 'verbose']
 
-    def __repr__(self):
-        return f'{self.__class__.__name__}[{self.pid}]'
-
-    def __init__(self, target: Callable = None, start: bool = True, args=None, kwargs=None, verbose=False):
+    def __init__(self, target: Callable = None, start: bool = False, args=None, kwargs=None, verbose=False):
         '''Open Process and pipe to it.
         '''
         self.verbose = verbose
@@ -42,8 +41,19 @@ class WorkerResource:
         if start:
             self.start()
     
+    def __repr__(self):
+        return f'{self.__class__.__name__}[{self.pid}]'
+    
+    def __enter__(self):
+        if not self.is_alive():
+            self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        self.join()
+    
     def __del__(self):
-        print('WorkerResource.__del__ was called!')
+        if self.verbose: print('WorkerResource.__del__ was called!')
         self.terminate(check_alive=False)
 
     ############### Pipe interface ###############
@@ -53,11 +63,11 @@ class WorkerResource:
         return self.pipe.poll()
 
     def recv_data(self):
-        '''Receive raw data.'''
+        '''Receive raw data from user function.'''
         return self.recv().data
     
     def send_data(self, data: Any):
-        '''Send any data to worker process.'''
+        '''Send any data to worker process to be handled by user function.'''
         return self.send_payload(DataPayload(data))
     
     def recv(self) -> DataPayload:
@@ -79,8 +89,8 @@ class WorkerResource:
             #self.terminate(check_alive=True)
             raise payload.e
 
-        elif isinstance(payload, UserFuncRaisedException):
-            raise payload.e
+        elif isinstance(payload, UserFuncException):
+            raise UserFuncRaisedException(payload.e)
         
         else:
             raise WorkerResourceReceivedUnidentifiedMessage()

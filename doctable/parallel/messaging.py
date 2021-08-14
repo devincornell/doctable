@@ -55,12 +55,13 @@ class WorkerError(BaseMessage):
         return f'{self.__class__.__name__}({self.e})'
 
 
-class UserFuncRaisedException(BaseMessage):
+class UserFuncException(BaseMessage):
     '''Passes exception from user function to main thread (and lets it know 
         there was an error with the user function).
     '''
     def __init__(self, exception=None):
         self.e = exception
+    
     def __str__(self):
         return f'{self.__class__.__name__}({self.e.__class__.__name__})'
 

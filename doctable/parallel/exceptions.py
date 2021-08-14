@@ -28,6 +28,10 @@ class WorkerHasNoUserFunctionError(WorkerResourceBaseException):
             'or update the worker\'s function using '
             '.update_userfunc().')
 
+class UserFuncRaisedException(Exception):
+    def __init__(self, userfunc_exception, *args, **kwargs):
+        self.userfunc_exception = userfunc_exception
+        super().__init__(*args, **kwargs)
 
 #no_function_error_msg = ('Worker {pid} was not provided '
 #    'with a function. Either provide a function when '
