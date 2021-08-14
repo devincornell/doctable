@@ -9,8 +9,12 @@ from typing import Any, Callable, Dict, Iterable, List, Tuple
 
 from .exceptions import (UnidentifiedMessageReceivedError,
                          WorkerHasNoUserFunctionError, WorkerIsDeadError)
-from .messaging import (DataPayload, UserFuncException, SigClose, UserFunc,
-                        WorkerError)
+from .messaging import (DataPayload, WorkerStatus, UserFuncException, SigClose, UserFunc,
+                        WorkerError, StatusRequest)
+import time
+
+
+
 
 
 @dataclasses.dataclass
@@ -20,9 +24,8 @@ class Worker:
     userfunc: UserFunc = None
     gcollect: bool = False
     verbose: bool = False
-
-    #def __del__(self):
-    #    if self.verbose: print(f'{self}.__del__ called')
+    logging: bool = False
+    status: WorkerStatus = dataclasses.field(default_factory=WorkerStatus)
 
     @property
     def pid(self):
@@ -40,7 +43,9 @@ class Worker:
 
             # wait to receive data
             try:
+                if self.logging: start = time.time()
                 payload = self.recv()
+                if self.logging: self.status.time_waiting += time.time() - start
             except (EOFError, BrokenPipeError):
                 exit(1)
 
@@ -55,6 +60,11 @@ class Worker:
             # load new function
             elif isinstance(payload, UserFunc):
                 self.userfunc = payload
+
+            # return status of worker
+            elif isinstance(payload, StatusRequest):
+                self.status.update_uptime()
+                self.send(self.status)
             
             else:
                 self.send(WorkerError(UnidentifiedMessageReceivedError()))
@@ -72,7 +82,11 @@ class Worker:
         
         # try to execute function and raise any errors
         try:
+            if self.logging: start = time.time()
             payload.data = self.userfunc.execute(payload.data)
+            if self.logging:
+                self.status.time_working += time.time() - start
+                self.status.jobs_finished += 1
         except BaseException as e:
             self.send(UserFuncException(e))
             traceback.print_exc()

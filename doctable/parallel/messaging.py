@@ -7,6 +7,8 @@ from typing import Any, Callable, Dict, Iterable, List
 import gc
 import doctable.util
 from .exceptions import WorkerHasNoUserFunctionError
+import datetime
+
 class BaseMessage:
     pass
 
@@ -18,6 +20,32 @@ class DataPayload(BaseMessage):
     ind: int = 0
     pid: int = None
     #def __lt__(self, other): return self.ind < other.ind
+
+
+class StatusRequest(BaseMessage):
+    pass
+
+@doctable.util.slots_dataclass
+class WorkerStatus(BaseMessage):
+    __slots__ = []
+    pid: int = os.getpid()
+    start_ts: int = dataclasses.field(default_factory=datetime.datetime.now)
+    time_waiting: int = 0
+    time_working: int = 0
+    jobs_finished: int = 0
+    uptime: int = None # to be updated before sending
+
+    def update_uptime(self):
+        self.uptime = datetime.datetime.now() - self.start_ts
+
+    def efficiency(self):
+        return self.time_working / (self.time_working + self.time_waiting)
+
+    def total_efficiency(self):
+        return self.time_working / self.uptime.total_seconds()
+
+    def sec_per_job(self):
+        return self.time_working / self.jobs_finished
 
 class UserFunc(BaseMessage):
     '''Contains a user function and data to be passed to it when calling.

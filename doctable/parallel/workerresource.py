@@ -6,12 +6,11 @@ import os
 from multiprocessing import Lock, Pipe, Pool, Process, Value
 from typing import Any, Callable, Dict, Iterable, List, NewType, Tuple, Union
 
-from .exceptions import (WorkerDiedError,
-                         WorkerIsAliveError,
-                         WorkerIsDeadError, 
-                         WorkerResourceReceivedUnidentifiedMessage, 
-                         UserFuncRaisedException)
-from .messaging import DataPayload, SigClose, UserFunc, WorkerError, UserFuncException
+from .exceptions import (UserFuncRaisedException, WorkerDiedError,
+                         WorkerIsAliveError, WorkerIsDeadError,
+                         WorkerResourceReceivedUnidentifiedMessage)
+from .messaging import (BaseMessage, DataPayload, SigClose, StatusRequest,
+                        UserFunc, UserFuncException, WorkerError, WorkerStatus)
 from .worker import Worker
 
 
@@ -19,7 +18,7 @@ class WorkerResource:
     '''Manages a worker process and pipe to it.'''
     __slots__ = ['pipe', 'proc', 'verbose']
 
-    def __init__(self, target: Callable = None, start: bool = False, args=None, kwargs=None, verbose=False):
+    def __init__(self, target: Callable = None, start: bool = False, args=None, kwargs=None, logging=True, verbose=False):
         '''Open Process and pipe to it.
         '''
         self.verbose = verbose
@@ -34,7 +33,7 @@ class WorkerResource:
 
         self.pipe, worker_pipe = Pipe(True)
         self.proc = Process(
-            target=Worker(worker_pipe, userfunc=userfunc, verbose=verbose), 
+            target=Worker(worker_pipe, userfunc=userfunc, verbose=verbose, logging=logging), 
         )
 
         # start worker if requested
@@ -57,19 +56,50 @@ class WorkerResource:
         self.terminate(check_alive=False)
 
     ############### Pipe interface ###############
-    def poll(self): 
+    def poll(self) -> bool: 
         '''Check if worker sent anything.
         '''
         return self.pipe.poll()
 
-    def recv_data(self):
+    def execute(self, data: Any):
+        '''Send data to worker and blocking return result upon reception.
+        '''
+        self.send_data(data)
+        return self.recv_data()
+
+    def recv_data(self) -> Any:
         '''Receive raw data from user function.'''
         return self.recv().data
     
-    def send_data(self, data: Any):
+    def send_data(self, data: Any) -> None:
         '''Send any data to worker process to be handled by user function.'''
         return self.send_payload(DataPayload(data))
-    
+
+    def update_userfunc(self, func: Callable, *args, **kwargs):
+        '''Send a new UserFunc to worker process.
+        '''
+        return self.send_payload(UserFunc(func, *args, **kwargs))
+
+    def get_status(self):
+        '''Blocking request status update from worker.
+        '''
+        self.send_payload(StatusRequest())
+        return self.recv()
+
+    def send_payload(self, payload: BaseMessage) -> None:
+        '''Send a Message (DataPayload or otherwise) to worker process.
+        '''
+        if not self.proc.is_alive():
+            raise WorkerIsDeadError('.send_payload()', self.proc.pid)
+        
+        if self.verbose: print(f'{self} sending: {payload}')
+        
+        try:
+            return self.pipe.send(payload)
+        
+        except BrokenPipeError:
+            raise WorkerDiedError(self.proc.pid)
+
     def recv(self) -> DataPayload:
         '''Receive and handle received message.
         '''
@@ -82,7 +112,7 @@ class WorkerResource:
             raise WorkerDiedError(self.proc.pid)
         
         # handle incoming data
-        if isinstance(payload, DataPayload):
+        if isinstance(payload, DataPayload) or isinstance(payload, WorkerStatus):
             return payload
 
         elif isinstance(payload, WorkerError):
@@ -94,55 +124,25 @@ class WorkerResource:
         
         else:
             raise WorkerResourceReceivedUnidentifiedMessage()
-
-    def send_payload(self, payload: DataPayload):
-        '''Send a DataPayload to worker process.
-        '''
-        if not self.proc.is_alive():
-            raise WorkerIsDeadError('.send_payload()', self.proc.pid)
-        
-        payload.pid = self.proc.pid
-        try:
-            if self.verbose: print(f'{self} sending: {payload}')
-            return self.pipe.send(payload)
-        
-        except BrokenPipeError:
-            raise WorkerDiedError(self.proc.pid)
-
-    def update_userfunc(self, func: Callable, *args, **kwargs):
-        '''Send a new UserFunc to worker process.
-        '''
-        if not self.proc.is_alive():
-            raise WorkerIsDeadError('.update_userfunc()', self.proc.pid)
-        try:
-            newfunc = UserFunc(func, *args, **kwargs)
-            if self.verbose: print(f'{self} changing userfunc: {newfunc}')
-            return self.pipe.send(newfunc)
-        except BrokenPipeError:
-            raise WorkerDiedError(self.proc.pid)
-
-    def execute(self, data: Any):
-        '''Blocking send data to worker and return result upon reception.
-        '''
-        self.send_data(data)
-        return self.recv_data()
-
-
     
     ############### Process interface ###############
     @property
     def pid(self):
+        '''Get process id from worker.'''
         return self.proc.pid
     
     def is_alive(self, *arsg, **kwargs):
+        '''Get status of process.'''
         return self.proc.is_alive(*arsg, **kwargs)
     
     def start(self):
+        '''Start the process, throws WorkerIsAliveError if already alive.'''
         if self.proc.is_alive():
             raise WorkerIsAliveError('.start()', self.proc.pid)
         return self.proc.start()
     
     def join(self, check_alive=True):
+        '''Send SigClose() to Worker and then wait for it to die.'''
         if check_alive and not self.proc.is_alive():
             raise WorkerIsDeadError('.join()', self.proc.pid)
         try:
@@ -152,6 +152,7 @@ class WorkerResource:
         return self.proc.join()
 
     def terminate(self, check_alive=True): 
+        '''Send terminate signal to worker.'''
         if check_alive and not self.proc.is_alive():
             raise WorkerIsDeadError('.terminate()', self.proc.pid)
         return self.proc.terminate()
