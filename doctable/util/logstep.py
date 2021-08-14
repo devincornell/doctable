@@ -3,13 +3,14 @@ import doctable
 import datetime
 import dataclasses
 import psutil
-
+from .slots import slots_dataclass
 from typing import Callable, List, Dict, Any, TypeVar
 
 LogStepType = TypeVar('LogStepType')
 
-@doctable.slots_dataclass
+@slots_dataclass
 class LogStepDiff:
+    __slots__ = []
     ind_diff: int
     ts_diff: datetime.timedelta
     mem_diff: int
@@ -18,11 +19,12 @@ class LogStepDiff:
     meta1: Any
     meta2: Any
 
-@doctable.slots_dataclass
+@slots_dataclass
 class LogStep:
+    __slots__ = []
     ind: int = None
     msg: str = None
-    ts: datetime.datetime = dataclasses.field(default_factory=datetime.now)
+    ts: datetime.datetime = dataclasses.field(default_factory=datetime.datetime.now)
     mem: int = dataclasses.field(default_factory=lambda: psutil.virtual_memory().used)
     meta: Any = None
 
