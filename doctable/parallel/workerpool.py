@@ -10,53 +10,49 @@ from .exceptions import WorkerDied
 from .worker import UserFuncArgs
 
 class WorkerPool:
-    def __init__(self, num_workers: int):
+    workers: List[WorkerResource] = None
+
+    def __init__(self, num_workers: int, logging: bool = False, verbose: bool = False):
         self.num_workers = num_workers
-        self.workers = None
+        self.logging = logging
+        self.verbose = verbose
     
     def __del__(self):
-        if self.is_alive():
-            self.terminate()
+        self.terminate()
     
     def __enter__(self):
+        if not self.any_alive():
+            self.start_workers()
         return self
 
     def __exit__(self, *args):
         self.close_workers()
 
-    ####################### Process Management #######################
-    def is_alive(self):
-        return self.workers is not None and any([w.is_alive() for w in self])
+    ####################### Starting/Polling Workers #######################
+    def any_alive(self):
+        return self.workers is not None and any([w.is_alive() for w in self.workers])
     
-    def start_workers(self, func: Callable = None, worker_args: UserFuncArgs = None):
-        if self.is_alive():
+    def start_workers(self, *worker_args, func: Callable = None, **worker_kwargs):
+        if self.any_alive():
             raise ValueError('This Pool already has running workers.')
         
         # start each worker
-        for ind in range(self.num_workers):
-            self.workers.append(WorkerResource(func=func, worker_args=worker_args, start=True))
+        for _ in range(self.num_workers):
+            self.workers.append(WorkerResource(
+                func=func, 
+                start=True, 
+                verbose = self.verbose,
+                logging = self.logging,
+                args=worker_args, 
+                kwargs=worker_kwargs,
+            ))
         
         return self
     
-    ############### Low-Level Process Operations ###############
-    def join(self):
-        if self.is_alive():
-            [w.join() for w in self.workers]
-            self.workers = None
-        else:
-            raise ValueError('Cannot join this pool because it has no workers.')
-    
-    def terminate(self): 
-        if self.is_alive():
-            [w.terminate() for w in self.workers]
-            self.workers = None
-        else:
-            raise ValueError('Cannot join this pool because it has no workers.')
-    
     ####################### Data Transmission #######################
-    def map(self, func: Callable, elements: Iterable[Any], *args, **kwargs):
+    def map(self, func: Callable, elements: Iterable[Any], *worker_args, **worker_kwargs):
 
-        was_alive = self.pool.is_alive()
+        was_alive = self.any_alive()
         self.start_workers(*args, func=func, **kwargs)
 
         elem_iter = iter(elements)
@@ -105,4 +101,23 @@ class WorkerPool:
 
         return results
 
-
+    ############### Stopping Workers ###############
+    def join(self):
+        '''Attempt to join each worker, delete workers.'''
+        if self.workers is not None:
+            for w in self.workers:
+                if w.is_alive():
+                    w.join()
+            self.workers = None
+        else:
+            raise ValueError('Cannot join this pool because it has no workers.')
+    
+    def terminate(self):
+        '''Attempt to terminate each worker, delete workers.'''
+        if self.workers is not None:
+            for w in self.workers:
+                if w.is_alive():
+                    w.terminate()
+            self.workers = None
+        else:
+            raise ValueError('Cannot terminate this pool because it has no workers.')

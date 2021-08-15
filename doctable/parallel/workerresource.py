@@ -31,8 +31,9 @@ class WorkerResource:
         else:
             userfunc = None
 
-        self.pipe, worker_pipe = Pipe(True)
-        self.proc = Process(
+        ctx = multiprocessing.get_context('spawn')
+        self.pipe, worker_pipe = Pipe(duplex=True)
+        self.proc = ctx.Process(
             target=Worker(worker_pipe, userfunc=userfunc, verbose=verbose, logging=logging), 
         )
 
