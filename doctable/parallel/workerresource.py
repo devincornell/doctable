@@ -18,7 +18,7 @@ class WorkerResource:
     '''Manages a worker process and pipe to it.'''
     __slots__ = ['pipe', 'proc', 'verbose']
 
-    def __init__(self, target: Callable = None, start: bool = False, args=None, kwargs=None, logging=True, verbose=False):
+    def __init__(self, target: Callable = None, start: bool = False, args=None, kwargs=None, logging=True, verbose=False, method='forkserver'):
         '''Open Process and pipe to it.
         '''
         self.verbose = verbose
@@ -31,7 +31,7 @@ class WorkerResource:
         else:
             userfunc = None
 
-        ctx = multiprocessing.get_context('spawn')
+        ctx = multiprocessing.get_context(method)
         self.pipe, worker_pipe = Pipe(duplex=True)
         self.proc = ctx.Process(
             target=Worker(worker_pipe, userfunc=userfunc, verbose=verbose, logging=logging), 
