@@ -32,7 +32,7 @@ class WorkerPool:
     def any_alive(self):
         return self.workers is not None and any([w.is_alive() for w in self.workers])
     
-    def start_workers(self, *worker_args, func: Callable = None, **worker_kwargs):
+    def start_workers(self, func: Callable = None, args: Iterable[Any] = None, kwargs: Dict[str,Any] = None):
         if self.any_alive():
             raise ValueError('This Pool already has running workers.')
         
@@ -43,8 +43,8 @@ class WorkerPool:
                 start=True, 
                 verbose = self.verbose,
                 logging = self.logging,
-                args=worker_args, 
-                kwargs=worker_kwargs,
+                args=args, 
+                kwargs=kwargs,
             ))
         
         return self
@@ -53,7 +53,7 @@ class WorkerPool:
     def map(self, func: Callable, elements: Iterable[Any], *worker_args, **worker_kwargs):
 
         was_alive = self.any_alive()
-        self.start_workers(*args, func=func, **kwargs)
+        self.start_workers(func=func, args=worker_args, kwargs=worker_kwargs)
 
         elem_iter = iter(elements)
         
