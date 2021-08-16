@@ -39,9 +39,10 @@ def test_workerpool(n=100):
         print(f'av efficiency: {pool.av_efficiency()}')
 
     elements = list(range(100))
-    with doctable.WorkerPool(3, verbose=False) as pool:
-        pool.map(example_sleep_func, elements)
-        print(f'av efficiency: {pool.av_efficiency()}')
+    with doctable.Timer():
+        with doctable.WorkerPool(10, verbose=False) as pool:
+            pool.map(example_sleep_func, elements)
+            print(f'av efficiency: {pool.av_efficiency()}')
 
 if __name__ == '__main__':
     test_workerpool()
