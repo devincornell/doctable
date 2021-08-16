@@ -72,9 +72,9 @@ class WorkerResource:
         '''Receive raw data from user function.'''
         return self.recv().data
     
-    def send_data(self, data: Any) -> None:
+    def send_data(self, data: Any, **kwargs) -> None:
         '''Send any data to worker process to be handled by user function.'''
-        return self.send_payload(DataPayload(data))
+        return self.send_payload(DataPayload(data, **kwargs))
 
     def update_userfunc(self, func: Callable, *args, **kwargs):
         '''Send a new UserFunc to worker process.
@@ -102,7 +102,7 @@ class WorkerResource:
             raise WorkerDiedError(self.proc.pid)
 
     def recv(self) -> DataPayload:
-        '''Receive and handle received message.
+        '''Return received DataPayload or raise exception.
         '''
         try:
             payload = self.pipe.recv()

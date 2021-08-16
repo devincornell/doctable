@@ -8,6 +8,7 @@ import statistics
 
 from .exceptions import NoWorkersAvailable
 from .workerresource import WorkerResource
+from .messaging import DataPayload
 
 @dataclasses.dataclass
 class WorkerPool:
@@ -88,6 +89,7 @@ class WorkerPool:
     ####################### Data Transmission #######################
     def map(self, func: Callable, elements: Iterable[Any], *worker_args, **worker_kwargs):
 
+        # send the function and any static args to the workers
         self.update_userfunc(func, worker_args, worker_kwargs)
 
         # make an iterable to stream data
@@ -101,33 +103,25 @@ class WorkerPool:
             except StopIteration:
                 break
             
-            worker.send(ind, nextdata)
+            worker.send_data(nextdata, ind=ind)
             ind += 1
 
         # send data to each process
         results = list()
         do_loop = True
-        worker_died = False
         while do_loop or len(results) < ind:
-            for worker in self.pool:
+            for worker in self.workers:
                 if worker.poll():
-                    try:
-                        results.append(worker.recv())
-                    except EOFError as e:
-                        worker_died = True
-                        do_loop = False
-                        break
+                    
+                    results.append(worker.recv())
                     try:
                         nextdata = next(elem_iter)
                     except StopIteration:
                         do_loop = False
                         break
                 
-                    worker.send(ind, nextdata)
+                    worker.send_data(nextdata, ind=ind)
                     ind += 1
-
-        if worker_died:
-            raise WorkerDied(worker.pid)
         
         # sort results
         results = [r.data for r in sorted(results)]
