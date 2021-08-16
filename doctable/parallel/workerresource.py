@@ -18,7 +18,7 @@ class WorkerResource:
     '''Manages a worker process and pipe to it.'''
     __slots__ = ['pipe', 'proc', 'verbose']
 
-    def __init__(self, target: Callable = None, start: bool = False, args=None, kwargs=None, logging=True, verbose=False, method='forkserver'):
+    def __init__(self, target: Callable = None, start: bool = False, args=None, kwargs=None, logging: bool = True, verbose: bool = False, method: str = 'forkserver'):
         '''Open Process and pipe to it.
         '''
         self.verbose = verbose
@@ -53,7 +53,7 @@ class WorkerResource:
         self.join()
     
     def __del__(self):
-        if self.verbose: print('WorkerResource.__del__ was called!')
+        if self.verbose: print(f'{self}.__del__ was called!')
         self.terminate(check_alive=False)
 
     ############### Pipe interface ###############

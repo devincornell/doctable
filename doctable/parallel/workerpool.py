@@ -4,62 +4,98 @@ import os
 import dataclasses
 from typing import Iterable, Callable, List, Dict, Any, Tuple, NewType
 import collections
+import statistics
 
+from .exceptions import NoWorkersAvailable
 from .workerresource import WorkerResource
-from .exceptions import WorkerDied
-from .worker import UserFuncArgs
 
+@dataclasses.dataclass
 class WorkerPool:
-    workers: List[WorkerResource] = None
+    num_workers: int
+    logging: bool = True
+    verbose: bool = False
+    method: str = 'forkserver'
+    workers: List[WorkerResource] = dataclasses.field(default_factory=list)
 
-    def __init__(self, num_workers: int, logging: bool = False, verbose: bool = False):
-        self.num_workers = num_workers
-        self.logging = logging
-        self.verbose = verbose
+    def __post_init__(self):
+        pass
     
     def __del__(self):
-        self.terminate()
+        self.terminate(check=False)
     
     def __enter__(self):
         if not self.any_alive():
-            self.start_workers()
+            self.start()
         return self
 
     def __exit__(self, *args):
-        self.close_workers()
+        self.join(check=False)
+
+    def __getitem__(self, ind: int):
+        return self.workers[ind]
+    
+    def __iter__(self):
+        return iter(self.workers)
 
     ####################### Starting/Polling Workers #######################
     def any_alive(self):
+        '''Check if any processes are alive.
+        '''
         return self.workers is not None and any([w.is_alive() for w in self.workers])
     
-    def start_workers(self, func: Callable = None, args: Iterable[Any] = None, kwargs: Dict[str,Any] = None):
+    def start(self):
+        '''Start workers.
+        '''
         if self.any_alive():
             raise ValueError('This Pool already has running workers.')
         
         # start each worker
         for _ in range(self.num_workers):
             self.workers.append(WorkerResource(
-                func=func, 
                 start=True, 
                 verbose = self.verbose,
                 logging = self.logging,
-                args=args, 
-                kwargs=kwargs,
+                method = self.method,
             ))
         
         return self
+
+    def update_userfunc(self, func: Callable, args, kwargs):
+        '''Update userfunction of all workers.
+        '''
+        self.apply(lambda w: w.update_userfunc(func, *args, **kwargs))
+
+    ####################### Status Reporting #######################
+    def get_statuses(self):
+        '''Get statuses of each process (includes uptime, efficiency, etc).
+        '''
+        return self.apply(lambda w: w.get_status())
+
+    def av_efficiency(self):
+        '''Get average time spent working on jobs vs time spent waiting for new data.
+        '''
+        return statistics.mean([s.efficiency() for s in self.get_statuses()])
+    
+    def av_total_efficiency(self):
+        '''Average time working on jobs vs lifetime of process.
+        '''
+        return statistics.mean([s.total_efficiency() for s in self.get_statuses()])
+
+    def av_sec_per_job(self):
+        '''Average number of seconds to complete each job.'''
+        return statistics.mean([s.sec_per_job() for s in self.get_statuses()])
     
     ####################### Data Transmission #######################
     def map(self, func: Callable, elements: Iterable[Any], *worker_args, **worker_kwargs):
 
-        was_alive = self.any_alive()
-        self.start_workers(func=func, args=worker_args, kwargs=worker_kwargs)
+        self.update_userfunc(func, worker_args, worker_kwargs)
 
+        # make an iterable to stream data
         elem_iter = iter(elements)
         
         # send first data to each process
         ind = 0
-        for worker in self.pool:
+        for worker in self.workers:
             try:
                 nextdata = next(elem_iter)
             except StopIteration:
@@ -96,28 +132,29 @@ class WorkerPool:
         # sort results
         results = [r.data for r in sorted(results)]
 
-        if not was_alive:
-            self.close_workers()
-
         return results
 
     ############### Stopping Workers ###############
-    def join(self):
-        '''Attempt to join each worker, delete workers.'''
-        if self.workers is not None:
-            for w in self.workers:
-                if w.is_alive():
-                    w.join()
-            self.workers = None
-        else:
-            raise ValueError('Cannot join this pool because it has no workers.')
+    def join(self, check: bool = True):
+        '''Attempt to join each worker, delete workers.
+        '''
+        self.apply(lambda w: w.join(), check=check)
+        self.workers = None
     
-    def terminate(self):
-        '''Attempt to terminate each worker, delete workers.'''
+    def terminate(self, check: bool = True):
+        '''Attempt to terminate each worker, delete workers.
+        '''
+        self.apply(lambda w: w.terminate(), check=check)
+        self.workers = None
+
+    def apply(self, func: Callable, check: bool = True):
+        '''Apply a function to each worker if it is alive.
+        '''
         if self.workers is not None:
+            results = list()
             for w in self.workers:
                 if w.is_alive():
-                    w.terminate()
-            self.workers = None
-        else:
-            raise ValueError('Cannot terminate this pool because it has no workers.')
+                    results.append(func(w))
+            return results
+        elif check:
+            raise NoWorkersAvailable('whatever')
