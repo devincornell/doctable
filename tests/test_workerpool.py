@@ -38,7 +38,7 @@ def test_workerpool(n=100):
         assert(pool.map(example_func, elements) == [example_func(e) for e in elements])
         print(f'av efficiency: {pool.av_efficiency()}')
 
-    elements = list(range(1000))
+    elements = list(range(100))
     with doctable.WorkerPool(3, verbose=False) as pool:
         pool.map(example_sleep_func, elements)
         print(f'av efficiency: {pool.av_efficiency()}')
