@@ -29,7 +29,7 @@ def timed_test(num):
     time.sleep((num**2)/10000)
 
 def timed_step(num):
-    time.sleep(num/10)
+    time.sleep(num/1000)
 
 def array_test(a):
     return a.dot(a)
@@ -44,11 +44,12 @@ def simple_primefinder(n=1000):
 
     timer.step('making elements')
 
-    if True:
+    if False:
         test_func = find_prime_long
         elements = list(range(n))
         random.shuffle(elements)
-    else:
+    
+    elif False:
         test_func = array_test
 
         import numpy as np
@@ -56,6 +57,11 @@ def simple_primefinder(n=1000):
         for a in elements:
             a[0] = 0
         print(len(elements), elements[0].shape)
+        
+    elif True:
+        test_func = timed_step
+        elements = list(range(n))
+        random.shuffle(elements)
 
     timer.step('check ram')
     
@@ -65,7 +71,7 @@ def simple_primefinder(n=1000):
         prime_single = list(map(test_func, elements))
  
     timer.step('multiprocessing.Pool')
-    with multiprocessing.Pool(5) as p:
+    with multiprocessing.Pool(24) as p:
         prime_multi = p.map(test_func, elements)
 
     if False:
@@ -80,13 +86,14 @@ def simple_primefinder(n=1000):
         timer.step('imap_unordered')
         with multiprocessing.Pool(6) as p:
             prime_unordered = list(p.imap_unordered(test_func, elements, 100))
-
+    
+    if False:
         timer.step('doctable.Distribute')
-        with doctable.Distribute(6) as d:
+        with doctable.Distribute(24) as d:
             prime_distribute = d.map_chunk(test_func, elements)
 
     timer.step('doctable.WorkerPool')
-    with doctable.WorkerPool(5) as p:
+    with doctable.WorkerPool(24) as p:
         prime_async = p.map(test_func, elements)
         print(f'av efficiency: {p.av_efficiency()}')
 
