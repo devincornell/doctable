@@ -43,31 +43,37 @@ def simple_primefinder(n=1000):
     timer = doctable.Timer(logfile='logs/parallel_primefinder.log')
 
     timer.step('making elements')
-    import numpy as np
-    elements = [np.ones((int(5e7)*(i+1),)) for i in range(10)]
-    for a in elements:
-        a[0] = 0
-    print(len(elements), elements[0].shape)
-    #elements = list(range(n))
-    #random.shuffle(elements)
+
+    if True:
+        test_func = find_prime_long
+        elements = list(range(n))
+        random.shuffle(elements)
+    else:
+        test_func = array_test
+
+        import numpy as np
+        elements = [np.ones((int(5e7)*(i+1),)) for i in range(10)]
+        for a in elements:
+            a[0] = 0
+        print(len(elements), elements[0].shape)
+
     timer.step('check ram')
     
-    test_func = array_test
 
     if False:
         timer.step('single-core eval')
         prime_single = list(map(test_func, elements))
  
-    timer.step('multi-core eval')
+    timer.step('multiprocessing.Pool')
     with multiprocessing.Pool(5) as p:
         prime_multi = p.map(test_func, elements)
 
     if False:
-        timer.step('async eval')
+        timer.step('map_async')
         with multiprocessing.Pool(6) as p:
             prime_async = list(p.map_async(test_func, elements).get())
             
-        timer.step('imap eval')
+        timer.step('imap')
         with multiprocessing.Pool(6) as p:
             prime_imap = list(p.imap(test_func, elements, 100))
 
@@ -79,10 +85,13 @@ def simple_primefinder(n=1000):
         with doctable.Distribute(6) as d:
             prime_distribute = d.map_chunk(test_func, elements)
 
-    timer.step('doctable.AsyncDistribute')
-    with doctable.AsyncDistribute(5) as d:
-        prime_async = d.map(test_func, elements)
+    timer.step('doctable.WorkerPool')
+    with doctable.WorkerPool(5) as p:
+        prime_async = p.map(test_func, elements)
+        print(f'av efficiency: {p.av_efficiency()}')
 
+    timer.step('annnnndddd time!')
+    
     assert(prime_multi == prime_async)
 
     timer.step('done')
