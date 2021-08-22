@@ -56,7 +56,7 @@ class WorkerResource:
         if self.verbose: print(f'{self}.__del__ was called!')
         self.terminate(check_alive=False)
 
-    ############### Pipe interface ###############
+    ############### Main interface methods ###############
     def poll(self) -> bool: 
         '''Check if worker sent anything.
         '''
@@ -86,6 +86,8 @@ class WorkerResource:
         '''
         self.send_payload(StatusRequest())
         return self.recv()
+
+    ############### Pipe interface ###############
 
     def send_payload(self, payload: BaseMessage) -> None:
         '''Send a Message (DataPayload or otherwise) to worker process.
