@@ -37,6 +37,6 @@ The worker process will be started by the main script process at Monitor.__init_
 
 2. Receive log messages from `Monitor` and record them for display in server.
 
-3. Routinely record timing + cpu/memory recording for display in the server.
+3. Routinely send timing + cpu/memory data to server.
 
 
