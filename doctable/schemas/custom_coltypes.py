@@ -6,7 +6,7 @@ from random import randrange
 import os
 import json
 import pathlib
-from doctable.parse.documents import ParseTreeDoc
+from doctable.documents import ParseTreeDoc
 
 import dataclasses
 
