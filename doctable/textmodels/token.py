@@ -5,11 +5,7 @@ import collections
 
 #from doctable.parse.parsetree import ParseTree
 
-class PropertyNotAvailable(Exception):
-    template = '{prop} is not available in Token because {parsefeatname} was not enabled while processing with Spacy.'
-    def __init__(self, prop, parsefeatname):
-        message = self.template.format(prop=prop, parsefeatname=parsefeatname)
-        super().__init__(message)
+from .exceptions import PropertyNotAvailable
 
 
 @dataclasses.dataclass(repr=True)

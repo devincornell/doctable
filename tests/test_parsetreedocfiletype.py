@@ -41,11 +41,11 @@ def test_parsetreedocs():
             assert(repr(sent) == repr(new_sent))
 
             # recall that ner was disabled
-            with pytest.raises(doctable.parse.token.PropertyNotAvailable):
+            with pytest.raises(doctable.textmodels.PropertyNotAvailable):
                 sent.root.ent == ''
 
             # recall that ner was disabled
-            with pytest.raises(doctable.parse.token.PropertyNotAvailable):
+            with pytest.raises(doctable.textmodels.PropertyNotAvailable):
                 new_sent.root.ent == ''
 
 if __name__ == '__main__':
