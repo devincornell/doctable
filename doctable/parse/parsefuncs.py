@@ -64,7 +64,7 @@ parser = doctable.ParsePipeline([
 '''
 
 
-from doctable.documents.parsetreedoc import ParseTreeDoc
+from doctable.textmodels.parsetreedoc import ParseTreeDoc
 import re
 
 #from .parsetree import ParseTree

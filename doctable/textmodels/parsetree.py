@@ -1,5 +1,5 @@
 
-from doctable.parse.token import Token
+from .token import Token
 import pickle
 import typing
 

@@ -3,7 +3,7 @@ from multiprocessing import Pipe, Process
 import math
 import os
 from doctable.util import Distribute
-from doctable.parse import ParseTree
+from doctable.textmodels import ParseTree
 
 
 class DocParser:

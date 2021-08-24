@@ -5,12 +5,12 @@ from sqlalchemy.sql import and_, or_, not_
 
 
 # regular table features
-
+from .textmodels import *
 from .doctable import DocTable
 from .doctablemongo import DocTableMongo
 #from .schemas import parse_schema, column_type_map
 from .connectengine import ConnectEngine
-from .model import *
+from .models import *
 from .schemas import *
 from .api import *
 from .parallel import *
