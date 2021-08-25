@@ -189,7 +189,8 @@ class DocTable:
             self._columns = parse_schema_strings(self._schema, self._target+'_'+self._tabname)
         else:
             self._columns = None # inferred from existing table
-        
+
+        # add this table
         self._table = self._engine.add_table(self._tabname, columns=self._columns, 
                                              new_table=self._new_table)
         
@@ -420,7 +421,11 @@ class DocTable:
             return result_container(row[0] for row in result.fetchall())
         else:
             if dataclasses.is_dataclass(self._schema) and as_dataclass:
-                return result_container(self._schema(**row) for row in result.fetchall())
+                try:
+                    return result_container(self._schema(**row) for row in result.fetchall())
+                except TypeError as e:
+                    print('Did you mean to use as_dataclass=False to return joined or reduced results?')
+                    raise e
             else:
                 if result_container is list:
                     return result.fetchall()
