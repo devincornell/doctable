@@ -45,10 +45,12 @@ class ConnectEngine:
         #self._engine_kwargs = engine_kwargs
         self._engine = sqlalchemy.create_engine(self._connstr, echo=self._echo, **engine_kwargs)
         self._metadata = sqlalchemy.MetaData(bind=self._engine)
-        
+
         if self._foreign_keys:
             self.execute('pragma foreign_keys=ON')
-        
+
+        # add other tables that exist in the database already
+        self.add_existing_tables()
         
     def __del__(self):
         # I seriously don't understand why the hell this isn't needed...
@@ -150,6 +152,7 @@ class ConnectEngine:
             columns (list/tuple): column objects passed to sqlalchemy.Table
             table_kwargs: passed to sqlalchemy.Table constructor.
         '''
+
         # return table instance if already stored in metadata object
         if tabname in self._metadata.tables:
             return self.tables[tabname]
@@ -188,11 +191,12 @@ class ConnectEngine:
         return table
     
     
-    def add_existing_tables(self, **table_kwargs) -> None:
+    def add_existing_tables(self, **kwargs) -> None:
         ''' Will register all existing tables in metadata.
         '''
-        for tabname in self.list_tables():
-            self.add_table(tabname, **table_kwargs)
+        #for tabname in self.list_tables():
+        #    self.add_table(tabname, **kwargs)
+        return self._metadata.reflect(**kwargs)
     
     
     def drop_table(self, table: Union[sqlalchemy.Table, str], if_exists: bool = False, 
