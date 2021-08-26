@@ -1,6 +1,6 @@
 
-from .doctablerow import DocTableRow
-from .rowdecorator import row
+from .doctableschema import DocTableSchema
+from .schema_decorator import schema
 from .emptyvalue import EmptyValue
 
 from .field_columns import Col, IDCol, UpdatedCol, AddedCol, PickleFileCol, TextFileCol, ParseTreeFileCol

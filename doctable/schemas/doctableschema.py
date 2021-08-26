@@ -4,7 +4,7 @@ from .emptyvalue import EmptyValue
 
 miss_col_message = 'The column "{name}" was not retreived in the select statement.'
 
-class DocTableRow:
+class DocTableSchema:
     ''' Base class for column objects.
     '''
     __slots__ = [] # for inheriting class
@@ -23,8 +23,7 @@ class DocTableRow:
             raise KeyError(miss_col_message.format(name=attr))
         return val
     
-    @property
-    def v(self, attr):
+    def get(self, attr):
         ''' Access data without throwing an error when accessing element.
         '''
         return getattr(self, attr)
@@ -41,7 +40,7 @@ class DocTableRow:
     def as_dict(self, *args, **kwargs):
         '''Public interface for _doctable_as_dict().
         '''
-        self._doctable_as_dict(*args, **kwargs)
+        return self._doctable_as_dict(*args, **kwargs)
 
     def _doctable_as_dict(self):
         '''Convert to dictionary, ignoring EmptyValue objects.
