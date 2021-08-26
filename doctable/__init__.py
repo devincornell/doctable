@@ -3,31 +3,32 @@ name = "doctable"
 # expose some features of sqlalchemy
 from sqlalchemy.sql import and_, or_, not_
 
-
-# regular table features
-from .textmodels import *
+# main doctable interface
 from .doctable import DocTable
 from .doctablemongo import DocTableMongo
-#from .schemas import parse_schema, column_type_map
 from .connectengine import ConnectEngine
-from .models import *
-from .schemas import *
-from .api import *
-from .parallel import *
 
-# all legacy
+# legacy interfaces
 from .legacy import DocTableLegacy
 from .legacy import DocParser
 
+
+# modules
+from .schemas import *
+from .parse import *
+from .textmodels import *
+from .models import *
+from .api import *
+from .parallel import *
+from .util import *
+from .dbutils import list_tables, migrate_db
 
 # submodules (future?)
 #from .parse import *
 #from .doctable import *
 
 # convenience classes and functions
-from .util import *
-from .dbutils import list_tables, migrate_db
-from .parse import *
+
 
 
 #__all__ = ['parse', 'schemas', 'util', 'model']
