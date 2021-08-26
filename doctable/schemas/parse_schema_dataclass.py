@@ -32,7 +32,7 @@ class ColumnMetadata:
 
         # has no column type information
         if self.column_type is None:
-            return python_to_slqlchemy_type.get(type_hint, sqlalchemy.PickleType)(**self.type_kwargs])
+            return python_to_slqlchemy_type.get(type_hint, sqlalchemy.PickleType)(**self.type_kwargs)
 
         # is a string for a type
         elif isinstance(self.column_type, str):
@@ -62,48 +62,21 @@ def parse_columns(Cls):
     columns = list()
     for f in fields(Cls):
         if f.init:
-            #metadata = f.metadata
-            if isinstance(f.metadata, ColumnMetadata):
-                use_type = f.metadata.get_sqlalchemy_type(f.type)
-            else:
-                use_type = python_to_slqlchemy_type.get(f.type, sqlalchemy.PickleType)
 
+            if 'column_metadata' in f.metadata:
 
+                metadata = f.metadata['column_metadata']
 
-
-            # if default value is not a doctable.Col or field
-            if not isinstance(metadata, ColumnMetadata):
-                use_type = python_to_slqlchemy_type.get(f.type, sqlalchemy.PickleType)
-
-            else:
-
-                
-                # infer column type from python type hint
-                if metadata['column_type'] is None:
-                    use_type = python_to_slqlchemy_type.get(f.type, sqlalchemy.PickleType)(**metadata['type_kwargs'])
-                
-                # column type was provided directly
-                else:
-                    
-                    # string type was passed
-                    if isinstance(metadata['column_type'], str):
-                        use_type = string_to_sqlalchemy_type[metadata['column_type']](**metadata['type_kwargs'])
-
-                    else:
-
-                        # sqlalchemy type instance was passed
-                        if isinstance(metadata['column_type'], sqlalchemy.sql.type_api.TypeEngine):
-                            if metadata['type_kwargs'] is not None:
-                                raise ValueError('When passing an sqlalchemy type instance to column_type, '
-                                    'type_kwargs should be added to the type constructor directly.')
-
-                            use_type = metadata['column_type']
-
-                        # sqlalchemy type definition was passed
-                        else:
-                            use_type = metadata['column_type'](**metadata['type_kwargs'])
+                # if column metadata was provided
+                if isinstance(metadata, ColumnMetadata):
+                    use_type = metadata.get_sqlalchemy_type(f.type)
+                    col = sqlalchemy.Column(f.name, use_type, **metadata.column_kwargs)
             
-            col = sqlalchemy.Column(f.name, use_type, **metadata['column_kwargs'])
+            # if no ColumnMetadata was passed
+            else:
+                use_type = python_to_slqlchemy_type.get(f.type, sqlalchemy.PickleType)
+                col = sqlalchemy.Column(f.name, use_type)
+            
             columns.append(col)
 
     return columns

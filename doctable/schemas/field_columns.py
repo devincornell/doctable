@@ -1,4 +1,5 @@
 
+from doctable.schemas.parse_schema_dataclass import ColumnMetadata
 from .emptyvalue import EmptyValue
 from datetime import datetime
 from dataclasses import dataclass, field, fields
@@ -24,14 +25,13 @@ def Col(column_type: Any = None, field_kwargs: dict = None, type_kwargs: dict = 
     if 'default' not in field_kwargs and 'default_factory' not in field_kwargs:
         field_kwargs['default'] = EmptyValue()
 
-    metadata = dict(
+    column_metadata = ColumnMetadata(
         column_type = column_type,
         type_kwargs = type_kwargs,
         column_kwargs = column_kwargs,
     )
-    print(metadata)
 
-    return field(init=True, metadata=metadata, repr=True, **field_kwargs)
+    return field(init=True, metadata={'column_metadata': column_metadata}, repr=True, **field_kwargs)
 
 def IDCol():
     return Col(primary_key=True, autoincrement=True)
