@@ -18,7 +18,7 @@ from .schemas import FileTypeBase
 from .models import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
-from .schemas import parse_schema_strings, parse_schema_dataclass, DocTableRow
+from .schemas import parse_schema_strings, parse_schema_dataclass, DocTableSchema
 
 DEFAULT_TABNAME = '_documents_'
 
@@ -182,8 +182,8 @@ class DocTable:
         
         # connect to existing table or create new one
         if dataclasses.is_dataclass(self._schema):
-            if not issubclass(self._schema, DocTableRow):
-                raise TypeError('A dataclass schema must inherit from doctable.DocTableRow.')
+            if not issubclass(self._schema, DocTableSchema):
+                raise TypeError('A dataclass schema must inherit from doctable.DocTableSchema.')
             self._columns = parse_schema_dataclass(self._schema, self._indices, self._constraints)
         elif isinstance(self._schema, list) or isinstance(self._schema, tuple):
             self._columns = parse_schema_strings(self._schema, self._target+'_'+self._tabname)
@@ -322,10 +322,10 @@ class DocTable:
             raise ValueError('Cannot call .insert() when doctable set to readonly.')
 
         if dataclasses.is_dataclass(self._schema):
-            if isinstance(rowdat, DocTableRow):
+            if isinstance(rowdat, DocTableSchema):
                 rowdat = rowdat._doctable_as_dict()
             
-            elif is_sequence(rowdat) and len(rowdat) > 0 and isinstance(rowdat[0], DocTableRow):
+            elif is_sequence(rowdat) and len(rowdat) > 0 and isinstance(rowdat[0], DocTableSchema):
                 rowdat = [r._doctable_as_dict() for r in rowdat]
         
         q = sqlalchemy.sql.insert(self._table, rowdat)
@@ -607,13 +607,13 @@ class DocTable:
         # update the main column values
         if isinstance(values,list) or isinstance(values,tuple):
             
-            if is_sequence(values) and len(values) > 0 and isinstance(values[0], DocTableRow):
+            if is_sequence(values) and len(values) > 0 and isinstance(values[0], DocTableSchema):
                 values = [v._doctable_as_dict() for v in values]
             
             q = sqlalchemy.sql.update(self._table, preserve_parameter_order=True)
             q = q.values(values)
         else:
-            if isinstance(values, DocTableRow):
+            if isinstance(values, DocTableSchema):
                 values = values._doctable_as_dict()
 
             q = sqlalchemy.sql.update(self._table)
