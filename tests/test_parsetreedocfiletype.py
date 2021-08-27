@@ -14,10 +14,11 @@ I am having a ton of fun with you.
 Programming is awesome!
 '''.split('\n')
 
-@dataclasses.dataclass
-class TestRow(doctable.DocTableRow):
+@doctable.schema
+class TestRow:
+    __slots__ = []
     id: int = doctable.IDCol()
-    doc: doctable.ParseTreeDoc = doctable.Col(type_args=dict(folder='tmp/parsed_trees'))
+    doc: doctable.ParseTreeDoc = doctable.Col(type_kwargs=dict(folder='tmp/parsed_trees'))
 
 def test_parsetreedocs():
     nlp = spacy.load('en_core_web_sm', disable=['ner'])
