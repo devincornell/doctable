@@ -1,11 +1,13 @@
 
 import datetime
+from doctable.schemas.constraints import Constraint
 import sqlalchemy
 from dataclasses import dataclass, field, fields
 from .coltype_map import python_to_slqlchemy_type, string_to_sqlalchemy_type, constraint_lookup
-from typing import Union, Any
+from .constraints import Constraint
+from typing import Union, Any, List, Tuple
 
-def parse_schema_dataclass(Cls, indices: dict, constraints: list):
+def parse_schema_dataclass(Cls, indices: Tuple[sqlalchemy.Index], constraints: Tuple[Constraint]):
     ''' Convert a dataclass definition to a list of sqlalchemy columns.
     '''
     return parse_columns(Cls) + parse_indices(indices) + parse_constraints(constraints)
@@ -87,11 +89,7 @@ def parse_columns(Cls):
 #    'other_index': ('c1',),
 #}
 def parse_indices(indices):
-    columns = list()
-    for name, vals in indices.items():
-        args, kwargs = get_kwargs(vals)
-        columns.append(sqlalchemy.Index(name, *args, **kwargs))
-    return columns
+    return list(indices)
 
 #_constraints_ = (
 #    ('check', 'x > 3', dict(name='salary_check')), 
@@ -99,18 +97,19 @@ def parse_indices(indices):
 #)
 #if hasattr(Cls, '_constraints_') and Cls._constraints_ is not None:
 def parse_constraints(constraints):
-    columns = list()
-    for vals in constraints:
-        args, kwargs = get_kwargs(vals)
-        columns.append(constraint_lookup[args[0]](*args[1:], **kwargs))
+    return list(constraints)
+    #columns = list()
+    #for vals in constraints:
+    #    args, kwargs = get_kwargs(vals)
+    #    columns.append(constraint_lookup[args[0]](*args[1:], **kwargs))
 
     return columns
 
 
-def get_kwargs(vals):
-    ''' Logic to parse out ordered and keyword arguments.
-    '''
-    args = vals[:-1] if isinstance(vals[-1], dict) else vals
-    kwargs = vals[-1] if isinstance(vals[-1], dict) else dict()
-    #print(f'args={args}, kwargs={kwargs}')
-    return args, kwargs
+#def get_kwargs(vals):
+#    ''' Logic to parse out ordered and keyword arguments.
+#    '''
+#    args = vals[:-1] if isinstance(vals[-1], dict) else vals
+#    kwargs = vals[-1] if isinstance(vals[-1], dict) else dict()
+#    #print(f'args={args}, kwargs={kwargs}')
+#    return args, kwargs

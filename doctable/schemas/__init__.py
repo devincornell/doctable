@@ -1,4 +1,9 @@
 
+import sqlalchemy
+
+from sqlalchemy import Index
+from .constraints import Constraint
+
 from .doctableschema import DocTableSchema
 from .schema_decorator import schema
 from .emptyvalue import EmptyValue
