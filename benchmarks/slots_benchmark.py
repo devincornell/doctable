@@ -26,8 +26,8 @@ class WithSlots:
     g: int = doctable.Col(10)
     h: int = doctable.Col(10)
 
-@dataclasses.dataclass
-class NoSlots(doctable.DocTableRow):
+@doctable.schema(require_slots=False)
+class NoSlots:
     id: int = doctable.IDCol()
     a: int = doctable.Col()
     b: int = doctable.Col(5)

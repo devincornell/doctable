@@ -12,8 +12,8 @@ import doctable
 import timing
 
 
-@dataclass
-class DataObj(doctable.DocTableRow):
+@doctable.schema(require_slots=False)
+class DataObj:
     arc: int = doctable.Col()
     name1: str = doctable.Col(type_args={'length':32})
     name2: str = doctable.Col(type_args={'length':32})

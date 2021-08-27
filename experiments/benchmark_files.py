@@ -11,7 +11,8 @@ from dataclasses import dataclass, field
 import random
 import time
 
-class TestObjBase(doctable.DocTableRow):
+@doctable.schema(require_slots=False)
+class TestObjBase:
     idx: int = doctable.IDCol()
     size: int = 10000000
     def __post_init__(self):

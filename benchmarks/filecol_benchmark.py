@@ -14,13 +14,14 @@ import doctable
 
 folder = 'tmp'
 
-@dataclass
-class DataObj(doctable.DocTableRow):
+@doctable.schema
+class DataObj:
+    __slots__ = []
     id: int = doctable.IDCol()
     data: np.ndarray = doctable.Col(None)
 
-@dataclass
-class FileObj(doctable.DocTableRow):
+@doctable.schema(require_slots=False)
+class FileObj:
     id: int = doctable.IDCol()
     data: np.ndarray = doctable.Col(None, coltype='picklefile', type_args=dict(folder=folder))
 

@@ -8,8 +8,8 @@ sys.path.append('..')
 import doctable
 
 
-@dataclass
-class MyClass(doctable.DocTableRow):
+@doctable.schema(require_slots=False)
+class MyClass:
     name: str = doctable.Col(unique=True)
 
     # builtin column types
