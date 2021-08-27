@@ -21,7 +21,7 @@ import doctable
 #    a: int = 5
 
 
-@doctable.row(repr=False)
+@doctable.schema(repr=False)
 class CustomClass:
     '''This is my doc.'''
     __slots__ = []

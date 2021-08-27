@@ -12,7 +12,7 @@ class SlotsRequiredError(ValueError):
 
 # I used this formula for the decorator: https://realpython.com/primer-on-python-decorators/#both-please-but-never-mind-the-bread
 # outer function used to handle arguments to the decorator
-# e.g. @doctable.row(require_slots=True)
+# e.g. @doctable.schema(require_slots=True)
 def slots_dataclass(_Cls=None, /, **dataclass_kwargs):
     '''Automattically add slots to the given dataclass.'''
 

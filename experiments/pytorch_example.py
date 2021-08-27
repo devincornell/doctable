@@ -5,7 +5,7 @@ import sys
 sys.path.append('..')
 import doctable
 
-@doctable.row
+@doctable.schema
 class Sample:
     __slots__ = []
     id: int

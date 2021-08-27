@@ -13,7 +13,7 @@ import sys
 sys.path.append('..')
 import doctable
 
-@doctable.row
+@doctable.schema
 class WithSlots:
     __slots__ = []
     id: int = doctable.IDCol()
