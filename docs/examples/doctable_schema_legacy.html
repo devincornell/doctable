@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>doctable_file_column_types</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>doctable_schema_legacy</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -14259,8 +14259,14 @@ a.anchor-link {
 
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="DocTable-File-Column-Types">DocTable File Column Types<a class="anchor-link" href="#DocTable-File-Column-Types">&#182;</a></h1><p>It is often good advice to avoid storing large binary data in an SQL table because it will significantly impact the read performance of the entire table. I find, however, that it can be extremely useful in text analysis applications as a way to keep track of a large number of models with associated metadata. As an alternative to storing binary data in the table directly, <code>DocTable</code> includes a number of custom column types that can transparently store data into the filesystem and keep track of it using the schema definitions.</p>
-<p>I provide two file storage column types: (1) <code>TextFileCol</code> for storing text data, and (2) <code>PickleFileCol</code> for storing any python data that requires pickling.</p>
+<h1 id="DocTable-Schemas">DocTable Schemas<a class="anchor-link" href="#DocTable-Schemas">&#182;</a></h1><p>There are two ways to define schemas for a DocTable:</p>
+<ol>
+<li><p><strong>dataclass schema</strong>: column names and types come from a class created using the <code>@doctable.schema</code> decorator. This class represents a single row, and is returned by default when a select query is executed. <code>doctable</code> provides a thin layer over <a href="https://realpython.com/python-data-classes/">dataclasses</a> with slots to reduce memory overhead from returned results. Custom methods can also be defined on the class that will not affect the database schema. When using this method, constraints and indices must be provided at the time of <code>DocTable</code> instantiation (or in the definition of an inheriting <code>DocTable</code>).</p>
+</li>
+<li><p><strong>list schema</strong>: column names and types come from sequences of strings according to a custom doctable format. This method requires less knowledge of doctable objects but otherwise has no advantages over dataclass schemas.</p>
+</li>
+</ol>
+<p>The doctable package builds on sqlalchemy, so both types of schema specifications ultimately result in a sequence of <a href="https://docs.sqlalchemy.org/en/13/core/type_basics.html"><code>sqlalchemy</code> column types</a> that will be used to construct (or interface with) the database table.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -14269,15 +14275,13 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">doctable</span>
-
-<span class="c1"># automatically clean up temp folder after python ends</span>
-<span class="n">tmpfolder</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">TempFolder</span><span class="p">(</span><span class="s1">&#39;tmp&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14288,7 +14292,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Now I create a new table representing a matrix. Notice that I use the <code>PickleFileCol</code> column shortcut to create the column. This column is equivalent to <code>Col(None, coltype='picklefile', type_args=dict(folder=folder))</code>. See that to SQLite, this column simply looks like a text column.</p>
+<h2 id="Schema-Type-Mappings">Schema Type Mappings<a class="anchor-link" href="#Schema-Type-Mappings">&#182;</a></h2><p>There are two lookup tables used to relate to sqlalchemy column types. The first is a map from Python datatypes to the sqlalchemy types. This is sufficient for the simplest possible dataclass schema specification.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14297,14 +14301,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">dataclasses</span>
-<span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">require_slots</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">MatrixRow</span><span class="p">:</span>
-    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
-    <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">PickleFileCol</span><span class="p">(</span><span class="s1">&#39;tmp/matrix_pickle_files&#39;</span><span class="p">)</span> <span class="c1"># will store files in the tmp directory</span>
-    
-<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;tmp/test.db&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">MatrixRow</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">schema_info</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">doctable</span><span class="o">.</span><span class="n">python_to_slqlchemy_type</span>
 </pre></div>
 
      </div>
@@ -14326,18 +14323,14 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[{&#39;name&#39;: &#39;id&#39;,
-  &#39;type&#39;: INTEGER(),
-  &#39;nullable&#39;: False,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 1},
- {&#39;name&#39;: &#39;array&#39;,
-  &#39;type&#39;: VARCHAR(),
-  &#39;nullable&#39;: True,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 0}]</pre>
+<pre>{int: sqlalchemy.sql.sqltypes.Integer,
+ float: sqlalchemy.sql.sqltypes.Float,
+ str: sqlalchemy.sql.sqltypes.String,
+ bool: sqlalchemy.sql.sqltypes.Boolean,
+ datetime.datetime: sqlalchemy.sql.sqltypes.DateTime,
+ datetime.time: sqlalchemy.sql.sqltypes.Time,
+ datetime.date: sqlalchemy.sql.sqltypes.Date,
+ doctable.textmodels.parsetreedoc.ParseTreeDoc: doctable.schemas.custom_coltypes.ParseTreeDocFileType}</pre>
 </div>
 
 </div>
@@ -14349,19 +14342,29 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Now we insert a new array. It appears to be inserted the same as any other object.</p>
+<p>The second is a string lookup that is provided for the list schema format. You can see that this offers a larger number of types compared to the Python type conversion.</p>
+
+</div>
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Dataclass-Schemas-Using-doctable.schema-Decorator">Dataclass Schemas Using <code>doctable.schema</code> Decorator<a class="anchor-link" href="#Dataclass-Schemas-Using-doctable.schema-Decorator">&#182;</a></h2><p>A dataclass schema is created by defining a class using the <code>@doctable.schema</code> decorator. This object will represent a single row in the table, and column names/schemas will be inferred from the variable names and type hints, respectively. The simplest possible version looks like a regular dataclass, except that <code>__slots__</code> should be defined so that the decorator can automatically add the columns as slots (this can be overridden using <code>require_slots=False</code> in the decorator).</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;array&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)})</span>
-<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;array&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)})</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span>
+<span class="k">class</span> <span class="nc">Record</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># the schema that would result from this dataclass:</span>
+<span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">Record</span><span class="p">)</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14377,19 +14380,7 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>2
-</pre>
-</div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[18]:</div>
 
 
 
@@ -14412,20 +14403,32 @@ a.anchor-link {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>id</th>
-      <th>array</th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>1</td>
-      <td>[[0.7151415193411012, 0.49935102934992515, 0.7...</td>
+      <td>name</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>2</td>
-      <td>[[0.12275515627176403, 0.0911517772058783, 0.4...</td>
+      <td>age</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
     </tr>
   </tbody>
 </table>
@@ -14441,17 +14444,377 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>But when we actually look at the filesystem, we see that files have been created to store the array.</p>
+<p>It looks like a regular dataclass - and, in fact, it is a dataclass! The decorator essentially converts your class into a dataclass that inherits from <code>doctable.DocTableRow</code>, so it has a few extra methods. I'll show later why this matters, but it is slightly preferable to access member variables through subscripting (defined via <code>__getitem__</code>). The  base class also defines a <code>__repr__</code> and a <code>.as_dict()</code> method to convert to a dictionary.</p>
 
 </div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">r</span> <span class="o">=</span> <span class="n">Record</span><span class="p">(</span><span class="s1">&#39;Devin Cornell&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+<span class="n">r</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">],</span> <span class="n">r</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[20]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>(Record(name=&#39;Devin Cornell&#39;, age=30),
+ &#39;Devin Cornell&#39;,
+ 30,
+ {&#39;name&#39;: &#39;Devin Cornell&#39;, &#39;age&#39;: 30})</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>To add functionality beyond dataclasses, doctable provides a <code>Col</code> function that can be used as the default value in the class definition. This allows you to access both doctable schema features and pass parameters to the <code>dataclasses.field</code> function. Using <code>Col</code> also sets the default value to a special class called <code>doctable.EmptyValue</code>, which, among other things, will not show up in the class <code>__repr__</code>. Notice that I use <code>Col</code> to create the <code>id</code> column we have come to expect in most sql tables.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span>
+<span class="k">class</span> <span class="nc">Record</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># can also use doctable.IDCol() as a shortcut</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+
+<span class="c1"># the schema that would result from this dataclass:</span>
+<span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">Record</span><span class="p">)</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>Record(id=&#39;Devin Cornell&#39;)</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>There are several other custom column types I included for convenience.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span>
+<span class="k">class</span> <span class="nc">Record</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span> <span class="c1"># auto-increment primary key</span>
+    <span class="n">added</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span> <span class="n">AddedCol</span><span class="p">()</span> <span class="c1"># record when row was added</span>
+    <span class="n">updated</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">UpdatedCol</span><span class="p">()</span> <span class="c1"># record when row was updated</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">is_old</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+
+<span class="c1"># the schema that would result from this dataclass:</span>
+<span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">Record</span><span class="p">)</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[21]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>added</td>
+      <td>BLOB</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>updated</td>
+      <td>BLOB</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>name</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>is_old</td>
+      <td>BOOLEAN</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">doctable</span><span class="o">.</span><span class="n">string_to_sqlalchemy_type</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;biginteger&#39;: sqlalchemy.sql.sqltypes.BigInteger,
+ &#39;boolean&#39;: sqlalchemy.sql.sqltypes.Boolean,
+ &#39;date&#39;: sqlalchemy.sql.sqltypes.Date,
+ &#39;datetime&#39;: sqlalchemy.sql.sqltypes.DateTime,
+ &#39;enum&#39;: sqlalchemy.sql.sqltypes.Enum,
+ &#39;float&#39;: sqlalchemy.sql.sqltypes.Float,
+ &#39;integer&#39;: sqlalchemy.sql.sqltypes.Integer,
+ &#39;interval&#39;: sqlalchemy.sql.sqltypes.Interval,
+ &#39;largebinary&#39;: sqlalchemy.sql.sqltypes.LargeBinary,
+ &#39;numeric&#39;: sqlalchemy.sql.sqltypes.Numeric,
+ &#39;smallinteger&#39;: sqlalchemy.sql.sqltypes.SmallInteger,
+ &#39;string&#39;: sqlalchemy.sql.sqltypes.String,
+ &#39;text&#39;: sqlalchemy.sql.sqltypes.Text,
+ &#39;time&#39;: sqlalchemy.sql.sqltypes.Time,
+ &#39;unicode&#39;: sqlalchemy.sql.sqltypes.Unicode,
+ &#39;unicodetext&#39;: sqlalchemy.sql.sqltypes.UnicodeText,
+ &#39;json&#39;: doctable.schemas.custom_coltypes.JSONType,
+ &#39;pickle&#39;: doctable.schemas.custom_coltypes.CpickleType,
+ &#39;parsetree&#39;: doctable.schemas.custom_coltypes.ParseTreeDocFileType,
+ &#39;picklefile&#39;: doctable.schemas.custom_coltypes.PickleFileType,
+ &#39;textfile&#39;: doctable.schemas.custom_coltypes.TextFileType}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span>
+<span class="k">class</span> <span class="nc">Record</span><span class="p">:</span>
+    
+    <span class="c1"># custom doctable column types</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span> <span class="c1"># auto-increment primary key</span>
+    <span class="n">added</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span> <span class="n">AddedCol</span><span class="p">()</span> <span class="c1"># record when row was added</span>
+    <span class="n">updated</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">UpdatedCol</span><span class="p">()</span> <span class="c1"># record when row was updated</span>
+    
+    <span class="c1"># generic column object.</span>
+    <span class="c1"># Keyword arguments are passed directly to sqlalchemy Column constructor</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="c1"># first argument is default value or factory (automatically determined)</span>
+    <span class="n">num_siblings</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        
+    <span class="c1"># this will be stored as a binary type in sql</span>
+    <span class="n">friends</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    
+    <span class="c1"># can also use regular scalar default values</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">is_old</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+        
+    <span class="c1"># indices and constraints - these are used by DocTableRow objects</span>
+    <span class="n">_indices_</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># SQLAlchemy: Index(&#39;name_index&#39;, &#39;name&#39;)</span>
+        <span class="s1">&#39;name_index&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,),</span>
+        
+        <span class="c1"># SQLAlchemy: Index(&#39;name_age_index&#39;, &#39;name&#39;, &#39;age&#39;, unique=True)</span>
+        <span class="s1">&#39;name_age_index&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;unique&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}),</span>
+    <span class="p">}</span>
+    
+    <span class="c1"># add constraints to table</span>
+    <span class="n">_constraints_</span> <span class="o">=</span> <span class="p">(</span>
+        
+        <span class="c1">#SQLAlchemy:  UniqueConstraint(&#39;name&#39;, &#39;age&#39;)</span>
+        <span class="p">(</span><span class="s1">&#39;unique&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">),</span>
+        
+        <span class="c1">#SQLAlchemy: CheckConstraint(&#39;age &gt; 0&#39;, name=&#39;check_age&#39;)</span>
+        <span class="p">(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;age &gt; 0&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;check_age&#39;</span><span class="p">}),</span> 
+        
+        <span class="c1">#(&#39;foreignkey&#39;, (&#39;a&#39;,&#39;b&#39;), (&#39;c&#39;,&#39;d&#39;)),</span>
+    <span class="p">)</span>
+        
+        
+    <span class="c1"># doctable method to execute after constructor is created</span>
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_old</span> <span class="o">=</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="mi">28</span>
+        
+    <span class="c1"># any custom method the user would like to add</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_friends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">friends</span><span class="p">)</span>
+    
+    
+<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">Record</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14470,10 +14833,32 @@ a.anchor-link {
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tmp/matrix_pickle_files/513229622107.pic
-tmp/matrix_pickle_files/479169401447.pic
-</pre>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">SlotsRequiredError</span>                        Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-4-d190655a10d1&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">      3</span> 
+<span class="ansi-green-intense-fg ansi-bold">      4</span> <span class="ansi-blue-fg">@</span>doctable<span class="ansi-blue-fg">.</span>row
+<span class="ansi-green-fg">----&gt; 5</span><span class="ansi-red-fg"> </span><span class="ansi-green-fg">class</span> Record<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">      6</span> 
+<span class="ansi-green-intense-fg ansi-bold">      7</span>     <span class="ansi-red-fg"># custom doctable column types</span>
+
+<span class="ansi-green-fg">~/code/doctable/doctable/schemas/rowdecorator.py</span> in <span class="ansi-cyan-fg">row</span><span class="ansi-blue-fg">(_Cls, require_slots, **dataclass_kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">     36</span>         <span class="ansi-green-fg">return</span> decorator_row
+<span class="ansi-green-intense-fg ansi-bold">     37</span>     <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">---&gt; 38</span><span class="ansi-red-fg">         </span><span class="ansi-green-fg">return</span> decorator_row<span class="ansi-blue-fg">(</span>_Cls<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     39</span> 
+<span class="ansi-green-intense-fg ansi-bold">     40</span> 
+
+<span class="ansi-green-fg">~/code/doctable/doctable/schemas/rowdecorator.py</span> in <span class="ansi-cyan-fg">decorator_row</span><span class="ansi-blue-fg">(Cls)</span>
+<span class="ansi-green-intense-fg ansi-bold">     24</span>         Cls <span class="ansi-blue-fg">=</span> dataclasses<span class="ansi-blue-fg">.</span>dataclass<span class="ansi-blue-fg">(</span>Cls<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>dataclass_kwargs<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     25</span>         <span class="ansi-green-fg">if</span> require_slots <span class="ansi-green-fg">and</span> <span class="ansi-green-fg">not</span> hasattr<span class="ansi-blue-fg">(</span>Cls<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#39;__slots__&#39;</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">---&gt; 26</span><span class="ansi-red-fg">             </span><span class="ansi-green-fg">raise</span> SlotsRequiredError<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     27</span> 
+<span class="ansi-green-intense-fg ansi-bold">     28</span>         <span class="ansi-red-fg"># add slots</span>
+
+<span class="ansi-red-fg">SlotsRequiredError</span>: Slots must be enabled by including &#34;__slots__ = []&#34;.                 Otherwise set doctable.schema(require_slots=False).</pre>
 </div>
 </div>
 
@@ -14484,7 +14869,7 @@ tmp/matrix_pickle_files/479169401447.pic
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>If we want to see the raw data stored in the table, we can create a new doctable without a defined schema. See that the raw filenames have been stored in the database. Recall that the directory indicating where to find these files was provided in the schema itself.</p>
+<h2 id="List-Schemas">List Schemas<a class="anchor-link" href="#List-Schemas">&#182;</a></h2><p>And this is another example showing the list schema format.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14493,9 +14878,88 @@ tmp/matrix_pickle_files/479169401447.pic
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">vdb</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="s1">&#39;tmp/test.db&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">vdb</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
-<span class="n">vdb</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="c1"># standard id column</span>
+    <span class="c1">#SQLAlchemy: Column(&#39;id&#39;, Integer, primary_key = True, autoincrement=True), </span>
+    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
+    <span class="c1"># short form (can&#39;t provide any additional args though): (&#39;idcol&#39;, &#39;id&#39;)</span>
+
+    <span class="c1"># make a category column with two options: &quot;FICTION&quot; and &quot;NONFICTION&quot;</span>
+    <span class="c1">#SQLAlchemy: Column(&#39;title&#39;, String,)</span>
+    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+
+    <span class="c1"># make a non-null title column</span>
+    <span class="c1">#SQLAlchemy: Column(&#39;title&#39;, String,)</span>
+    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+
+    <span class="c1"># make an abstract where the default is an empty string instead of null</span>
+    <span class="c1">#SQLAlchemy: Column(&#39;abstract&#39;, String, default=&#39;&#39;)</span>
+    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;abstract&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)),</span>
+
+    <span class="c1"># make an age column where age must be greater than zero</span>
+    <span class="c1">#SQLAlchemy: Column(&#39;abstract&#39;, Integer)</span>
+    <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">),</span>
+
+    <span class="c1"># make a column that keeps track of column updates</span>
+    <span class="c1">#SQLAlchemy: Column(&#39;updated_on&#39;, DateTime(), default=datetime.now, onupdate=datetime.now)</span>
+    <span class="p">(</span><span class="s1">&#39;datetime&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_on&#39;</span><span class="p">,</span>  <span class="nb">dict</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)),</span>
+    <span class="c1"># short form to auto-record update date: (&#39;date_updated&#39;, &#39;updated_on&#39;)</span>
+    
+    <span class="c1">#SQLAlchemy: Column(&#39;updated_on&#39;, DateTime(), default=datetime.now)</span>
+    <span class="p">(</span><span class="s1">&#39;datetime&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_on&#39;</span><span class="p">,</span>  <span class="nb">dict</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)),</span>
+    <span class="c1"># short form to auto-record insertion date: (&#39;date_added&#39;, &#39;added_on&#39;)</span>
+
+    <span class="c1"># make a string column with max of 500 characters</span>
+    <span class="c1">#SQLAlchemy: Column(&#39;abstract&#39;, String, default=&#39;&#39;)</span>
+    <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">,</span><span class="nb">dict</span><span class="p">(),</span><span class="nb">dict</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">500</span><span class="p">)),</span>
+
+    
+    <span class="c1">##### Custom DocTable Column Types #####</span>
+    
+    <span class="c1"># uses json.dump to convert python object to json when storing and</span>
+    <span class="c1"># json.load to convert json back to python when querying</span>
+    <span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">,</span><span class="s1">&#39;json_data&#39;</span><span class="p">),</span>
+    
+    <span class="c1"># stores pickled python object directly in table as BLOB</span>
+    <span class="c1"># TokensType and ParagraphsType are defined in doctable/coltypes.py</span>
+    <span class="c1"># SQLAlchemy: Column(&#39;tokenized&#39;, TokensType), Column(&#39;sentencized&#39;, ParagraphsType)</span>
+    <span class="p">(</span><span class="s1">&#39;pickle&#39;</span><span class="p">,</span><span class="s1">&#39;tokenized&#39;</span><span class="p">),</span>
+    
+    <span class="c1"># store pickled data into a separate file, recording only filename directly in table</span>
+    <span class="c1"># the &#39;fpath&#39; argument can specify where the files should be placed, but by</span>
+    <span class="c1"># default they are stored in &lt;dbname&gt;_&lt;tablename&gt;_&lt;columnname&gt;</span>
+    <span class="c1">#(&#39;picklefile&#39;, &#39;pickle_obj&#39;, dict(), dict(fpath=&#39;folder_for_picklefiles&#39;)),</span>
+    
+    <span class="c1"># very similar to above, but use only when storing text data</span>
+    <span class="c1">#(&#39;textfile&#39;, &#39;text_file&#39;), # similar to above</span>
+    
+    
+    <span class="c1">##### Constraints #####</span>
+    
+    <span class="c1">#SQLAlchemy: CheckConstraint(&#39;category in (&quot;FICTION&quot;,&quot;NONFICTION&quot;)&#39;, name=&#39;salary_check&#39;)</span>
+    <span class="p">(</span><span class="s1">&#39;check_constraint&#39;</span><span class="p">,</span> <span class="s1">&#39;category in (&quot;FICTION&quot;,&quot;NONFICTION&quot;)&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;salary_check&#39;</span><span class="p">)),</span>
+    
+    <span class="c1">#SQLAlchemy: CheckConstraint(&#39;age &gt; 0&#39;)</span>
+    <span class="p">(</span><span class="s1">&#39;check_constraint&#39;</span><span class="p">,</span> <span class="s1">&#39;age &gt; 0&#39;</span><span class="p">),</span>
+    
+    <span class="c1"># make sure each category/title entry is unique</span>
+    <span class="c1">#SQLAlchemy:  UniqueConstraint(&#39;category&#39;, &#39;title&#39;, name=&#39;work_key&#39;)</span>
+    <span class="p">(</span><span class="s1">&#39;unique_constraint&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">,</span><span class="s1">&#39;title&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;work_key&#39;</span><span class="p">)),</span>
+    
+    <span class="c1"># makes a foreign key from the &#39;subkey&#39; column of this table to the &#39;id&#39;</span>
+    <span class="c1"># column of ANOTHERDOCTABLE, setting the SQL onupdate and ondelete foreign key constraints</span>
+    <span class="c1">#(&#39;foreignkey_constraint&#39;, [[&#39;subkey&#39;], [ANOTHERDOCTABLE[&#39;id&#39;]]], {}, dict(onupdate=&quot;CASCADE&quot;, ondelete=&quot;CASCADE&quot;)),</span>
+    <span class="c1">#NOTE: Can&#39;t show here because we didn&#39;t make ANOTHERDOCTABLE</span>
+    
+    <span class="c1">##### Indexes ######</span>
+    
+    <span class="c1"># make index table</span>
+    <span class="c1"># SQLAlchemy: Index(&#39;ind0&#39;, &#39;category&#39;, &#39;title&#39;, unique=True)</span>
+    <span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;ind0&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">,</span><span class="s1">&#39;title&#39;</span><span class="p">),</span><span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
+    
+<span class="p">)</span>
+<span class="n">md</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">md</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14507,18 +14971,6 @@ tmp/matrix_pickle_files/479169401447.pic
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>2
-</pre>
-</div>
-</div>
 
 <div class="jp-OutputArea-child">
 
@@ -14546,20 +14998,95 @@ tmp/matrix_pickle_files/479169401447.pic
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>id</th>
-      <th>array</th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
       <td>1</td>
-      <td>513229622107.pic</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>2</td>
-      <td>479169401447.pic</td>
+      <td>category</td>
+      <td>VARCHAR</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>title</td>
+      <td>VARCHAR</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>abstract</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>age</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>updated_on</td>
+      <td>DATETIME</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>text</td>
+      <td>VARCHAR(500)</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>json_data</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>tokenized</td>
+      <td>BLOB</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
     </tr>
   </tbody>
 </table>
@@ -14570,481 +15097,6 @@ tmp/matrix_pickle_files/479169401447.pic
 
 </div>
 
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Data-Folder-Consistency">Data Folder Consistency<a class="anchor-link" href="#Data-Folder-Consistency">&#182;</a></h2><p>Now we try to delete a row from the database. We can see that it was deleted as expected.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
-<span class="n">db</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>1
-</pre>
-</div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>array</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>2</td>
-      <td>[[0.12275515627176403, 0.0911517772058783, 0.4...</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>However, when we check the folder where the data was stored, we find that the file was, in fact, not deleted. This is the case for technical reasons.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tmp/matrix_pickle_files/513229622107.pic
-tmp/matrix_pickle_files/479169401447.pic
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We can clean up the unused files using <code>clean_col_files()</code> though. Note that the specific column to clean must be provided.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">clean_col_files</span><span class="p">(</span><span class="s1">&#39;array&#39;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tmp/matrix_pickle_files/479169401447.pic
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>There may be a situation where doctable cannot find the folder associated with an existing row. We can also use <code>clean_col_files()</code> to check for missing data. This might most frequently occur when the wrong folder is specified in the schema after moving the data file folder. For example, we delete all the pickle files in the directory and then run <code>clean_col_files()</code>.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="p">[</span><span class="n">fp</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span> <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">)]</span>
-<span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see that the exception was raised</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">clean_col_files</span><span class="p">(</span><span class="s1">&#39;array&#39;</span><span class="p">)</span>
-<span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>These files were not found while cleaning: {&#39;tmp/matrix_pickle_files/479169401447.pic&#39;}
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Text-File-Types">Text File Types<a class="anchor-link" href="#Text-File-Types">&#182;</a></h2><p>We can also store text files in a similar way. For this, use <code>TextFileCol</code> in the folder specification.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
-<span class="k">class</span> <span class="nc">TextFileRow</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableRow</span><span class="p">):</span>
-    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
-    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">TextFileCol</span><span class="p">(</span><span class="s1">&#39;tmp/my_text_files&#39;</span><span class="p">)</span> <span class="c1"># will store files in the tmp directory</span>
-    
-<span class="n">tdb</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;tmp/test_textfiles.db&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">TextFileRow</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">tdb</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Hello world. DocTable is the most useful python package of all time.&#39;</span><span class="p">})</span>
-<span class="n">tdb</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Star Wars is my favorite movie.&#39;</span><span class="p">})</span>
-<span class="n">tdb</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>text</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>Hello world. DocTable is the most useful pytho...</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>Star Wars is my favorite movie.</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># and they look like text files</span>
-<span class="n">vdb</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="s1">&#39;tmp/test_textfiles.db&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">vdb</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
-<span class="n">vdb</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>2
-</pre>
-</div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>text</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>639565240391.txt</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>253301202854.txt</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>See that the text files were created, and they look like normal text files so we can read them normally.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.txt&#39;</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fpath</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">fpath</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tmp/my_text_files/639565240391.txt: Hello world. DocTable is the most useful python package of all time.
-tmp/my_text_files/253301202854.txt: Star Wars is my favorite movie.
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-     </div>
-</div>
-</div>
 </div>
 
 </div>

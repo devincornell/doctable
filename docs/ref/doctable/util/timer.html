@@ -54,6 +54,12 @@
                         <li>
                                 <a class="function" href="#Timer.rm_log">rm_log</a>
                         </li>
+                        <li>
+                                <a class="function" href="#Timer.get_diff_stat">get_diff_stat</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Timer.time_call">time_call</a>
+                        </li>
                 </ul>
 
             </li>
@@ -105,11 +111,13 @@
             <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypeVar</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">psutil</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">statistics</span>
+<span class="kn">from</span> <span class="nn">.unit_format</span> <span class="kn">import</span> <span class="n">format_time</span>
 
 <span class="kn">import</span> <span class="nn">doctable</span>
 
@@ -118,9 +126,13 @@
 <span class="k">class</span> <span class="nc">Timer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot; Times a task.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+            <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_ts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_delta</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_mem</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Add single step for current datetime.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_ts</span> <span class="o">=</span> <span class="n">show_ts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_delta</span> <span class="o">=</span> <span class="n">show_delta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_mem</span> <span class="o">=</span> <span class="n">show_mem</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span> <span class="k">if</span> <span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -161,6 +173,10 @@
     <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Add a new step, print and log it if needed.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># little printout to log if timer is just starting</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">10</span><span class="si">}</span><span class="s2"> New Timer </span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">10</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
         <span class="c1"># create new step</span>
         <span class="n">newstep</span> <span class="o">=</span> <span class="n">Step</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">))</span>
         <span class="c1">#print(f&#39;making step: {newstep}&#39;)</span>
@@ -172,6 +188,13 @@
     
     <span class="c1">######################## logging functionality ########################</span>
     <span class="k">def</span> <span class="nf">print_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="n">StepType</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">):</span>
+
+        <span class="c1"># apply defaults</span>
+        <span class="n">default_format_args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">show_ts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">show_ts</span><span class="p">,</span> <span class="n">show_delta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">show_delta</span><span class="p">,</span> 
+                        <span class="n">show_mem</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">show_mem</span><span class="p">)</span>
+        <span class="n">format_args</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">default_format_args</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">}</span>
+        
+        <span class="c1"># execute format method</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="n">out_str</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">**</span><span class="n">format_args</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -184,8 +207,6 @@
         <span class="c1"># print to output if requested</span>
         <span class="k">if</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="p">(</span><span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">out_str</span><span class="p">)</span>
-
-
 
     <span class="k">def</span> <span class="nf">write_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Write text to log file.</span>
@@ -206,6 +227,44 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
 
+    <span class="c1">######################## logging functionality ########################</span>
+    <span class="k">def</span> <span class="nf">get_diff_stat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stat</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get stats on differences between time points.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            stat: name of function in &quot;statistics&quot; module to call</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">statistics</span><span class="p">,</span> <span class="n">stat</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The stat was not a function in the &quot;statistics&quot; module.&#39;</span><span class="p">)</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first</span>
+        <span class="n">diffs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">diffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">prev</span><span class="p">))</span>
+            <span class="n">prev</span> <span class="o">=</span> <span class="n">t</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">statistics</span><span class="p">,</span> <span class="n">stat</span><span class="p">)(</span><span class="n">diffs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">as_str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">format_time</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">time_call</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">num_calls</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">as_str</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Time function call with 0.05 ms latency per call.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">timer</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">timer</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Timer</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+            <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">timer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">as_str</span><span class="p">:</span>
+            <span class="n">mean</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">get_diff_stat</span><span class="p">(</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">med</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">get_diff_stat</span><span class="p">(</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">stdev</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">get_diff_stat</span><span class="p">(</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;stdev&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mean</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">med</span><span class="si">}</span><span class="s1">) ± </span><span class="si">{</span><span class="n">stdev</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">timer</span><span class="o">.</span><span class="n">get_diff_stat</span><span class="p">(</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
     <span class="c1">#def print_table(self):</span>
     <span class="c1">#    &#39;&#39;&#39; Print table showing how long each step took.</span>
     <span class="c1">#    &#39;&#39;&#39;</span>
@@ -225,6 +284,9 @@
     <span class="k">def</span> <span class="nf">msg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_msg</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_msg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;.&#39;</span>
 
+    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">StepType</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">ts_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">StepType</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">ts</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
 
@@ -235,12 +297,15 @@
             <span class="n">ts_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
         <span class="k">if</span> <span class="n">show_mem</span><span class="p">:</span>
-            <span class="n">mem_usage</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_memory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">)</span><span class="si">:</span><span class="s2">6</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="n">mem_usage</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_memory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">/&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">mem_usage</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="n">show_delta</span> <span class="ow">and</span> <span class="n">prev_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ts_diff</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">prev_step</span><span class="p">))</span><span class="si">:</span><span class="s2">6</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="k">if</span> <span class="n">show_delta</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">prev_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ts_diff</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">prev_step</span><span class="p">))</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ts_diff</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">*</span><span class="mi">11</span><span class="si">}</span><span class="s1">/&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ts_diff</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
@@ -264,9 +329,13 @@
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Timer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot; Times a task.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+            <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_ts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_delta</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_mem</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Add single step for current datetime.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_ts</span> <span class="o">=</span> <span class="n">show_ts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_delta</span> <span class="o">=</span> <span class="n">show_delta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_mem</span> <span class="o">=</span> <span class="n">show_mem</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span> <span class="k">if</span> <span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -307,6 +376,10 @@
     <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Add a new step, print and log it if needed.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># little printout to log if timer is just starting</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">10</span><span class="si">}</span><span class="s2"> New Timer </span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">10</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
         <span class="c1"># create new step</span>
         <span class="n">newstep</span> <span class="o">=</span> <span class="n">Step</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">))</span>
         <span class="c1">#print(f&#39;making step: {newstep}&#39;)</span>
@@ -318,6 +391,13 @@
     
     <span class="c1">######################## logging functionality ########################</span>
     <span class="k">def</span> <span class="nf">print_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="n">StepType</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">):</span>
+
+        <span class="c1"># apply defaults</span>
+        <span class="n">default_format_args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">show_ts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">show_ts</span><span class="p">,</span> <span class="n">show_delta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">show_delta</span><span class="p">,</span> 
+                        <span class="n">show_mem</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">show_mem</span><span class="p">)</span>
+        <span class="n">format_args</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">default_format_args</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">}</span>
+        
+        <span class="c1"># execute format method</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="n">out_str</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">**</span><span class="n">format_args</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -330,8 +410,6 @@
         <span class="c1"># print to output if requested</span>
         <span class="k">if</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="p">(</span><span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">out_str</span><span class="p">)</span>
-
-
 
     <span class="k">def</span> <span class="nf">write_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Write text to log file.</span>
@@ -351,6 +429,44 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+    <span class="c1">######################## logging functionality ########################</span>
+    <span class="k">def</span> <span class="nf">get_diff_stat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stat</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get stats on differences between time points.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            stat: name of function in &quot;statistics&quot; module to call</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">statistics</span><span class="p">,</span> <span class="n">stat</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The stat was not a function in the &quot;statistics&quot; module.&#39;</span><span class="p">)</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first</span>
+        <span class="n">diffs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">diffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">prev</span><span class="p">))</span>
+            <span class="n">prev</span> <span class="o">=</span> <span class="n">t</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">statistics</span><span class="p">,</span> <span class="n">stat</span><span class="p">)(</span><span class="n">diffs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">as_str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">format_time</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">time_call</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">num_calls</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">as_str</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Time function call with 0.05 ms latency per call.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">timer</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">timer</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Timer</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+            <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">timer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">as_str</span><span class="p">:</span>
+            <span class="n">mean</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">get_diff_stat</span><span class="p">(</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">med</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">get_diff_stat</span><span class="p">(</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">stdev</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">get_diff_stat</span><span class="p">(</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;stdev&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mean</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">med</span><span class="si">}</span><span class="s1">) ± </span><span class="si">{</span><span class="n">stdev</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">timer</span><span class="o">.</span><span class="n">get_diff_stat</span><span class="p">(</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -363,14 +479,26 @@
                                         <div class="attr function"><a class="headerlink" href="#Timer.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">Timer</span><span class="signature">(message: str = None, logfile=None, new_log=True, verbose=True)</span>
+            <span class="name">Timer</span><span class="signature">(
+    message: str = None,
+    logfile=None,
+    new_log=False,
+    verbose=True,
+    show_ts=True,
+    show_delta=True,
+    show_mem=True
+)</span>
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+            <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_ts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_delta</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_mem</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Add single step for current datetime.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_ts</span> <span class="o">=</span> <span class="n">show_ts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_delta</span> <span class="o">=</span> <span class="n">show_delta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_mem</span> <span class="o">=</span> <span class="n">show_mem</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span> <span class="k">if</span> <span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -422,6 +550,10 @@
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Add a new step, print and log it if needed.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># little printout to log if timer is just starting</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">10</span><span class="si">}</span><span class="s2"> New Timer </span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">10</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
         <span class="c1"># create new step</span>
         <span class="n">newstep</span> <span class="o">=</span> <span class="n">Step</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">))</span>
         <span class="c1">#print(f&#39;making step: {newstep}&#39;)</span>
@@ -450,6 +582,13 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">print_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="n">StepType</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">):</span>
+
+        <span class="c1"># apply defaults</span>
+        <span class="n">default_format_args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">show_ts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">show_ts</span><span class="p">,</span> <span class="n">show_delta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">show_delta</span><span class="p">,</span> 
+                        <span class="n">show_mem</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">show_mem</span><span class="p">)</span>
+        <span class="n">format_args</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">default_format_args</span><span class="p">,</span> <span class="o">**</span><span class="n">format_args</span><span class="p">}</span>
+        
+        <span class="c1"># execute format method</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="n">out_str</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">**</span><span class="n">format_args</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -524,6 +663,82 @@
 
 
                             </div>
+                            <div id="Timer.get_diff_stat" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Timer.get_diff_stat">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">get_diff_stat</span><span class="signature">(self, stat: str = &#39;mean&#39;, as_str: bool = False)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_diff_stat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stat</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get stats on differences between time points.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            stat: name of function in &quot;statistics&quot; module to call</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">statistics</span><span class="p">,</span> <span class="n">stat</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The stat was not a function in the &quot;statistics&quot; module.&#39;</span><span class="p">)</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first</span>
+        <span class="n">diffs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">diffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">prev</span><span class="p">))</span>
+            <span class="n">prev</span> <span class="o">=</span> <span class="n">t</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">statistics</span><span class="p">,</span> <span class="n">stat</span><span class="p">)(</span><span class="n">diffs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">as_str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">format_time</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get stats on differences between time points.
+Args:
+    stat: name of function in "statistics" module to call</p>
+</div>
+
+
+                            </div>
+                            <div id="Timer.time_call" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Timer.time_call">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@classmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">time_call</span><span class="signature">(cls, func: Callable, *args, num_calls=1, as_str=False, **kwargs)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">time_call</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">num_calls</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">as_str</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Time function call with 0.05 ms latency per call.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">timer</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">timer</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Timer</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+            <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">timer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">as_str</span><span class="p">:</span>
+            <span class="n">mean</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">get_diff_stat</span><span class="p">(</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">med</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">get_diff_stat</span><span class="p">(</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">stdev</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">get_diff_stat</span><span class="p">(</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;stdev&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mean</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">med</span><span class="si">}</span><span class="s1">) ± </span><span class="si">{</span><span class="n">stdev</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">timer</span><span class="o">.</span><span class="n">get_diff_stat</span><span class="p">(</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">as_str</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Time function call with 0.05 ms latency per call.</p>
+</div>
+
+
+                            </div>
                 </section>
                 <section id="Step">
                                 <div class="attr class">
@@ -546,6 +761,9 @@
     <span class="k">def</span> <span class="nf">msg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_msg</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_msg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;.&#39;</span>
 
+    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">StepType</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">ts_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">StepType</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">ts</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
 
@@ -556,12 +774,15 @@
             <span class="n">ts_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
         <span class="k">if</span> <span class="n">show_mem</span><span class="p">:</span>
-            <span class="n">mem_usage</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_memory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">)</span><span class="si">:</span><span class="s2">6</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="n">mem_usage</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_memory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">/&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">mem_usage</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="n">show_delta</span> <span class="ow">and</span> <span class="n">prev_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ts_diff</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">prev_step</span><span class="p">))</span><span class="si">:</span><span class="s2">6</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="k">if</span> <span class="n">show_delta</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">prev_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ts_diff</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">prev_step</span><span class="p">))</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ts_diff</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">*</span><span class="mi">11</span><span class="si">}</span><span class="s1">/&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ts_diff</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
@@ -668,12 +889,15 @@
             <span class="n">ts_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
         <span class="k">if</span> <span class="n">show_mem</span><span class="p">:</span>
-            <span class="n">mem_usage</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_memory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">)</span><span class="si">:</span><span class="s2">6</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="n">mem_usage</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_memory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">/&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">mem_usage</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="n">show_delta</span> <span class="ow">and</span> <span class="n">prev_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ts_diff</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">prev_step</span><span class="p">))</span><span class="si">:</span><span class="s2">6</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="k">if</span> <span class="n">show_delta</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">prev_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ts_diff</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">doctable</span><span class="o">.</span><span class="n">format_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_diff</span><span class="p">(</span><span class="n">prev_step</span><span class="p">))</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ts_diff</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">*</span><span class="mi">11</span><span class="si">}</span><span class="s1">/&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ts_diff</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 

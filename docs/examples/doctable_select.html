@@ -14288,15 +14288,16 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">dataclasses</span>
-<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
-<span class="k">class</span> <span class="nc">Record</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableRow</span><span class="p">):</span>
+<span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span>
+<span class="k">class</span> <span class="nc">Record</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">is_old</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">Record</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">Record</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14335,8 +14336,8 @@ a.anchor-link {
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
     <span class="n">age</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="c1"># number in [0,1]</span>
     <span class="n">is_old</span> <span class="o">=</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;user_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="n">age</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">:</span><span class="n">is_old</span><span class="p">},</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;user_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="n">age</span><span class="p">,</span> <span class="s1">&#39;is_old&#39;</span><span class="p">:</span><span class="n">is_old</span><span class="p">},</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14380,7 +14381,7 @@ a.anchor-link {
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the limit argument means the result will only return some rows.</span>
 <span class="c1"># I&#39;ll use it for convenience in these examples.</span>
 <span class="c1"># this selects all rows</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14416,8 +14417,8 @@ FROM _documents_
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.04379398878146823, is_old=False),
+ Record(id=2, name=&#39;user_1&#39;, age=0.32083938549074387, is_old=False)]</pre>
 </div>
 
 </div>
@@ -14432,7 +14433,7 @@ FROM _documents_
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14485,7 +14486,7 @@ FROM _documents_
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># can also select by accessing the column object (db[&#39;id&#39;]) itself</span>
 <span class="c1"># this will be useful later with more complex queries</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14536,7 +14537,7 @@ FROM _documents_
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select_first</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14572,7 +14573,7 @@ FROM _documents_
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True)</pre>
+<pre>Record(id=1, name=&#39;user_0&#39;, age=0.04379398878146823, is_old=False)</pre>
 </div>
 
 </div>
@@ -14587,7 +14588,7 @@ FROM _documents_
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14638,7 +14639,7 @@ FROM _documents_
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select_first</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14674,7 +14675,7 @@ FROM _documents_
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>0.6643892612068403</pre>
+<pre>0.04379398878146823</pre>
 </div>
 
 </div>
@@ -14694,7 +14695,7 @@ FROM _documents_
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14730,7 +14731,7 @@ WHERE _documents_.id = ?
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
+<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.32083938549074387, is_old=False)]</pre>
 </div>
 
 </div>
@@ -14745,7 +14746,7 @@ WHERE _documents_.id = ?
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;</span><span class="mi">3</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14781,8 +14782,8 @@ WHERE _documents_.id &lt; ?
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.04379398878146823, is_old=False),
+ Record(id=2, name=&#39;user_1&#39;, age=0.32083938549074387, is_old=False)]</pre>
 </div>
 
 </div>
@@ -14798,7 +14799,7 @@ WHERE _documents_.id &lt; ?
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># mod operator works too</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">%</span><span class="k">2</span>)==0, limit=2)
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">%</span><span class="k">2</span>)==0, limit=2)
 </pre></div>
 
      </div>
@@ -14835,8 +14836,8 @@ WHERE _documents_.id % ? = ?
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True),
- Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]</pre>
+<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.32083938549074387, is_old=False),
+ Record(id=4, name=&#39;user_3&#39;, age=0.5649107128684847, is_old=True)]</pre>
 </div>
 
 </div>
@@ -14852,7 +14853,7 @@ WHERE _documents_.id % ? = ?
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># note parantheses to handle order of ops with overloaded bitwise ops</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span> <span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">!=</span><span class="s1">&#39;user_2&#39;</span><span class="p">))</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">!=</span><span class="s1">&#39;user_2&#39;</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -14888,8 +14889,8 @@ WHERE _documents_.id &gt;= ? AND _documents_.id &lt;= ? AND _documents_.name != 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True),
- Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]</pre>
+<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.32083938549074387, is_old=False),
+ Record(id=4, name=&#39;user_3&#39;, age=0.5649107128684847, is_old=True)]</pre>
 </div>
 
 </div>
@@ -14904,7 +14905,7 @@ WHERE _documents_.id &gt;= ? AND _documents_.id &lt;= ? AND _documents_.name != 
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">in_</span><span class="p">((</span><span class="s1">&#39;user_2&#39;</span><span class="p">,</span><span class="s1">&#39;user_3&#39;</span><span class="p">)))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">in_</span><span class="p">((</span><span class="s1">&#39;user_2&#39;</span><span class="p">,</span><span class="s1">&#39;user_3&#39;</span><span class="p">)))</span>
 </pre></div>
 
      </div>
@@ -14940,8 +14941,8 @@ WHERE _documents_.name IN (?, ?)
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=3, name=&#39;user_2&#39;, age=0.762910032919838, is_old=True),
- Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]</pre>
+<pre>[Record(id=3, name=&#39;user_2&#39;, age=0.10213129577978541, is_old=False),
+ Record(id=4, name=&#39;user_3&#39;, age=0.5649107128684847, is_old=True)]</pre>
 </div>
 
 </div>
@@ -14956,7 +14957,7 @@ WHERE _documents_.name IN (?, ?)
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -14992,9 +14993,9 @@ WHERE _documents_.id BETWEEN ? AND ?
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True),
- Record(id=3, name=&#39;user_2&#39;, age=0.762910032919838, is_old=True),
- Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]</pre>
+<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.32083938549074387, is_old=False),
+ Record(id=3, name=&#39;user_2&#39;, age=0.10213129577978541, is_old=False),
+ Record(id=4, name=&#39;user_3&#39;, age=0.5649107128684847, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15010,7 +15011,7 @@ WHERE _documents_.id BETWEEN ? AND ?
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># use of logical not operator &quot;~&quot;</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span> <span class="o">~</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">in_</span><span class="p">((</span><span class="s1">&#39;user_2&#39;</span><span class="p">,</span><span class="s1">&#39;user_3&#39;</span><span class="p">)))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span> <span class="o">~</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">in_</span><span class="p">((</span><span class="s1">&#39;user_2&#39;</span><span class="p">,</span><span class="s1">&#39;user_3&#39;</span><span class="p">)))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -15046,8 +15047,8 @@ WHERE _documents_.name NOT IN (?, ?) AND _documents_.id &lt; ?
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.04379398878146823, is_old=False),
+ Record(id=2, name=&#39;user_1&#39;, age=0.32083938549074387, is_old=False)]</pre>
 </div>
 
 </div>
@@ -15063,7 +15064,7 @@ WHERE _documents_.name NOT IN (?, ?) AND _documents_.id &lt; ?
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># more verbose operators .and_, .or_, and .not_ are bound to the doctable package</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">or_</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">not_</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">4</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">or_</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">not_</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">4</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -15099,8 +15100,8 @@ WHERE _documents_.id != ? AND _documents_.id &lt;= ?
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.04379398878146823, is_old=False),
+ Record(id=2, name=&#39;user_1&#39;, age=0.32083938549074387, is_old=False)]</pre>
 </div>
 
 </div>
@@ -15116,9 +15117,9 @@ WHERE _documents_.id != ? AND _documents_.id &lt;= ?
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># now with simple computation</span>
-<span class="n">ages</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span>
+<span class="n">ages</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span>
 <span class="n">mean_age</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ages</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">ages</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="n">mean_age</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">where</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="n">mean_age</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15157,7 +15158,7 @@ WHERE _documents_.age &gt; ?
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&#39;user_0&#39;, &#39;user_1&#39;]</pre>
+<pre>[&#39;user_3&#39;, &#39;user_5&#39;]</pre>
 </div>
 
 </div>
@@ -15173,7 +15174,7 @@ WHERE _documents_.age &gt; ?
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># apply .label() method to columns</span>
-<span class="nb">dict</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;myage&#39;</span><span class="p">),</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;myname&#39;</span><span class="p">)],</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">dict</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;myage&#39;</span><span class="p">),</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;myname&#39;</span><span class="p">)],</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -15209,7 +15210,7 @@ FROM _documents_
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;myage&#39;: 0.6643892612068403, &#39;myname&#39;: &#39;user_0&#39;}</pre>
+<pre>{&#39;myage&#39;: 0.04379398878146823, &#39;myname&#39;: &#39;user_0&#39;}</pre>
 </div>
 
 </div>
@@ -15230,7 +15231,7 @@ FROM _documents_
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]],</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]],</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15266,7 +15267,7 @@ FROM _documents_
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(6.553875813756212, 10, 0.6643892612068403)</pre>
+<pre>(3.748372290260373, 10, 0.04379398878146823)</pre>
 </div>
 
 </div>
@@ -15282,7 +15283,7 @@ FROM _documents_
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># with labels now</span>
-<span class="nb">dict</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;sum&#39;</span><span class="p">),</span> <span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;ct&#39;</span><span class="p">)],</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">dict</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;sum&#39;</span><span class="p">),</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;ct&#39;</span><span class="p">)],</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -15318,7 +15319,7 @@ FROM _documents_
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;sum&#39;: 6.553875813756212, &#39;ct&#39;: 10}</pre>
+<pre>{&#39;sum&#39;: 3.748372290260373, &#39;ct&#39;: 10}</pre>
 </div>
 
 </div>
@@ -15340,7 +15341,7 @@ FROM _documents_
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the limit is obvious - it has been used throughout these examples</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15376,8 +15377,8 @@ FROM _documents_
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.04379398878146823, is_old=False),
+ Record(id=2, name=&#39;user_1&#39;, age=0.32083938549074387, is_old=False)]</pre>
 </div>
 
 </div>
@@ -15393,7 +15394,7 @@ FROM _documents_
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># orderby clause</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">orderby</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">desc</span><span class="p">(),</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">orderby</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">desc</span><span class="p">(),</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15429,8 +15430,8 @@ FROM _documents_ ORDER BY _documents_.age DESC
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=10, name=&#39;user_9&#39;, age=0.9390342979922199, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
+<pre>[Record(id=8, name=&#39;user_7&#39;, age=0.7809152967349511, is_old=True),
+ Record(id=6, name=&#39;user_5&#39;, age=0.6081281581554809, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15446,7 +15447,7 @@ FROM _documents_ ORDER BY _documents_.age DESC
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># compound orderby</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">orderby</span><span class="o">=</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">desc</span><span class="p">(),</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">asc</span><span class="p">()),</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">orderby</span><span class="o">=</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">desc</span><span class="p">(),</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">asc</span><span class="p">()),</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15482,8 +15483,8 @@ FROM _documents_ ORDER BY _documents_.age DESC, _documents_.is_old ASC
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=10, name=&#39;user_9&#39;, age=0.9390342979922199, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
+<pre>[Record(id=8, name=&#39;user_7&#39;, age=0.7809152967349511, is_old=True),
+ Record(id=6, name=&#39;user_5&#39;, age=0.6081281581554809, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15500,7 +15501,7 @@ FROM _documents_ ORDER BY _documents_.age DESC, _documents_.is_old ASC
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># can also use column name directly</span>
 <span class="c1"># can only use ascending and can use only one col</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">orderby</span><span class="o">=</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">orderby</span><span class="o">=</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15536,8 +15537,8 @@ FROM _documents_ ORDER BY _documents_.age
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=5, name=&#39;user_4&#39;, age=0.30235086526336663, is_old=False),
- Record(id=6, name=&#39;user_5&#39;, age=0.32540985118674415, is_old=False)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.04379398878146823, is_old=False),
+ Record(id=3, name=&#39;user_2&#39;, age=0.10213129577978541, is_old=False)]</pre>
 </div>
 
 </div>
@@ -15554,7 +15555,7 @@ FROM _documents_ ORDER BY _documents_.age
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># groupby clause</span>
 <span class="c1"># returns first row of each group without any aggregation functions</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">groupby</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">])</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">groupby</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">])</span>
 </pre></div>
 
      </div>
@@ -15589,8 +15590,8 @@ FROM _documents_ GROUP BY _documents_.is_old
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=5, name=&#39;user_4&#39;, age=0.30235086526336663, is_old=False),
- Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.04379398878146823, is_old=False),
+ Record(id=4, name=&#39;user_3&#39;, age=0.5649107128684847, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15606,7 +15607,7 @@ FROM _documents_ GROUP BY _documents_.is_old
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># compound groupby (weird example bc name is unique - have only one cat var in this demo)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">groupby</span><span class="o">=</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]),</span> <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">groupby</span><span class="o">=</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">],</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]),</span> <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15642,9 +15643,9 @@ FROM _documents_ GROUP BY _documents_.is_old, _documents_.name
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=5, name=&#39;user_4&#39;, age=0.30235086526336663, is_old=False),
- Record(id=6, name=&#39;user_5&#39;, age=0.32540985118674415, is_old=False),
- Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.04379398878146823, is_old=False),
+ Record(id=2, name=&#39;user_1&#39;, age=0.32083938549074387, is_old=False),
+ Record(id=3, name=&#39;user_2&#39;, age=0.10213129577978541, is_old=False)]</pre>
 </div>
 
 </div>
@@ -15661,7 +15662,7 @@ FROM _documents_ GROUP BY _documents_.is_old, _documents_.name
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># groupby clause using max aggregation function</span>
 <span class="c1"># gets match age for both old and young groups</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">])</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">])</span>
 </pre></div>
 
      </div>
@@ -15696,7 +15697,7 @@ FROM _documents_ GROUP BY _documents_.is_old
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[0.32540985118674415, 0.9390342979922199]</pre>
+<pre>[0.44776169274293975, 0.7809152967349511]</pre>
 </div>
 
 </div>
@@ -15717,8 +15718,8 @@ FROM _documents_ GROUP BY _documents_.is_old
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">qstr</span> <span class="o">=</span> <span class="s1">&#39;SELECT age,name FROM </span><span class="si">{}</span><span class="s1"> WHERE id==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">tabname</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qstr</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">qstr</span> <span class="o">=</span> <span class="s1">&#39;SELECT age,name FROM </span><span class="si">{}</span><span class="s1"> WHERE id==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">tabname</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qstr</span><span class="p">)</span>
 <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 
@@ -15753,7 +15754,7 @@ FROM _documents_ GROUP BY _documents_.is_old
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;age&#39;: 0.6643892612068403, &#39;name&#39;: &#39;user_0&#39;}</pre>
+<pre>{&#39;age&#39;: 0.04379398878146823, &#39;name&#39;: &#39;user_0&#39;}</pre>
 </div>
 
 </div>
@@ -15769,7 +15770,7 @@ FROM _documents_ GROUP BY _documents_.is_old
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">wherestr</span> <span class="o">=</span> <span class="s1">&#39;is_old==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">wherestr</span><span class="o">=</span><span class="n">wherestr</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">wherestr</span><span class="o">=</span><span class="n">wherestr</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15806,8 +15807,8 @@ WHERE (is_old==&#34;1&#34;)
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True)]</pre>
+<pre>[Record(id=4, name=&#39;user_3&#39;, age=0.5649107128684847, is_old=True),
+ Record(id=6, name=&#39;user_5&#39;, age=0.6081281581554809, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15824,7 +15825,7 @@ WHERE (is_old==&#34;1&#34;)
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># combine whrstr with structured query where clause</span>
 <span class="n">wherestr</span> <span class="o">=</span> <span class="s1">&#39;is_old==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="n">wherestr</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="n">wherestr</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15860,10 +15861,7 @@ WHERE _documents_.id &lt;= ? AND (is_old==&#34;1&#34;)
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True),
- Record(id=3, name=&#39;user_2&#39;, age=0.762910032919838, is_old=True),
- Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]</pre>
+<pre>[Record(id=4, name=&#39;user_3&#39;, age=0.5649107128684847, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15880,7 +15878,7 @@ WHERE _documents_.id &lt;= ? AND (is_old==&#34;1&#34;)
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># combine whrstr with structured query where clause</span>
 <span class="n">wherestr</span> <span class="o">=</span> <span class="s1">&#39;is_old==&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="n">wherestr</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="n">wherestr</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15916,10 +15914,7 @@ WHERE _documents_.id &lt;= ? AND (is_old==&#34;1&#34;)
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.6643892612068403, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True),
- Record(id=3, name=&#39;user_2&#39;, age=0.762910032919838, is_old=True),
- Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]</pre>
+<pre>[Record(id=4, name=&#39;user_3&#39;, age=0.5649107128684847, is_old=True)]</pre>
 </div>
 
 </div>
@@ -15941,7 +15936,7 @@ WHERE _documents_.id &lt;= ? AND (is_old==&#34;1&#34;)
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[33]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -15992,7 +15987,7 @@ FROM _documents_
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[34]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -16029,7 +16024,7 @@ WHERE _documents_.age &lt; ?
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>2</pre>
+<pre>7</pre>
 </div>
 
 </div>
@@ -16051,7 +16046,7 @@ WHERE _documents_.age &lt; ?
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># must provide only a single column</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select_series</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select_series</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -16086,8 +16081,8 @@ FROM _documents_
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>0    0.664389
-1    0.905378
+<pre>0    0.043794
+1    0.320839
 dtype: float64</pre>
 </div>
 
@@ -16103,7 +16098,7 @@ dtype: float64</pre>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[36]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_series</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">quantile</span><span class="p">([</span><span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.985</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select_series</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">quantile</span><span class="p">([</span><span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.985</span><span class="p">])</span>
 </pre></div>
 
      </div>
@@ -16138,8 +16133,8 @@ FROM _documents_
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>0.025    0.307539
-0.985    0.934491
+<pre>0.025    0.056920
+0.985    0.757589
 dtype: float64</pre>
 </div>
 
@@ -16155,7 +16150,7 @@ dtype: float64</pre>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[37]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -16215,12 +16210,12 @@ FROM _documents_
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>0.664389</td>
+      <td>0.043794</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>0.905378</td>
+      <td>0.320839</td>
     </tr>
   </tbody>
 </table>
@@ -16239,7 +16234,7 @@ FROM _documents_
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[38]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -16297,11 +16292,11 @@ FROM _documents_
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.664389</td>
+      <td>0.043794</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.905378</td>
+      <td>0.320839</td>
     </tr>
   </tbody>
 </table>
@@ -16321,7 +16316,7 @@ FROM _documents_
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># must provide list of cols (even for one col)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -16380,13 +16375,13 @@ FROM _documents_
   <tbody>
     <tr>
       <th>id</th>
-      <td>1.000000</td>
-      <td>0.092846</td>
+      <td>1.00000</td>
+      <td>0.43105</td>
     </tr>
     <tr>
       <th>age</th>
-      <td>0.092846</td>
-      <td>1.000000</td>
+      <td>0.43105</td>
+      <td>1.00000</td>
     </tr>
   </tbody>
 </table>
@@ -16405,7 +16400,7 @@ FROM _documents_
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[40]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
 </pre></div>
 
      </div>
@@ -16472,7 +16467,7 @@ FROM _documents_
       <th>id</th>
       <td>10.0</td>
       <td>5.500000</td>
-      <td>3.02765</td>
+      <td>3.027650</td>
       <td>1.000000</td>
       <td>3.250000</td>
       <td>5.500000</td>
@@ -16482,13 +16477,13 @@ FROM _documents_
     <tr>
       <th>age</th>
       <td>10.0</td>
-      <td>0.655388</td>
-      <td>0.21455</td>
-      <td>0.302351</td>
-      <td>0.587977</td>
-      <td>0.664459</td>
-      <td>0.784954</td>
-      <td>0.939034</td>
+      <td>0.374837</td>
+      <td>0.237944</td>
+      <td>0.043794</td>
+      <td>0.183425</td>
+      <td>0.376265</td>
+      <td>0.535623</td>
+      <td>0.780915</td>
     </tr>
   </tbody>
 </table>
@@ -16507,8 +16502,8 @@ FROM _documents_
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[41]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">mean_age</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_series</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">mean_age</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">select_series</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span>
 <span class="n">df</span><span class="p">[</span><span class="s1">&#39;old_grp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">mean_age</span>
 <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;old_grp&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
 </pre></div>
@@ -16613,41 +16608,41 @@ FROM _documents_
   <tbody>
     <tr>
       <th>False</th>
+      <td>5.0</td>
       <td>4.0</td>
-      <td>5.5</td>
-      <td>1.290994</td>
-      <td>4.0</td>
-      <td>4.75</td>
-      <td>5.5</td>
-      <td>6.25</td>
-      <td>7.0</td>
-      <td>4.0</td>
-      <td>0.456334</td>
-      <td>0.165703</td>
-      <td>0.302351</td>
-      <td>0.319645</td>
-      <td>0.451288</td>
-      <td>0.587977</td>
-      <td>0.620407</td>
+      <td>3.162278</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>9.0</td>
+      <td>5.0</td>
+      <td>0.182993</td>
+      <td>0.124028</td>
+      <td>0.043794</td>
+      <td>0.102131</td>
+      <td>0.142750</td>
+      <td>0.305451</td>
+      <td>0.320839</td>
     </tr>
     <tr>
       <th>True</th>
+      <td>5.0</td>
+      <td>7.0</td>
+      <td>2.236068</td>
+      <td>4.0</td>
       <td>6.0</td>
-      <td>5.5</td>
-      <td>3.937004</td>
-      <td>1.0</td>
-      <td>2.25</td>
-      <td>5.5</td>
-      <td>8.75</td>
+      <td>7.0</td>
+      <td>8.0</td>
       <td>10.0</td>
-      <td>6.0</td>
-      <td>0.788090</td>
-      <td>0.116414</td>
-      <td>0.664389</td>
-      <td>0.689124</td>
-      <td>0.777606</td>
-      <td>0.877109</td>
-      <td>0.939034</td>
+      <td>5.0</td>
+      <td>0.566681</td>
+      <td>0.141405</td>
+      <td>0.431691</td>
+      <td>0.447762</td>
+      <td>0.564911</td>
+      <td>0.608128</td>
+      <td>0.780915</td>
     </tr>
   </tbody>
 </table>
@@ -16668,8 +16663,8 @@ FROM _documents_
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># more complicated groupby aggregation.</span>
 <span class="c1"># calculates the variance both for entries above and below average age</span>
-<span class="n">mean_age</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_series</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span>
+<span class="n">mean_age</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">select_series</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">select_df</span><span class="p">([</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]])</span>
 <span class="n">df</span><span class="p">[</span><span class="s1">&#39;old_grp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="n">mean_age</span>
 <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;old_grp&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
     <span class="s1">&#39;first_name&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">NamedAgg</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">aggfunc</span><span class="o">=</span><span class="s1">&#39;first&#39;</span><span class="p">),</span>
@@ -16740,13 +16735,13 @@ FROM _documents_
   <tbody>
     <tr>
       <th>False</th>
-      <td>user_3</td>
-      <td>0.027457</td>
+      <td>user_0</td>
+      <td>0.015383</td>
     </tr>
     <tr>
       <th>True</th>
-      <td>user_0</td>
-      <td>0.013552</td>
+      <td>user_3</td>
+      <td>0.019995</td>
     </tr>
   </tbody>
 </table>
@@ -16772,7 +16767,7 @@ FROM _documents_
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[43]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">row_chunk</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">select_chunks</span><span class="p">(</span><span class="n">chunksize</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">%</span><span class="k">2</span>)==0, verbose=False):
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">row_chunk</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">select_chunks</span><span class="p">(</span><span class="n">chunksize</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">%</span><span class="k">2</span>)==0, verbose=False):
     <span class="nb">print</span><span class="p">(</span><span class="n">row_chunk</span><span class="p">)</span>
 </pre></div>
 
@@ -16793,9 +16788,9 @@ FROM _documents_
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.9053775349985783, is_old=True), Record(id=4, name=&#39;user_3&#39;, age=0.577166608655992, is_old=True)]
-[Record(id=6, name=&#39;user_5&#39;, age=0.32540985118674415, is_old=False), Record(id=8, name=&#39;user_7&#39;, age=0.7923015153822922, is_old=True)]
-[Record(id=10, name=&#39;user_9&#39;, age=0.9390342979922199, is_old=True)]
+<pre>[Record(id=2, name=&#39;user_1&#39;, age=0.32083938549074387, is_old=False), Record(id=4, name=&#39;user_3&#39;, age=0.5649107128684847, is_old=True)]
+[Record(id=6, name=&#39;user_5&#39;, age=0.6081281581554809, is_old=True), Record(id=8, name=&#39;user_7&#39;, age=0.7809152967349511, is_old=True)]
+[Record(id=10, name=&#39;user_9&#39;, age=0.431690999080828, is_old=False)]
 []
 </pre>
 </div>

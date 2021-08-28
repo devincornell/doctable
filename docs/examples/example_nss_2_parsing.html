@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>doctable_file_column_types</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>example_nss_2_parsing</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -14259,8 +14259,16 @@ a.anchor-link {
 
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="DocTable-File-Column-Types">DocTable File Column Types<a class="anchor-link" href="#DocTable-File-Column-Types">&#182;</a></h1><p>It is often good advice to avoid storing large binary data in an SQL table because it will significantly impact the read performance of the entire table. I find, however, that it can be extremely useful in text analysis applications as a way to keep track of a large number of models with associated metadata. As an alternative to storing binary data in the table directly, <code>DocTable</code> includes a number of custom column types that can transparently store data into the filesystem and keep track of it using the schema definitions.</p>
-<p>I provide two file storage column types: (1) <code>TextFileCol</code> for storing text data, and (2) <code>PickleFileCol</code> for storing any python data that requires pickling.</p>
+<h1 id="Vignette-2:-Storing-Document-Text">Vignette 2: Storing Document Text<a class="anchor-link" href="#Vignette-2:-Storing-Document-Text">&#182;</a></h1><p>In this example, I'll show how to create a database for document text + metadata storage using the <code>DocTable</code> class, and a parser class using a <code>ParsePipeline</code>. We will store the metadata you see below with the raw text and parsed tokens in the same DocTable.</p>
+<p>These are the vignettes I have created:</p>
+<ul>
+<li><p><a href="examples/example_nss_1_intro.html">1: Storing Document Metadata</a></p>
+</li>
+<li><p><a href="examples/example_nss_2_parsing.html">2: Storing Document Text</a></p>
+</li>
+<li><p><a href="examples/example_nss_3_parsetrees.html">3: Storing Parsed Documents</a></p>
+</li>
+</ul>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -14269,12 +14277,15 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-
-<span class="kn">import</span> <span class="nn">sys</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">doctable</span>
+<span class="kn">import</span> <span class="nn">spacy</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span> <span class="c1"># used for downloading nss docs</span>
 
 <span class="c1"># automatically clean up temp folder after python ends</span>
 <span class="n">tmpfolder</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">TempFolder</span><span class="p">(</span><span class="s1">&#39;tmp&#39;</span><span class="p">)</span>
@@ -14288,23 +14299,22 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Now I create a new table representing a matrix. Notice that I use the <code>PickleFileCol</code> column shortcut to create the column. This column is equivalent to <code>Col(None, coltype='picklefile', type_args=dict(folder=folder))</code>. See that to SQLite, this column simply looks like a text column.</p>
+<h2 id="Introduction-to-NSS-Corpus">Introduction to NSS Corpus<a class="anchor-link" href="#Introduction-to-NSS-Corpus">&#182;</a></h2><p>This dataset is the plain text version of the US National Security Strategy documents. During the parsing process, all plain text files will be downloaded from my <a href="https://github.com/devincornell/nssdocs">github project hosting the nss docs</a>. I compiled the metadata you see below from <a href="https://history.defense.gov/Historical-Sources/National-Security-Strategy/">a page hosted by the historical dept of the secretary's office</a>. In short, each US President must release at least one NSS per term, with some (namely Clinton) producing more.</p>
+<p>I've defined the document metadata as <code>nss_metadata</code>, which contains the year (which I used to make the url), the president name, and the political party they belong to. We will later use <code>download_nss()</code> to actually download the text and store it into the database.</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">dataclasses</span>
-<span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">require_slots</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">MatrixRow</span><span class="p">:</span>
-    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
-    <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">PickleFileCol</span><span class="p">(</span><span class="s1">&#39;tmp/matrix_pickle_files&#39;</span><span class="p">)</span> <span class="c1"># will store files in the tmp directory</span>
-    
-<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;tmp/test.db&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">MatrixRow</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">schema_info</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">download_nss</span><span class="p">(</span><span class="n">year</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Simple helper function for downloading texts from my nssdocs repo.&#39;&#39;&#39;</span>
+    <span class="n">baseurl</span> <span class="o">=</span> <span class="s1">&#39;https://raw.githubusercontent.com/devincornell/nssdocs/master/docs/</span><span class="si">{}</span><span class="s1">.txt&#39;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">baseurl</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span>
 </pre></div>
 
      </div>
@@ -14312,56 +14322,20 @@ a.anchor-link {
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[{&#39;name&#39;: &#39;id&#39;,
-  &#39;type&#39;: INTEGER(),
-  &#39;nullable&#39;: False,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 1},
- {&#39;name&#39;: &#39;array&#39;,
-  &#39;type&#39;: VARCHAR(),
-  &#39;nullable&#39;: True,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 0}]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Now we insert a new array. It appears to be inserted the same as any other object.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;array&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)})</span>
-<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;array&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)})</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">document_metadata</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="mi">2002</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;W. Bush&#39;</span><span class="p">},</span> 
+    <span class="p">{</span><span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="mi">2006</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;W. Bush&#39;</span><span class="p">},</span> 
+    <span class="p">{</span><span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="mi">2010</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Obama&#39;</span><span class="p">},</span> 
+    <span class="p">{</span><span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="mi">2015</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Obama&#39;</span><span class="p">},</span> 
+    <span class="p">{</span><span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="mi">2017</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Trump&#39;</span><span class="p">},</span> 
+<span class="p">]</span>
 </pre></div>
 
      </div>
@@ -14369,89 +14343,15 @@ a.anchor-link {
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>2
-</pre>
-</div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>array</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>[[0.7151415193411012, 0.49935102934992515, 0.7...</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>[[0.12275515627176403, 0.0911517772058783, 0.4...</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>But when we actually look at the filesystem, we see that files have been created to store the array.</p>
-
-</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># downloader example: first 100 characters of 1993 NSS document</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">download_nss</span><span class="p">(</span><span class="mi">1993</span><span class="p">)</span>
+<span class="n">text</span><span class="p">[:</span><span class="mi">100</span><span class="p">]</span>
 </pre></div>
 
      </div>
@@ -14467,14 +14367,15 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tmp/matrix_pickle_files/513229622107.pic
-tmp/matrix_pickle_files/479169401447.pic
-</pre>
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>&#39;Preface \n\nAmerican Leadership for Peaceful Change \n\nOur great Nation stands at a crossroads in histo&#39;</pre>
 </div>
+
 </div>
 
 </div>
@@ -14484,18 +14385,36 @@ tmp/matrix_pickle_files/479169401447.pic
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>If we want to see the raw data stored in the table, we can create a new doctable without a defined schema. See that the raw filenames have been stored in the database. Recall that the directory indicating where to find these files was provided in the schema itself.</p>
+<h2 id="1.-Create-a-Table-Schema">1. Create a Table Schema<a class="anchor-link" href="#1.-Create-a-Table-Schema">&#182;</a></h2><p>The first step will be to define a database schema that is appropriate for the data in <code>document_metadata</code>. We define an <code>NSSDoc</code> class to represent a single document. The <code>doctable.schema</code> decorator will convert the row objects into <a href="https://realpython.com/python-data-classes/"><code>dataclasses</code></a> with <a href="https://docs.python.org/3/reference/datamodel.html#slots">slots</a> enabled, and inherit from doctable.DocTableRow to add some additional functionality. The type hints associated with each variable will be used in the schema definition for the new tables, and arguments to <code>doctable.Col</code> will mostly be passed to <code>dataclasses.field</code> (see <a href="https://doctable.org/ref/doctable/schemas/field_columns.html#Col">docs</a> for more detail), so all dataclass functionality is maintained.</p>
+<p>See the <a href="examples/doctable_schema.html">schema guide</a> for examples of the full range of column types.</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">vdb</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="s1">&#39;tmp/test.db&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">vdb</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
-<span class="n">vdb</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span> <span class="c1"># import generic type hint</span>
+
+<span class="c1"># to be used as a database row representing a single NSS document</span>
+<span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span>
+<span class="k">class</span> <span class="nc">NSSDoc</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># include so that doctable.schema can create a slot class</span>
+    
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span> <span class="c1"># this is an alias for doctable.Col(primary_key=True, autoincrement=True)</span>
+    <span class="n">year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span>  <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">party</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">president</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">tokens</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span> <span class="c1"># this will be used as a binary type that stores pickled data</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tokens</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">paragraphs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14503,90 +14422,29 @@ tmp/matrix_pickle_files/479169401447.pic
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>2
-</pre>
-</div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>array</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>513229622107.pic</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>479169401447.pic</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Data-Folder-Consistency">Data Folder Consistency<a class="anchor-link" href="#Data-Folder-Consistency">&#182;</a></h2><p>Now we try to delete a row from the database. We can see that it was deleted as expected.</p>
+<h2 id="2.-Define-a-Custom-DocTable">2. Define a Custom DocTable<a class="anchor-link" href="#2.-Define-a-Custom-DocTable">&#182;</a></h2><p>Now we define a class called <code>NSSDocTable</code> to represent the database table. This table must inherit from <code>DocTable</code> and will store connection and schema information.
+The <code>DocTable</code> class is often used by subclassing. Our <code>NSSDocs</code> class inherits from <code>DocTable</code> and will store connection and schema information. Because the default constructor checks for statically define member variables <code>tabname</code> and <code>schema</code> (as well as others), we can simply add them to the class definition.</p>
+<p>We also can use this definition to create indices and constraints using the <code>_indices_</code> and <code>_constraints_</code> member variables. The indices are provided as name-&gt;columns pairs, and the constraints are tuples of the form <code>(constraint_type, constraint_details)</code>. In this case, we limit the values for <code>check</code> to R or D.</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
-<span class="n">db</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">NSSDocTable</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
+    <span class="n">_tabname_</span> <span class="o">=</span> <span class="s1">&#39;nss_documents&#39;</span>
+    <span class="n">_schema_</span> <span class="o">=</span> <span class="n">NSSDoc</span>
+    <span class="n">_indices_</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;party_index&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;party&#39;</span><span class="p">,),</span>
+    <span class="p">}</span>
+    <span class="n">_constraints_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;party in (&quot;R&quot;, &quot;D&quot;)&#39;</span><span class="p">),</span> <span class="c1"># party can only take on values R or D.</span>
+    <span class="p">]</span>
 </pre></div>
 
      </div>
@@ -14594,74 +14452,10 @@ tmp/matrix_pickle_files/479169401447.pic
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>1
-</pre>
-</div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>array</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>2</td>
-      <td>[[0.12275515627176403, 0.0911517772058783, 0.4...</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>However, when we check the folder where the data was stored, we find that the file was, in fact, not deleted. This is the case for technical reasons.</p>
+<p>We can then create a connection to a database by instantiating the <code>NSSDocTable</code> class. We used <code>target=':memory:'</code> to indicate that the sqlite table should be created in-memory.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14670,8 +14464,11 @@ tmp/matrix_pickle_files/479169401447.pic
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># printing the DocTable object itself shows how many entries there are</span>
+<span class="n">nss_table</span> <span class="o">=</span> <span class="n">NSSDocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nss_table</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nss_table</span><span class="p">)</span>
+<span class="n">nss_table</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14691,10 +14488,106 @@ tmp/matrix_pickle_files/479169401447.pic
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tmp/matrix_pickle_files/513229622107.pic
-tmp/matrix_pickle_files/479169401447.pic
+<pre>0
+&lt;DocTable (6 cols)::sqlite:///:memory::nss_documents&gt;
 </pre>
 </div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>year</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>party</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>president</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>text</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>tokens</td>
+      <td>BLOB</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
 </div>
 
 </div>
@@ -14704,7 +14597,12 @@ tmp/matrix_pickle_files/479169401447.pic
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We can clean up the unused files using <code>clean_col_files()</code> though. Note that the specific column to clean must be provided.</p>
+<h2 id="2.-Insert-Data-Into-the-Table">2. Insert Data Into the Table<a class="anchor-link" href="#2.-Insert-Data-Into-the-Table">&#182;</a></h2>
+</div>
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Now let's download and store the text into the database. Each loop downloads a text document and inserts it into the doctable, and we use the <code>.insert()</code> method to insert a single row at a time. The row to be inserted is represented as a dictionary, and any missing column information is left as NULL. The <code>ifnotunique</code> argument is set to false because if we were to re-run this code, it needs to replace the existing document of the same year. Recall that in the schema we placed a unique constraint on the year column.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14713,9 +14611,140 @@ tmp/matrix_pickle_files/479169401447.pic
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">clean_col_files</span><span class="p">(</span><span class="s1">&#39;array&#39;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">docmeta</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">document_metadata</span><span class="p">):</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">download_nss</span><span class="p">(</span><span class="n">docmeta</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">])</span>
+    <span class="n">nss_table</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="o">**</span><span class="n">docmeta</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span><span class="p">}},</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
+<span class="n">nss_table</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>100%|██████████| 6/6 [00:01&lt;00:00,  5.08it/s]
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>year</th>
+      <th>party</th>
+      <th>president</th>
+      <th>text</th>
+      <th>tokens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>2000</td>
+      <td>D</td>
+      <td>Clinton</td>
+      <td>As we enter the new millennium, we are blessed...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2002</td>
+      <td>R</td>
+      <td>W. Bush</td>
+      <td>The great struggles of the twentieth century b...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>2006</td>
+      <td>R</td>
+      <td>W. Bush</td>
+      <td>My fellow Americans, \n\nAmerica is at war. Th...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>2010</td>
+      <td>D</td>
+      <td>Obama</td>
+      <td>Time and again in our Nation's history, Americ...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>2015</td>
+      <td>D</td>
+      <td>Obama</td>
+      <td>Today, the United States is stronger and bette...</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="3.-Query-Table-Data">3. Query Table Data<a class="anchor-link" href="#3.-Query-Table-Data">&#182;</a></h2><p>Now that we have inserted the NSS documents into the table, there are a few ways we can query the data. To select the first entry of the table use <code>.select_first()</code>. This method returns a simple <code>sqlalchemy.RowProxy</code> object which can be accessed like a dictionary or like a tuple.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">row</span> <span class="o">=</span> <span class="n">nss_table</span><span class="o">.</span><span class="n">select_first</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;president&#39;</span><span class="p">])</span>
 </pre></div>
 
      </div>
@@ -14735,7 +14764,8 @@ tmp/matrix_pickle_files/479169401447.pic
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tmp/matrix_pickle_files/479169401447.pic
+<pre>NSSDoc(id=1, year=2000, party=&#39;D&#39;, president=&#39;Clinton&#39;)
+Clinton
 </pre>
 </div>
 </div>
@@ -14747,36 +14777,18 @@ tmp/matrix_pickle_files/479169401447.pic
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>There may be a situation where doctable cannot find the folder associated with an existing row. We can also use <code>clean_col_files()</code> to check for missing data. This might most frequently occur when the wrong folder is specified in the schema after moving the data file folder. For example, we delete all the pickle files in the directory and then run <code>clean_col_files()</code>.</p>
+<p>To select more than one row, use the <code>.select()</code> method. If you'd only like to return the first few rows, you can use the <code>limit</code> argument.</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="p">[</span><span class="n">fp</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span> <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">)]</span>
-<span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see that the exception was raised</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">clean_col_files</span><span class="p">(</span><span class="s1">&#39;array&#39;</span><span class="p">)</span>
-<span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="n">nss_table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;year&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;year&#39;</span><span class="p">])</span>
 </pre></div>
 
      </div>
@@ -14796,7 +14808,8 @@ tmp/matrix_pickle_files/479169401447.pic
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>These files were not found while cleaning: {&#39;tmp/matrix_pickle_files/479169401447.pic&#39;}
+<pre>2000
+2002
 </pre>
 </div>
 </div>
@@ -14808,7 +14821,7 @@ tmp/matrix_pickle_files/479169401447.pic
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Text-File-Types">Text File Types<a class="anchor-link" href="#Text-File-Types">&#182;</a></h2><p>We can also store text files in a similar way. For this, use <code>TextFileCol</code> in the folder specification.</p>
+<p>We can also select only a few columns.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14817,15 +14830,7 @@ tmp/matrix_pickle_files/479169401447.pic
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
-<span class="k">class</span> <span class="nc">TextFileRow</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableRow</span><span class="p">):</span>
-    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
-    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">TextFileCol</span><span class="p">(</span><span class="s1">&#39;tmp/my_text_files&#39;</span><span class="p">)</span> <span class="c1"># will store files in the tmp directory</span>
-    
-<span class="n">tdb</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;tmp/test_textfiles.db&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">TextFileRow</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">tdb</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Hello world. DocTable is the most useful python package of all time.&#39;</span><span class="p">})</span>
-<span class="n">tdb</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Star Wars is my favorite movie.&#39;</span><span class="p">})</span>
-<span class="n">tdb</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">nss_table</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14845,43 +14850,11 @@ tmp/matrix_pickle_files/479169401447.pic
 
 
 
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>text</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>Hello world. DocTable is the most useful pytho...</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>Star Wars is my favorite movie.</td>
-    </tr>
-  </tbody>
-</table>
-</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>[NSSDoc(year=2000, president=&#39;Clinton&#39;),
+ NSSDoc(year=2002, president=&#39;W. Bush&#39;),
+ NSSDoc(year=2006, president=&#39;W. Bush&#39;)]</pre>
 </div>
 
 </div>
@@ -14890,16 +14863,20 @@ tmp/matrix_pickle_files/479169401447.pic
 
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>For convenience, we can also use the <code>.select_df()</code> method to return directly as a pandas dataframe.</p>
+
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># and they look like text files</span>
-<span class="n">vdb</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="s1">&#39;tmp/test_textfiles.db&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">vdb</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
-<span class="n">vdb</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># use select_df to show a couple rows of our database</span>
+<span class="n">nss_table</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14911,18 +14888,6 @@ tmp/matrix_pickle_files/479169401447.pic
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>2
-</pre>
-</div>
-</div>
 
 <div class="jp-OutputArea-child">
 
@@ -14951,19 +14916,31 @@ tmp/matrix_pickle_files/479169401447.pic
     <tr style="text-align: right;">
       <th></th>
       <th>id</th>
+      <th>year</th>
+      <th>party</th>
+      <th>president</th>
       <th>text</th>
+      <th>tokens</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>639565240391.txt</td>
+      <td>2000</td>
+      <td>D</td>
+      <td>Clinton</td>
+      <td>As we enter the new millennium, we are blessed...</td>
+      <td>None</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>253301202854.txt</td>
+      <td>2002</td>
+      <td>R</td>
+      <td>W. Bush</td>
+      <td>The great struggles of the twentieth century b...</td>
+      <td>None</td>
     </tr>
   </tbody>
 </table>
@@ -14979,7 +14956,7 @@ tmp/matrix_pickle_files/479169401447.pic
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>See that the text files were created, and they look like normal text files so we can read them normally.</p>
+<p>And access the <code>.paragraphs()</code> method we defined in <code>NSSDoc</code>.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14988,8 +14965,8 @@ tmp/matrix_pickle_files/479169401447.pic
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.txt&#39;</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fpath</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">fpath</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">nss_table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;president&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">): num_paragraphs=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">paragraphs</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15009,8 +14986,9 @@ tmp/matrix_pickle_files/479169401447.pic
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tmp/my_text_files/639565240391.txt: Hello world. DocTable is the most useful python package of all time.
-tmp/my_text_files/253301202854.txt: Star Wars is my favorite movie.
+<pre>Clinton (2000): num_paragraphs=569
+W. Bush (2002): num_paragraphs=199
+W. Bush (2006): num_paragraphs=474
 </pre>
 </div>
 </div>
@@ -15019,13 +14997,34 @@ tmp/my_text_files/253301202854.txt: Star Wars is my favorite movie.
 
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="4.-Create-a-Parser-for-Tokenization">4. Create a Parser for Tokenization<a class="anchor-link" href="#4.-Create-a-Parser-for-Tokenization">&#182;</a></h2><p>Now that the text is in the doctable, we can extract it using <code>.select()</code>, parse it, and store the parsed text back into the table using <code>.update()</code>.</p>
+<p>Now we create a parser using <code>ParsePipeline</code> and a list of functions to apply to the text sequentially. The <code>Comp</code> function returns a <a href="ref/doctable.parse.html">doctable parse function</a> with additional keyword arguments. For instance, the following two expressions would be the same.</p>
+
+<pre><code>doctable.Comp('keep_tok', keep_punct=True) # is equivalent to
+lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
+<p>Note in this example that the 'tokenize' function takes two function arguments: <code>keep_tok_func</code> and <code>parse_tok_func</code>, which are also specified using the <code>.Comp()</code> function. The available pipeline components are listed in the <a href="ref/doctable.parse.html">parse function documentation</a>.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># add pipeline components</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParsePipeline</span><span class="p">([</span>
+    <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en_core_web_sm&#39;</span><span class="p">),</span> <span class="c1"># load a spacy parser as first step in pipeline</span>
+    <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;tokenize&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
+        <span class="s1">&#39;split_sents&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s1">&#39;keep_tok_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;keep_tok&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;parse_tok_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;parse_tok&#39;</span><span class="p">),</span>
+    <span class="p">})</span>
+<span class="p">])</span>
+
+<span class="n">parser</span><span class="o">.</span><span class="n">components</span>
 </pre></div>
 
      </div>
@@ -15033,13 +15032,45 @@ tmp/my_text_files/253301202854.txt: Star Wars is my favorite movie.
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>[&lt;spacy.lang.en.English at 0x7f01bde63fa0&gt;,
+ functools.partial(&lt;function tokenize at 0x7f026ad4f4c0&gt;, split_sents=False, keep_tok_func=functools.partial(&lt;function keep_tok at 0x7f026ad4f5e0&gt;), parse_tok_func=functools.partial(&lt;function parse_tok at 0x7f026ad4f550&gt;))]</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Now we loop through rows in the doctable and for each iteration parse the text and insert it back into the table using <code>.update()</code>. We use the <code>ParsePipeline</code> method <code>.parsemany()</code> to parse paragraphs from each document in parallel.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">nss_table</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;year&#39;</span><span class="p">,</span><span class="s1">&#39;text&#39;</span><span class="p">])):</span>
+    <span class="n">paragraphs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parsemany</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">workers</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span> <span class="c1"># parse paragraphs in parallel</span>
+    <span class="n">nss_table</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paragraphs</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]},</span> <span class="n">where</span><span class="o">=</span><span class="n">nss_table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">doc</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
 </pre></div>
 
      </div>
@@ -15047,6 +15078,166 @@ tmp/my_text_files/253301202854.txt: Star Wars is my favorite movie.
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>100%|██████████| 6/6 [00:08&lt;00:00,  1.34s/it]
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">nss_table</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[16]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>year</th>
+      <th>party</th>
+      <th>president</th>
+      <th>text</th>
+      <th>tokens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>2000</td>
+      <td>D</td>
+      <td>Clinton</td>
+      <td>As we enter the new millennium, we are blessed...</td>
+      <td>[as, we, enter, the, new, millennium, ,, we, a...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2002</td>
+      <td>R</td>
+      <td>W. Bush</td>
+      <td>The great struggles of the twentieth century b...</td>
+      <td>[the, great, struggles, of, the, twentieth, ce...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>2006</td>
+      <td>R</td>
+      <td>W. Bush</td>
+      <td>My fellow Americans, \n\nAmerica is at war. Th...</td>
+      <td>[my, fellow, Americans, ,, America, is, at, wa...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">nss_table</span><span class="o">.</span><span class="n">select</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doc</span><span class="o">.</span><span class="n">president</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">doc</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">tokens</span><span class="p">)</span><span class="si">}</span><span class="s2"> tokens.&quot;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Clinton (2000): 50156 tokens.
+W. Bush (2002): 14493 tokens.
+W. Bush (2006): 21590 tokens.
+Obama (2010): 31997 tokens.
+Obama (2015): 16611 tokens.
+Trump (2017): 24420 tokens.
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>And that is all for this vignette! See the list of vignettes at the top of this page for more examples.</p>
+
+</div>
 </div>
 </body>
 

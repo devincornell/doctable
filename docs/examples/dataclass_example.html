@@ -14295,8 +14295,9 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableRow</span><span class="p">):</span>
+<span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span>
+<span class="k">class</span> <span class="nc">User</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
@@ -14580,8 +14581,9 @@ carlos:
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableRow</span><span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span>
+<span class="k">class</span> <span class="nc">User</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
     <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
@@ -14607,7 +14609,7 @@ carlos:
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>User(name=EmptyValue, age=EmptyValue, height=EmptyValue)</pre>
+<pre>User()</pre>
 </div>
 
 </div>
@@ -14702,7 +14704,7 @@ User(name=&#39;carlos&#39;, age=None, height=None)
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>User(name=&#39;kevin&#39;, age=None, height=EmptyValue)</pre>
+<pre>User(name=&#39;kevin&#39;, age=None)</pre>
 </div>
 
 </div>
@@ -14789,7 +14791,7 @@ User(name=&#39;carlos&#39;, age=None, height=None)
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>EmptyValue</pre>
+<pre>EmptyValue()</pre>
 </div>
 
 </div>
@@ -14811,8 +14813,9 @@ User(name=&#39;carlos&#39;, age=None, height=None)
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">field</span><span class="p">,</span> <span class="n">fields</span>
-<span class="nd">@dataclass</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableRow</span><span class="p">):</span>
+<span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">User</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span> <span class="c1"># shortcut for autoindex, primary_key column.</span>
     <span class="n">updated</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">UpdatedCol</span><span class="p">()</span> <span class="c1"># shortcut for automatically </span>
     
@@ -14931,21 +14934,21 @@ User(name=&#39;carlos&#39;, age=None, height=None)
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>2021-03-13 13:10:05.636320</td>
+      <td>2021-07-21 19:03:04.550804</td>
       <td>kevin</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>2021-03-13 13:10:05.636328</td>
+      <td>2021-07-21 19:03:04.550809</td>
       <td>tyrone</td>
       <td>12.0</td>
     </tr>
     <tr>
       <th>2</th>
       <td>3</td>
-      <td>2021-03-13 13:10:05.636331</td>
+      <td>2021-07-21 19:03:04.550811</td>
       <td>carlos</td>
       <td>25.0</td>
     </tr>
@@ -15024,21 +15027,21 @@ User(name=&#39;carlos&#39;, age=None, height=None)
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>2021-03-13 13:10:05.636320</td>
+      <td>2021-07-21 19:03:04.550804</td>
       <td>kevin</td>
       <td>10</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>2021-03-13 13:10:05.636328</td>
+      <td>2021-07-21 19:03:04.550809</td>
       <td>tyrone</td>
       <td>12</td>
     </tr>
     <tr>
       <th>2</th>
       <td>3</td>
-      <td>2021-03-13 13:10:05.636331</td>
+      <td>2021-07-21 19:03:04.550811</td>
       <td>carlos</td>
       <td>25</td>
     </tr>
@@ -15062,7 +15065,7 @@ User(name=&#39;carlos&#39;, age=None, height=None)
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">user</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="mi">11</span>
@@ -15083,7 +15086,7 @@ User(name=&#39;carlos&#39;, age=None, height=None)
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[15]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
 
 
 
@@ -15116,21 +15119,21 @@ User(name=&#39;carlos&#39;, age=None, height=None)
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>2021-03-13 13:10:05.636320</td>
+      <td>2021-07-21 19:03:04.550804</td>
       <td>kevin</td>
       <td>11</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>2021-03-13 13:10:05.636328</td>
+      <td>2021-07-21 19:03:04.550809</td>
       <td>tyrone</td>
       <td>12</td>
     </tr>
     <tr>
       <th>2</th>
       <td>3</td>
-      <td>2021-03-13 13:10:05.636331</td>
+      <td>2021-07-21 19:03:04.550811</td>
       <td>carlos</td>
       <td>25</td>
     </tr>

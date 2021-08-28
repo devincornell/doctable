@@ -30,13 +30,14 @@
                     <h2>Submodules</h2>
                     <ul>
                             <li><a href="schemas/coltype_map.html">doctable.schemas.coltype_map</a></li>
+                            <li><a href="schemas/constraints.html">doctable.schemas.constraints</a></li>
                             <li><a href="schemas/custom_coltypes.html">doctable.schemas.custom_coltypes</a></li>
-                            <li><a href="schemas/doctablerow.html">doctable.schemas.doctablerow</a></li>
+                            <li><a href="schemas/doctableschema.html">doctable.schemas.doctableschema</a></li>
                             <li><a href="schemas/emptyvalue.html">doctable.schemas.emptyvalue</a></li>
                             <li><a href="schemas/field_columns.html">doctable.schemas.field_columns</a></li>
                             <li><a href="schemas/parse_schema_dataclass.html">doctable.schemas.parse_schema_dataclass</a></li>
                             <li><a href="schemas/parse_schema_strings.html">doctable.schemas.parse_schema_strings</a></li>
-                            <li><a href="schemas/rowdecorator.html">doctable.schemas.rowdecorator</a></li>
+                            <li><a href="schemas/schema_decorator.html">doctable.schemas.schema_decorator</a></li>
                     </ul>
 
 
@@ -55,8 +56,13 @@
                 
                         <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">.doctablerow</span> <span class="kn">import</span> <span class="n">DocTableRow</span>
-<span class="kn">from</span> <span class="nn">.rowdecorator</span> <span class="kn">import</span> <span class="n">row</span>
+            <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">sqlalchemy</span>
+
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Index</span>
+<span class="kn">from</span> <span class="nn">.constraints</span> <span class="kn">import</span> <span class="n">Constraint</span>
+
+<span class="kn">from</span> <span class="nn">.doctableschema</span> <span class="kn">import</span> <span class="n">DocTableSchema</span>
+<span class="kn">from</span> <span class="nn">.schema_decorator</span> <span class="kn">import</span> <span class="n">schema</span>
 <span class="kn">from</span> <span class="nn">.emptyvalue</span> <span class="kn">import</span> <span class="n">EmptyValue</span>
 
 <span class="kn">from</span> <span class="nn">.field_columns</span> <span class="kn">import</span> <span class="n">Col</span><span class="p">,</span> <span class="n">IDCol</span><span class="p">,</span> <span class="n">UpdatedCol</span><span class="p">,</span> <span class="n">AddedCol</span><span class="p">,</span> <span class="n">PickleFileCol</span><span class="p">,</span> <span class="n">TextFileCol</span><span class="p">,</span> <span class="n">ParseTreeFileCol</span>
