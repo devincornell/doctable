@@ -1,19 +1,11 @@
 
-from doctable.parse.token import Token
+from .token import Token
 import pickle
 import typing
 
 from functools import reduce
 
-class DocTableExceptBase(Exception):
-    def __init__(self):
-        super().__init__(self.message)
-
-class MissingSpacyPipelineComponent(DocTableExceptBase):
-    message = 'Both the Spacy tagger and parser must be enabled to make a ParseTree.'
-
-class TreeAlreadyAssigned(DocTableExceptBase):
-    message = 'Current token already contains reference to a ParseTree.'
+from .exceptions import TreeAlreadyAssigned, MissingSpacyPipelineComponent
 
 class ParseTree:
     ''' Represents a single parsetree.

@@ -1,23 +1,37 @@
 
+from doctable.schemas.parse_schema_dataclass import ColumnMetadata
 from .emptyvalue import EmptyValue
 from datetime import datetime
 from dataclasses import dataclass, field, fields
+from typing import Any, Union
+import sqlalchemy
 
 
-def Col(obj_default=EmptyValue(), **colargs):
-    ''' Returns .field() after setting convienient params.
+            
+
+
+def Col(column_type: Any = None, field_kwargs: dict = None, type_kwargs: dict = None, **column_kwargs):
+    ''' Returns dataclasses.field() after setting convienient params.
     Args:
-        obj_default (any): default value of the object property.
-            NOT stored in database, just set when returning select 
-            query and the value was not requested. By leaving at
-            EmptyValue(), will throw an error when subscripting.
-        **colargs: passed to the sqlalchemy column object.
+        field_kwargs: passed directly to dataclasses.field.
+        **column_kwargs: passed to the sqlalchemy column object.
     '''
-    if callable(obj_default):
-        default_arg = {'default_factory': obj_default}
-    else:
-        default_arg = {'default': obj_default}
-    return field(init=True, metadata=colargs, repr=True, **default_arg)
+    if field_kwargs is None:
+        field_kwargs = dict()
+
+    if type_kwargs is None:
+        type_kwargs = dict()
+
+    if 'default' not in field_kwargs and 'default_factory' not in field_kwargs:
+        field_kwargs['default'] = EmptyValue()
+
+    column_metadata = ColumnMetadata(
+        column_type = column_type,
+        type_kwargs = type_kwargs,
+        column_kwargs = column_kwargs,
+    )
+
+    return field(init=True, metadata={'column_metadata': column_metadata}, repr=True, **field_kwargs)
 
 def IDCol():
     return Col(primary_key=True, autoincrement=True)

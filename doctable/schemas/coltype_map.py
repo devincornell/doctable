@@ -2,7 +2,7 @@
 import datetime
 import sqlalchemy as sa
 
-from doctable.parse.documents import ParseTreeDoc
+from doctable.textmodels import ParseTreeDoc
 from .custom_coltypes import CpickleType, ParseTreeDocFileType, PickleFileType, TextFileType, FileTypeBase, JSONType#, ParseTreeType
 
 #type_lookup = {

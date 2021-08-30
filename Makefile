@@ -23,7 +23,7 @@ final_check: docs build test
 	@echo "ran final check"
 
 push_all: 
-	git commit -a -m '[auto_pushed]'
+	git commit -a -m '[auto_pushed_from_Makefile]'
 	git push
 
 reinstall:
@@ -92,7 +92,7 @@ test_examples: uninstall
 	rm -r $(TMP_TEST_FOLDER)
 
 test: test_examples pytest
-	
+tests: test # alias	
 
 	
 clean_tests:

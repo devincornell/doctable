@@ -11,7 +11,8 @@ from dataclasses import dataclass, field
 import random
 import time
 
-class TestObjBase(doctable.DocTableRow):
+@doctable.schema(require_slots=False)
+class TestObjBase:
     idx: int = doctable.IDCol()
     size: int = 10000000
     def __post_init__(self):
@@ -50,7 +51,7 @@ def run_benchmark(num_vals = 10):
     print(f'===========================================')
     print(f'===== Total took: {timer.total_diff()} =================')
     print(f'===========================================')
-    timer.print_table()
+    #timer.print_table()
 
 if __name__ == '__main__':
     run_benchmark()

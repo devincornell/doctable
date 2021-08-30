@@ -43,7 +43,7 @@ def test_basic():
     assert(tree.root.tag == 'VBZ')
 
     # recall that ner was disabled
-    with pytest.raises(doctable.parse.token.PropertyNotAvailable):
+    with pytest.raises(doctable.textmodels.PropertyNotAvailable):
         tree.root.ent == ''
     
 

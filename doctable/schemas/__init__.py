@@ -1,5 +1,11 @@
 
-from .doctablerow import DocTableRow
+import sqlalchemy
+
+from sqlalchemy import Index
+from .constraints import Constraint
+
+from .doctableschema import DocTableSchema
+from .schema_decorator import schema
 from .emptyvalue import EmptyValue
 
 from .field_columns import Col, IDCol, UpdatedCol, AddedCol, PickleFileCol, TextFileCol, ParseTreeFileCol

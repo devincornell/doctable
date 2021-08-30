@@ -14259,7 +14259,9 @@ a.anchor-link {
 
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="DocTable-Baisc-Overview"><code>DocTable</code> Baisc Overview<a class="anchor-link" href="#DocTable-Baisc-Overview">&#182;</a></h1><p>A <code>DocTable</code> instance is a reference to a single database table, and can be used to <a href="examples/doctable_insert_delete.html">insert, delete</a>, <a href="examples/doctable_select.html">select</a>, or <a href="examples/doctable_update.html">update</a> the rows of that table. The table schema is typically created by providing a <a href="https://realpython.com/python-data-classes/"><code>dataclass</code></a> which inherits from <code>DocTableRow</code> that would represent a row, and the dataclass can be used to insert or update rows into the table. See the <a href="https://devincornell.github.io/doctable/ref/doctable.DocTable.html">full documentation</a> for a full list of class methods.</p>
+<h1 id="DocTable-Overview"><code>DocTable</code> Overview<a class="anchor-link" href="#DocTable-Overview">&#182;</a></h1><p>A <code>DocTable</code> acts as an object-oriented interface to a single database table. It will maintain a connection to the database and <a href="https://docs.sqlalchemy.org/en/14/core/">sqlalchemy</a> metadata about the table schema. Schemas are provided as classes that act much like <a href="https://realpython.com/python-data-classes/"><code>dataclasses</code></a> (see <a href="examples/doctable_schema.html">the doctable schema guide</a> for more explanation), and indices and constraints are often specified in a definition of a subclass of <code>DocTable</code>.</p>
+<p>You may also want to see the <a href="examples/example_nss_1_intro.html">vignettes</a> for more examples, the <a href="ref/doctable.DocTable.html"><code>DocTable</code> docs</a> for more information about the class, or the <a href="examples/doctable_schema.html">schema guide</a> for more information about creating schemas. I also recommend looking examples for <a href="examples/doctable_insert_delete.html">insert, delete</a>, <a href="examples/doctable_select.html">select</a>, and <a href="examples/doctable_update.html">update</a> methods.</p>
+<p>Here I'll just provide some examples to give a sense of how <code>DocTable</code> works.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -14287,24 +14289,25 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Schema-Definitions">Schema Definitions<a class="anchor-link" href="#Schema-Definitions">&#182;</a></h2><p>First we create a schema definiton and use it to instantiate the DocTable. By default, the DocTable will connect to an in-memory database, so the examples here will not rely on a filesystem database. Printing the object will show the table name as well as the number of rows in the table.</p>
+<h1 id="Defining-a-Database-Schema">Defining a Database Schema<a class="anchor-link" href="#Defining-a-Database-Schema">&#182;</a></h1><p><code>DocTable</code> schemas are created using the <code>doctable.schema</code> decorator on a class that uses <code>doctable.Col</code> for defaulted parameters. Check out the <a href="examples/doctable_schema.html">schema guide</a> for more detail about schema classes. Our demonstration class will include three columns: <code>id</code>, <code>name</code>, and <code>age</code>, with an additional <code>.is_old</code> property derived from <code>age</code> for example.</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Record</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTableRow</span><span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span>
+<span class="k">class</span> <span class="nc">Record</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">is_old</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
 
-<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">Record</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_old</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">&gt;=</span> <span class="mi">30</span> <span class="c1"># lol</span>
 </pre></div>
 
      </div>
@@ -14312,31 +14315,10 @@ a.anchor-link {
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>&lt;DocTable (4 cols)::sqlite:///:memory::_documents_&gt;
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Access table columns as objects by subscripting the doctable directly.</p>
+<p>We can instantiate a <code>DocTable</code> by passing a <code>target</code> and <code>schema</code> (<code>Record</code> in our example) parameters, and I show the resulting schema using <code>.schema_table()</code>. Note that the type hints were used to describe column types, and <code>id</code> was used as the auto-incremented primary key.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14345,7 +14327,8 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">Record</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14365,9 +14348,64 @@ a.anchor-link {
 
 
 
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False)</pre>
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>name</td>
+      <td>VARCHAR</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>age</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 </div>
 
 </div>
@@ -14379,7 +14417,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>As we'll show later, these column objects also have some operators defined such that they can be used to construct complex queries and functions.</p>
+<p>Probably a more common use case will be to subclass <code>DocTable</code> to provide some basic definitions.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14388,7 +14426,18 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">3</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">RecordTable</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
+    <span class="n">_tabname_</span> <span class="o">=</span> <span class="s1">&#39;records&#39;</span>
+    <span class="n">_schema_</span> <span class="o">=</span> <span class="n">Record</span>
+    <span class="n">_indices_</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">doctable</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="s1">&#39;ind_age&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">_constraints_</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">doctable</span><span class="o">.</span><span class="n">Constraint</span><span class="p">(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;age &gt; 0&#39;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+<span class="n">table</span> <span class="o">=</span> <span class="n">RecordTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">)</span>
+<span class="n">table</span>
 </pre></div>
 
      </div>
@@ -14410,7 +14459,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;sqlalchemy.sql.elements.BinaryExpression object at 0x7fb969fbf5e0&gt;</pre>
+<pre>&lt;__main__.RecordTable at 0x7f89eefd8ca0&gt;</pre>
 </div>
 
 </div>
@@ -14422,7 +14471,8 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Inserting-Rows">Inserting Rows<a class="anchor-link" href="#Inserting-Rows">&#182;</a></h2><p>We use the <code>.insert()</code> method to insert a row passed as a dictionary of column name -&gt; value entries.</p>
+<h1 id="Object-Interface">Object Interface<a class="anchor-link" href="#Object-Interface">&#182;</a></h1><p>The main goal of doctable was to create an object-oriented interface to working with database tables. To that end, I'll show some of the more common use cases in the following examples.</p>
+<p>First, note that subscripting the table object allows you to access sqlalchemy <code>Column</code> objects, which, as I will show a bit later, can be used to create where conditionals for select and update queries.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14431,13 +14481,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
-    <span class="n">age</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="c1"># number in [0,1]</span>
-    <span class="n">is_old</span> <span class="o">=</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
-    <span class="c1">#row = {&#39;name&#39;:&#39;user_&#39;+str(i), &#39;age&#39;:age, &#39;is_old&#39;:is_old}</span>
-    <span class="n">record</span> <span class="o">=</span> <span class="n">Record</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;user_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">age</span><span class="o">=</span><span class="n">age</span><span class="p">,</span> <span class="n">is_old</span><span class="o">=</span><span class="n">is_old</span><span class="p">)</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
 </pre></div>
 
      </div>
@@ -14453,13 +14497,15 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>&lt;DocTable (4 cols)::sqlite:///:memory::_documents_&gt;
-</pre>
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>Column(&#39;id&#39;, Integer(), table=&lt;records&gt;, primary_key=True, nullable=False)</pre>
 </div>
+
 </div>
 
 </div>
@@ -14469,7 +14515,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Select-Statements">Select Statements<a class="anchor-link" href="#Select-Statements">&#182;</a></h2><p>Now we show how to select data from the table. Use the <code>.count()</code> method to check the number of rows. It also accepts some column conditionals to count entries that satisfy a given criteria</p>
+<p>As we'll show later, these column objects also have some operators defined such that they can be used to construct complex queries and functions.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14478,7 +14524,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">3</span>
 </pre></div>
 
      </div>
@@ -14500,7 +14546,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(5, 3)</pre>
+<pre>&lt;sqlalchemy.sql.elements.BinaryExpression object at 0x7f89eef91100&gt;</pre>
 </div>
 
 </div>
@@ -14512,7 +14558,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Use the <code>.select()</code> method with no arguments to retrieve all rows of the table. You can also choose to select one or more columns to select.</p>
+<h2 id="Inserting-Rows">Inserting Rows<a class="anchor-link" href="#Inserting-Rows">&#182;</a></h2><p>We use the <code>.insert()</code> method to insert a row passed as a dictionary of column name -&gt; value entries.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14521,7 +14567,13 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">age</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="c1"># number in [0,1]</span>
+    <span class="n">is_old</span> <span class="o">=</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
+    <span class="c1">#row = {&#39;name&#39;:&#39;user_&#39;+str(i), &#39;age&#39;:age, &#39;is_old&#39;:is_old}</span>
+    <span class="n">record</span> <span class="o">=</span> <span class="n">Record</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;user_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">age</span><span class="o">=</span><span class="n">age</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14541,13 +14593,64 @@ a.anchor-link {
 
 
 
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.8444218515250481, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=0.7579544029403025, is_old=True),
- Record(id=3, name=&#39;user_2&#39;, age=0.420571580830845, is_old=False),
- Record(id=4, name=&#39;user_3&#39;, age=0.25891675029296335, is_old=False),
- Record(id=5, name=&#39;user_4&#39;, age=0.5112747213686085, is_old=True)]</pre>
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>user_0</td>
+      <td>0.844422</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>user_1</td>
+      <td>0.757954</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>user_2</td>
+      <td>0.420572</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>user_3</td>
+      <td>0.258917</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>user_4</td>
+      <td>0.511275</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 </div>
 
 </div>
@@ -14556,13 +14659,19 @@ a.anchor-link {
 
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Select-Statements">Select Statements<a class="anchor-link" href="#Select-Statements">&#182;</a></h2><p>Now we show how to select data from the table. Use the <code>.count()</code> method to check the number of rows. It also accepts some column conditionals to count entries that satisfy a given criteria</p>
+
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">table</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="mi">30</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14584,7 +14693,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&#39;user_0&#39;, &#39;user_1&#39;, &#39;user_2&#39;, &#39;user_3&#39;, &#39;user_4&#39;]</pre>
+<pre>(5, 0)</pre>
 </div>
 
 </div>
@@ -14593,13 +14702,19 @@ a.anchor-link {
 
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Use the <code>.select()</code> method with no arguments to retrieve all rows of the table. You can also choose to select one or more columns to select.</p>
+
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14621,11 +14736,11 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=None, is_old=None),
- Record(id=2, name=&#39;user_1&#39;, age=None, is_old=None),
- Record(id=3, name=&#39;user_2&#39;, age=None, is_old=None),
- Record(id=4, name=&#39;user_3&#39;, age=None, is_old=None),
- Record(id=5, name=&#39;user_4&#39;, age=None, is_old=None)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.8444218515250481),
+ Record(id=2, name=&#39;user_1&#39;, age=0.7579544029403025),
+ Record(id=3, name=&#39;user_2&#39;, age=0.420571580830845),
+ Record(id=4, name=&#39;user_3&#39;, age=0.25891675029296335),
+ Record(id=5, name=&#39;user_4&#39;, age=0.5112747213686085)]</pre>
 </div>
 
 </div>
@@ -14640,7 +14755,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14657,6 +14772,84 @@ a.anchor-link {
 
     
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>[&#39;user_0&#39;, &#39;user_1&#39;, &#39;user_2&#39;, &#39;user_3&#39;, &#39;user_4&#39;]</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>[Record(id=1, name=&#39;user_0&#39;),
+ Record(id=2, name=&#39;user_1&#39;),
+ Record(id=3, name=&#39;user_2&#39;),
+ Record(id=4, name=&#39;user_3&#39;),
+ Record(id=5, name=&#39;user_4&#39;)]</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
 
 
 
@@ -14680,10 +14873,10 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">],</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">],</span> <span class="n">as_dataclass</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14699,7 +14892,7 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
 
 
 
@@ -14726,7 +14919,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select_df</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14768,7 +14961,6 @@ a.anchor-link {
       <th>id</th>
       <th>name</th>
       <th>age</th>
-      <th>is_old</th>
     </tr>
   </thead>
   <tbody>
@@ -14777,35 +14969,30 @@ a.anchor-link {
       <td>1</td>
       <td>user_0</td>
       <td>0.844422</td>
-      <td>True</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
       <td>user_1</td>
       <td>0.757954</td>
-      <td>True</td>
     </tr>
     <tr>
       <th>2</th>
       <td>3</td>
       <td>user_2</td>
       <td>0.420572</td>
-      <td>False</td>
     </tr>
     <tr>
       <th>3</th>
       <td>4</td>
       <td>user_3</td>
       <td>0.258917</td>
-      <td>False</td>
     </tr>
     <tr>
       <th>4</th>
       <td>5</td>
       <td>user_4</td>
       <td>0.511275</td>
-      <td>True</td>
     </tr>
   </tbody>
 </table>
@@ -14830,7 +15017,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;is_old&#39;</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14852,9 +15039,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.8444218515250481, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=0.7579544029403025, is_old=True),
- Record(id=5, name=&#39;user_4&#39;, age=0.5112747213686085, is_old=True)]</pre>
+<pre>[]</pre>
 </div>
 
 </div>
@@ -14869,7 +15054,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14891,7 +15076,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=3, name=&#39;user_2&#39;, age=0.420571580830845, is_old=False)]</pre>
+<pre>[Record(id=3, name=&#39;user_2&#39;, age=0.420571580830845)]</pre>
 </div>
 
 </div>
@@ -14912,8 +15097,8 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;smartypants&#39;</span><span class="p">},</span> <span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;smartypants&#39;</span><span class="p">},</span> <span class="n">where</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14935,11 +15120,11 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.8444218515250481, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=0.7579544029403025, is_old=True),
- Record(id=3, name=&#39;smartypants&#39;, age=0.420571580830845, is_old=False),
- Record(id=4, name=&#39;user_3&#39;, age=0.25891675029296335, is_old=False),
- Record(id=5, name=&#39;user_4&#39;, age=0.5112747213686085, is_old=True)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=0.8444218515250481),
+ Record(id=2, name=&#39;user_1&#39;, age=0.7579544029403025),
+ Record(id=3, name=&#39;smartypants&#39;, age=0.420571580830845),
+ Record(id=4, name=&#39;user_3&#39;, age=0.25891675029296335),
+ Record(id=5, name=&#39;user_4&#39;, age=0.5112747213686085)]</pre>
 </div>
 
 </div>
@@ -14954,8 +15139,8 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">})</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;age&#39;</span><span class="p">:</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">})</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14977,11 +15162,11 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=84.4421851525048, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=75.79544029403024, is_old=True),
- Record(id=3, name=&#39;smartypants&#39;, age=42.0571580830845, is_old=False),
- Record(id=4, name=&#39;user_3&#39;, age=25.891675029296334, is_old=False),
- Record(id=5, name=&#39;user_4&#39;, age=51.12747213686085, is_old=True)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=84.4421851525048),
+ Record(id=2, name=&#39;user_1&#39;, age=75.79544029403024),
+ Record(id=3, name=&#39;smartypants&#39;, age=42.0571580830845),
+ Record(id=4, name=&#39;user_3&#39;, age=25.891675029296334),
+ Record(id=5, name=&#39;user_4&#39;, age=51.12747213686085)]</pre>
 </div>
 
 </div>
@@ -15002,8 +15187,8 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -15025,10 +15210,10 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[Record(id=1, name=&#39;user_0&#39;, age=84.4421851525048, is_old=True),
- Record(id=2, name=&#39;user_1&#39;, age=75.79544029403024, is_old=True),
- Record(id=4, name=&#39;user_3&#39;, age=25.891675029296334, is_old=False),
- Record(id=5, name=&#39;user_4&#39;, age=51.12747213686085, is_old=True)]</pre>
+<pre>[Record(id=1, name=&#39;user_0&#39;, age=84.4421851525048),
+ Record(id=2, name=&#39;user_1&#39;, age=75.79544029403024),
+ Record(id=4, name=&#39;user_3&#39;, age=25.891675029296334),
+ Record(id=5, name=&#39;user_4&#39;, age=51.12747213686085)]</pre>
 </div>
 
 </div>
@@ -15050,7 +15235,7 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># subscript is used to access underlying sqlalchemy column reference (without querying data)</span>
-<span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+<span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
 </pre></div>
 
      </div>
@@ -15072,7 +15257,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False)</pre>
+<pre>Column(&#39;id&#39;, Integer(), table=&lt;records&gt;, primary_key=True, nullable=False)</pre>
 </div>
 
 </div>
@@ -15088,7 +15273,7 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># conditionals are applied directly to the column objects (as we&#39;ll see with &quot;where&quot; clause)</span>
-<span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span>
+<span class="n">table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span>
 </pre></div>
 
      </div>
@@ -15110,7 +15295,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;sqlalchemy.sql.elements.BinaryExpression object at 0x7fb945684df0&gt;</pre>
+<pre>&lt;sqlalchemy.sql.elements.BinaryExpression object at 0x7f89eeee5460&gt;</pre>
 </div>
 
 </div>
@@ -15126,7 +15311,7 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># can also access using .col() method</span>
-<span class="n">db</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15148,7 +15333,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False)</pre>
+<pre>Column(&#39;id&#39;, Integer(), table=&lt;records&gt;, primary_key=True, nullable=False)</pre>
 </div>
 
 </div>
@@ -15164,7 +15349,7 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to access all column objects (only useful for working directly with sql info)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">columns</span>
+<span class="n">table</span><span class="o">.</span><span class="n">columns</span>
 </pre></div>
 
      </div>
@@ -15186,7 +15371,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;sqlalchemy.sql.base.ImmutableColumnCollection at 0x7fb9457bd340&gt;</pre>
+<pre>&lt;sqlalchemy.sql.base.ImmutableColumnCollection at 0x7f89eef47680&gt;</pre>
 </div>
 
 </div>
@@ -15202,7 +15387,7 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to access more detailed schema information</span>
-<span class="n">db</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
+<span class="n">table</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -15277,15 +15462,6 @@ a.anchor-link {
       <td>auto</td>
       <td>0</td>
     </tr>
-    <tr>
-      <th>3</th>
-      <td>is_old</td>
-      <td>BOOLEAN</td>
-      <td>True</td>
-      <td>None</td>
-      <td>auto</td>
-      <td>0</td>
-    </tr>
   </tbody>
 </table>
 </div>
@@ -15304,7 +15480,7 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># If needed, you can also access the sqlalchemy table object using the .table property.</span>
-<span class="n">db</span><span class="o">.</span><span class="n">table</span>
+<span class="n">table</span><span class="o">.</span><span class="n">table</span>
 </pre></div>
 
      </div>
@@ -15326,7 +15502,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Table(&#39;_documents_&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False), Column(&#39;name&#39;, String(), table=&lt;_documents_&gt;, nullable=False), Column(&#39;age&#39;, Integer(), table=&lt;_documents_&gt;), Column(&#39;is_old&#39;, Boolean(), table=&lt;_documents_&gt;), schema=None)</pre>
+<pre>Table(&#39;records&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, Integer(), table=&lt;records&gt;, primary_key=True, nullable=False), Column(&#39;name&#39;, String(), table=&lt;records&gt;, nullable=False), Column(&#39;age&#39;, Integer(), table=&lt;records&gt;), schema=None)</pre>
 </div>
 
 </div>
@@ -15342,7 +15518,7 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the count method is also an easy way to count rows in the database</span>
-<span class="n">db</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="n">table</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -15380,7 +15556,7 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the print method makes it easy to see the table name and total row count</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15400,7 +15576,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>&lt;DocTable (4 cols)::sqlite:///:memory::_documents_&gt;
+<pre>&lt;DocTable (3 cols)::sqlite:///:memory::records&gt;
 </pre>
 </div>
 </div>

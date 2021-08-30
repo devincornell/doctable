@@ -11,8 +11,9 @@ import doctable
 import timing
 
 
-@dataclass
-class DataObj(doctable.DocTableRow):
+@doctable.schema
+class DataObj:
+    __slots__ = []
     id: int = doctable.Col()
     name1: str = doctable.Col()
     name2: str = doctable.Col()

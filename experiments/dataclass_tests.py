@@ -8,8 +8,8 @@ sys.path.append('..')
 import doctable
 
 
-@dataclass
-class MyClass(doctable.DocTableRow):
+@doctable.schema(require_slots=False)
+class MyClass:
     name: str = doctable.Col(unique=True)
 
     # builtin column types
@@ -27,12 +27,14 @@ class MyClass(doctable.DocTableRow):
     
     # indices and constraints
     _indices_ = {
-        'lonlat_index': ('lon', 'lat', {'unique':True}),
-        'name_index': ('name',),
+        doctable.Index('lonlat_index', 'lon', 'lat', unique=True),
+        #'lonlat_index': ('lon', 'lat', {'unique':True}),
+        #'name_index': ('name',),
+        doctable.Index('name_index', 'name'),
     }
     _constraints_ = (
-        ('check', 'lon > 0', {'name':'check_lon'}), 
-        ('check', 'lat > 0'), 
+        doctable.Constraint('check', 'lon > 0', name='check_lon'), 
+        doctable.Constraint('check', 'lat > 0'), 
         #('foreignkey', ('a','b'), ('c','d'))
     )
 

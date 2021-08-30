@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>example_nss_2_parsetrees</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>example_nss_3_parsetrees</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -14259,8 +14259,17 @@ a.anchor-link {
 
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Example-2:-NSS-Corpus-in-Paragraph-Form">Example 2: NSS Corpus in Paragraph Form<a class="anchor-link" href="#Example-2:-NSS-Corpus-in-Paragraph-Form">&#182;</a></h1><p>Here I'll show how to make a DocTable for storing NSS documents at the paragraph level, and parse the documents in parallel.</p>
+<h1 id="Vignette-3:-Storing-Parsed-Documents">Vignette 3: Storing Parsed Documents<a class="anchor-link" href="#Vignette-3:-Storing-Parsed-Documents">&#182;</a></h1><p>Here I'll show how to make a DocTable for storing NSS documents at the paragraph level, and parse the documents in parallel.</p>
 <p>For context, check out <a href="https://devincornell.github.io/doctable/examples/ex_nss.html">Example 1</a> - here we'll just use some shortcuts for code used there. These come from the util.py code in the repo examples folder.</p>
+<p>These are the vignettes I have created:</p>
+<ul>
+<li><p><a href="examples/example_nss_1_intro.html">1: Storing Document Metadata</a></p>
+</li>
+<li><p><a href="examples/example_nss_2_parsing.html">2: Storing Document Text</a></p>
+</li>
+<li><p><a href="examples/example_nss_3_parsetrees.html">3: Storing Parsed Documents</a></p>
+</li>
+</ul>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -14271,10 +14280,13 @@ a.anchor-link {
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
-<span class="kn">import</span> <span class="nn">util</span>
+<span class="c1">#import util</span>
 <span class="kn">import</span> <span class="nn">doctable</span>
 <span class="kn">import</span> <span class="nn">spacy</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="c1"># automatically clean up temp folder after python ends</span>
+<span class="n">tmpfolder</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">TempFolder</span><span class="p">(</span><span class="s1">&#39;tmp&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14285,7 +14297,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>First we get the data as a list of dictionaries. We'll skip the details of downloading the nss data just to use for illustration.</p>
+<p>First we define the metadata and download the text data.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14294,9 +14306,27 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">nss_data</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">download_all_nssdata</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">nss_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-<span class="nb">len</span><span class="p">(</span><span class="n">nss_data</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">urllib</span>
+<span class="k">def</span> <span class="nf">download_nss</span><span class="p">(</span><span class="n">year</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Simple helper function for downloading texts from my nssdocs repo.&#39;&#39;&#39;</span>
+    <span class="n">baseurl</span> <span class="o">=</span> <span class="s1">&#39;https://raw.githubusercontent.com/devincornell/nssdocs/master/docs/</span><span class="si">{}</span><span class="s1">.txt&#39;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">baseurl</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span>
+
+<span class="n">document_metadata</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Clinton&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="mi">2006</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;W. Bush&#39;</span><span class="p">},</span> 
+    <span class="p">{</span><span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="mi">2015</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Obama&#39;</span><span class="p">},</span> 
+    <span class="p">{</span><span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="mi">2017</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">:</span> <span class="s1">&#39;Trump&#39;</span><span class="p">},</span> 
+<span class="p">]</span>
+
+<span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+<span class="n">first_n</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="k">for</span> <span class="n">md</span> <span class="ow">in</span> <span class="n">document_metadata</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">download_nss</span><span class="p">(</span><span class="n">md</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">])</span>
+    <span class="n">md</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="p">)[:</span><span class="n">first_n</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">document_metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;text&#39;</span><span class="p">])</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14316,23 +14346,9 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>dict_keys([&#39;party&#39;, &#39;president&#39;, &#39;text&#39;, &#39;year&#39;])
+<pre>len(document_metadata[0][&#39;text&#39;])=6695
 </pre>
 </div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>17</pre>
-</div>
-
 </div>
 
 </div>
@@ -14342,7 +14358,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="1.-Add-Data-to-a-DocTable">1. Add Data to a DocTable<a class="anchor-link" href="#1.-Add-Data-to-a-DocTable">&#182;</a></h2><p>We now proceed to make a doctable and add our data to it. We made our schema match the format from the data retrieved above, so only need to use the <code>.insert</code> method.</p>
+<h2 id="1.-Define-the-DocTable-Schema">1. Define the DocTable Schema<a class="anchor-link" href="#1.-Define-the-DocTable-Schema">&#182;</a></h2><p>Now we define a doctable schema using the <code>doctable.schema</code> class decorator and the <a href="examples/doctable_file_column_types.html">pickle file column type</a> to prepare to store parsetrees as binary data.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -14351,18 +14367,17 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">NSSParsetrees</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
-    <span class="n">tabname</span> <span class="o">=</span> <span class="s1">&#39;nss_parsetrees&#39;</span>
-    <span class="n">schema</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">(</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">),</span> 
-        <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;parsetrees&#39;</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tabname</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to be used as a database row representing a single NSS document</span>
+<span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span>
+<span class="k">class</span> <span class="nc">NSSDoc</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># include so that doctable.schema can create a slot class</span>
+    
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span> <span class="c1"># this is an alias for doctable.Col(primary_key=True, autoincrement=True)</span>
+    <span class="n">year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span>  <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">party</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">president</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
+    <span class="n">doc</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParseTreeDoc</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParseTreeFileCol</span><span class="p">(</span><span class="s1">&#39;tmp/parsetree_pickle_files&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14370,18 +14385,24 @@ a.anchor-link {
 </div>
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>And a class to represent an NSS DocTable.</p>
+
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># add docs to database</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">NSSParsetrees</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">nssdoc</span> <span class="ow">in</span> <span class="n">nss_data</span><span class="p">:</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">nssdoc</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">NSSDocTable</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
+    <span class="n">_tabname_</span> <span class="o">=</span> <span class="s1">&#39;nss_documents&#39;</span>
+    <span class="n">_schema_</span> <span class="o">=</span> <span class="n">NSSDoc</span>
+    
+<span class="n">nss_table</span> <span class="o">=</span> <span class="n">NSSDocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;tmp/nss_3.db&#39;</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">nss_table</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14397,19 +14418,46 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>&lt;DocTable::nss_parsetrees ct: 17&gt;
-</pre>
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>0</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">md</span> <span class="ow">in</span> <span class="n">document_metadata</span><span class="p">:</span>
+    <span class="n">nss_table</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">md</span><span class="p">)</span>
+<span class="n">nss_table</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+     </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
 
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
 
 
 
@@ -14437,26 +14485,44 @@ a.anchor-link {
       <th>party</th>
       <th>president</th>
       <th>text</th>
-      <th>parsetrees</th>
+      <th>doc</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>1987</td>
-      <td>R</td>
-      <td>Reagan</td>
-      <td>I. An American Perspective \n\nIn the early da...</td>
+      <td>2000</td>
+      <td>D</td>
+      <td>Clinton</td>
+      <td>As we enter the new millennium, we are blessed...</td>
       <td>None</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>1988</td>
+      <td>2006</td>
       <td>R</td>
-      <td>Reagan</td>
-      <td>Preface\n\nThis statement of America's Nationa...</td>
+      <td>W. Bush</td>
+      <td>My fellow Americans, \n\nAmerica is at war. Th...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>2015</td>
+      <td>D</td>
+      <td>Obama</td>
+      <td>Today, the United States is stronger and bette...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>2017</td>
+      <td>R</td>
+      <td>Trump</td>
+      <td>An America that is safe, prosperous, and free ...</td>
       <td>None</td>
     </tr>
   </tbody>
@@ -14479,28 +14545,28 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">NSSParser</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39; Handles text parsing for NSS documents.&#39;&#39;&#39;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en&#39;</span><span class="p">)</span>
+        <span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en_core_web_sm&#39;</span><span class="p">)</span>
         
         <span class="c1"># this determines all settings for tokenizing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParsePipeline</span><span class="p">([</span>
             <span class="n">nlp</span><span class="p">,</span> <span class="c1"># first run spacy parser</span>
-            <span class="n">doctable</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="s1">&#39;merge_tok_spans&#39;</span><span class="p">,</span> <span class="n">merge_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-            <span class="n">doctable</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="s1">&#39;get_parsetrees&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
-                <span class="s1">&#39;parse_tok_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="s1">&#39;parse_tok&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
+            <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;merge_tok_spans&#39;</span><span class="p">,</span> <span class="n">merge_ents</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;get_parsetrees&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
+                <span class="s1">&#39;text_parse_func&#39;</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Comp</span><span class="p">(</span><span class="s1">&#39;parse_tok&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
                     <span class="s1">&#39;format_ents&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                     <span class="s1">&#39;num_replacement&#39;</span><span class="p">:</span> <span class="s1">&#39;NUM&#39;</span><span class="p">,</span>
                 <span class="p">})</span>
             <span class="p">})</span>
         <span class="p">])</span>
     
-    <span class="k">def</span> <span class="nf">parsemany</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">parsemany</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
 <span class="n">parser</span> <span class="o">=</span> <span class="n">NSSParser</span><span class="p">()</span> <span class="c1"># creates a parser instance</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">components</span>
@@ -14519,15 +14585,15 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&lt;spacy.lang.en.English at 0x7fdb4ca5cc50&gt;,
- &lt;function doctable.pipeline.component.&lt;locals&gt;.&lt;lambda&gt;(x)&gt;,
- &lt;function doctable.pipeline.component.&lt;locals&gt;.&lt;lambda&gt;(x)&gt;]</pre>
+<pre>[&lt;spacy.lang.en.English at 0x7fab2045feb0&gt;,
+ functools.partial(&lt;function merge_tok_spans at 0x7faaf5e52670&gt;, merge_ents=True),
+ functools.partial(&lt;function get_parsetrees at 0x7faaf5e52820&gt;, text_parse_func=functools.partial(&lt;function parse_tok at 0x7faaf5e52550&gt;, format_ents=True, num_replacement=&#39;NUM&#39;))]</pre>
 </div>
 
 </div>
@@ -14536,17 +14602,22 @@ a.anchor-link {
 
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Now we parse the paragraphs of each document in parallel.</p>
+
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;year&#39;</span><span class="p">,</span><span class="s1">&#39;text&#39;</span><span class="p">])):</span>
-    <span class="n">parsed</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parsemany</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">workers</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span> <span class="c1"># parse paragraphs in parallel</span>
-    <span class="n">parsetrees</span> <span class="o">=</span> <span class="p">[</span><span class="n">pt</span> <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">parsed</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">par</span><span class="p">]</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;parsetrees&#39;</span><span class="p">:</span> <span class="n">parsetrees</span><span class="p">},</span> <span class="n">where</span><span class="o">=</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">idx</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">nss_table</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;year&#39;</span><span class="p">,</span><span class="s1">&#39;text&#39;</span><span class="p">])):</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">nss_table</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;doc&#39;</span><span class="p">:</span> <span class="n">parsed</span><span class="p">},</span> <span class="n">where</span><span class="o">=</span><span class="n">nss_table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">doc</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<span class="n">nss_table</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14566,7 +14637,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>100%|██████████| 17/17 [00:21&lt;00:00,  1.27s/it]
+<pre>100%|██████████| 4/4 [00:01&lt;00:00,  3.68it/s]
 </pre>
 </div>
 </div>
@@ -14574,7 +14645,7 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
 
 
 
@@ -14602,27 +14673,27 @@ a.anchor-link {
       <th>party</th>
       <th>president</th>
       <th>text</th>
-      <th>parsetrees</th>
+      <th>doc</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>1987</td>
-      <td>R</td>
-      <td>Reagan</td>
-      <td>I. An American Perspective \n\nIn the early da...</td>
-      <td>[(ParseNode(I. An American), ParseNode(perspec...</td>
+      <td>2000</td>
+      <td>D</td>
+      <td>Clinton</td>
+      <td>As we enter the new millennium, we are blessed...</td>
+      <td>[(as, we, enter, The New Millennium, ,, we, ar...</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>1988</td>
+      <td>2006</td>
       <td>R</td>
-      <td>Reagan</td>
-      <td>Preface\n\nThis statement of America's Nationa...</td>
-      <td>[(ParseNode(preface)), (ParseNode(this), Parse...</td>
+      <td>W. Bush</td>
+      <td>My fellow Americans, \n\nAmerica is at war. Th...</td>
+      <td>[(my, fellow, Americans, ,, , America, is, at,...</td>
     </tr>
   </tbody>
 </table>
@@ -14638,29 +14709,20 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="3.-Work-With-Parsetrees">3. Work With Parsetrees<a class="anchor-link" href="#3.-Work-With-Parsetrees">&#182;</a></h2><p>Above you can see that we have loaded all the parsetrees from our sample. Now we show an example illustrating how you would extract simple subject-verb-object triplets from sentences in the NSS documents.</p>
+<h2 id="3.-Work-With-Parsetrees">3. Work With Parsetrees<a class="anchor-link" href="#3.-Work-With-Parsetrees">&#182;</a></h2><p>Now that we have stored our parsed text as files in the database, we can manipulate the parsetrees. This example shows the 5 most common nouns from each national security strategy document. This is possible because the <code>doctable.ParseTree</code> data structures contain <code>pos</code> information originally provided by the spacy parser. Using <code>ParseTreeFileType</code> allows us to more efficiently store pickled binary data so that we can perform these kinds of analyses at scale.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[50]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">first_pos</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">tok</span><span class="o">.</span><span class="n">childs</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">dep</span> <span class="o">==</span> <span class="n">pos</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">child</span><span class="o">.</span><span class="n">text</span>
-        
-<span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">pt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">(</span><span class="s1">&#39;parsetrees&#39;</span><span class="p">)):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pt</span><span class="p">]))</span> <span class="c1"># print out sentence</span>
-    <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">pt</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">tok</span><span class="o">.</span><span class="n">pos</span> <span class="o">==</span> <span class="s1">&#39;VERB&#39;</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">first_pos</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="s1">&#39;nsubj&#39;</span><span class="p">),</span> <span class="n">tok</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">first_pos</span><span class="p">(</span><span class="n">tok</span><span class="p">,</span> <span class="s1">&#39;dobj&#39;</span><span class="p">))</span>
-            
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-        <span class="k">break</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span> <span class="c1"># used to count tokens</span>
+
+<span class="k">for</span> <span class="n">nss</span> <span class="ow">in</span> <span class="n">nss_table</span><span class="o">.</span><span class="n">select</span><span class="p">():</span>
+    <span class="n">noun_counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">([</span><span class="n">tok</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">nss</span><span class="o">.</span><span class="n">doc</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">pt</span> <span class="k">if</span> <span class="n">tok</span><span class="o">.</span><span class="n">pos</span> <span class="o">==</span> <span class="s1">&#39;NOUN&#39;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">nss</span><span class="o">.</span><span class="n">president</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">nss</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">noun_counts</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14680,33 +14742,10 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>I. An American perspective
-
-
-in The Early Days of this administration we laid the foundation for a more constructive and positive American role in world affairs by clarifying the essential elements of U.S. foreign and defense policy .
-we laid foundation
-None clarifying elements
-
-
-over The Intervening Years , we have looked objectively at our policies and performance on the world scene to ensure they reflect the dynamics of a complex and ever - changing world .
-we looked None
-None ensure None
-they reflect dynamics
-None changing None
-
-
-where course adjustments have been required , i have directed changes .
-None required None
-i directed changes
-
-
-but we have not veered and will not veer from the broad aims that guide America &#39;s leadership role in Today &#39;s world :
-we veered None
-None will None
-None veer None
-that guide role
-
-
+<pre>Clinton (2000): [(&#39;world&#39;, 9), (&#39;security&#39;, 9), (&#39;prosperity&#39;, 7), (&#39;threats&#39;, 5), (&#39;efforts&#39;, 5)]
+W. Bush (2006): [(&#39;people&#39;, 4), (&#39;world&#39;, 3), (&#39;war&#39;, 2), (&#39;security&#39;, 2), (&#39;strategy&#39;, 2)]
+Obama (2015): [(&#39;security&#39;, 15), (&#39;world&#39;, 9), (&#39;opportunities&#39;, 7), (&#39;strength&#39;, 7), (&#39;challenges&#39;, 7)]
+Trump (2017): [(&#39;government&#39;, 5), (&#39;principles&#39;, 4), (&#39;peace&#39;, 3), (&#39;people&#39;, 3), (&#39;world&#39;, 3)]
 </pre>
 </div>
 </div>
@@ -14715,6 +14754,13 @@ that guide role
 
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Definitely check out this <a href="examples/doctable_parsetreedoc_column.html">example on parsetreedocs</a> if you're interested in more applications.</p>
+<p>And that is all for this vignette! See the list of vignettes at the top of this page for more examples.</p>
+
+</div>
 </div>
 </body>
 

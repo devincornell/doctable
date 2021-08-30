@@ -1,7 +1,7 @@
 
 from typing import Any
 from .basedoc import BaseDoc
-from doctable.parse.parsetree import ParseTree
+from .parsetree import ParseTree
 
 class ParseTreeDoc(list):
     ''' Represents a document composed of sequence of parsetrees.
