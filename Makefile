@@ -86,7 +86,7 @@ test_examples: uninstall
 	jupyter nbconvert --to script $(TMP_TEST_FOLDER)/*.ipynb
 	
 	# run ipython so it will test out "%time " statements etc.
-	cd $(TMP_TEST_FOLDER); ipython ./*.py
+	cd $(TMP_TEST_FOLDER); pytest ./*.py
 	
 	# cleanup temp folder
 	rm -r $(TMP_TEST_FOLDER)
