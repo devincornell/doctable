@@ -45,8 +45,13 @@ class DocTableSchema:
     def _doctable_as_dict(self):
         '''Convert to dictionary, ignoring EmptyValue objects.
         '''
+        attrs = dict()
+
         if hasattr(self, '__dict__'):
-            return {k:v for k,v in self.__dict__.items() if not isinstance(v, EmptyValue)}
-        else:
-            return {name:getattr(self, name) for name in self.__slots__ 
-                                if not isinstance(getattr(self, name), EmptyValue)}
+            attrs = {**attrs, **{k:v for k,v in self.__dict__.items() if not isinstance(v, EmptyValue)}}
+        
+        if hasattr(self, '__slots__'):
+            attrs = {**attrs, **{name:getattr(self, name) for name in self.__slots__ 
+                                if not isinstance(getattr(self, name), EmptyValue)}}
+
+        return attrs

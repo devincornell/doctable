@@ -10,6 +10,8 @@ import typing
 from typing import Union, Mapping, Sequence, Tuple, Set, List
 import dataclasses
 
+from doctable.util import QueueInserter
+
 # operators like and_, or_, and not_, functions like sum, min, max, etc
 #import sqlalchemy as sa
 import sqlalchemy
