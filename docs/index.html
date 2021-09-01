@@ -113,11 +113,11 @@
         <pre><code>pip install --upgrade git+https://github.com/devincornell/doctable.git@master</code></pre>
 
         <hr/>
-        <h3>DocTable Objects 
+        <h3 id='DocTable'>`DocTable`
           <a class="btn btn-outline-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> 
           <a class="btn btn-outline-primary btn-sm" href="ref/doctable/doctable.html">API &raquo;</a> 
           <a class="btn btn-outline-primary btn-sm" href="examples/example_nss_1_intro.html">Vignette &raquo;</a></h3>
-        <p>Object-oriented interface for querying and manipulating a single database table.</p>
+        <p>Object-oriented interface for querying and manipulating database tables.</p>
         <!--<h5>Examples</h5>-->
         <ul>
           <li>Make schemas: <i><a href="examples/doctable_schema.html">schema guide</a></i> /
@@ -142,7 +142,7 @@
         </ul>
         <br/><hr/>
 
-        <h3>Parsing Pipelines <a class="btn btn-outline-primary btn-sm" href="examples/parse_parsepipeline.html">Overview &raquo;</a></h3>
+        <h3 id='ParsePipeline'>`ParsePipeline` <a class="btn btn-outline-primary btn-sm" href="examples/parse_parsepipeline.html">Overview &raquo;</a></h3>
         <p>Various tools for parsing and storing documents into databases.</p>
         <!--<h5>Examples</h5>-->
         <ul>
@@ -161,20 +161,20 @@
         </ul>
         <br/><hr/>
 
-        <h3>Other Tools</h3>
-        <p><code>doctable</code> includes a number of other related tools for text analysis and database management.</p>
+        <h3 id='other_utilities'>Other Utilities</h3>
+        <p><code>doctable</code> includes a number of other tools for text analysis and database management.</p>
         <ul>
-          <li><a href="ref/doctable/util/distribute.html">Distribute</a>: distributed processing interface similar to that used by <code>multiprocessing</code> 
-              (<a href="examples/distributed_basics.html">example</a>).</li>
-          <li><a href="ref/doctable/util/timer.html">Timer</a>: used to time function calls and logging scripts at different stages.</li>
+          <!--<li><a href="ref/doctable/util/distribute.html">Distribute</a>: distributed processing interface similar to that used by <code>multiprocessing</code> 
+              (<a href="examples/distributed_basics.html">example</a>).</li>-->
+          <li><a href="ref/doctable/util/timer.html">Timer</a>: used to time function calls and log your scripts at different stages.</li>
           <li><a href="ref/doctable/util/fsstore.html">FSStore</a>: interact with data rows directly on the filesystem. Great for parallel processing.</li>
           <li><a href="ref/doctable/util/tempfolder.html">TempFolder</a>: create temporary folder that will be deleted upon garbage collection.</li>
-          <li><a href="ref/doctable/util/io.html">I/O</a>: thin read/write interfaces.</li>
+          <!--<li><a href="ref/doctable/util/io.html">I/O</a>: thin read/write interfaces.</li>-->
         </ul>
         <br/><hr/>
         
 
-        <h3>Vignette: US National Security Strategy Documents</h3>
+        <h3 id='nss_vignette'>Vignette: US National Security Strategy Documents</h3>
         <p>This demonstration shows a typical DocTable workflow. We show how to create a new DocTable, insert NSS document text and metadata, and parse data for storage in the table.</p>
         <a class="btn btn-primary btn-sm" href="examples/example_nss_1_intro.html">See NSS Example &raquo;</a>
         <br/><hr/>
