@@ -162,9 +162,10 @@ class ConnectEngine:
             table_kwargs: passed to sqlalchemy.Table constructor.
         '''
 
-        # return table instance if already stored in metadata object
+        # remove table if it is already in metadata, then replace it
         if tabname in self._metadata.tables:
-            return self.tables[tabname]
+            #return self.tables[tabname]
+            self.remove_table(self.tables[tabname])
         
         # create new table with provided columns
         if columns is not None:
