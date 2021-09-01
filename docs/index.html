@@ -109,11 +109,24 @@
       <div class="col-md-8 mb-5">
         <!--<br/>-->
         <!--<h2>Here's the thing.</h2>-->
+
+        <p>This package allows you to interface with database tables as objects, and provides functionality especially aimed at .</p>
+
+        
+        <ol>
+          <li>Create a schema object using the <code>@doctable.schema</code> decorator. In addition to providing the schema definition, this class operates much like a dataclass so you may add custom methods for working with retrieved or inserted database rows.</li>
+          <li>Define the interface to your data model by creating a class that inherits from <a href="#DocTable"><code>DocTable</code></a>. The base class provides methods for inserting, retrieving, and changing database rows.</li>
+          <li>Develop a text parsing pipeline using a <a href="#ParsePipeline"><code>ParsePipeline</code></a> class. This class can distribute your text parsing across multiple processes, and can be used to create <code>ParseTree</code> objects to be stored in your database.</li>
+          <li>Merge your parsed text with relevant document metadata and use your <pre>DocTable</pre> interface to store and retrieve data from the database.</li>
+        </ol>
+
+        <hr/>
+        <h5>Install</h5>
         <pre><code>pip install doctable</code></pre>
         <pre><code>pip install --upgrade git+https://github.com/devincornell/doctable.git@master</code></pre>
 
         <hr/>
-        <h3 id='DocTable'><pre>DocTable</pre>
+        <h3 id='DocTable'><pre>DocTable</pre> Class 
           <a class="btn btn-outline-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> 
           <a class="btn btn-outline-primary btn-sm" href="ref/doctable/doctable.html">API &raquo;</a> 
           <a class="btn btn-outline-primary btn-sm" href="examples/example_nss_1_intro.html">Vignette &raquo;</a></h3>
@@ -142,11 +155,11 @@
         </ul>
         <br/><hr/>
 
-        <h3 id='ParsePipeline'><pre>ParsePipeline</pre> <a class="btn btn-outline-primary btn-sm" href="examples/parse_parsepipeline.html">Overview &raquo;</a></h3>
+        <h3 id='ParsePipeline'><pre>ParsePipeline</pre> Class <a class="btn btn-outline-primary btn-sm" href="examples/parse_parsepipeline.html">Overview &raquo;</a></h3>
         <p>Various tools for parsing and storing documents into databases.</p>
         <!--<h5>Examples</h5>-->
         <ul>
-          <li>Create pipelines: ParsePipeline 
+          <li>Create pipelines: <pre>ParsePipeline</pre> 
             <i><a href="examples/parse_parsepipeline.html">overview</a></i> /
             <i><a href="ref/doctable/parse/pipeline.html">API</a></i>
           </li>
