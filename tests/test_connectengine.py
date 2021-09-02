@@ -15,20 +15,13 @@ import pickle
 class Parent:
     __slots__ = []
     id: int = doctable.IDCol()
-    name: str = doctable.Col(unique=True)
-    age: int = doctable.Col(default=10)
+    name: str = doctable.Col()
 
-class Parents(doctable.DocTable):
-    _tabname_ = 'parent'
-    _doctable_args_ = {
-        'engine_kwargs':{
-            'foreign_keys':True,
-            #'timeout': 30,
-        },
-    }
+class ParentTable(doctable.DocTable):
+    _tabname_ = 'parents'
     _schema_ = Parent
-    def get_childdb(self, **kwargs):
-        return Children(engine=self.engine, **kwargs)
+    def get_children_table(self, **kwargs):
+        return ChildTable(engine=self.engine, **kwargs)
     
 @doctable.schema
 class Child:
@@ -37,76 +30,40 @@ class Child:
     name: str = doctable.Col()
     parent_name: str = doctable.Col()
 
-class Children(doctable.DocTable):
-    _tabname_ = 'child'
+class ChildTable(doctable.DocTable):
+    _tabname_ = 'children'
     _schema_ = Child
-    _constraints_ = [
-        doctable.Constraint('foreignkey', ('parent_name',), ('parent.name',)),
-    ]
+    _constraints_ = (
+        doctable.Constraint('foreignkey', ('parent_name',), ('parents.name',)),
+    )
     
 def processfunc(nums, eng):
     eng.reopen()
     print(eng)
     pdb = Parent(engine=eng)
-    print(pdb)
+    cdb = ChildTable(engine=eng)
+    print(pdb, cdb)
     
 def test_engine_basics():
-    eng = doctable.ConnectEngine(target='tmp.db', new_db=True)
-    print(eng)
-    pdb = Parents(engine=eng)
-    cdb = pdb.get_childdb()
-    pdb2 = Parents(target='tmp.db')
-    #print(pdb)
-    pdb.insert({'name':'whateva'}, ifnotunique='replace')
-    print(cdb)
-    print(pdb)
-    print(pdb2)
-    
-    with doctable.Distribute(2) as d:
-        d.map_chunk(processfunc, [1,2], eng)
+    with doctable.TempFolder('tmp') as tmp:
+        
+        eng = doctable.ConnectEngine(target='tmp/tmp_984237.db', new_db=True)
+        assert(len(eng.list_tables())==0)
+        print(eng)
 
+        pdb = ParentTable(engine=eng)
+        cdb = pdb.get_children_table()
+        print(pdb, cdb)
+        assert(len(eng.list_tables())==2)
 
-def test_engine_connections():
-    tmp_fname = 'tmp.db'
-    eng = doctable.ConnectEngine(target=tmp_fname, new_db=True)
-    print(eng)
-    print(eng.list_tables())
-    pdb = Parents(engine=eng, verbose=True)
-    cdb = pdb.get_childdb(verbose=True)
-    #pdb2 = Parent(target=tmp_fname)
-    
-    #print(dir(eng._engine.pool))
-    #print(eng._engine.pool.unique_connection().close())
-    pdb.insert({'name':'whateva'}, ifnotunique='replace')
-    cdb.insert({'name': 'cal', 'parent_name':'whateva'})
-    print(cdb._conn)
-    print(pdb._conn)
-    #print(pdb2._conn)
+        pdb.insert(Parent(name='whateva'))
+        cdb.insert(Child(name='whateva child', parent_name='whateva'))
+        
+        #with doctable.Distribute(2) as d:
+        #    d.map_chunk(processfunc, [1,2], eng)
 
-    eng.dispose()
-    print(cdb.select_first())
-    cdb.insert({'name':'carlos', 'parent_name': 'whateva'})
-    
-    #time.sleep(1)
-    allrows = list()
-    for row in pdb.select(where=pdb['name']==cdb['parent_name']):
-        allrows.append(row)
-        print(row)
-    #cdb.close_conn()
-    print(f'{len(allrows)}: {allrows[0]}')
-    #def write_pic(data, fname):
-    #    with open(fname, 'wb') as f:
-    #        pickle.dump(data, f)
-    #del pdb._engine
-    #del cdb._engine
-    #del eng
-    #del pdb
-    #del cdb
-    #write_pic(allrows, 'tmp.pic')
-    
 
 if __name__ == '__main__':
-    #test_engine_basics()
-    test_engine_connections()
+    test_engine_basics()
 
 
