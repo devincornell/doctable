@@ -86,8 +86,26 @@ test_examples: uninstall
 	jupyter nbconvert --to script $(TMP_TEST_FOLDER)/*.ipynb
 	
 	# run ipython so it will test out "%time " statements etc.
-	cd $(TMP_TEST_FOLDER); python ./*.py
 	
+	# main tutorials
+	cd $(TMP_TEST_FOLDER); python doctable_basics.py
+	cd $(TMP_TEST_FOLDER); python doctable_schema.py
+	cd $(TMP_TEST_FOLDER); python doctable_insert_delete.py
+	cd $(TMP_TEST_FOLDER); python doctable_select.py
+	cd $(TMP_TEST_FOLDER); python doctable_update.py
+
+	# examples
+	cd $(TMP_TEST_FOLDER); python example_nss_1_intro.py
+	cd $(TMP_TEST_FOLDER); python example_nss_2_parsing.py
+	cd $(TMP_TEST_FOLDER); python example_nss_3_parsetrees.py
+	
+	# doctable aux tutorials
+	cd $(TMP_TEST_FOLDER); python doctable_connectengine.py
+	cd $(TMP_TEST_FOLDER); python doctable_file_column_types.py
+	cd $(TMP_TEST_FOLDER); python doctable_multitable.py
+	cd $(TMP_TEST_FOLDER); python doctable_parsetreedoc_column.py
+	cd $(TMP_TEST_FOLDER); python doctable_concurrency.py
+
 	# cleanup temp folder
 	-rm -r $(TMP_TEST_FOLDER)
 
