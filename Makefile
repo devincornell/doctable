@@ -85,8 +85,8 @@ test_examples: uninstall
 	# convert notebooks to .py scripts
 	jupyter nbconvert --to script $(TMP_TEST_FOLDER)/*.ipynb
 	
-	# run ipython so it will test out "%time " statements etc.
-	
+	# execute example files to make sure they work
+
 	# main tutorials
 	cd $(TMP_TEST_FOLDER); python doctable_basics.py
 	cd $(TMP_TEST_FOLDER); python doctable_schema.py
@@ -100,11 +100,19 @@ test_examples: uninstall
 	cd $(TMP_TEST_FOLDER); python example_nss_3_parsetrees.py
 	
 	# doctable aux tutorials
+	cd $(TMP_TEST_FOLDER); python doctable_bootstrap.py
 	cd $(TMP_TEST_FOLDER); python doctable_connectengine.py
 	cd $(TMP_TEST_FOLDER); python doctable_file_column_types.py
 	cd $(TMP_TEST_FOLDER); python doctable_multitable.py
 	cd $(TMP_TEST_FOLDER); python doctable_parsetreedoc_column.py
 	cd $(TMP_TEST_FOLDER); python doctable_concurrency.py
+	
+	
+	#??
+	cd $(TMP_TEST_FOLDER); python doctable_picklefile.py
+	cd $(TMP_TEST_FOLDER); python doctable_schema_dataclass.py
+	cd $(TMP_TEST_FOLDER); python doctable_schema_legacy.py
+
 
 	# cleanup temp folder
 	-rm -r $(TMP_TEST_FOLDER)
