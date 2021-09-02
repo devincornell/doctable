@@ -272,9 +272,10 @@
 <span class="sd">            table_kwargs: passed to sqlalchemy.Table constructor.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="c1"># return table instance if already stored in metadata object</span>
+        <span class="c1"># remove table if it is already in metadata, then replace it</span>
         <span class="k">if</span> <span class="n">tabname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">tables</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="n">tabname</span><span class="p">]</span>
+            <span class="c1">#self.remove_table(self.tables[tabname])</span>
+            <span class="n">table_kwargs</span><span class="p">[</span><span class="s1">&#39;extend_existing&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         
         <span class="c1"># create new table with provided columns</span>
         <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -511,9 +512,10 @@
 <span class="sd">            table_kwargs: passed to sqlalchemy.Table constructor.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="c1"># return table instance if already stored in metadata object</span>
+        <span class="c1"># remove table if it is already in metadata, then replace it</span>
         <span class="k">if</span> <span class="n">tabname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">tables</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="n">tabname</span><span class="p">]</span>
+            <span class="c1">#self.remove_table(self.tables[tabname])</span>
+            <span class="n">table_kwargs</span><span class="p">[</span><span class="s1">&#39;extend_existing&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         
         <span class="c1"># create new table with provided columns</span>
         <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -972,9 +974,10 @@ Returns:
 <span class="sd">            table_kwargs: passed to sqlalchemy.Table constructor.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="c1"># return table instance if already stored in metadata object</span>
+        <span class="c1"># remove table if it is already in metadata, then replace it</span>
         <span class="k">if</span> <span class="n">tabname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">tables</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="n">tabname</span><span class="p">]</span>
+            <span class="c1">#self.remove_table(self.tables[tabname])</span>
+            <span class="n">table_kwargs</span><span class="p">[</span><span class="s1">&#39;extend_existing&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         
         <span class="c1"># create new table with provided columns</span>
         <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

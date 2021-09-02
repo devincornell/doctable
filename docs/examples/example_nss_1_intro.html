@@ -14416,12 +14416,12 @@ a.anchor-link {
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">NSSDocTable</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
     <span class="n">_tabname_</span> <span class="o">=</span> <span class="s1">&#39;nss_documents&#39;</span>
     <span class="n">_schema_</span> <span class="o">=</span> <span class="n">NSSDoc</span>
-    <span class="n">_indices_</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;party_index&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;party&#39;</span><span class="p">,),</span>
-    <span class="p">}</span>
-    <span class="n">_constraints_</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;party in (&quot;R&quot;, &quot;D&quot;)&#39;</span><span class="p">),</span> <span class="c1"># party can only take on values R or D.</span>
-    <span class="p">]</span>
+    <span class="n">_indices_</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">doctable</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="s1">&#39;party_index&#39;</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">_constraints_</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">doctable</span><span class="o">.</span><span class="n">Constraint</span><span class="p">(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;party in (&quot;R&quot;, &quot;D&quot;)&#39;</span><span class="p">),</span> <span class="c1"># party can only take on values R or D.</span>
+    <span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14472,7 +14472,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;__main__.NSSDocTable at 0x7fbc5227c910&gt;</pre>
+<pre>&lt;__main__.NSSDocTable at 0x7f35a8272fa0&gt;</pre>
 </div>
 
 </div>
@@ -14955,11 +14955,11 @@ a.anchor-link {
     <span class="n">_tabname_</span> <span class="o">=</span> <span class="s1">&#39;political_parties&#39;</span>
     <span class="n">_schema_</span> <span class="o">=</span> <span class="n">Party</span>
     <span class="n">_indices_</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;code_index&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;code&#39;</span><span class="p">,),</span>
+        <span class="n">doctable</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="s1">&#39;code_index&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">)</span>
     <span class="p">}</span>
-    <span class="n">_constraints_</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="p">(</span><span class="s1">&#39;foreignkey&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;code&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="s1">&#39;nss_documents.party&#39;</span><span class="p">,)),</span>
-    <span class="p">}</span>
+    <span class="n">_constraints_</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">doctable</span><span class="o">.</span><span class="n">Constraint</span><span class="p">(</span><span class="s1">&#39;foreignkey&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;code&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="s1">&#39;nss_documents.party&#39;</span><span class="p">,)),</span>
+    <span class="p">)</span>
 
 <span class="n">party_table</span> <span class="o">=</span> <span class="n">PartyTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span>
 <span class="n">party_table</span>
@@ -14984,7 +14984,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;__main__.PartyTable at 0x7fbc52182c10&gt;</pre>
+<pre>&lt;__main__.PartyTable at 0x7f34d1bc2be0&gt;</pre>
 </div>
 
 </div>

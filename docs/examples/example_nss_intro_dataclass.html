@@ -14405,9 +14405,6 @@ a.anchor-link {
     <span class="n">party</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
     <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
     <span class="n">parsed</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
-        
-    <span class="n">_constraints_</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;party in (&quot;R&quot;, &quot;D&quot;)&#39;</span><span class="p">)]</span>
-    <span class="n">_indices_</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ind_yr&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">))}</span>
 </pre></div>
 
      </div>
@@ -14575,17 +14572,18 @@ FROM _documents_
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">docmeta</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">nss_metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">download_nss</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">NSSDoc</span><span class="p">(</span>
+    <span class="n">new_doc</span> <span class="o">=</span> <span class="n">NSSDoc</span><span class="p">(</span>
         <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> 
         <span class="n">party</span><span class="o">=</span><span class="n">docmeta</span><span class="p">[</span><span class="s1">&#39;party&#39;</span><span class="p">],</span> 
         <span class="n">president</span><span class="o">=</span><span class="n">docmeta</span><span class="p">[</span><span class="s1">&#39;president&#39;</span><span class="p">],</span> 
         <span class="n">text</span><span class="o">=</span><span class="n">text</span>
-    <span class="p">),</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">new_doc</span><span class="p">,</span> <span class="n">ifnotunique</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">db</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 
@@ -14606,7 +14604,7 @@ FROM _documents_
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>100%|██████████| 17/17 [00:01&lt;00:00,  9.67it/s]</pre>
+<pre>100%|██████████| 17/17 [00:01&lt;00:00, 12.31it/s]</pre>
 </div>
 </div>
 
@@ -14639,7 +14637,7 @@ FROM _documents_
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[25]:</div>
 
 
 
@@ -14678,7 +14676,7 @@ FROM _documents_
       <td>Reagan</td>
       <td>R</td>
       <td>I. An American Perspective \n\nIn the early da...</td>
-      <td>None</td>
+      <td>[[I., An, American, Perspective], [in, the, ea...</td>
     </tr>
     <tr>
       <th>1</th>
@@ -14687,7 +14685,7 @@ FROM _documents_
       <td>H.W. Bush</td>
       <td>R</td>
       <td>Preface \n\nAmerican Leadership for Peaceful C...</td>
-      <td>None</td>
+      <td>[[preface], [American, leadership, for, peacef...</td>
     </tr>
     <tr>
       <th>2</th>
@@ -14696,7 +14694,7 @@ FROM _documents_
       <td>W. Bush</td>
       <td>R</td>
       <td>The great struggles of the twentieth century b...</td>
-      <td>None</td>
+      <td>[[the, great, struggles, of, the, twentieth, c...</td>
     </tr>
     <tr>
       <th>3</th>
@@ -14705,7 +14703,7 @@ FROM _documents_
       <td>Obama</td>
       <td>D</td>
       <td>Today, the United States is stronger and bette...</td>
-      <td>None</td>
+      <td>[[Today, ,, the, United, States, is, stronger,...</td>
     </tr>
     <tr>
       <th>4</th>
@@ -14714,7 +14712,7 @@ FROM _documents_
       <td>Clinton</td>
       <td>D</td>
       <td>Preface \n\nProtecting our nation's security -...</td>
-      <td>None</td>
+      <td>[[preface], [protecting, our, nation, 's, secu...</td>
     </tr>
   </tbody>
 </table>
@@ -14736,7 +14734,7 @@ FROM _documents_
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">()</span>
@@ -14782,7 +14780,7 @@ Reagan
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
@@ -14829,7 +14827,7 @@ FROM _documents_
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;president&#39;</span><span class="p">],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -14862,15 +14860,15 @@ FROM _documents_
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[28]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[NSSDoc(id=EmptyValue, year=1987, president=&#39;Reagan&#39;, party=EmptyValue, text=EmptyValue, parsed=EmptyValue),
- NSSDoc(id=EmptyValue, year=1993, president=&#39;H.W. Bush&#39;, party=EmptyValue, text=EmptyValue, parsed=EmptyValue),
- NSSDoc(id=EmptyValue, year=2002, president=&#39;W. Bush&#39;, party=EmptyValue, text=EmptyValue, parsed=EmptyValue)]</pre>
+<pre>[NSSDoc(year=1987, president=&#39;Reagan&#39;),
+ NSSDoc(year=1993, president=&#39;H.W. Bush&#39;),
+ NSSDoc(year=2002, president=&#39;W. Bush&#39;)]</pre>
 </div>
 
 </div>
@@ -14888,7 +14886,7 @@ FROM _documents_
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># use select_df to show a couple rows of our database</span>
@@ -14922,7 +14920,7 @@ FROM _documents_
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[29]:</div>
 
 
 
@@ -14961,7 +14959,7 @@ FROM _documents_
       <td>Reagan</td>
       <td>R</td>
       <td>I. An American Perspective \n\nIn the early da...</td>
-      <td>None</td>
+      <td>[[I., An, American, Perspective], [in, the, ea...</td>
     </tr>
     <tr>
       <th>1</th>
@@ -14970,7 +14968,7 @@ FROM _documents_
       <td>H.W. Bush</td>
       <td>R</td>
       <td>Preface \n\nAmerican Leadership for Peaceful C...</td>
-      <td>None</td>
+      <td>[[preface], [American, leadership, for, peacef...</td>
     </tr>
   </tbody>
 </table>
@@ -14997,7 +14995,7 @@ lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># first load a spacy model</span>
@@ -15029,14 +15027,14 @@ lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[30]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&lt;spacy.lang.en.English at 0x7f36c5715460&gt;,
- functools.partial(&lt;function tokenize at 0x7f36ca139ca0&gt;, split_sents=False, keep_tok_func=functools.partial(&lt;function keep_tok at 0x7f36ca139dc0&gt;), parse_tok_func=functools.partial(&lt;function parse_tok at 0x7f36ca139d30&gt;))]</pre>
+<pre>[&lt;spacy.lang.en.English at 0x7f2cd9334400&gt;,
+ functools.partial(&lt;function tokenize at 0x7f2d86167160&gt;, split_sents=False, keep_tok_func=functools.partial(&lt;function keep_tok at 0x7f2d86167280&gt;), parse_tok_func=functools.partial(&lt;function parse_tok at 0x7f2d861671f0&gt;))]</pre>
 </div>
 
 </div>
@@ -15054,7 +15052,7 @@ lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[31]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">docs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
@@ -15080,7 +15078,7 @@ lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>  0%|          | 0/17 [00:00&lt;?, ?it/s]</pre>
+<pre>  0%|          | 0/51 [00:00&lt;?, ?it/s]</pre>
 </div>
 </div>
 
@@ -15104,7 +15102,7 @@ FROM _documents_
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>100%|██████████| 17/17 [00:01&lt;00:00, 12.87it/s]
+<pre>100%|██████████| 51/51 [00:04&lt;00:00, 11.42it/s]
 </pre>
 </div>
 </div>
@@ -15122,7 +15120,7 @@ FROM _documents_
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[32]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -15155,7 +15153,7 @@ FROM _documents_
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[32]:</div>
 
 
 
@@ -15234,7 +15232,7 @@ FROM _documents_
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[33]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">paragraphs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select_first</span><span class="p">(</span><span class="s1">&#39;parsed&#39;</span><span class="p">)</span>
