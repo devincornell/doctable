@@ -164,8 +164,8 @@ class ConnectEngine:
 
         # remove table if it is already in metadata, then replace it
         if tabname in self._metadata.tables:
-            #return self.tables[tabname]
-            self.remove_table(self.tables[tabname])
+            #self.remove_table(self.tables[tabname])
+            table_kwargs['extend_existing'] = True
         
         # create new table with provided columns
         if columns is not None:

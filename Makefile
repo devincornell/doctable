@@ -89,9 +89,9 @@ test_examples: uninstall
 	cd $(TMP_TEST_FOLDER); pytest ./*.py
 	
 	# cleanup temp folder
-	rm -r $(TMP_TEST_FOLDER)
+	-rm -r $(TMP_TEST_FOLDER)
 
-test: test_examples pytest
+test: pytest test_examples
 tests: test # alias	
 
 	

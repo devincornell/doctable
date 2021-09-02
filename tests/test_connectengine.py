@@ -10,8 +10,15 @@ import doctable
 #from doctable.schemas import parse_schema
 import pickle
     
-    
-class Parent(doctable.DocTable):
+
+@doctable.schema
+class Parent:
+    __slots__ = []
+    id: int = doctable.IDCol()
+    name: str = doctable.Col(unique=True)
+    age: int = doctable.Col(default=10)
+
+class Parents(doctable.DocTable):
     _tabname_ = 'parent'
     _doctable_args_ = {
         'engine_kwargs':{
@@ -19,22 +26,23 @@ class Parent(doctable.DocTable):
             #'timeout': 30,
         },
     }
-    _schema_ = (
-        ('idcol', 'id'),
-        ('string', 'name', dict(unique=True)),
-        ('integer', 'age', dict(default=10))
-    )
+    _schema_ = Parent
     def get_childdb(self, **kwargs):
-        return Child(engine=self.engine, **kwargs)
+        return Children(engine=self.engine, **kwargs)
     
-class Child(doctable.DocTable):
+@doctable.schema
+class Child:
+    __slots__ = []
+    id: int = doctable.IDCol()
+    name: str = doctable.Col()
+    parent_name: str = doctable.Col()
+
+class Children(doctable.DocTable):
     _tabname_ = 'child'
-    _schema_ = (
-        ('idcol', 'id'),
-        ('string', 'name'),
-        ('string', 'parent_name'), 
-        ('foreignkey', 'parent_name', 'parent.name'), 
-    )
+    _schema_ = Child
+    _constraints_ = [
+        doctable.Constraint('foreignkey', ('parent_name',), ('parent.name',)),
+    ]
     
 def processfunc(nums, eng):
     eng.reopen()
@@ -43,11 +51,11 @@ def processfunc(nums, eng):
     print(pdb)
     
 def test_engine_basics():
-    eng = doctable.ConnectEngine('tmp.db', new_db=True)
+    eng = doctable.ConnectEngine(target='tmp.db', new_db=True)
     print(eng)
-    pdb = Parent(engine=eng)
+    pdb = Parents(engine=eng)
     cdb = pdb.get_childdb()
-    pdb2 = Parent(target='tmp.db')
+    pdb2 = Parents(target='tmp.db')
     #print(pdb)
     pdb.insert({'name':'whateva'}, ifnotunique='replace')
     print(cdb)
@@ -60,9 +68,10 @@ def test_engine_basics():
 
 def test_engine_connections():
     tmp_fname = 'tmp.db'
-    eng = doctable.ConnectEngine(tmp_fname, new_db=True)
+    eng = doctable.ConnectEngine(target=tmp_fname, new_db=True)
     print(eng)
-    pdb = Parent(engine=eng, verbose=True)
+    print(eng.list_tables())
+    pdb = Parents(engine=eng, verbose=True)
     cdb = pdb.get_childdb(verbose=True)
     #pdb2 = Parent(target=tmp_fname)
     
