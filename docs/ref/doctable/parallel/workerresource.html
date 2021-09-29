@@ -118,7 +118,7 @@
                          <span class="n">WorkerResourceReceivedUnidentifiedMessage</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.messaging</span> <span class="kn">import</span> <span class="p">(</span><span class="n">BaseMessage</span><span class="p">,</span> <span class="n">DataPayload</span><span class="p">,</span> <span class="n">SigClose</span><span class="p">,</span> <span class="n">StatusRequest</span><span class="p">,</span>
                         <span class="n">UserFunc</span><span class="p">,</span> <span class="n">UserFuncException</span><span class="p">,</span> <span class="n">WorkerError</span><span class="p">,</span> <span class="n">WorkerStatus</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.worker</span> <span class="kn">import</span> <span class="n">Worker</span>
+<span class="kn">from</span> <span class="nn">.workerprocess</span> <span class="kn">import</span> <span class="n">WorkerProcess</span>
 
 
 <span class="k">class</span> <span class="nc">WorkerResource</span><span class="p">:</span>
@@ -141,7 +141,7 @@
         <span class="n">ctx</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="p">,</span> <span class="n">worker_pipe</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">proc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span>
-            <span class="n">target</span><span class="o">=</span><span class="n">Worker</span><span class="p">(</span><span class="n">worker_pipe</span><span class="p">,</span> <span class="n">userfunc</span><span class="o">=</span><span class="n">userfunc</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">logging</span><span class="o">=</span><span class="n">logging</span><span class="p">),</span> 
+            <span class="n">target</span><span class="o">=</span><span class="n">WorkerProcess</span><span class="p">(</span><span class="n">worker_pipe</span><span class="p">,</span> <span class="n">userfunc</span><span class="o">=</span><span class="n">userfunc</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">logging</span><span class="o">=</span><span class="n">logging</span><span class="p">),</span> 
         <span class="p">)</span>
 
         <span class="c1"># start worker if requested</span>
@@ -330,7 +330,7 @@
         <span class="n">ctx</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="p">,</span> <span class="n">worker_pipe</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">proc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span>
-            <span class="n">target</span><span class="o">=</span><span class="n">Worker</span><span class="p">(</span><span class="n">worker_pipe</span><span class="p">,</span> <span class="n">userfunc</span><span class="o">=</span><span class="n">userfunc</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">logging</span><span class="o">=</span><span class="n">logging</span><span class="p">),</span> 
+            <span class="n">target</span><span class="o">=</span><span class="n">WorkerProcess</span><span class="p">(</span><span class="n">worker_pipe</span><span class="p">,</span> <span class="n">userfunc</span><span class="o">=</span><span class="n">userfunc</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">logging</span><span class="o">=</span><span class="n">logging</span><span class="p">),</span> 
         <span class="p">)</span>
 
         <span class="c1"># start worker if requested</span>
@@ -496,7 +496,7 @@
         <span class="n">ctx</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="p">,</span> <span class="n">worker_pipe</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">proc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span>
-            <span class="n">target</span><span class="o">=</span><span class="n">Worker</span><span class="p">(</span><span class="n">worker_pipe</span><span class="p">,</span> <span class="n">userfunc</span><span class="o">=</span><span class="n">userfunc</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">logging</span><span class="o">=</span><span class="n">logging</span><span class="p">),</span> 
+            <span class="n">target</span><span class="o">=</span><span class="n">WorkerProcess</span><span class="p">(</span><span class="n">worker_pipe</span><span class="p">,</span> <span class="n">userfunc</span><span class="o">=</span><span class="n">userfunc</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">logging</span><span class="o">=</span><span class="n">logging</span><span class="p">),</span> 
         <span class="p">)</span>
 
         <span class="c1"># start worker if requested</span>

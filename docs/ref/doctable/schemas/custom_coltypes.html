@@ -571,13 +571,13 @@ the underlying type is kept in place.</p>
 </code></pre>
 
 <p>The class-level <code><a href="#FileTypeBase.impl">impl</a></code> attribute is required, and can reference any
-:class:<code>.TypeEngine</code> class.  Alternatively, the :meth:<code><a href="#FileTypeBase.load_dialect_impl">load_dialect_impl</a></code>
+<code>.TypeEngine</code> class.  Alternatively, the <code><a href="#FileTypeBase.load_dialect_impl">load_dialect_impl</a></code>
 method can be used to provide different type classes based on the dialect
 given; in this case, the <code><a href="#FileTypeBase.impl">impl</a></code> variable can reference
 <code>TypeEngine</code> as a placeholder.</p>
 
 <p>Types that receive a Python type that isn't similar to the ultimate type
-used may want to define the :meth:<code>TypeDecorator.coerce_compared_value</code>
+used may want to define the <code>TypeDecorator.coerce_compared_value</code>
 method. This is used to give the expression system a hint when coercing
 Python objects into bind parameters within expressions. Consider this
 expression::</p>
@@ -612,7 +612,7 @@ we define an "epoch" type that stores a date value as an integer::</p>
 "date" on the right side to also be treated as <code>MyEpochType</code>.</p>
 
 <p>This behavior can be overridden via the
-:meth:<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
+<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
 that should be used for the value of the expression. Below we set it such
 that an integer value will be treated as an <code>Integer</code>, and any other
 value is assumed to be a date and will be treated as a <code>MyEpochType</code>::</p>
@@ -624,26 +624,25 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
         return self
 </code></pre>
 
-<p>.. warning::</p>
+<p><em>Warning:</em>
+Note that the <strong>behavior of coerce_compared_value is not inherited
+by default from that of the base type</strong>.
+If the <code>.TypeDecorator</code> is augmenting a
+type that requires special logic for certain types of operators,
+this method <strong>must</strong> be overridden.  A key example is when decorating
+the <code>_postgresql.JSON</code> and <code>_postgresql.JSONB</code> types;
+the default rules of <code>.TypeEngine.coerce_compared_value</code> should
+be used in order to deal with operators like index operations::</p>
 
-<p>Note that the <strong>behavior of coerce_compared_value is not inherited
-   by default from that of the base type</strong>.
-   If the :class:<code>.TypeDecorator</code> is augmenting a
-   type that requires special logic for certain types of operators,
-   this method <strong>must</strong> be overridden.  A key example is when decorating
-   the :class:<code>_postgresql.JSON</code> and :class:<code>_postgresql.JSONB</code> types;
-   the default rules of :meth:<code>.TypeEngine.coerce_compared_value</code> should
-   be used in order to deal with operators like index operations::</p>
+<pre><code> class MyJsonType(TypeDecorator):
+     impl = postgresql.JSON
 
-<pre><code>    class MyJsonType(TypeDecorator):
-        impl = postgresql.JSON
-
-        def coerce_compared_value(self, op, value):
-            return self.impl.coerce_compared_value(op, value)
+     def coerce_compared_value(self, op, value):
+         return self.impl.coerce_compared_value(op, value)
 </code></pre>
 
 <p>Without the above step, index operations such as <code>mycol['foo']</code>
-   will cause the index value <code>'foo'</code> to be JSON encoded.</p>
+will cause the index value <code>'foo'</code> to be JSON encoded.</p>
 </div>
 
 
@@ -663,7 +662,7 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
 
         </details>
 
-            <div class="docstring"><p>Construct a :class:<code>.TypeDecorator</code>.</p>
+            <div class="docstring"><p>Construct a <code>.TypeDecorator</code>.</p>
 
 <p>Arguments sent here are passed to the constructor
 of the class assigned to the <code><a href="#FileTypeBase.impl">impl</a></code> class level attribute,
@@ -780,7 +779,7 @@ of <code>self.impl</code> entirely.</p>
 
 <p>Subclasses override this method to return the
 value that should be passed along to the underlying
-:class:<code>.TypeEngine</code> object, and from there to the
+<code>.TypeEngine</code> object, and from there to the
 DBAPI <code>execute()</code> method.</p>
 
 <p>The operation could be anything desired to perform custom
@@ -793,7 +792,7 @@ this class.</p>
 
 <p>:param value: Data to operate upon, of any type expected by
  this method in the subclass.  Can be <code>None</code>.
-:param dialect: the :class:<code>.Dialect</code> in use.</p>
+:param dialect: the <code>.Dialect</code> in use.</p>
 </div>
 
 
@@ -829,7 +828,7 @@ fetched from the database.</p>
 <p>Subclasses override this method to return the
 value that should be passed back to the application,
 given a value that is already processed by
-the underlying :class:<code>.TypeEngine</code> object, originally
+the underlying <code>.TypeEngine</code> object, originally
 from the DBAPI cursor method <code>fetchone()</code> or similar.</p>
 
 <p>The operation could be anything desired to perform custom
@@ -838,7 +837,7 @@ This could also be used as a hook for validating logic.</p>
 
 <p>:param value: Data to operate upon, of any type expected by
  this method in the subclass.  Can be <code>None</code>.
-:param dialect: the :class:<code>.Dialect</code> in use.</p>
+:param dialect: the <code>.Dialect</code> in use.</p>
 
 <p>This operation should be designed to be reversible by
 the "process_bind_param" method of this class.</p>
@@ -1218,13 +1217,13 @@ the underlying type is kept in place.</p>
 </code></pre>
 
 <p>The class-level <code><a href="#PickleFileType.impl">impl</a></code> attribute is required, and can reference any
-:class:<code>.TypeEngine</code> class.  Alternatively, the :meth:<code><a href="#PickleFileType.load_dialect_impl">load_dialect_impl</a></code>
+<code>.TypeEngine</code> class.  Alternatively, the <code><a href="#PickleFileType.load_dialect_impl">load_dialect_impl</a></code>
 method can be used to provide different type classes based on the dialect
 given; in this case, the <code><a href="#PickleFileType.impl">impl</a></code> variable can reference
 <code>TypeEngine</code> as a placeholder.</p>
 
 <p>Types that receive a Python type that isn't similar to the ultimate type
-used may want to define the :meth:<code>TypeDecorator.coerce_compared_value</code>
+used may want to define the <code>TypeDecorator.coerce_compared_value</code>
 method. This is used to give the expression system a hint when coercing
 Python objects into bind parameters within expressions. Consider this
 expression::</p>
@@ -1259,7 +1258,7 @@ we define an "epoch" type that stores a date value as an integer::</p>
 "date" on the right side to also be treated as <code>MyEpochType</code>.</p>
 
 <p>This behavior can be overridden via the
-:meth:<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
+<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
 that should be used for the value of the expression. Below we set it such
 that an integer value will be treated as an <code>Integer</code>, and any other
 value is assumed to be a date and will be treated as a <code>MyEpochType</code>::</p>
@@ -1271,26 +1270,25 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
         return self
 </code></pre>
 
-<p>.. warning::</p>
+<p><em>Warning:</em>
+Note that the <strong>behavior of coerce_compared_value is not inherited
+by default from that of the base type</strong>.
+If the <code>.TypeDecorator</code> is augmenting a
+type that requires special logic for certain types of operators,
+this method <strong>must</strong> be overridden.  A key example is when decorating
+the <code>_postgresql.JSON</code> and <code>_postgresql.JSONB</code> types;
+the default rules of <code>.TypeEngine.coerce_compared_value</code> should
+be used in order to deal with operators like index operations::</p>
 
-<p>Note that the <strong>behavior of coerce_compared_value is not inherited
-   by default from that of the base type</strong>.
-   If the :class:<code>.TypeDecorator</code> is augmenting a
-   type that requires special logic for certain types of operators,
-   this method <strong>must</strong> be overridden.  A key example is when decorating
-   the :class:<code>_postgresql.JSON</code> and :class:<code>_postgresql.JSONB</code> types;
-   the default rules of :meth:<code>.TypeEngine.coerce_compared_value</code> should
-   be used in order to deal with operators like index operations::</p>
+<pre><code> class MyJsonType(TypeDecorator):
+     impl = postgresql.JSON
 
-<pre><code>    class MyJsonType(TypeDecorator):
-        impl = postgresql.JSON
-
-        def coerce_compared_value(self, op, value):
-            return self.impl.coerce_compared_value(op, value)
+     def coerce_compared_value(self, op, value):
+         return self.impl.coerce_compared_value(op, value)
 </code></pre>
 
 <p>Without the above step, index operations such as <code>mycol['foo']</code>
-   will cause the index value <code>'foo'</code> to be JSON encoded.</p>
+will cause the index value <code>'foo'</code> to be JSON encoded.</p>
 </div>
 
 
@@ -1448,13 +1446,13 @@ the underlying type is kept in place.</p>
 </code></pre>
 
 <p>The class-level <code><a href="#ParseTreeDocFileType.impl">impl</a></code> attribute is required, and can reference any
-:class:<code>.TypeEngine</code> class.  Alternatively, the :meth:<code><a href="#ParseTreeDocFileType.load_dialect_impl">load_dialect_impl</a></code>
+<code>.TypeEngine</code> class.  Alternatively, the <code><a href="#ParseTreeDocFileType.load_dialect_impl">load_dialect_impl</a></code>
 method can be used to provide different type classes based on the dialect
 given; in this case, the <code><a href="#ParseTreeDocFileType.impl">impl</a></code> variable can reference
 <code>TypeEngine</code> as a placeholder.</p>
 
 <p>Types that receive a Python type that isn't similar to the ultimate type
-used may want to define the :meth:<code>TypeDecorator.coerce_compared_value</code>
+used may want to define the <code>TypeDecorator.coerce_compared_value</code>
 method. This is used to give the expression system a hint when coercing
 Python objects into bind parameters within expressions. Consider this
 expression::</p>
@@ -1489,7 +1487,7 @@ we define an "epoch" type that stores a date value as an integer::</p>
 "date" on the right side to also be treated as <code>MyEpochType</code>.</p>
 
 <p>This behavior can be overridden via the
-:meth:<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
+<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
 that should be used for the value of the expression. Below we set it such
 that an integer value will be treated as an <code>Integer</code>, and any other
 value is assumed to be a date and will be treated as a <code>MyEpochType</code>::</p>
@@ -1501,26 +1499,25 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
         return self
 </code></pre>
 
-<p>.. warning::</p>
+<p><em>Warning:</em>
+Note that the <strong>behavior of coerce_compared_value is not inherited
+by default from that of the base type</strong>.
+If the <code>.TypeDecorator</code> is augmenting a
+type that requires special logic for certain types of operators,
+this method <strong>must</strong> be overridden.  A key example is when decorating
+the <code>_postgresql.JSON</code> and <code>_postgresql.JSONB</code> types;
+the default rules of <code>.TypeEngine.coerce_compared_value</code> should
+be used in order to deal with operators like index operations::</p>
 
-<p>Note that the <strong>behavior of coerce_compared_value is not inherited
-   by default from that of the base type</strong>.
-   If the :class:<code>.TypeDecorator</code> is augmenting a
-   type that requires special logic for certain types of operators,
-   this method <strong>must</strong> be overridden.  A key example is when decorating
-   the :class:<code>_postgresql.JSON</code> and :class:<code>_postgresql.JSONB</code> types;
-   the default rules of :meth:<code>.TypeEngine.coerce_compared_value</code> should
-   be used in order to deal with operators like index operations::</p>
+<pre><code> class MyJsonType(TypeDecorator):
+     impl = postgresql.JSON
 
-<pre><code>    class MyJsonType(TypeDecorator):
-        impl = postgresql.JSON
-
-        def coerce_compared_value(self, op, value):
-            return self.impl.coerce_compared_value(op, value)
+     def coerce_compared_value(self, op, value):
+         return self.impl.coerce_compared_value(op, value)
 </code></pre>
 
 <p>Without the above step, index operations such as <code>mycol['foo']</code>
-   will cause the index value <code>'foo'</code> to be JSON encoded.</p>
+will cause the index value <code>'foo'</code> to be JSON encoded.</p>
 </div>
 
 
@@ -1679,13 +1676,13 @@ the underlying type is kept in place.</p>
 </code></pre>
 
 <p>The class-level <code><a href="#TextFileType.impl">impl</a></code> attribute is required, and can reference any
-:class:<code>.TypeEngine</code> class.  Alternatively, the :meth:<code><a href="#TextFileType.load_dialect_impl">load_dialect_impl</a></code>
+<code>.TypeEngine</code> class.  Alternatively, the <code><a href="#TextFileType.load_dialect_impl">load_dialect_impl</a></code>
 method can be used to provide different type classes based on the dialect
 given; in this case, the <code><a href="#TextFileType.impl">impl</a></code> variable can reference
 <code>TypeEngine</code> as a placeholder.</p>
 
 <p>Types that receive a Python type that isn't similar to the ultimate type
-used may want to define the :meth:<code>TypeDecorator.coerce_compared_value</code>
+used may want to define the <code>TypeDecorator.coerce_compared_value</code>
 method. This is used to give the expression system a hint when coercing
 Python objects into bind parameters within expressions. Consider this
 expression::</p>
@@ -1720,7 +1717,7 @@ we define an "epoch" type that stores a date value as an integer::</p>
 "date" on the right side to also be treated as <code>MyEpochType</code>.</p>
 
 <p>This behavior can be overridden via the
-:meth:<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
+<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
 that should be used for the value of the expression. Below we set it such
 that an integer value will be treated as an <code>Integer</code>, and any other
 value is assumed to be a date and will be treated as a <code>MyEpochType</code>::</p>
@@ -1732,26 +1729,25 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
         return self
 </code></pre>
 
-<p>.. warning::</p>
+<p><em>Warning:</em>
+Note that the <strong>behavior of coerce_compared_value is not inherited
+by default from that of the base type</strong>.
+If the <code>.TypeDecorator</code> is augmenting a
+type that requires special logic for certain types of operators,
+this method <strong>must</strong> be overridden.  A key example is when decorating
+the <code>_postgresql.JSON</code> and <code>_postgresql.JSONB</code> types;
+the default rules of <code>.TypeEngine.coerce_compared_value</code> should
+be used in order to deal with operators like index operations::</p>
 
-<p>Note that the <strong>behavior of coerce_compared_value is not inherited
-   by default from that of the base type</strong>.
-   If the :class:<code>.TypeDecorator</code> is augmenting a
-   type that requires special logic for certain types of operators,
-   this method <strong>must</strong> be overridden.  A key example is when decorating
-   the :class:<code>_postgresql.JSON</code> and :class:<code>_postgresql.JSONB</code> types;
-   the default rules of :meth:<code>.TypeEngine.coerce_compared_value</code> should
-   be used in order to deal with operators like index operations::</p>
+<pre><code> class MyJsonType(TypeDecorator):
+     impl = postgresql.JSON
 
-<pre><code>    class MyJsonType(TypeDecorator):
-        impl = postgresql.JSON
-
-        def coerce_compared_value(self, op, value):
-            return self.impl.coerce_compared_value(op, value)
+     def coerce_compared_value(self, op, value):
+         return self.impl.coerce_compared_value(op, value)
 </code></pre>
 
 <p>Without the above step, index operations such as <code>mycol['foo']</code>
-   will cause the index value <code>'foo'</code> to be JSON encoded.</p>
+will cause the index value <code>'foo'</code> to be JSON encoded.</p>
 </div>
 
 
@@ -1909,13 +1905,13 @@ the underlying type is kept in place.</p>
 </code></pre>
 
 <p>The class-level <code><a href="#JSONFileType.impl">impl</a></code> attribute is required, and can reference any
-:class:<code>.TypeEngine</code> class.  Alternatively, the :meth:<code><a href="#JSONFileType.load_dialect_impl">load_dialect_impl</a></code>
+<code>.TypeEngine</code> class.  Alternatively, the <code><a href="#JSONFileType.load_dialect_impl">load_dialect_impl</a></code>
 method can be used to provide different type classes based on the dialect
 given; in this case, the <code><a href="#JSONFileType.impl">impl</a></code> variable can reference
 <code>TypeEngine</code> as a placeholder.</p>
 
 <p>Types that receive a Python type that isn't similar to the ultimate type
-used may want to define the :meth:<code>TypeDecorator.coerce_compared_value</code>
+used may want to define the <code>TypeDecorator.coerce_compared_value</code>
 method. This is used to give the expression system a hint when coercing
 Python objects into bind parameters within expressions. Consider this
 expression::</p>
@@ -1950,7 +1946,7 @@ we define an "epoch" type that stores a date value as an integer::</p>
 "date" on the right side to also be treated as <code>MyEpochType</code>.</p>
 
 <p>This behavior can be overridden via the
-:meth:<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
+<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
 that should be used for the value of the expression. Below we set it such
 that an integer value will be treated as an <code>Integer</code>, and any other
 value is assumed to be a date and will be treated as a <code>MyEpochType</code>::</p>
@@ -1962,26 +1958,25 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
         return self
 </code></pre>
 
-<p>.. warning::</p>
+<p><em>Warning:</em>
+Note that the <strong>behavior of coerce_compared_value is not inherited
+by default from that of the base type</strong>.
+If the <code>.TypeDecorator</code> is augmenting a
+type that requires special logic for certain types of operators,
+this method <strong>must</strong> be overridden.  A key example is when decorating
+the <code>_postgresql.JSON</code> and <code>_postgresql.JSONB</code> types;
+the default rules of <code>.TypeEngine.coerce_compared_value</code> should
+be used in order to deal with operators like index operations::</p>
 
-<p>Note that the <strong>behavior of coerce_compared_value is not inherited
-   by default from that of the base type</strong>.
-   If the :class:<code>.TypeDecorator</code> is augmenting a
-   type that requires special logic for certain types of operators,
-   this method <strong>must</strong> be overridden.  A key example is when decorating
-   the :class:<code>_postgresql.JSON</code> and :class:<code>_postgresql.JSONB</code> types;
-   the default rules of :meth:<code>.TypeEngine.coerce_compared_value</code> should
-   be used in order to deal with operators like index operations::</p>
+<pre><code> class MyJsonType(TypeDecorator):
+     impl = postgresql.JSON
 
-<pre><code>    class MyJsonType(TypeDecorator):
-        impl = postgresql.JSON
-
-        def coerce_compared_value(self, op, value):
-            return self.impl.coerce_compared_value(op, value)
+     def coerce_compared_value(self, op, value):
+         return self.impl.coerce_compared_value(op, value)
 </code></pre>
 
 <p>Without the above step, index operations such as <code>mycol['foo']</code>
-   will cause the index value <code>'foo'</code> to be JSON encoded.</p>
+will cause the index value <code>'foo'</code> to be JSON encoded.</p>
 </div>
 
 
@@ -2145,13 +2140,13 @@ the underlying type is kept in place.</p>
 </code></pre>
 
 <p>The class-level <code><a href="#CpickleType.impl">impl</a></code> attribute is required, and can reference any
-:class:<code>.TypeEngine</code> class.  Alternatively, the :meth:<code><a href="#CpickleType.load_dialect_impl">load_dialect_impl</a></code>
+<code>.TypeEngine</code> class.  Alternatively, the <code><a href="#CpickleType.load_dialect_impl">load_dialect_impl</a></code>
 method can be used to provide different type classes based on the dialect
 given; in this case, the <code><a href="#CpickleType.impl">impl</a></code> variable can reference
 <code>TypeEngine</code> as a placeholder.</p>
 
 <p>Types that receive a Python type that isn't similar to the ultimate type
-used may want to define the :meth:<code>TypeDecorator.coerce_compared_value</code>
+used may want to define the <code>TypeDecorator.coerce_compared_value</code>
 method. This is used to give the expression system a hint when coercing
 Python objects into bind parameters within expressions. Consider this
 expression::</p>
@@ -2186,7 +2181,7 @@ we define an "epoch" type that stores a date value as an integer::</p>
 "date" on the right side to also be treated as <code>MyEpochType</code>.</p>
 
 <p>This behavior can be overridden via the
-:meth:<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
+<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
 that should be used for the value of the expression. Below we set it such
 that an integer value will be treated as an <code>Integer</code>, and any other
 value is assumed to be a date and will be treated as a <code>MyEpochType</code>::</p>
@@ -2198,26 +2193,25 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
         return self
 </code></pre>
 
-<p>.. warning::</p>
+<p><em>Warning:</em>
+Note that the <strong>behavior of coerce_compared_value is not inherited
+by default from that of the base type</strong>.
+If the <code>.TypeDecorator</code> is augmenting a
+type that requires special logic for certain types of operators,
+this method <strong>must</strong> be overridden.  A key example is when decorating
+the <code>_postgresql.JSON</code> and <code>_postgresql.JSONB</code> types;
+the default rules of <code>.TypeEngine.coerce_compared_value</code> should
+be used in order to deal with operators like index operations::</p>
 
-<p>Note that the <strong>behavior of coerce_compared_value is not inherited
-   by default from that of the base type</strong>.
-   If the :class:<code>.TypeDecorator</code> is augmenting a
-   type that requires special logic for certain types of operators,
-   this method <strong>must</strong> be overridden.  A key example is when decorating
-   the :class:<code>_postgresql.JSON</code> and :class:<code>_postgresql.JSONB</code> types;
-   the default rules of :meth:<code>.TypeEngine.coerce_compared_value</code> should
-   be used in order to deal with operators like index operations::</p>
+<pre><code> class MyJsonType(TypeDecorator):
+     impl = postgresql.JSON
 
-<pre><code>    class MyJsonType(TypeDecorator):
-        impl = postgresql.JSON
-
-        def coerce_compared_value(self, op, value):
-            return self.impl.coerce_compared_value(op, value)
+     def coerce_compared_value(self, op, value):
+         return self.impl.coerce_compared_value(op, value)
 </code></pre>
 
 <p>Without the above step, index operations such as <code>mycol['foo']</code>
-   will cause the index value <code>'foo'</code> to be JSON encoded.</p>
+will cause the index value <code>'foo'</code> to be JSON encoded.</p>
 </div>
 
 
@@ -2244,7 +2238,7 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
 
 <p>Subclasses override this method to return the
 value that should be passed along to the underlying
-:class:<code>.TypeEngine</code> object, and from there to the
+<code>.TypeEngine</code> object, and from there to the
 DBAPI <code>execute()</code> method.</p>
 
 <p>The operation could be anything desired to perform custom
@@ -2257,7 +2251,7 @@ this class.</p>
 
 <p>:param value: Data to operate upon, of any type expected by
  this method in the subclass.  Can be <code>None</code>.
-:param dialect: the :class:<code>.Dialect</code> in use.</p>
+:param dialect: the <code>.Dialect</code> in use.</p>
 </div>
 
 
@@ -2289,7 +2283,7 @@ fetched from the database.</p>
 <p>Subclasses override this method to return the
 value that should be passed back to the application,
 given a value that is already processed by
-the underlying :class:<code>.TypeEngine</code> object, originally
+the underlying <code>.TypeEngine</code> object, originally
 from the DBAPI cursor method <code>fetchone()</code> or similar.</p>
 
 <p>The operation could be anything desired to perform custom
@@ -2298,7 +2292,7 @@ This could also be used as a hook for validating logic.</p>
 
 <p>:param value: Data to operate upon, of any type expected by
  this method in the subclass.  Can be <code>None</code>.
-:param dialect: the :class:<code>.Dialect</code> in use.</p>
+:param dialect: the <code>.Dialect</code> in use.</p>
 
 <p>This operation should be designed to be reversible by
 the "process_bind_param" method of this class.</p>
@@ -2388,7 +2382,7 @@ the "process_bind_param" method of this class.</p>
 
             <div class="docstring"><p>A type for large binary byte data.</p>
 
-<p>The :class:<code>.LargeBinary</code> type corresponds to a large and/or unlengthed
+<p>The <code>.LargeBinary</code> type corresponds to a large and/or unlengthed
 binary type for the target platform, such as BLOB on MySQL and BYTEA for
 PostgreSQL.  It also handles the necessary conversions for the DBAPI.</p>
 </div>
@@ -2490,13 +2484,13 @@ the underlying type is kept in place.</p>
 </code></pre>
 
 <p>The class-level <code><a href="#JSONType.impl">impl</a></code> attribute is required, and can reference any
-:class:<code>.TypeEngine</code> class.  Alternatively, the :meth:<code><a href="#JSONType.load_dialect_impl">load_dialect_impl</a></code>
+<code>.TypeEngine</code> class.  Alternatively, the <code><a href="#JSONType.load_dialect_impl">load_dialect_impl</a></code>
 method can be used to provide different type classes based on the dialect
 given; in this case, the <code><a href="#JSONType.impl">impl</a></code> variable can reference
 <code>TypeEngine</code> as a placeholder.</p>
 
 <p>Types that receive a Python type that isn't similar to the ultimate type
-used may want to define the :meth:<code>TypeDecorator.coerce_compared_value</code>
+used may want to define the <code>TypeDecorator.coerce_compared_value</code>
 method. This is used to give the expression system a hint when coercing
 Python objects into bind parameters within expressions. Consider this
 expression::</p>
@@ -2531,7 +2525,7 @@ we define an "epoch" type that stores a date value as an integer::</p>
 "date" on the right side to also be treated as <code>MyEpochType</code>.</p>
 
 <p>This behavior can be overridden via the
-:meth:<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
+<code>~TypeDecorator.coerce_compared_value</code> method, which returns a type
 that should be used for the value of the expression. Below we set it such
 that an integer value will be treated as an <code>Integer</code>, and any other
 value is assumed to be a date and will be treated as a <code>MyEpochType</code>::</p>
@@ -2543,26 +2537,25 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
         return self
 </code></pre>
 
-<p>.. warning::</p>
+<p><em>Warning:</em>
+Note that the <strong>behavior of coerce_compared_value is not inherited
+by default from that of the base type</strong>.
+If the <code>.TypeDecorator</code> is augmenting a
+type that requires special logic for certain types of operators,
+this method <strong>must</strong> be overridden.  A key example is when decorating
+the <code>_postgresql.JSON</code> and <code>_postgresql.JSONB</code> types;
+the default rules of <code>.TypeEngine.coerce_compared_value</code> should
+be used in order to deal with operators like index operations::</p>
 
-<p>Note that the <strong>behavior of coerce_compared_value is not inherited
-   by default from that of the base type</strong>.
-   If the :class:<code>.TypeDecorator</code> is augmenting a
-   type that requires special logic for certain types of operators,
-   this method <strong>must</strong> be overridden.  A key example is when decorating
-   the :class:<code>_postgresql.JSON</code> and :class:<code>_postgresql.JSONB</code> types;
-   the default rules of :meth:<code>.TypeEngine.coerce_compared_value</code> should
-   be used in order to deal with operators like index operations::</p>
+<pre><code> class MyJsonType(TypeDecorator):
+     impl = postgresql.JSON
 
-<pre><code>    class MyJsonType(TypeDecorator):
-        impl = postgresql.JSON
-
-        def coerce_compared_value(self, op, value):
-            return self.impl.coerce_compared_value(op, value)
+     def coerce_compared_value(self, op, value):
+         return self.impl.coerce_compared_value(op, value)
 </code></pre>
 
 <p>Without the above step, index operations such as <code>mycol['foo']</code>
-   will cause the index value <code>'foo'</code> to be JSON encoded.</p>
+will cause the index value <code>'foo'</code> to be JSON encoded.</p>
 </div>
 
 
@@ -2589,7 +2582,7 @@ value is assumed to be a date and will be treated as a <code>MyEpochType</code>:
 
 <p>Subclasses override this method to return the
 value that should be passed along to the underlying
-:class:<code>.TypeEngine</code> object, and from there to the
+<code>.TypeEngine</code> object, and from there to the
 DBAPI <code>execute()</code> method.</p>
 
 <p>The operation could be anything desired to perform custom
@@ -2602,7 +2595,7 @@ this class.</p>
 
 <p>:param value: Data to operate upon, of any type expected by
  this method in the subclass.  Can be <code>None</code>.
-:param dialect: the :class:<code>.Dialect</code> in use.</p>
+:param dialect: the <code>.Dialect</code> in use.</p>
 </div>
 
 
@@ -2634,7 +2627,7 @@ fetched from the database.</p>
 <p>Subclasses override this method to return the
 value that should be passed back to the application,
 given a value that is already processed by
-the underlying :class:<code>.TypeEngine</code> object, originally
+the underlying <code>.TypeEngine</code> object, originally
 from the DBAPI cursor method <code>fetchone()</code> or similar.</p>
 
 <p>The operation could be anything desired to perform custom
@@ -2643,7 +2636,7 @@ This could also be used as a hook for validating logic.</p>
 
 <p>:param value: Data to operate upon, of any type expected by
  this method in the subclass.  Can be <code>None</code>.
-:param dialect: the :class:<code>.Dialect</code> in use.</p>
+:param dialect: the <code>.Dialect</code> in use.</p>
 
 <p>This operation should be designed to be reversible by
 the "process_bind_param" method of this class.</p>

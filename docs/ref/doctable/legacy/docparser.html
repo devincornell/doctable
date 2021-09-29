@@ -991,12 +991,16 @@
 
         </details>
 
-            <div class="docstring"><p>Apply preprocessing step, modifies and returns text.
-Args:
-    text (str): document as a text string
-    replace_url (str or None): if not None, replace url with string
-    replace_xml (str or None): if not None, replace xml tags with string
-    replace_digits (str or None): if not None, replace digits with string</p>
+            <div class="docstring"><p>Apply preprocessing step, modifies and returns text.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>text (str):</strong>  document as a text string</li>
+<li><strong>replace_url (str or None):</strong>  if not None, replace url with string</li>
+<li><strong>replace_xml (str or None):</strong>  if not None, replace xml tags with string</li>
+<li><strong>replace_digits (str or None):</strong>  if not None, replace digits with string</li>
+</ul>
 </div>
 
 
@@ -1057,19 +1061,23 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Extracts parsetree from spacy doc objects.
-Args:
-    doc (spacy.Doc object): doc to generate parsetree from.
-    parse_tok_func (func): function used to convert token to 
-        a string representation. Usually a lambda function 
-        wrapping some variant of self.parse_tok().
-    userdata_map (dict<str->func>): attribute to function 
-        mapping. Functions take a token and output a property
-        that will be stored in each parsetree node.
-    merge_ents (bool): merge multi-word entities.
-    spacy_ngram_matcher (Spacy Matcher): used to create ngrams
-        with Spacy. Powerful wildcards etc.
-    merge_noun_chunks (bool): merge noun chunks or not.</p>
+            <div class="docstring"><p>Extracts parsetree from spacy doc objects.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>doc (spacy.Doc object):</strong>  doc to generate parsetree from.</li>
+<li><strong>parse_tok_func (func):</strong>  function used to convert token to 
+a string representation. Usually a lambda function 
+wrapping some variant of self.parse_tok().</li>
+<li><strong>userdata_map (dict<str->func>):</strong>  attribute to function 
+mapping. Functions take a token and output a property
+that will be stored in each parsetree node.</li>
+<li><strong>merge_ents (bool):</strong>  merge multi-word entities.</li>
+<li><strong>spacy_ngram_matcher (Spacy Matcher):</strong>  used to create ngrams
+with Spacy. Powerful wildcards etc.</li>
+<li><strong>merge_noun_chunks (bool):</strong>  merge noun chunks or not.</li>
+</ul>
 </div>
 
 
@@ -1155,19 +1163,23 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Parse spacy doc object.
-Args:
-    split_sents (bool): parse into list of sentence tokens using doc.sents.
-    merge_ents (bool): merge multi_word entities into same token.
-    ngrams (iter<iter<str>&gt;): iterable of token tuples to merge after parsing.
-    spacy_ngram_matcher (spacy Matcher): matcher object to use on the spacy doc.
-        Normally will create using spacy.Matcher(nlp.vocab), see more details
-        at https://spacy.io/usage/rule-based-matching And also note that the 
-        nlp object must be the one used for parsing.
-    use_tok_func (func): func used to decide to keep func or not. Default is
-        cls.use_tok().
-    parse_tok_func (func): func used to parse tokens. By default uses 
-        cls.parse_tok().</p>
+            <div class="docstring"><p>Parse spacy doc object.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>split_sents (bool):</strong>  parse into list of sentence tokens using doc.sents.</li>
+<li><strong>merge_ents (bool):</strong>  merge multi_word entities into same token.</li>
+<li><strong>ngrams (iter<iter<str>&gt;):</strong>  iterable of token tuples to merge after parsing.</li>
+<li><strong>spacy_ngram_matcher (spacy Matcher):</strong>  matcher object to use on the spacy doc.
+Normally will create using spacy.Matcher(nlp.vocab), see more details
+at https://spacy.io/usage/rule-based-matching And also note that the 
+nlp object must be the one used for parsing.</li>
+<li><strong>use_tok_func (func):</strong>  func used to decide to keep func or not. Default is
+cls.use_tok().</li>
+<li><strong>parse_tok_func (func):</strong>  func used to parse tokens. By default uses 
+cls.parse_tok().</li>
+</ul>
 </div>
 
 
@@ -1237,20 +1249,24 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Convert spacy token object to string.
-Args:
-    tok (spacy token or span): token object to convert to string.
-    replace_num (str/None): Replace number following tok.like_num (includes "five", 
-        or 5) with a special token (i.e. __NUM__). None means no replacement.
-    replace_digit (str/None): Replace digit meeting tok.is_digit with special token. 
-        Only used when replace_num is None.
-    lemmatize (bool): return lemma instead of full word.
-    normal_convert (func): custom conversion function to happen as last step
-        for non-entities. This way can keep all other functionality.
-    format_ents (bool): Replace whitespace with space and capitalize first 
-        letter of ents.
-    ent_convert (func): custom conversion function to happen as last step
-        for entities. This way can keep all other functionality.</p>
+            <div class="docstring"><p>Convert spacy token object to string.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>tok (spacy token or span):</strong>  token object to convert to string.</li>
+<li><strong>replace_num (str/None):</strong>  Replace number following tok.like_num (includes "five", 
+or 5) with a special token (i.e. __NUM__). None means no replacement.</li>
+<li><strong>replace_digit (str/None):</strong>  Replace digit meeting tok.is_digit with special token. 
+Only used when replace_num is None.</li>
+<li><strong>lemmatize (bool):</strong>  return lemma instead of full word.</li>
+<li><strong>normal_convert (func):</strong>  custom conversion function to happen as last step
+for non-entities. This way can keep all other functionality.</li>
+<li><strong>format_ents (bool):</strong>  Replace whitespace with space and capitalize first 
+letter of ents.</li>
+<li><strong>ent_convert (func):</strong>  custom conversion function to happen as last step
+for entities. This way can keep all other functionality.</li>
+</ul>
 </div>
 
 
@@ -1312,13 +1328,17 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Decide to use token or not (can be overridden).
-Args:
-    no_whitespace (bool): exclude whitespace.
-    no_punct (bool): exclude punctuation.
-    no_num (bool): exclude numbers using tok.is_num.
-    no_digit (bool): exclude digits using tok.is_digit.
-    no_stop (bool): exclude stopwords.</p>
+            <div class="docstring"><p>Decide to use token or not (can be overridden).</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>no_whitespace (bool):</strong>  exclude whitespace.</li>
+<li><strong>no_punct (bool):</strong>  exclude punctuation.</li>
+<li><strong>no_num (bool):</strong>  exclude numbers using tok.is_num.</li>
+<li><strong>no_digit (bool):</strong>  exclude digits using tok.is_digit.</li>
+<li><strong>no_stop (bool):</strong>  exclude stopwords.</li>
+</ul>
 </div>
 
 
@@ -1474,17 +1494,21 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Parse text in paragraph by sentences.
-Args:
-    text (str): (preprocessed) text document to parse
-    nlp (spaCy parser): with .pipe() method to parse documents
-    parse_funcs (list<func>): convert doc to 
-    chunk_sents (int): number of sentences used in each chunk to 
-        be parsed. Max size for single spacy doc is 1 million 
-        chars. If av num chars per sent is 75-100, a size of
-        3000 means each chunk will have approx 300k characters.
-        Hopefully, on average small enough. Larger value means
-        more memory but faster processing.</p>
+            <div class="docstring"><p>Parse text in paragraph by sentences.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>text (str):</strong>  (preprocessed) text document to parse</li>
+<li><strong>nlp (spaCy parser):</strong>  with .pipe() method to parse documents</li>
+<li><strong>parse_funcs (list<func>):</strong>  convert doc to </li>
+<li><strong>chunk_sents (int):</strong>  number of sentences used in each chunk to 
+be parsed. Max size for single spacy doc is 1 million 
+chars. If av num chars per sent is 75-100, a size of
+3000 means each chunk will have approx 300k characters.
+Hopefully, on average small enough. Larger value means
+more memory but faster processing.</li>
+</ul>
 </div>
 
 
@@ -1573,23 +1597,31 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Distributes text parsing across multiple processes in chunks.
-Args:
-    texts (list): list of raw texts to process
-    spacynlp (spacy nlp object): for applying .pipe() to doc chunks
-    parsefunc (func): convert spacy doc object to storage represenation
-        By defaut uses <a href="#DocParser.tokenize_doc">DocParser.tokenize_doc()</a>.
-    preprocessfunc (func): process text before parsing. Uses 
-        <a href="#DocParser.preprocess">DocParser.preprocess()</a> by default.
-    dt_inst (doctable instance): if included, will pass to parsefunc as
-        second argument. Usually to do this, you'll create a function
-        which calls some overloaded version of .tokenize_doc() and then
-        calls dt_inst.insert() to place in database.
-    paragraph_sep (str or None): if defined, will distribute parsing across
-        paragraphs and leave paragraph structure of docs in nested lists.
-    workers (int): number of processes to create.
-Returns:
-    output of parsing</p>
+            <div class="docstring"><p>Distributes text parsing across multiple processes in chunks.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>texts (list):</strong>  list of raw texts to process</li>
+<li><strong>spacynlp (spacy nlp object):</strong>  for applying .pipe() to doc chunks</li>
+<li><strong>parsefunc (func):</strong>  convert spacy doc object to storage represenation
+By defaut uses <a href="#DocParser.tokenize_doc">DocParser.tokenize_doc()</a>.</li>
+<li><strong>preprocessfunc (func):</strong>  process text before parsing. Uses 
+<a href="#DocParser.preprocess">DocParser.preprocess()</a> by default.</li>
+<li><strong>dt_inst (doctable instance):</strong>  if included, will pass to parsefunc as
+second argument. Usually to do this, you'll create a function
+which calls some overloaded version of .tokenize_doc() and then
+calls dt_inst.insert() to place in database.</li>
+<li><strong>paragraph_sep (str or None):</strong>  if defined, will distribute parsing across
+paragraphs and leave paragraph structure of docs in nested lists.</li>
+<li><strong>workers (int):</strong>  number of processes to create.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>output of parsing</p>
+</blockquote>
 </div>
 
 

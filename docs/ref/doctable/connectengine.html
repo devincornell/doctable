@@ -645,14 +645,18 @@
 
         </details>
 
-            <div class="docstring"><p>Initializes sqlalchemy engine  and metadata objects.
-Args:
-    target: choose target database for connection.
-    echo: sets the echo status used in sqlalchemy.create_engine().
-        This will output every sql query upon execution.
-    connect_args: passed to sqlalchemy.create_engine() as the connect_args param.
-        See more options in the official docs:
-        https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine</p>
+            <div class="docstring"><p>Initializes sqlalchemy engine  and metadata objects.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>target:</strong>  choose target database for connection.</li>
+<li><strong>echo:</strong>  sets the echo status used in sqlalchemy.create_engine().
+This will output every sql query upon execution.</li>
+<li><strong>connect_args:</strong>  passed to sqlalchemy.create_engine() as the connect_args param.
+See more options in the official docs:
+https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine</li>
+</ul>
 </div>
 
 
@@ -892,9 +896,13 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Read schema information for single table.
-Returns:
-    dictionary</p>
+            <div class="docstring"><p>Read schema information for single table.</p>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>dictionary</p>
+</blockquote>
 </div>
 
 
@@ -919,9 +927,13 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Read schema information for table as pandas dataframe.
-Returns:
-    pandas dataframe</p>
+            <div class="docstring"><p>Read schema information for table as pandas dataframe.</p>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>pandas dataframe</p>
+</blockquote>
 </div>
 
 
@@ -1015,11 +1027,15 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Adds a table to the metadata. If columns not provided, creates by autoload.
-Args:
-    tabname (str): name of new table.
-    columns (list/tuple): column objects passed to sqlalchemy.Table
-    table_kwargs: passed to sqlalchemy.Table constructor.</p>
+            <div class="docstring"><p>Adds a table to the metadata. If columns not provided, creates by autoload.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>tabname (str):</strong>  name of new table.</li>
+<li><strong>columns (list/tuple):</strong>  column objects passed to sqlalchemy.Table</li>
+<li><strong>table_kwargs:</strong>  passed to sqlalchemy.Table constructor.</li>
+</ul>
 </div>
 
 
@@ -1082,10 +1098,14 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Drops table, either sqlalchemy object or by executing DROP TABLE.
-Args:
-    table (sqlalchemy.Table/str): table object or name to drop.
-    if_exists (bool): if true, won't throw exception if table doesn't exist.</p>
+            <div class="docstring"><p>Drops table, either sqlalchemy object or by executing DROP TABLE.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>table (sqlalchemy.Table/str):</strong>  table object or name to drop.</li>
+<li><strong>if_exists (bool):</strong>  if true, won't throw exception if table doesn't exist.</li>
+</ul>
 </div>
 
 

@@ -921,16 +921,19 @@ It is to be inhereted by a class actually defining the table schema for document
 
         </details>
 
-            <div class="docstring"><p>Args:
-    fname (str): filename of database
-    tabname (str): name of sqlite table to manipulate.
-    colschema (tuple of 2-tuples): list of colname, coltype columns
-    constraints (tuple of str): constraints to put on columns
-    verbose (bool): print querys before executing
-    persistent_conn (bool): keep a persistent sqlite3 connection to 
-        the db.
-    new_db (bool): create a new database file if one does not already 
-        exist. Prevents creation of new db if filename is mis-specified.</p>
+            <div class="docstring"><h6 id="args">Args</h6>
+
+<ul>
+<li><strong>fname (str):</strong>  filename of database</li>
+<li><strong>tabname (str):</strong>  name of sqlite table to manipulate.</li>
+<li><strong>colschema (tuple of 2-tuples):</strong>  list of colname, coltype columns</li>
+<li><strong>constraints (tuple of str):</strong>  constraints to put on columns</li>
+<li><strong>verbose (bool):</strong>  print querys before executing</li>
+<li><strong>persistent_conn (bool):</strong>  keep a persistent sqlite3 connection to 
+the db.</li>
+<li><strong>new_db (bool):</strong>  create a new database file if one does not already 
+exist. Prevents creation of new db if filename is mis-specified.</li>
+</ul>
 </div>
 
 
@@ -1039,13 +1042,20 @@ It is to be inhereted by a class actually defining the table schema for document
             <div class="docstring"><p>Adds a single entry where each column is identified by a key-value pair. 
     Will automatically convert python types to sqlite storage blobs using pickle.</p>
 
-<p>Inputs:
-    datadict: dictionary of column name -> value mappings
-    ifnotunique: choose what happens when an existing entry matches
-        any UNIQUE criteria specified in the schema.
-        Choose from ('REPLACE', 'IGNORE').
-Output:
-    query response</p>
+<h6 id="inputs">Inputs</h6>
+
+<blockquote>
+  <p>datadict: dictionary of column name -> value mappings
+  ifnotunique: choose what happens when an existing entry matches
+      any UNIQUE criteria specified in the schema.
+      Choose from ('REPLACE', 'IGNORE').</p>
+</blockquote>
+
+<h6 id="output">Output</h6>
+
+<blockquote>
+  <p>query response</p>
+</blockquote>
 </div>
 
 
@@ -1099,14 +1109,21 @@ Output:
     If "keys" is not specified, will use all columns (including autoincrement columns).
     Will automatically convert python types to sqlite storage blobs using pickle.</p>
 
-<p>Inputs:
-    data: lists of tuples representing data for each row
-    keys: column names corresponding to each tuple entry
-    ifnotunique: choose what happens when an existing entry matches
-        any UNIQUE criteria specified in the schema.
-        Choose from ('REPLACE', 'IGNORE').
-Output:
-    sqlite executemany query response</p>
+<h6 id="inputs">Inputs</h6>
+
+<blockquote>
+  <p>data: lists of tuples representing data for each row
+  keys: column names corresponding to each tuple entry
+  ifnotunique: choose what happens when an existing entry matches
+      any UNIQUE criteria specified in the schema.
+      Choose from ('REPLACE', 'IGNORE').</p>
+</blockquote>
+
+<h6 id="output">Output</h6>
+
+<blockquote>
+  <p>sqlite executemany query response</p>
+</blockquote>
 </div>
 
 
@@ -1143,12 +1160,18 @@ Output:
 
             <div class="docstring"><p>Deletes all rows matching the where criteria.</p>
 
-<p>Inputs:
-    where: if "*" is specified, will drop all rows. Otherwise
-        is fed directly into the query statement.</p>
+<h6 id="inputs">Inputs</h6>
 
-<p>Output:
-    query response</p>
+<blockquote>
+  <p>where: if "*" is specified, will drop all rows. Otherwise
+      is fed directly into the query statement.</p>
+</blockquote>
+
+<h6 id="output">Output</h6>
+
+<blockquote>
+  <p>query response</p>
+</blockquote>
 </div>
 
 
@@ -1192,14 +1215,21 @@ Output:
 
             <div class="docstring"><p>Updates rows matching the "where" string with specified values.</p>
 
-<p>Inputs:
-    values: dictionary of field->values. all rows which meet the where criteria 
-        will have these values assigned
-    where: literal SQLite "where" string corresponding to column criteria for 
-        value replacement.
-        The value "*" will match all rows by omitting WHERE statement.
-Output:
-    query response</p>
+<h6 id="inputs">Inputs</h6>
+
+<blockquote>
+  <p>values: dictionary of field->values. all rows which meet the where criteria 
+      will have these values assigned
+  where: literal SQLite "where" string corresponding to column criteria for 
+      value replacement.
+      The value "*" will match all rows by omitting WHERE statement.</p>
+</blockquote>
+
+<h6 id="output">Output</h6>
+
+<blockquote>
+  <p>query response</p>
+</blockquote>
 </div>
 
 
@@ -1272,19 +1302,22 @@ Output:
 
             <div class="docstring"><p>Query rows from database as generator.</p>
 
-<p>Inputs:
-    sel: list of fields to retrieve with the query
-    where: literal SQLite "where" string corresponding to criteria for 
-        value replacement.
-    orderby: literal sqlite order by command value. Can be "column_1 ASC",
-        or order by multiple columns using, for instance, "column_1 ASC, column_2 DESC"
-    limit: number of rows to retrieve before stopping query. Can be used for quick testing.
-    table: table name to retrieve for. Default is object table name, but can query from 
-        others here.
-    verbose: True/False flag indicating whether or not output should appear.
-    asdict: True/False flag indicating whether rows should be returned as 
-        lists (False) or as dicts with field names (True &amp; default).
-    kwargs: to be sent to self.query().</p>
+<h6 id="inputs">Inputs</h6>
+
+<blockquote>
+  <p>sel: list of fields to retrieve with the query
+  where: literal SQLite "where" string corresponding to criteria for 
+      value replacement.
+  orderby: literal sqlite order by command value. Can be "column_1 ASC",
+      or order by multiple columns using, for instance, "column_1 ASC, column_2 DESC"
+  limit: number of rows to retrieve before stopping query. Can be used for quick testing.
+  table: table name to retrieve for. Default is object table name, but can query from 
+      others here.
+  verbose: True/False flag indicating whether or not output should appear.
+  asdict: True/False flag indicating whether rows should be returned as 
+      lists (False) or as dicts with field names (True &amp; default).
+  kwargs: to be sent to self.query().</p>
+</blockquote>
 </div>
 
 
@@ -1321,8 +1354,11 @@ Output:
 
             <div class="docstring"><p>Query rows from database, return as Pandas DataFrame.</p>
 
-<p>Inputs:
-    See inputs for self.get().</p>
+<h6 id="inputs">Inputs</h6>
+
+<blockquote>
+  <p>See inputs for self.get().</p>
+</blockquote>
 </div>
 
 
