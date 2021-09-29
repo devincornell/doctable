@@ -18,7 +18,7 @@ import time
 
 
 @dataclasses.dataclass
-class Worker:
+class WorkerProcess:
     '''Basic worker meant to be run in a process.'''
     pipe: multiprocessing.Pipe
     userfunc: UserFunc = None
