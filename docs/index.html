@@ -115,8 +115,8 @@
         <ol>
           <li>Create a schema object using the <code>@doctable.schema</code> decorator. In addition to providing the schema definition, this class operates much like a dataclass to encapsulate your retrieved or inserted data. See the <a href="examples/doctable_schema.html">schema guide</a> for more details.</li>
           <li>Define the interface to your data model by creating a class that inherits from <a href="#DocTable"><code>DocTable</code></a>. The base class provides methods for inserting, retrieving, and changing database rows.</li>
-          <li>Develop a text parsing pipeline using a <a href="#ParsePipeline"><code>ParsePipeline</code></a> class. This class can distribute your text parsing across multiple processes, and can be used to create <code>ParseTree</code> objects to be stored in your database.</li>
           <li>Merge your parsed text with relevant document metadata and use your <code>DocTable</code> interface to store and retrieve data from the database.</li>
+          <li>Develop a text parsing pipeline using <a href="#ParsePipeline"><code>ParsePipeline</code></a>. This class can distribute your text parsing across multiple processes, and can be used to create <code>ParseTree</code> objects to be stored in your database.</li>
         </ol>
 
         <hr/>
@@ -144,7 +144,6 @@
           <li>Concurrent connections: 
             <i><a href="examples/doctable_concurrency.html">guide to concurrent connections</a></i>
           </li>
-          <li>Query result containers: <i><a href="examples/doctable_custom_containers.html">custom result container example</a></i></li>
           <li>Store python objects: 
             <i><a href="examples/doctable_file_column_types.html">pickle and text file columntypes</a></i> /
             <i><a href="examples/doctable_parsetreedoc_column.html">parsetree file column type</a></i>
