@@ -56,7 +56,6 @@
               <a class="dropdown-item" href="examples/doctable_picklefile.html">File Column Types</a>
               <a class="dropdown-item" href="examples/doctable_multitable.html">Relational DocTables</a>
               <a class="dropdown-item" href="examples/doctable_concurrency.html">Concurrency and DocTables</a>
-              <a class="dropdown-item" href="examples/doctable_bootstrap.html">Bootstrapping Documents</a>
               <hr/>
               <a class="dropdown-item" href="examples/parse_basics.html">ParsePipeline Overview</a>
               <a class="dropdown-item" href="examples/distributed_basics.html">Distributed Processing</a>
@@ -113,7 +112,7 @@
         <p>This package allows you to interface with database tables as objects, and provides tools for building parsing pipelines and storing parsetree objects. See the <a href="examples/example_nss_1_intro.html">vignette example</a> for more details. A typical workflow will follow these steps:</p>
         
         <ol>
-          <li>Create a schema object using the <code>@doctable.schema</code> decorator. In addition to providing the schema definition, this class operates much like a dataclass to encapsulate your retrieved or inserted data. See the <a href="examples/doctable_schema.html">schema guide</a> for more details.</li>
+          <li>Create a schema definition using the <code>@doctable.schema</code> decorator. In addition to providing the schema definition for the table, this class operates much like a dataclass to encapsulate your retrieved or inserted data. See the <a href="examples/doctable_schema.html">schema guide</a> for more details.</li>
           <li>Define the interface to your data model by creating a class that inherits from <a href="#DocTable"><code>DocTable</code></a>. The base class provides methods for inserting, retrieving, and changing database rows.</li>
           <li>Merge your parsed text with relevant document metadata and use your <code>DocTable</code> interface to store and retrieve data from the database.</li>
           <li>Develop a text parsing pipeline using <a href="#ParsePipeline"><code>ParsePipeline</code></a>. This class can distribute your text parsing across multiple processes, and can be used to create <code>ParseTree</code> objects to be stored in your database.</li>
