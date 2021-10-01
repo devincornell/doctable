@@ -64,7 +64,7 @@ class ConnectEngine:
         
     ######################### Core Methods ######################    
     def execute(self, query:str, **kwargs) -> sqlalchemy.engine.ResultProxy:
-        ''' Open temporary connection and execute query.
+        '''Execute query using a temporary connection.
         '''
         return self._engine.execute(query, **kwargs)
         
