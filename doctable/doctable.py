@@ -48,9 +48,9 @@ class DocTable:
             schema: Type[DocTableSchema] = None, 
             indices: Sequence[sqlalchemy.Index] = None, 
             constraints: Sequence[Constraint] = None,
-            dialect: str = 'sqlite', engine=None, 
+            dialect: str = 'sqlite', engine: str = None, 
             readonly: bool = False, new_db: bool = False, new_table: bool = True, 
-            persistent_conn: bool = True, verbose: bool = False, **engine_kwargs):
+            persistent_conn: bool = False, verbose: bool = False, **engine_kwargs):
         '''Create new database.
         Args:
             target: filename for database to connect to. ":memory:" is a 
@@ -59,7 +59,7 @@ class DocTable:
                 if it does not exist and new_db==True, and add a new table using
                 specified schema if new_table==True.
             tabname: table name for this specific doctable.
-            schem: schema class defined using the @doctable.schema decorator. 
+            schema: schema class defined using the @doctable.schema decorator. 
                 Defines the database schema and can also encapsulate rows 
                 retrieved from the database.
             indices: sequence of sqlalchemy Index objects used to create
@@ -70,7 +70,6 @@ class DocTable:
             dialect: database engine through which to construct db.
                 For more info, see sqlalchemy dialect info:
                 https://docs.sqlalchemy.org/en/13/dialects/
-            
             readonly: Prevents user from calling insert(), delete(), or 
                 update(). Will not block other sql possible commands.
             new_db: Indicate if new db file should be created given 
@@ -202,7 +201,9 @@ class DocTable:
                                              new_table=self._new_table)
         
         # connect to database
-        self._conn = self._engine.connect()
+        self._conn = None
+        if self.persistent_conn:
+            self._conn = self._engine.connect()
         
     def __del__(self):
         ''' Closes database connection to prevent locking db.
@@ -214,12 +215,20 @@ class DocTable:
         #self.close_conn()
         pass
 
-        
-    
-    #################### Connection Methods ###################
+    #################### Connections / Context Manager ###################
+    def __enter__(self):
+        '''Opens database connection if does not exist yet.
+        '''
+        self.open_conn()
+
+    def __exit__(self):
+        '''Closes database connection.
+        '''
+        self.close_conn()
     
     def close_conn(self):
-        ''' Closes connection to db (if one exists). '''
+        ''' Closes connection to db (if one exists).
+        '''
         if self._conn is not None:
             self._conn.close()
             self._conn = None
