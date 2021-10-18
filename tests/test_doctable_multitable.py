@@ -30,7 +30,8 @@ class Child(doctable.DocTable):
     )
     
 def test_foreignkeys():
-    eng = doctable.ConnectEngine(target=':memory:', echo=False, foreign_keys=True)
+    tempfolder = doctable.TempFolder('tmp')
+    eng = doctable.ConnectEngine(target='tmp/1239087.db', new_db=True, foreign_keys=True)
     pdb = Parent(engine=eng)
     cdb = Child(engine=eng)
     print(cdb.list_tables())
