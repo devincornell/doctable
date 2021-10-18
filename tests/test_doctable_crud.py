@@ -3,7 +3,8 @@ from time import time
 
 
 import sys
-sys.path.append('../..')
+#sys.path.append('../..')
+sys.path.append('..')
 import doctable
 
 def make_db():
@@ -71,6 +72,13 @@ def test_select_iter_basic():
         #print(dr['title'] , row['title'])
         assert(dr['title'] == row['title'])
         assert(dr['age'] == row['age'])
+
+    print(f'query by id')
+    k = 5
+    test_ids = db.select('id', limit=k)
+    selected_rows = db.select_by_id('id', test_ids, cols='id')
+    print(selected_rows)
+    assert(len(set(selected_rows)) == k)
     
     print('query one, check num results (be sure to start with empty db)')
     assert(len(list(db.select())) == len(dictrows))
