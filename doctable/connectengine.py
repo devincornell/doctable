@@ -12,11 +12,14 @@ class ConnectEngine:
     def __init__(self, target: str = None, dialect:str = 'sqlite', new_db: bool = False, 
                     foreign_keys: bool = False, timeout: int = None, echo: bool = False, 
                     **engine_kwargs):
-        ''' Initializes sqlalchemy engine  and metadata objects.
+        '''Initializes sqlalchemy engine  and metadata objects.
             Args:
                 target: choose target database for connection.
-                echo: sets the echo status used in sqlalchemy.create_engine().
-                    This will output every sql query upon execution.
+                dialect: dialect for database connection
+                new_db: create a new database if one does not exist
+                foreign_keys: enable foreign keys when executing or creating connection
+                timeout: max time to wait for other query to execute before raising exception
+                echo: print out the sql query when executing
                 engine_kwargs: passed directly to sqlalchemy.create_engine().
                     See more options in the official docs:
                     https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine
@@ -46,9 +49,6 @@ class ConnectEngine:
         self._engine = sqlalchemy.create_engine(self._connstr, echo=self._echo, **engine_kwargs)
         self._metadata = sqlalchemy.MetaData(bind=self._engine)
 
-        if self._foreign_keys:
-            self.execute('pragma foreign_keys=ON')
-
         # add other tables that exist in the database already
         self.add_existing_tables()
         
@@ -62,9 +62,11 @@ class ConnectEngine:
         
     ######################### Core Methods ######################    
     def execute(self, query:str, **kwargs) -> sqlalchemy.engine.ResultProxy:
-        ''' Open temporary connection and execute query.
+        ''' Open temporary connection and execute query (also enable foreign keys if requested).
         '''
-        return self._engine.execute(query, **kwargs)
+        conn = self.connect()
+        self.check_enable_foreign_keys(conn)
+        return conn.execute(query, **kwargs)
         
     ######################### Convenient Properties ######################
     @property
@@ -97,7 +99,9 @@ class ConnectEngine:
     def connect(self) -> sqlalchemy.engine.Connection:
         ''' Open new connection in engine connection pool.
         '''
-        return self._engine.connect()
+        conn = self._engine.connect()
+        self.check_enable_foreign_keys(conn)
+        return conn
     
     def reopen(self) -> sqlalchemy.engine.ResultProxy:
         ''' Deletes all connections and clears metadata.
@@ -118,9 +122,16 @@ class ConnectEngine:
             return None
     
     def clear_metadata(self) -> None:
+        '''Remove metadata of all tables.
+        '''
         for table in self._metadata.sorted_tables:
             self.remove_table(table)
-    
+
+    def check_enable_foreign_keys(self, conn: sqlalchemy.engine.Connection):
+        '''Enable foreign keys on provided connection if foreign keys enabled.
+        '''
+        if self._foreign_keys:
+            return conn.execute('PRAGMA foreign_keys=ON')
     
     ######################### Table Management ######################
     
