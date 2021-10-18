@@ -7,7 +7,7 @@ import os
 from glob import glob
 from datetime import datetime
 import typing
-from typing import Union, Mapping, Sequence, Tuple, Set, List, Type
+from typing import Union, Mapping, Sequence, Tuple, Set, List, Type, Any
 import dataclasses
 
 # operators like and_, or_, and not_, functions like sum, min, max, etc
@@ -19,6 +19,7 @@ from .models import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
 from .schemas import parse_schema_strings, parse_schema_dataclass, DocTableSchema, Constraint
+from .util import chunk
 
 DEFAULT_TABNAME = '_documents_'
 
@@ -506,6 +507,21 @@ class DocTable:
         
         sel = self.select(col, *args, **kwargs)
         return pd.Series(sel)
+
+    def select_by_id(self, id_col: str, ids: List[Any], chunk_size: int = 500, /, **select_kwargs) -> List[Any]:
+        '''Select rows by unique ids in chunks so many ids can be selected.
+        Args:
+            id_col: column to select ids on.
+            ids: ids to select for
+            chunk_size: size of id chunks to select on
+            select_kwargs: passed to .select() method
+        Returns:
+            List[Any]
+        '''
+        all_rows = list()
+        for id_chunk in chunk(ids, chunk_size=chunk_size):
+            all_rows += self.select(where=self[id_col].in_(id_chunk), **select_kwargs)
+        return all_rows
     
     def _exec_select_query(self, cols, where, orderby, groupby, limit, wherestr, offset, from_obj, **kwargs):
         
