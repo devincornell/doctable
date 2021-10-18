@@ -76,7 +76,7 @@ def test_select_iter_basic():
     print(f'query by id')
     k = 5
     test_ids = db.select('id', limit=k)
-    selected_rows = db.select_by_id('id', test_ids, cols='id')
+    selected_rows = db.select_from_set('id', test_ids, cols='id')
     print(selected_rows)
     assert(len(set(selected_rows)) == k)
     
