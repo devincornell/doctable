@@ -74,7 +74,7 @@ class DocTable:
                 For more info, see sqlalchemy dialect info:
                 https://docs.sqlalchemy.org/en/13/dialects/
             readonly: Prevents user from calling insert(), delete(), or 
-                update(). Will not block other sql possible commands.
+                update(). Will not block other sql commands that modify db.
             new_db: Indicate if new db file should be created given 
                 that a schema is provided and the db file doesn't exist.
             new_table: Allow doctable to create a new table if one 
@@ -84,9 +84,9 @@ class DocTable:
                 query.
             verbose: Print every sql command before executing.
             engine_kwargs: Pass directly to the sqlalchemy
-                .create_engine(). Args typically vary by dialect.
-                Example: connect_args={'timeout': 15} for sqlite
-                or connect_args={'connect_timeout': 15} for PostgreSQL.
+                .create_engine(). Args typically vary by dialect. For example,
+                you might use an argument like this:
+                connect_args={'timeout': 15}} (sets timeout for sqlite).
         '''
         arg_defaults = {
             # connection info
