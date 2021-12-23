@@ -36,15 +36,16 @@
           </li>
           
           <li class="nav-item">
+            <a class="nav-link" href="ref/doctable.html">Docs</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="https://github.com/devincornell/doctable">GitHub</a>
           </li>
 		      <li class="nav-item">
             <a class="nav-link" href="https://pypi.org/project/doctable/">PyPi</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="ref/">Docs</a>
-          </li>
 
+          <!--
 		      <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Examples</a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -56,13 +57,14 @@
               <a class="dropdown-item" href="examples/doctable_picklefile.html">File Column Types</a>
               <a class="dropdown-item" href="examples/doctable_multitable.html">Relational DocTables</a>
               <a class="dropdown-item" href="examples/doctable_concurrency.html">Concurrency and DocTables</a>
-              <a class="dropdown-item" href="examples/doctable_bootstrap.html">Bootstrapping Documents</a>
               <hr/>
               <a class="dropdown-item" href="examples/parse_basics.html">ParsePipeline Overview</a>
               <a class="dropdown-item" href="examples/distributed_basics.html">Distributed Processing</a>
             </div>
           </li>
+          -->
 
+          <!--
 		      <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">API</a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -79,11 +81,9 @@
               <a class="dropdown-item" href="ref/doctable/util/fsstore.html">FSStore</a>
               <a class="dropdown-item" href="ref/doctable/util/tempfolder.html">TempFolder</a>
               <a class="dropdown-item" href="ref/doctable/util/io.html">I/O</a>
-
-              <!--<div class="dropdown-divider"></div>-->
-              <!--<a class="dropdown-item" href="#">Something else here</a>-->
             </div>
           </li>
+          -->
         </ul>
       </div>
     </div>
@@ -95,7 +95,7 @@
       <div class="row h-100 align-items-center">
         <div class="col-lg-12">
           <h3 class="display-4 text-white mt-5 mb-2">Databases for text analysis</h3>
-          <p class="lead mb-5 text-white-50"><span style='font-family: "Lucida Console", Monaco, monospace;'>doctable</span> is a python package for parsing, storing, and accessing text documents in databases.</p>
+          <p class="lead mb-5 text-white-50"><span style='font-family: "Lucida Console", Monaco, monospace;'>doctable</span> is a python package for designing and manipulating database tables through an object-oriented interface without the overhead of ORM.</p>
 		      <img src="diagram.svg" style="width:60%"/>
         </div>
       </div>
@@ -109,13 +109,28 @@
       <div class="col-md-8 mb-5">
         <!--<br/>-->
         <!--<h2>Here's the thing.</h2>-->
+
+        <p>This package allows you to interface with database tables as objects without the overhead of ORM, and provides tools for building parsing pipelines and storing parsetree objects. See the <a href="examples/example_nss_1_intro.html">vignette example</a> for more details. A typical workflow will follow these steps:</p>
+        
+        <ol>
+          <li>Create a schema definition using the <code>@doctable.schema</code> decorator. In addition to providing the schema definition for the table, this class operates much like a dataclass to encapsulate your retrieved or inserted data. See the <a href="examples/doctable_schema.html">schema guide</a> for more details.</li>
+          <li>Define the interface to your data model by creating a class that inherits from <a href="#DocTable"><code>DocTable</code></a>. The base class provides methods for inserting, retrieving, and changing database rows.</li>
+          <li>Merge your parsed text with relevant document metadata and use your <code>DocTable</code> interface to store and retrieve data from the database.</li>
+          <li>Develop a text parsing pipeline using <a href="#ParsePipeline"><code>ParsePipeline</code></a>. This class can distribute your text parsing across multiple processes, and can be used to create <code>ParseTree</code> objects to be stored in your database.</li>
+        </ol>
+
+        <hr/>
+        <h5>Install</h5>
         <pre><code>pip install doctable</code></pre>
         <pre><code>pip install --upgrade git+https://github.com/devincornell/doctable.git@master</code></pre>
 
         <hr/>
-        <h3>DocTable Objects <a class="btn btn-outline-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> <a class="btn btn-outline-primary btn-sm" href="ref/doctable/doctable.html">API &raquo;</a></h3>
-        <p>Object-oriented interface for querying and manipulating a single database table.</p>
-        <h5>Examples</h5>
+        <h3 id='DocTable'><pre>DocTable</pre> 
+          <a class="btn btn-outline-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> 
+          <a class="btn btn-outline-primary btn-sm" href="ref/doctable/doctable.html">API &raquo;</a> 
+          <a class="btn btn-outline-primary btn-sm" href="examples/example_nss_1_intro.html">Vignette &raquo;</a></h3>
+        <p>Object-oriented interface for querying and manipulating database tables.</p>
+        <!--<h5>Examples</h5>-->
         <ul>
           <li>Make schemas: <i><a href="examples/doctable_schema.html">schema guide</a></i> /
             <i><a href="examples/dataclass_example.html">dataclass schema example.</a></i>
@@ -129,34 +144,48 @@
           <li>Concurrent connections: 
             <i><a href="examples/doctable_concurrency.html">guide to concurrent connections</a></i>
           </li>
-          <li>Query result containers: <i><a href="examples/doctable_custom_containers.html">custom result container example</a></i></li>
           <li>Store python objects: 
-            <i><a href="examples/TODO.html">Pickle column types</a></i> /
-            <i><a href="examples/TODO.html">Pickle and text file types</a></i> /
-            <i><a href="examples/TODO.html">parsetree file type</a></i>
+            <i><a href="examples/doctable_file_column_types.html">pickle and text file columntypes</a></i> /
+            <i><a href="examples/doctable_parsetreedoc_column.html">parsetree file column type</a></i>
           </li>
           <li>Manage low-level connections: <i><a href="examples/doctable_connectengine.html">ConnectEngine examples</a></i></li>
           <li>Bootstrap documents: <i><a href="examples/doctable_bootstrap.html">DocBootstrap examples</a></i></li>
         </ul>
         <br/><hr/>
 
-        <h3>Parsing Pipelines <a class="btn btn-outline-primary btn-sm" href="examples/parse_basics.html">Overview &raquo;</a></h3>
+        <h3 id='ParsePipeline'><pre>ParsePipeline</pre><a class="btn btn-outline-primary btn-sm" href="examples/parse_parsepipeline.html">Overview &raquo;</a></h3>
         <p>Various tools for parsing and storing documents into databases.</p>
-        <h6>Related functionality</h6>
+        <!--<h5>Examples</h5>-->
         <ul>
-          <li><b>ParsePipeline</b>: manages parallelized parsing pipelines using custom functions or pre-built doctable components.
-            (<i><a href="examples/parse_basics.html">overview</a></i> / 
-            <i><a href="ref/doctable/parse/parsefuncs.html">components</a></i> / 
-            <i><a href="ref/doctable/parse/pipeline.html">api</a></i>)
+          <li>Create pipelines: <code>ParsePipeline</code> 
+            <i><a href="examples/parse_parsepipeline.html">overview</a></i> /
+            <i><a href="ref/doctable/parse/pipeline.html">API</a></i>
           </li>
-          <li><b>ParseTree</b>: minimal container for storing and manipulating parsetree objects. 
-            (<i><a href="ref/doctable/parse/parsetree.html">api</a></i>)
+          <li>Parse functions: 
+            <i><a href="ref/doctable/parse/parsefuncs.html">parse function api</a></i>
           </li>
+          <li>Work with parsetrees: 
+            <i><a href="examples/parse_parsetrees.html">parsetree examples</a></i> /
+            <i><a href="ref/doctable/parse/parsetree.html">ParseTree API</a></i> /
+            <i><a href="ref/doctable/parse/documents/parsetreedoc.html">ParseTreeDoc API</a></i>
+          </li>
+        </ul>
+        <br/><hr/>
+
+        <h3 id='other_utilities'>Other Utilities</h3>
+        <p><code>doctable</code> includes a number of other tools for text analysis and database management.</p>
+        <ul>
+          <!--<li><a href="ref/doctable/util/distribute.html">Distribute</a>: distributed processing interface similar to that used by <code>multiprocessing</code> 
+              (<a href="examples/distributed_basics.html">example</a>).</li>-->
+          <li><a href="ref/doctable/util/timer.html">Timer</a>: used to time function calls and log your scripts at different stages.</li>
+          <li><a href="ref/doctable/util/fsstore.html">FSStore</a>: interact with data rows directly on the filesystem. Great for parallel processing.</li>
+          <li><a href="ref/doctable/util/tempfolder.html">TempFolder</a>: create temporary folder that will be deleted upon garbage collection.</li>
+          <!--<li><a href="ref/doctable/util/io.html">I/O</a>: thin read/write interfaces.</li>-->
         </ul>
         <br/><hr/>
         
 
-        <h3>Vignette: US National Security Strategy Documents</h3>
+        <h3 id='nss_vignette'>Vignette: US National Security Strategy Documents</h3>
         <p>This demonstration shows a typical DocTable workflow. We show how to create a new DocTable, insert NSS document text and metadata, and parse data for storage in the table.</p>
         <a class="btn btn-primary btn-sm" href="examples/example_nss_1_intro.html">See NSS Example &raquo;</a>
         <br/><hr/>
@@ -172,11 +201,12 @@
       </div>
 
       <div class="col-md-4 mb-5">
-        <h2>Devin J. Cornell</h2>
+        <h6>Created by</h6>
+        <h3><a href='https://devinjcornell.com'>Devin J. Cornell</a></h3>
         <hr>
 		  <p>Devin uses computational methods to study cultural processes through which organizations and individuals produce meaning.</p>
-          <a href='https://devincornell.github.io/'>Webpage</a><br/>
-		  <a href='https://dcornellresearch.org'>Research Blog</a><br/>
+          <!--<a href='https://devinjcornell.com'>Webpage</a><br/>
+		  <a href='https://dcornellresearch.org'>Research Blog</a><br/>-->
 		  <a href='https://twitter.com/Devin_Cornell'>Twitter @devin_cornell</a>
 		  <img src="https://storage.googleapis.com/public_data_09324832787/profile_photo_square.png" alt="" style="width:200px;height:200px;"/>
       </div>

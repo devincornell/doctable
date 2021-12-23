@@ -14355,11 +14355,11 @@ a.anchor-link {
 <span class="c1"># use Distribute(3) to create three separate processes</span>
 <span class="n">nums</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
 <span class="k">with</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Distribute</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
-    <span class="o">%</span><span class="k">time</span> res = d.map_chunk(multiply_nums, nums)
+    <span class="n">res</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">map_chunk</span><span class="p">(</span><span class="n">multiply_nums</span><span class="p">,</span> <span class="n">nums</span><span class="p">)</span>
 
 <span class="c1"># won&#39;t create new process at all. good for testing</span>
 <span class="k">with</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Distribute</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
-    <span class="o">%</span><span class="k">time</span> res = d.map_chunk(multiply_nums, nums)
+    <span class="n">res</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">map_chunk</span><span class="p">(</span><span class="n">multiply_nums</span><span class="p">,</span> <span class="n">nums</span><span class="p">)</span>
 <span class="n">res</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
 </pre></div>
 

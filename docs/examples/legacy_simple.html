@@ -14270,7 +14270,7 @@ a.anchor-link {
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 <span class="kn">from</span> <span class="nn">timeit</span> <span class="kn">import</span> <span class="n">default_timer</span> <span class="k">as</span> <span class="n">timer</span>
-<span class="kn">from</span> <span class="nn">dt1_helper</span> <span class="kn">import</span> <span class="n">get_sklearn_newsgroups</span>
+<span class="kn">from</span> <span class="nn">.legacy_helper</span> <span class="kn">import</span> <span class="n">get_sklearn_newsgroups</span> <span class="c1"># for this example</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
@@ -14319,9 +14319,11 @@ a.anchor-link {
 <pre>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
 RangeIndex: 11314 entries, 0 to 11313
 Data columns (total 3 columns):
-filename    11314 non-null object
-target      11314 non-null object
-text        11314 non-null object
+ #   Column    Non-Null Count  Dtype 
+---  ------    --------------  ----- 
+ 0   filename  11314 non-null  object
+ 1   target    11314 non-null  object
+ 2   text      11314 non-null  object
 dtypes: object(3)
 memory usage: 265.3+ KB
 None
@@ -14362,19 +14364,19 @@ None
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
+      <th>0</th>
       <td>21379</td>
       <td>soc.religion.christian</td>
       <td>From: kbanner@philae.sas.upenn.edu (Ken Banner...</td>
     </tr>
     <tr>
-      <td>1</td>
+      <th>1</th>
       <td>20874</td>
       <td>soc.religion.christian</td>
       <td>From: simon@monu6.cc.monash.edu.au\nSubject: S...</td>
     </tr>
     <tr>
-      <td>2</td>
+      <th>2</th>
       <td>58936</td>
       <td>sci.med</td>
       <td>From: jeffp@vetmed.wsu.edu (Jeff Parke)\nSubje...</td>
@@ -14400,12 +14402,12 @@ In moving your data from DataFrame to DocTable, you should consider column data 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># this class will represent the doctable. It inherits from DocTable a number of add/query/remove functions.</span>
 <span class="c1"># of course, you can add any additional methods to this class definition as you find useful.</span>
-<span class="k">class</span> <span class="nc">SimpleNewsGroups</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">SimpleNewsGroups</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">DocTableLegacy</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">            This includes examples of init variables. See DocTable class for complete list of options.</span>
@@ -14445,7 +14447,7 @@ In moving your data from DataFrame to DocTable, you should consider column data 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sng</span> <span class="o">=</span> <span class="n">SimpleNewsGroups</span><span class="p">(</span><span class="s1">&#39;simple_news_group.db&#39;</span><span class="p">)</span>
@@ -14489,7 +14491,7 @@ In moving your data from DataFrame to DocTable, you should consider column data 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># adds data one row at a time. Takes longer than bulk version</span>
@@ -14520,7 +14522,7 @@ In moving your data from DataFrame to DocTable, you should consider column data 
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>2366.1215798929334 mil sec.
+<pre>1629.2546929325908 mil sec.
 &lt;Documents ct: 11314&gt;
 </pre>
 </div>
@@ -14533,7 +14535,7 @@ In moving your data from DataFrame to DocTable, you should consider column data 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># adds tuple data in bulk by specifying columns we are adding</span>
@@ -14564,7 +14566,7 @@ In moving your data from DataFrame to DocTable, you should consider column data 
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>1893.8379744067788 mil sec.
+<pre>1269.7400120086968 mil sec.
 &lt;Documents ct: 22628&gt;
 </pre>
 </div>
@@ -14585,7 +14587,7 @@ In moving your data from DataFrame to DocTable, you should consider column data 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">sng</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -14632,7 +14634,7 @@ From: jeff@mri.com (Jon
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">result_df</span> <span class="o">=</span> <span class="n">sng</span><span class="o">.</span><span class="n">getdf</span><span class="p">(</span>
@@ -14642,6 +14644,99 @@ From: jeff@mri.com (Jon
     <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">result_df</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>file_id</th>
+      <th>raw_text</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>72052</td>
+      <td>From: ivan@erich.triumf.ca (Ivan D. Reid)\nSub...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>72052</td>
+      <td>From: ivan@erich.triumf.ca (Ivan D. Reid)\nSub...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>101725</td>
+      <td>Subject: Re: Lexan Polish?\nFrom: jeff@mri.com...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>101725</td>
+      <td>Subject: Re: Lexan Polish?\nFrom: jeff@mri.com...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>102616</td>
+      <td>From: blgardne@javelin.sim.es.com (Dances With...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Updating-Data-in-DocTable">Updating Data in DocTable<a class="anchor-link" href="#Updating-Data-in-DocTable">&#182;</a></h2><p>The ".update()" function will change entries in the DocTable.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sng</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;category&#39;</span><span class="p">:</span><span class="s1">&#39;nevermind&#39;</span><span class="p">,},</span><span class="n">where</span><span class="o">=</span><span class="s1">&#39;file_id == &quot;103121&quot;&#39;</span><span class="p">)</span>
+<span class="n">sng</span><span class="o">.</span><span class="n">getdf</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="s1">&#39;file_id == &quot;103121&quot;&#39;</span><span class="p">)</span> <span class="c1"># to see update, look at &quot;category&quot; column entry</span>
 </pre></div>
 
      </div>
@@ -14680,99 +14775,6 @@ From: jeff@mri.com (Jon
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>file_id</th>
-      <th>raw_text</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>72052</td>
-      <td>From: ivan@erich.triumf.ca (Ivan D. Reid)\nSub...</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>72052</td>
-      <td>From: ivan@erich.triumf.ca (Ivan D. Reid)\nSub...</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>101725</td>
-      <td>Subject: Re: Lexan Polish?\nFrom: jeff@mri.com...</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>101725</td>
-      <td>Subject: Re: Lexan Polish?\nFrom: jeff@mri.com...</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>102616</td>
-      <td>From: blgardne@javelin.sim.es.com (Dances With...</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Updating-Data-in-DocTable">Updating Data in DocTable<a class="anchor-link" href="#Updating-Data-in-DocTable">&#182;</a></h2><p>The ".update()" function will change entries in the DocTable.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sng</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;category&#39;</span><span class="p">:</span><span class="s1">&#39;nevermind&#39;</span><span class="p">,},</span><span class="n">where</span><span class="o">=</span><span class="s1">&#39;file_id == &quot;103121&quot;&#39;</span><span class="p">)</span>
-<span class="n">sng</span><span class="o">.</span><span class="n">getdf</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="s1">&#39;file_id == &quot;103121&quot;&#39;</span><span class="p">)</span> <span class="c1"># to see update, look at &quot;category&quot; column entry</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
       <th>id</th>
       <th>file_id</th>
       <th>category</th>
@@ -14781,14 +14783,14 @@ From: jeff@mri.com (Jon
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
+      <th>0</th>
       <td>395</td>
       <td>103121</td>
       <td>nevermind</td>
       <td>From: MJMUISE@1302.watstar.uwaterloo.ca (Mike ...</td>
     </tr>
     <tr>
-      <td>1</td>
+      <th>1</th>
       <td>11709</td>
       <td>103121</td>
       <td>nevermind</td>

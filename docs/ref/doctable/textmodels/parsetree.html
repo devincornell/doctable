@@ -369,10 +369,14 @@
 
         </details>
 
-            <div class="docstring"><p>Represents a single parsetree.
-Properties:
-    root (Token): reference to root of parsetree
-    tokens list[Token]: ordered list of tokens</p>
+            <div class="docstring"><p>Represents a single parsetree.</p>
+
+<h6 id="properties">Properties</h6>
+
+<blockquote>
+  <p>root (Token): reference to root of parsetree
+  tokens list[Token]: ordered list of tokens</p>
+</blockquote>
 </div>
 
 
@@ -403,9 +407,13 @@ Properties:
 
         </details>
 
-            <div class="docstring"><p>Create from dict parsetree or spacy sentence root.
-Args:
-    root_token (<a href="../../doctable.html#Token">doctable.Token</a>): root token of parsetree.</p>
+            <div class="docstring"><p>Create from dict parsetree or spacy sentence root.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>root_token (<a href="../../doctable.html#Token">doctable.Token</a>):</strong>  root token of parsetree.</li>
+</ul>
 </div>
 
 
@@ -439,11 +447,15 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Recursively adds reference to current tree.
-Raises:
-    TreeAlreadyAssigned: if the given token already 
-        maintains a reference to another tree. A token
-        can be assigned to only a single ParseTree.</p>
+            <div class="docstring"><p>Recursively adds reference to current tree.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TreeAlreadyAssigned:</strong>  if the given token already 
+maintains a reference to another tree. A token
+can be assigned to only a single ParseTree.</li>
+</ul>
 </div>
 
 
@@ -502,11 +514,15 @@ Raises:
 
         </details>
 
-            <div class="docstring"><p>Create new parsetree from spacy doc.
-Args:
-    spacy_sent: Spacy sent object.
-    args: passed to Token.from_spacy()
-    kwargs: passed to Token.from_spacy()</p>
+            <div class="docstring"><p>Create new parsetree from spacy doc.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>spacy_sent:</strong>  Spacy sent object.</li>
+<li><strong>args:</strong>  passed to Token.from_spacy()</li>
+<li><strong>kwargs:</strong>  passed to Token.from_spacy()</li>
+</ul>
 </div>
 
 
@@ -535,9 +551,13 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Create new ParseTree from a dictionary tree created by as_dict().
-Args:
-    root_tok_data: dict tree created from .as_dict()</p>
+            <div class="docstring"><p>Create new ParseTree from a dictionary tree created by as_dict().</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>root_tok_data:</strong>  dict tree created from .as_dict()</li>
+</ul>
 </div>
 
 

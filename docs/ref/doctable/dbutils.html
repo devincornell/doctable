@@ -144,11 +144,15 @@ This means adding or removing columns, etc.</p>
 
         </details>
 
-            <div class="docstring"><p>List tables in an sqlite database.
-Args:
-    target (str): sql file or endpoint to connect to
-    dialect (str): sql dialect to use for conenction
-    engine_args (kwargs): passed to sqlalchemy ConnectEngine</p>
+            <div class="docstring"><p>List tables in an sqlite database.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>target (str):</strong>  sql file or endpoint to connect to</li>
+<li><strong>dialect (str):</strong>  sql dialect to use for conenction</li>
+<li><strong>engine_args (kwargs):</strong>  passed to sqlalchemy ConnectEngine</li>
+</ul>
 </div>
 
 
@@ -206,16 +210,20 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Moves old database to db with new schema.
-Args:
-    oldfname (str): filename of old database.
-    newfname (str): filename of new database.
-    newschema (list<list>): shema that would be 
-        used in the constructor to a doctable
-        instance.
-    newcolmap (dict<colname->func>): Allows for 
-        population of new columns if they are a function 
-        of the associated row.</p>
+            <div class="docstring"><p>Moves old database to db with new schema.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>oldfname (str):</strong>  filename of old database.</li>
+<li><strong>newfname (str):</strong>  filename of new database.</li>
+<li><strong>newschema (list<list>):</strong>  shema that would be 
+used in the constructor to a doctable
+instance.</li>
+<li><strong>newcolmap (dict<colname->func>):</strong>  Allows for 
+population of new columns if they are a function 
+of the associated row.</li>
+</ul>
 </div>
 
 

@@ -14263,11 +14263,11 @@ a.anchor-link {
 <p>For context, check out <a href="https://devincornell.github.io/doctable/examples/ex_nss.html">Example 1</a> - here we'll just use some shortcuts for code used there. These come from the util.py code in the repo examples folder.</p>
 <p>These are the vignettes I have created:</p>
 <ul>
-<li><p><a href="examples/example_nss_1_intro.html">1: Storing Document Metadata</a></p>
+<li><p><a href="example_nss_1_intro.html">1: Storing Document Metadata</a></p>
 </li>
-<li><p><a href="examples/example_nss_2_parsing.html">2: Storing Document Text</a></p>
+<li><p><a href="example_nss_2_parsing.html">2: Storing Document Text</a></p>
 </li>
-<li><p><a href="examples/example_nss_3_parsetrees.html">3: Storing Parsed Documents</a></p>
+<li><p><a href="example_nss_3_parsetrees.html">3: Storing Parsed Documents</a></p>
 </li>
 </ul>
 
@@ -14402,7 +14402,8 @@ a.anchor-link {
     <span class="n">_schema_</span> <span class="o">=</span> <span class="n">NSSDoc</span>
     
 <span class="n">nss_table</span> <span class="o">=</span> <span class="n">NSSDocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;tmp/nss_3.db&#39;</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">nss_table</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nss_table</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+<span class="n">nss_table</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14418,13 +14419,107 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>0
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
 
 
 
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>0</pre>
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>year</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>party</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>president</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>text</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>doc</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 </div>
 
 </div>
@@ -14453,6 +14548,21 @@ a.anchor-link {
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>PROCESSING MF PARAMSSSSSSS
+PROCESSING MF PARAMSSSSSSS
+PROCESSING MF PARAMSSSSSSS
+PROCESSING MF PARAMSSSSSSS
+</pre>
+</div>
+</div>
 
 <div class="jp-OutputArea-child">
 
@@ -14591,9 +14701,9 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&lt;spacy.lang.en.English at 0x7fab2045feb0&gt;,
- functools.partial(&lt;function merge_tok_spans at 0x7faaf5e52670&gt;, merge_ents=True),
- functools.partial(&lt;function get_parsetrees at 0x7faaf5e52820&gt;, text_parse_func=functools.partial(&lt;function parse_tok at 0x7faaf5e52550&gt;, format_ents=True, num_replacement=&#39;NUM&#39;))]</pre>
+<pre>[&lt;spacy.lang.en.English at 0x7f441fd7a160&gt;,
+ functools.partial(&lt;function merge_tok_spans at 0x7f44ccb105e0&gt;, merge_ents=True),
+ functools.partial(&lt;function get_parsetrees at 0x7f44ccb10790&gt;, text_parse_func=functools.partial(&lt;function parse_tok at 0x7f44ccb104c0&gt;, format_ents=True, num_replacement=&#39;NUM&#39;))]</pre>
 </div>
 
 </div>
@@ -14616,8 +14726,11 @@ a.anchor-link {
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">nss_table</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="s1">&#39;year&#39;</span><span class="p">,</span><span class="s1">&#39;text&#39;</span><span class="p">])):</span>
     <span class="n">parsed</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-    <span class="n">nss_table</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;doc&#39;</span><span class="p">:</span> <span class="n">parsed</span><span class="p">},</span> <span class="n">where</span><span class="o">=</span><span class="n">nss_table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">doc</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-<span class="n">nss_table</span><span class="o">.</span><span class="n">select_df</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="c1">#print(parsed.as_dict())</span>
+    <span class="c1">#break</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">nss_table</span><span class="p">[</span><span class="s1">&#39;doc&#39;</span><span class="p">])</span>
+    <span class="n">nss_table</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;doc&#39;</span><span class="p">:</span> <span class="n">parsed</span><span class="p">},</span> <span class="n">where</span><span class="o">=</span><span class="n">nss_table</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">doc</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1">#nss_table.select_df(limit=2)</span>
 </pre></div>
 
      </div>
@@ -14637,7 +14750,23 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>100%|██████████| 4/4 [00:01&lt;00:00,  3.68it/s]
+<pre> 25%|██▌       | 1/4 [00:00&lt;00:00,  3.64it/s]</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>nss_documents.doc
+DocTable: UPDATE nss_documents SET doc=? WHERE nss_documents.id = ?
+BINDING MF PARAMSSSSSSS
+nss_documents.doc
+DocTable: UPDATE nss_documents SET doc=? WHERE nss_documents.id = ?
+BINDING MF PARAMSSSSSSS
 </pre>
 </div>
 </div>
@@ -14645,61 +14774,41 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>year</th>
-      <th>party</th>
-      <th>president</th>
-      <th>text</th>
-      <th>doc</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>2000</td>
-      <td>D</td>
-      <td>Clinton</td>
-      <td>As we enter the new millennium, we are blessed...</td>
-      <td>[(as, we, enter, The New Millennium, ,, we, ar...</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>2006</td>
-      <td>R</td>
-      <td>W. Bush</td>
-      <td>My fellow Americans, \n\nAmerica is at war. Th...</td>
-      <td>[(my, fellow, Americans, ,, , America, is, at,...</td>
-    </tr>
-  </tbody>
-</table>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>100%|██████████| 4/4 [00:00&lt;00:00,  4.73it/s]</pre>
 </div>
 </div>
 
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>nss_documents.doc
+DocTable: UPDATE nss_documents SET doc=? WHERE nss_documents.id = ?
+BINDING MF PARAMSSSSSSS
+nss_documents.doc
+DocTable: UPDATE nss_documents SET doc=? WHERE nss_documents.id = ?
+BINDING MF PARAMSSSSSSS
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+</pre>
+</div>
 </div>
 
 </div>
@@ -14742,7 +14851,11 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Clinton (2000): [(&#39;world&#39;, 9), (&#39;security&#39;, 9), (&#39;prosperity&#39;, 7), (&#39;threats&#39;, 5), (&#39;efforts&#39;, 5)]
+<pre>PROCESSING MF PARAMSSSSSSS
+PROCESSING MF PARAMSSSSSSS
+PROCESSING MF PARAMSSSSSSS
+PROCESSING MF PARAMSSSSSSS
+Clinton (2000): [(&#39;world&#39;, 9), (&#39;security&#39;, 9), (&#39;prosperity&#39;, 7), (&#39;threats&#39;, 5), (&#39;efforts&#39;, 5)]
 W. Bush (2006): [(&#39;people&#39;, 4), (&#39;world&#39;, 3), (&#39;war&#39;, 2), (&#39;security&#39;, 2), (&#39;strategy&#39;, 2)]
 Obama (2015): [(&#39;security&#39;, 15), (&#39;world&#39;, 9), (&#39;opportunities&#39;, 7), (&#39;strength&#39;, 7), (&#39;challenges&#39;, 7)]
 Trump (2017): [(&#39;government&#39;, 5), (&#39;principles&#39;, 4), (&#39;peace&#39;, 3), (&#39;people&#39;, 3), (&#39;world&#39;, 3)]

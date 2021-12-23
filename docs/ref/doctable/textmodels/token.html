@@ -604,19 +604,23 @@
 
         </details>
 
-            <div class="docstring"><p>Object representing a single token.
-Attrs:
-    i: index of token in original sentence
-    text: text representation of token
-    dep: dependency relation estimated in spacy
-    tag: dependency tag estimated by spacy
-    childs: list of children Tokens
-    tree: reference to associated parsetree
-    otherdata: containes 'pos' and 'ent' data from spacy
-    userdata: data provided by user (usually generated 
-        from userdata_map in from_spacy()).
-    parent: reference to parent Token (populated in 
-        __post_init__).</p>
+            <div class="docstring"><p>Object representing a single token.</p>
+
+<h6 id="attrs">Attrs</h6>
+
+<blockquote>
+  <p>i: index of token in original sentence
+  text: text representation of token
+  dep: dependency relation estimated in spacy
+  tag: dependency tag estimated by spacy
+  childs: list of children Tokens
+  tree: reference to associated parsetree
+  otherdata: containes 'pos' and 'ent' data from spacy
+  userdata: data provided by user (usually generated 
+      from userdata_map in from_spacy()).
+  parent: reference to parent Token (populated in 
+      __post_init__).</p>
+</blockquote>
 </div>
 
 
@@ -775,12 +779,16 @@ Attrs:
 
         </details>
 
-            <div class="docstring"><p>Return tokens recursively from spacy_tok object.
-Args:
-    spacy_tok: token to extract userdata from
-    text_parse_func: mapping to store text data
-    userdata_map: used to create custom user data
-    tree (<a href="../parse.html#ParseTree">doctable.parse.ParseTree</a>): reference to associated ParseTree</p>
+            <div class="docstring"><p>Return tokens recursively from spacy_tok object.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>spacy_tok:</strong>  token to extract userdata from</li>
+<li><strong>text_parse_func:</strong>  mapping to store text data</li>
+<li><strong>userdata_map:</strong>  used to create custom user data</li>
+<li><strong>tree (<a href="../parse.html#ParseTree">doctable.parse.ParseTree</a>):</strong>  reference to associated ParseTree</li>
+</ul>
 </div>
 
 
@@ -817,10 +825,14 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Create new token recursively using a dictionary tree structure.
-Args:
-    tok_data: dictionary containing current token information
-    tree (ParseTree): reference to associated parsetree</p>
+            <div class="docstring"><p>Create new token recursively using a dictionary tree structure.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>tok_data:</strong>  dictionary containing current token information</li>
+<li><strong>tree (ParseTree):</strong>  reference to associated parsetree</li>
+</ul>
 </div>
 
 
@@ -893,9 +905,13 @@ Args:
         <span class="name">pos</span>
     </div>
 
-            <div class="docstring"><p>Access pos data.
-Raises:
-    PropertyNotAvailable: pos was not included in original spacy object.</p>
+            <div class="docstring"><p>Access pos data.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>PropertyNotAvailable:</strong>  pos was not included in original spacy object.</li>
+</ul>
 </div>
 
 
@@ -906,9 +922,13 @@ Raises:
         <span class="name">ent</span>
     </div>
 
-            <div class="docstring"><p>Access ent data.
-Raises:
-    PropertyNotAvailable: ent was not included in original spacy object.</p>
+            <div class="docstring"><p>Access ent data.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>PropertyNotAvailable:</strong>  ent was not included in original spacy object.</li>
+</ul>
 </div>
 
 
@@ -947,11 +967,15 @@ Raises:
 
         </details>
 
-            <div class="docstring"><p>Get children with the specified relations.
-Args:
-    dep (sequence or string): dependency relations to match on.
-    pos (sequence or string): pos to match on.
-    matchfunc (function or None): additional custom matching function.</p>
+            <div class="docstring"><p>Get children with the specified relations.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>dep (sequence or string):</strong>  dependency relations to match on.</li>
+<li><strong>pos (sequence or string):</strong>  pos to match on.</li>
+<li><strong>matchfunc (function or None):</strong>  additional custom matching function.</li>
+</ul>
 </div>
 
 
@@ -987,14 +1011,22 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Get first child with the given dependency relation.
-Args:
-    <em>args: passed to get_childs
-    allow_multiple: don't allow 
-    *</em>kwargs: passed to get_childs
-Raises:
-    ValueError when the token has more than one dependency with the 
-        given relation.</p>
+            <div class="docstring"><p>Get first child with the given dependency relation.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>*args:</strong>  passed to get_childs</li>
+<li><strong>allow_multiple:</strong>  don't allow </li>
+<li><strong>**kwargs:</strong>  passed to get_childs</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li>ValueError when the token has more than one dependency with the 
+given relation.</li>
+</ul>
 </div>
 
 
@@ -1027,9 +1059,13 @@ Raises:
 
         </details>
 
-            <div class="docstring"><p>Gets chained prepositional phrases starting at the current token.
-Returns:
-    tuple of prep, pobj.</p>
+            <div class="docstring"><p>Gets chained prepositional phrases starting at the current token.</p>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>tuple of prep, pobj.</p>
+</blockquote>
 </div>
 
 
@@ -1063,15 +1099,23 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Bubble up results into a list.
-Args:
-    func: function that accepts a Token and returns a list
-        of results that will be concatenated at each level
-        of the tree.
-Example:
-    <code>self.bubble_accum(lambda n: [n])</code> would return a list
-        of (unordered) tokens in the tree below the given 
-        node.</p>
+            <div class="docstring"><p>Bubble up results into a list.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>func:</strong>  function that accepts a Token and returns a list
+of results that will be concatenated at each level
+of the tree.</li>
+</ul>
+
+<h6 id="example">Example</h6>
+
+<blockquote>
+  <p><code>self.bubble_accum(lambda n: [n])</code> would return a list
+      of (unordered) tokens in the tree below the given 
+      node.</p>
+</blockquote>
 </div>
 
 

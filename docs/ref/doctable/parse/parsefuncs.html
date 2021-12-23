@@ -502,12 +502,16 @@ numbers with "NUM", and does not lemmatize tokens).</p>
 
         </details>
 
-            <div class="docstring"><p>A few useful preprocessing functions for raw text.
-Args:
-    text (str): document as a text string
-    replace_url (str or None): if not None, replace url with string
-    replace_xml (str or None): if not None, replace xml tags with string
-    replace_digits (str or None): if not None, replace digits with string</p>
+            <div class="docstring"><p>A few useful preprocessing functions for raw text.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>text (str):</strong>  document as a text string</li>
+<li><strong>replace_url (str or None):</strong>  if not None, replace url with string</li>
+<li><strong>replace_xml (str or None):</strong>  if not None, replace xml tags with string</li>
+<li><strong>replace_digits (str or None):</strong>  if not None, replace digits with string</li>
+</ul>
 </div>
 
 
@@ -582,19 +586,23 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Convert spacy doc into a series of tokens (as sentences or not).
-Args:
-    split_sents (bool): parse into list of sentence tokens using doc.sents.
-    merge_ents (bool): merge multi_word entities into same token.
-    ngrams (iter<iter<str>&gt;): iterable of token tuples to merge after parsing.
-    spacy_ngram_matcher (spacy Matcher): matcher object to use on the spacy doc.
-        Normally will create using spacy.Matcher(nlp.vocab), see more details
-        at https://spacy.io/usage/rule-based-matching And also note that the 
-        nlp object must be the one used for parsing.
-    keep_tok_func (func): func used to decide to keep func or not. Default is
-        identity function
-    parse_tok_func (func): func used to parse tokens. By default uses 
-        identify function.</p>
+            <div class="docstring"><p>Convert spacy doc into a series of tokens (as sentences or not).</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>split_sents (bool):</strong>  parse into list of sentence tokens using doc.sents.</li>
+<li><strong>merge_ents (bool):</strong>  merge multi_word entities into same token.</li>
+<li><strong>ngrams (iter<iter<str>&gt;):</strong>  iterable of token tuples to merge after parsing.</li>
+<li><strong>spacy_ngram_matcher (spacy Matcher):</strong>  matcher object to use on the spacy doc.
+Normally will create using spacy.Matcher(nlp.vocab), see more details
+at https://spacy.io/usage/rule-based-matching And also note that the 
+nlp object must be the one used for parsing.</li>
+<li><strong>keep_tok_func (func):</strong>  func used to decide to keep func or not. Default is
+identity function</li>
+<li><strong>parse_tok_func (func):</strong>  func used to parse tokens. By default uses 
+identify function.</li>
+</ul>
 </div>
 
 
@@ -663,20 +671,24 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Convert spacy token object to string.
-Args:
-    tok (spacy token or span): token object to convert to string.
-    replace_num (str/None): Replace number following tok.like_num (includes "five", 
-        or 5) with a special token (i.e. __NUM__). None means no replacement.
-    replace_digit (str/None): Replace digit meeting tok.is_digit with special token. 
-        Only used when replace_num is None.
-    lemmatize (bool): return lemma instead of full word.
-    normal_convert (func): custom conversion function to happen as last step
-        for non-entities. This way can keep all other functionality.
-    format_ents (bool): Replace whitespace with space and capitalize first 
-        letter of ents.
-    ent_convert (func): custom conversion function to happen as last step
-        for entities. This way can keep all other functionality.</p>
+            <div class="docstring"><p>Convert spacy token object to string.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>tok (spacy token or span):</strong>  token object to convert to string.</li>
+<li><strong>replace_num (str/None):</strong>  Replace number following tok.like_num (includes "five", 
+or 5) with a special token (i.e. __NUM__). None means no replacement.</li>
+<li><strong>replace_digit (str/None):</strong>  Replace digit meeting tok.is_digit with special token. 
+Only used when replace_num is None.</li>
+<li><strong>lemmatize (bool):</strong>  return lemma instead of full word.</li>
+<li><strong>normal_convert (func):</strong>  custom conversion function to happen as last step
+for non-entities. This way can keep all other functionality.</li>
+<li><strong>format_ents (bool):</strong>  Replace whitespace with space and capitalize first 
+letter of ents.</li>
+<li><strong>ent_convert (func):</strong>  custom conversion function to happen as last step
+for entities. This way can keep all other functionality.</li>
+</ul>
 </div>
 
 
@@ -766,21 +778,29 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Decide to use token or not (can be overridden).
-Args:
-    keep_whitespace (bool): keep all-whitespace tokens.
-    keep_punct (bool): keep punctuation.
-    keep_stop (bool): keep stopwords.
-    keep_num (bool): keep numbers using tok.is_num.
-    keep_digit (bool): keep digits using tok.is_digit.
-    keep_ents (bool): keep named entities
-    keep_ent_types (list<str>): keep only these entity types
-    rm_ent_types (list<str>): remove these entity types
-    keep_pos (list<str>): keep only toks with these POS
-    rm_pos (list<str>): remove toks with these POS
-    addtnl_func (func): additional custom criteria to meet
-Returns:
-    True if token should be kept.</p>
+            <div class="docstring"><p>Decide to use token or not (can be overridden).</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>keep_whitespace (bool):</strong>  keep all-whitespace tokens.</li>
+<li><strong>keep_punct (bool):</strong>  keep punctuation.</li>
+<li><strong>keep_stop (bool):</strong>  keep stopwords.</li>
+<li><strong>keep_num (bool):</strong>  keep numbers using tok.is_num.</li>
+<li><strong>keep_digit (bool):</strong>  keep digits using tok.is_digit.</li>
+<li><strong>keep_ents (bool):</strong>  keep named entities</li>
+<li><strong>keep_ent_types (list<str>):</strong>  keep only these entity types</li>
+<li><strong>rm_ent_types (list<str>):</strong>  remove these entity types</li>
+<li><strong>keep_pos (list<str>):</strong>  keep only toks with these POS</li>
+<li><strong>rm_pos (list<str>):</strong>  remove toks with these POS</li>
+<li><strong>addtnl_func (func):</strong>  additional custom criteria to meet</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>True if token should be kept.</p>
+</blockquote>
 </div>
 
 
@@ -829,13 +849,17 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Apply merges to doc object including entities, normal ngrams, and noun chunks.
-Args:
-    doc (Spacy Doc object): doc to merge spans in
-    merge_ents (bool): combine multi-word entities using spacy doc.retokenize()
-    spacy_ngram_matcher (spacy Matcher object): rule-based matching object for 
-        ngrams in Spacy. See https://spacy.io/usage/rule-based-matching
-    merge_noun_chunks (bool): automatically merge noun chunks</p>
+            <div class="docstring"><p>Apply merges to doc object including entities, normal ngrams, and noun chunks.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>doc (Spacy Doc object):</strong>  doc to merge spans in</li>
+<li><strong>merge_ents (bool):</strong>  combine multi-word entities using spacy doc.retokenize()</li>
+<li><strong>spacy_ngram_matcher (spacy Matcher object):</strong>  rule-based matching object for 
+ngrams in Spacy. See https://spacy.io/usage/rule-based-matching</li>
+<li><strong>merge_noun_chunks (bool):</strong>  automatically merge noun chunks</li>
+</ul>
 </div>
 
 
@@ -882,12 +906,16 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Merges manually specified consecutive tokens into single tokens.
-Args:
-    toks (list<str>): token list through which to search for ngrams.
-    ngrams (list<list<str>&gt;): list of ngrams (as sequence of str) to 
-        combine into single tokens.
-    ngram_sep (str): string to join ngram parts with.</p>
+            <div class="docstring"><p>Merges manually specified consecutive tokens into single tokens.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>toks (list<str>):</strong>  token list through which to search for ngrams.</li>
+<li><strong>ngrams (list<list<str>&gt;):</strong>  list of ngrams (as sequence of str) to 
+combine into single tokens.</li>
+<li><strong>ngram_sep (str):</strong>  string to join ngram parts with.</li>
+</ul>
 </div>
 
 
@@ -919,15 +947,19 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Extracts parsetree from spacy doc objects.
-Args:
-    doc (spacy.Doc object): doc to generate parsetree from.
-    parse_tok_func (func<spacy.Token, str>): function used to convert token to 
-        a string representation. Usually a lambda function 
-        wrapping some variant of self.parse_tok().
-    userdata_map (dict<str->func>): attribute to function 
-        mapping. Functions take a token and output a property
-        that will be stored in each parsetree node.</p>
+            <div class="docstring"><p>Extracts parsetree from spacy doc objects.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>doc (spacy.Doc object):</strong>  doc to generate parsetree from.</li>
+<li><strong>parse_tok_func (func<spacy.Token, str>):</strong>  function used to convert token to 
+a string representation. Usually a lambda function 
+wrapping some variant of self.parse_tok().</li>
+<li><strong>userdata_map (dict<str->func>):</strong>  attribute to function 
+mapping. Functions take a token and output a property
+that will be stored in each parsetree node.</li>
+</ul>
 </div>
 
 

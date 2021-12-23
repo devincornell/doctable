@@ -10,6 +10,8 @@ import typing
 from typing import Union, Mapping, Sequence, Tuple, Set, List, Type, Any, Iterable
 import dataclasses
 
+from doctable.util import QueueInserter
+
 # operators like and_, or_, and not_, functions like sum, min, max, etc
 #import sqlalchemy as sa
 import sqlalchemy
@@ -255,7 +257,7 @@ class DocTable:
     #################### Convenience Methods ###################
     
     def __str__(self) -> str:
-        return f'<DocTable ({len(self.columns)} cols)::{repr(self._engine)}:{self._tabname}>'
+        return f'<{self.__class__.__name__} ({len(self.columns)} cols)::{repr(self._engine)}:{self._tabname}>'
     
     def __getitem__(self, colname):
         '''Accesses a column object by calling .col().'''
@@ -566,7 +568,7 @@ class DocTable:
         return self._table.join(other._table, *args, **kwargs)
     
     
-    #################### Select in Chunk Methods ###################
+    #################### Select/Insert in Chunk Methods ###################
     
     def select_chunks(self, cols=None, chunksize=100, limit=None, **kwargs):
         ''' Performs select while querying only a subset of the results at a time.
@@ -613,7 +615,11 @@ class DocTable:
             for row in chunk:
                 yield row
                 
-    
+    def get_queueinserter(self, **kwargs):
+        ''' Get an object that will queue rows for insertion.
+        '''
+        return QueueInserter(self, **kwargs)
+
     #################### Update Methods ###################
     
     def update(self, values, where=None, wherestr=None, **kwargs):

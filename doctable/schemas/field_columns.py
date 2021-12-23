@@ -6,7 +6,7 @@ from dataclasses import dataclass, field, fields
 from typing import Any, Union
 import sqlalchemy
 
-
+from .custom_coltypes import PickleFileType, ParseTreeDocFileType, TextFileType
             
 
 
@@ -49,15 +49,19 @@ def AddedCol():
 def PickleFileCol(folder, **kwargs):
     ''' Column that will store arbitrary python data in the filesystem and keep only a reference.
     '''
-    return Col(None, coltype='picklefile', type_args=dict(folder=folder), **kwargs)
+    return Col(column_type=PickleFileType, type_kwargs=dict(folder=folder), **kwargs)
 
 def TextFileCol(folder, **kwargs):
     ''' Column that will store text data in the filesystem and keep only a reference.
     '''
-    return Col(None, coltype='textfile', type_args=dict(folder=folder), **kwargs)
+    return Col(column_type=TextFileType, type_kwargs=dict(folder=folder), **kwargs)
 
 def ParseTreeFileCol(folder, **kwargs):
     ''' Column that will store text data in the filesystem and keep only a reference.
     '''
-    return Col(None, coltype='parsetree', type_args=dict(folder=folder), **kwargs)
+    return Col(column_type=ParseTreeDocFileType, type_kwargs=dict(folder=folder), **kwargs)
     
+
+
+
+

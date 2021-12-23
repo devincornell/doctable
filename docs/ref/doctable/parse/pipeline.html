@@ -205,10 +205,14 @@
         </details>
 
             <div class="docstring"><p>Returns a pipeline component as a function with one positional arg.
-    See components in this file to see available mappings.
-Args:
-    <em>args: passed directly to component function
-    *</em>kwargs: passed directly to component function</p>
+    See components in this file to see available mappings.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>*args:</strong>  passed directly to component function</li>
+<li><strong>**kwargs:</strong>  passed directly to component function</li>
+</ul>
 </div>
 
 
@@ -233,9 +237,13 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Add a component that returns a dictionary, each with separate parsers.
-Args:
-    funcs (dict<str:func>): mapping from string to dictionary</p>
+            <div class="docstring"><p>Add a component that returns a dictionary, each with separate parsers.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>funcs (dict<str:func>):</strong>  mapping from string to dictionary</li>
+</ul>
 </div>
 
 
@@ -353,10 +361,13 @@ Primarily</p>
 
         </details>
 
-            <div class="docstring"><p>Args:
-    components (list<func>): list of components/functions to apply to the 
-        input sequentially. See the component function in this script to 
-        generate components.</p>
+            <div class="docstring"><h6 id="args">Args</h6>
+
+<ul>
+<li><strong>components (list<func>):</strong>  list of components/functions to apply to the 
+input sequentially. See the component function in this script to 
+generate components.</li>
+</ul>
 </div>
 
 
@@ -387,12 +398,20 @@ Primarily</p>
 
         </details>
 
-            <div class="docstring"><p>Parses document by applying each component function to doctext in turn.
-Args:
-    doctext (str): text to be parsed. This can actually be anything to put into
-        a pipeline.
-Returns:
-    single parsed document object, output of last pipeline function</p>
+            <div class="docstring"><p>Parses document by applying each component function to doctext in turn.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>doctext (str):</strong>  text to be parsed. This can actually be anything to put into
+a pipeline.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>single parsed document object, output of last pipeline function</p>
+</blockquote>
 </div>
 
 
@@ -425,15 +444,23 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Parse multiple documents distributed across workers.
-Args:
-    doctexts (list<str>): elements to be parsed
-    workers (int): number of processes to use
-    override_maxcores (bool): in cases where processes may have
-        low CPU utilization, you may want to create more processes
-        than your computer has cores.
-Returns:
-    list of parsed elements</p>
+            <div class="docstring"><p>Parse multiple documents distributed across workers.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>doctexts (list<str>):</strong>  elements to be parsed</li>
+<li><strong>workers (int):</strong>  number of processes to use</li>
+<li><strong>override_maxcores (bool):</strong>  in cases where processes may have
+low CPU utilization, you may want to create more processes
+than your computer has cores.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>list of parsed elements</p>
+</blockquote>
 </div>
 
 

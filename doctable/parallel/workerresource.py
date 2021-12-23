@@ -11,7 +11,7 @@ from .exceptions import (UserFuncRaisedException, WorkerDiedError,
                          WorkerResourceReceivedUnidentifiedMessage)
 from .messaging import (BaseMessage, DataPayload, SigClose, StatusRequest,
                         UserFunc, UserFuncException, WorkerError, WorkerStatus)
-from .worker import Worker
+from .workerprocess import WorkerProcess
 
 
 class WorkerResource:
@@ -34,7 +34,7 @@ class WorkerResource:
         ctx = multiprocessing.get_context(method)
         self.pipe, worker_pipe = Pipe(duplex=True)
         self.proc = ctx.Process(
-            target=Worker(worker_pipe, userfunc=userfunc, verbose=verbose, logging=logging), 
+            target=WorkerProcess(worker_pipe, userfunc=userfunc, verbose=verbose, logging=logging), 
         )
 
         # start worker if requested

@@ -1,5 +1,7 @@
 import pandas as pd
 import sqlalchemy# as sa
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 import os
 from datetime import datetime
 import typing
@@ -21,6 +23,7 @@ class ConnectEngine:
                 timeout: max time to wait for other query to execute before raising exception
                 echo: print out the sql query when executing
                 engine_kwargs: passed directly to sqlalchemy.create_engine().
+
                     See more options in the official docs:
                     https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine
         '''
@@ -50,7 +53,7 @@ class ConnectEngine:
         self._metadata = sqlalchemy.MetaData(bind=self._engine)
 
         # add other tables that exist in the database already
-        self.add_existing_tables()
+        self.reflect()
         
     def __del__(self):
         # I seriously don't understand why the hell this isn't needed...
@@ -84,12 +87,17 @@ class ConnectEngine:
     
     @property
     def tables(self) -> List[sqlalchemy.Table]:
-        ''' Get table objects stored in metadata.
+        ''' Access metadata.tables
         '''
         return self._metadata.tables
     
+    def get_session(self):
+        '''TODO: this function is not implemented.'''
+        raise NotImplementedError
+        #return self.Session()
+    
     def __str__(self) -> str:
-        return '<ConnectEngine::{}>'.format(repr(self))
+        return f'<{self.__class__.__name__}::{repr(self)}>'
     
     def __repr__(self) -> str:
         return '{}'.format(self._connstr)
@@ -97,7 +105,7 @@ class ConnectEngine:
     ######################### Engine and Connection Management ######################
     
     def connect(self) -> sqlalchemy.engine.Connection:
-        ''' Open new connection in engine connection pool.
+        ''' Open new connection in the engine connection pool.
         '''
         conn = self._engine.connect()
         self.check_enable_foreign_keys(conn)
@@ -122,7 +130,7 @@ class ConnectEngine:
             return None
     
     def clear_metadata(self) -> None:
-        '''Remove metadata of all tables.
+        '''Remove all tables from sqlalchemy metadata.
         '''
         for table in self._metadata.sorted_tables:
             self.remove_table(table)
@@ -134,9 +142,15 @@ class ConnectEngine:
             return conn.execute('PRAGMA foreign_keys=ON')
     
     ######################### Table Management ######################
+    def create_all(self):
+        ''' Create table metadata from all existing tables.
+        '''
+        return self._metadata.create_all(self._engine)
     
     def schema(self, tabname: str) -> Sequence[sqlalchemy.Column]:
-        ''' Read schema information for single table.
+        ''' Read schema information for single table using inspect.
+        Args:
+            tabname: name of table to inspect.
         Returns:
             dictionary
         '''
@@ -151,22 +165,23 @@ class ConnectEngine:
         return pd.DataFrame(self.schema(tabname))
     
     def remove_table(self, table: str):
-        ''' Remove the given Table object from MetaData object. Does not drop.
+        ''' Remove the given Table object from sqlalchemy metadata.
         '''
         return self._metadata.remove(table)
     
     def add_table(self, tabname: str, columns: Sequence[typing.Sequence] = None, 
                     new_table: bool = True, **table_kwargs) -> None:
-        ''' Adds a table to the metadata. If columns not provided, creates by autoload.
+        ''' Adds a table to the metadata by name. If columns not provided, creates by autoload.
         Args:
             tabname (str): name of new table.
             columns (list/tuple): column objects passed to sqlalchemy.Table
             table_kwargs: passed to sqlalchemy.Table constructor.
         '''
 
-        # return table instance if already stored in metadata object
+        # remove table if it is already in metadata, then replace it
         if tabname in self._metadata.tables:
-            return self.tables[tabname]
+            #self.remove_table(self.tables[tabname])
+            table_kwargs['extend_existing'] = True
         
         # create new table with provided columns
         if columns is not None:
@@ -202,8 +217,8 @@ class ConnectEngine:
         return table
     
     
-    def add_existing_tables(self, **kwargs) -> None:
-        ''' Will register all existing tables in metadata.
+    def reflect(self, **kwargs) -> None:
+        ''' Will register all existing tables using metadata.reflect().
         '''
         #for tabname in self.list_tables():
         #    self.add_table(tabname, **kwargs)
@@ -212,7 +227,7 @@ class ConnectEngine:
     
     def drop_table(self, table: Union[sqlalchemy.Table, str], if_exists: bool = False, 
                     **kwargs) -> None:
-        ''' Drops table, either sqlalchemy object or by executing DROP TABLE.
+        '''Drops table, either sqlalchemy object or by executing DROP TABLE.
         Args:
             table (sqlalchemy.Table/str): table object or name to drop.
             if_exists (bool): if true, won't throw exception if table doesn't exist.

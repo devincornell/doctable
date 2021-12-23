@@ -106,6 +106,9 @@
                                 <a class="function" href="#DocTable.select_iter">select_iter</a>
                         </li>
                         <li>
+                                <a class="function" href="#DocTable.get_queueinserter">get_queueinserter</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#DocTable.update">update</a>
                         </li>
                         <li>
@@ -161,6 +164,8 @@
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">import</span> <span class="nn">dataclasses</span>
+
+<span class="kn">from</span> <span class="nn">doctable.util</span> <span class="kn">import</span> <span class="n">QueueInserter</span>
 
 <span class="c1"># operators like and_, or_, and not_, functions like sum, min, max, etc</span>
 <span class="c1">#import sqlalchemy as sa</span>
@@ -224,8 +229,8 @@
 <span class="sd">                that a schema is provided and the db file doesn&#39;t exist.</span>
 <span class="sd">            new_table (bool): Allow doctable to create a new table if one </span>
 <span class="sd">                doesn&#39;t exist already.</span>
-<span class="sd">            engine_kwargs (**kwargs): Pass directly to the sqlalchemy</span>
-<span class="sd">                .create_engine(). Args typically vary by dialect.</span>
+<span class="sd">            connect_args (**kwargs): Pass directly to the sqlalchemy</span>
+<span class="sd">                .create_engine() as connect_args. Args typically vary by dialect.</span>
 <span class="sd">                Example: connect_args={&#39;timeout&#39;: 15} for sqlite</span>
 <span class="sd">                or connect_args={&#39;connect_timeout&#39;: 15} for PostgreSQL.</span>
 <span class="sd">            verbose (bool): Print every sql command before executing.</span>
@@ -390,7 +395,7 @@
     <span class="c1">#################### Convenience Methods ###################</span>
     
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;DocTable (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s1"> cols)::</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s1"> cols)::</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
     
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colname</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Accesses a column object by calling .col().&#39;&#39;&#39;</span>
@@ -684,7 +689,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">_table</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     
     
-    <span class="c1">#################### Select in Chunk Methods ###################</span>
+    <span class="c1">#################### Select/Insert in Chunk Methods ###################</span>
     
     <span class="k">def</span> <span class="nf">select_chunks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Performs select while querying only a subset of the results at a time.</span>
@@ -731,7 +736,11 @@
             <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">row</span>
                 
-    
+    <span class="k">def</span> <span class="nf">get_queueinserter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Get an object that will queue rows for insertion.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">QueueInserter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
     <span class="c1">#################### Update Methods ###################</span>
     
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -992,8 +1001,8 @@
 <span class="sd">                that a schema is provided and the db file doesn&#39;t exist.</span>
 <span class="sd">            new_table (bool): Allow doctable to create a new table if one </span>
 <span class="sd">                doesn&#39;t exist already.</span>
-<span class="sd">            engine_kwargs (**kwargs): Pass directly to the sqlalchemy</span>
-<span class="sd">                .create_engine(). Args typically vary by dialect.</span>
+<span class="sd">            connect_args (**kwargs): Pass directly to the sqlalchemy</span>
+<span class="sd">                .create_engine() as connect_args. Args typically vary by dialect.</span>
 <span class="sd">                Example: connect_args={&#39;timeout&#39;: 15} for sqlite</span>
 <span class="sd">                or connect_args={&#39;connect_timeout&#39;: 15} for PostgreSQL.</span>
 <span class="sd">            verbose (bool): Print every sql command before executing.</span>
@@ -1158,7 +1167,7 @@
     <span class="c1">#################### Convenience Methods ###################</span>
     
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;DocTable (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s1"> cols)::</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s1"> cols)::</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
     
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colname</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Accesses a column object by calling .col().&#39;&#39;&#39;</span>
@@ -1452,7 +1461,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">_table</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     
     
-    <span class="c1">#################### Select in Chunk Methods ###################</span>
+    <span class="c1">#################### Select/Insert in Chunk Methods ###################</span>
     
     <span class="k">def</span> <span class="nf">select_chunks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Performs select while querying only a subset of the results at a time.</span>
@@ -1499,7 +1508,11 @@
             <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">row</span>
                 
-    
+    <span class="k">def</span> <span class="nf">get_queueinserter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Get an object that will queue rows for insertion.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">QueueInserter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
     <span class="c1">#################### Update Methods ###################</span>
     
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wherestr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1764,8 +1777,8 @@ Description: This class manages schema and connection information to provide
 <span class="sd">                that a schema is provided and the db file doesn&#39;t exist.</span>
 <span class="sd">            new_table (bool): Allow doctable to create a new table if one </span>
 <span class="sd">                doesn&#39;t exist already.</span>
-<span class="sd">            engine_kwargs (**kwargs): Pass directly to the sqlalchemy</span>
-<span class="sd">                .create_engine(). Args typically vary by dialect.</span>
+<span class="sd">            connect_args (**kwargs): Pass directly to the sqlalchemy</span>
+<span class="sd">                .create_engine() as connect_args. Args typically vary by dialect.</span>
 <span class="sd">                Example: connect_args={&#39;timeout&#39;: 15} for sqlite</span>
 <span class="sd">                or connect_args={&#39;connect_timeout&#39;: 15} for PostgreSQL.</span>
 <span class="sd">            verbose (bool): Print every sql command before executing.</span>
@@ -1892,36 +1905,40 @@ Description: This class manages schema and connection information to provide
 
         </details>
 
-            <div class="docstring"><p>Create new database.
-Args:
-    target (str): filename for database to connect to. ":memory:" is a 
-        special value indicating to the python sqlite engine that the db
-        should be created in memory. Will create new empty database file
-        if it does not exist and new_db==True, and add a new table using
-        specified schema if new_table==True.
-    schema (list<list>): schema from which to create db. Includes a
-        list of column names and types (including contraints and indexes) as tuples
-        defined according to information needed to construct the sqlalchemy
-        objects.
-    tabname (str): table name for this specific doctable.
-    dialect (str): database engine through which to construct db.
-        For more info, see sqlalchemy dialect info:
-        https://docs.sqlalchemy.org/en/13/dialects/
-    persistent_conn (bool): whether or not to create a persistent conn 
-        to database. Otherwise will create temporary connection for each
-        query.
-    readonly (bool): Prevents user from calling insert(), delete(), or 
-        update(). Will not block other sql possible commands.
-    new_db (bool): Indicate if new db file should be created given 
-        that a schema is provided and the db file doesn't exist.
-    new_table (bool): Allow doctable to create a new table if one 
-        doesn't exist already.
-    engine_kwargs (**kwargs): Pass directly to the sqlalchemy
-        .create_engine(). Args typically vary by dialect.
-        Example: connect_args={'timeout': 15} for sqlite
-        or connect_args={'connect_timeout': 15} for PostgreSQL.
-    verbose (bool): Print every sql command before executing.
-    echo (bool): Print sqlalchemy engine log for each query.</p>
+            <div class="docstring"><p>Create new database.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>target (str): filename for database to connect to. ":memory:</strong> " is a 
+special value indicating to the python sqlite engine that the db
+should be created in memory. Will create new empty database file
+if it does not exist and new_db==True, and add a new table using
+specified schema if new_table==True.</li>
+<li><strong>schema (list<list>):</strong>  schema from which to create db. Includes a
+list of column names and types (including contraints and indexes) as tuples
+defined according to information needed to construct the sqlalchemy
+objects.</li>
+<li><strong>tabname (str):</strong>  table name for this specific doctable.</li>
+<li><strong>dialect (str):</strong>  database engine through which to construct db.
+For more info, see sqlalchemy dialect info:
+https://docs.sqlalchemy.org/en/13/dialects/</li>
+<li><strong>persistent_conn (bool):</strong>  whether or not to create a persistent conn 
+to database. Otherwise will create temporary connection for each
+query.</li>
+<li><strong>readonly (bool):</strong>  Prevents user from calling insert(), delete(), or 
+update(). Will not block other sql possible commands.</li>
+<li><strong>new_db (bool):</strong>  Indicate if new db file should be created given 
+that a schema is provided and the db file doesn't exist.</li>
+<li><strong>new_table (bool):</strong>  Allow doctable to create a new table if one 
+doesn't exist already.</li>
+<li><strong>connect_args (</strong>kwargs):**  Pass directly to the sqlalchemy
+.create_engine() as connect_args. Args typically vary by dialect.
+Example: connect_args={'timeout': 15} for sqlite
+or connect_args={'connect_timeout': 15} for PostgreSQL.</li>
+<li><strong>verbose (bool):</strong>  Print every sql command before executing.</li>
+<li><strong>echo (bool):</strong>  Print sqlalchemy engine log for each query.</li>
+</ul>
 </div>
 
 
@@ -1997,9 +2014,13 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Opens connection engine. 
-Args:
-    open_conn (bool): create a new db connection.</p>
+            <div class="docstring"><p>Opens connection engine. </p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>open_conn (bool):</strong>  create a new db connection.</li>
+</ul>
 </div>
 
 
@@ -2027,10 +2048,14 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Accesses a column object.
-Args:
-    Name of column to access. Applied as subscript to 
-        sqlalchemy columns object.</p>
+            <div class="docstring"><p>Accesses a column object.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li>Name of column to access. Applied as subscript to 
+sqlalchemy columns object.</li>
+</ul>
 </div>
 
 
@@ -2063,18 +2088,26 @@ Args:
         <span class="name">columns</span>
     </div>
 
-            <div class="docstring"><p>Exposes SQLAlchemy core table columns object.
-Notes:
-    some info here: 
-    https://docs.sqlalchemy.org/en/13/core/metadata.html</p>
+            <div class="docstring"><p>Exposes SQLAlchemy core table columns object.</p>
 
-<pre><code>c = db.columns['id']
-c.type, c.name, c.
-</code></pre>
+<h6 id="notes">Notes</h6>
 
-<p>Returns:
-    sqlalchemy columns: access to underlying columns
-        object.</p>
+<blockquote>
+  <p>some info here: 
+  https://docs.sqlalchemy.org/en/13/core/metadata.html</p>
+</blockquote>
+
+<blockquote>
+  <p>c = db.columns['id']
+  c.type, c.name, c.</p>
+</blockquote>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>sqlalchemy columns: access to underlying columns
+      object.</p>
+</blockquote>
 </div>
 
 
@@ -2165,9 +2198,13 @@ c.type, c.name, c.
 
         </details>
 
-            <div class="docstring"><p>Get info about each column as a dictionary.
-Returns:
-    dict<dict>: info about each column.</p>
+            <div class="docstring"><p>Get info about each column as a dictionary.</p>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>dict<dict>: info about each column.</p>
+</blockquote>
 </div>
 
 
@@ -2192,9 +2229,13 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Get info about each column as a dictionary.
-Returns:
-    DataFrame: info about each column.</p>
+            <div class="docstring"><p>Get info about each column as a dictionary.</p>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>DataFrame: info about each column.</p>
+</blockquote>
 </div>
 
 
@@ -2252,13 +2293,21 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Insert a row or rows into the database.
-Args:
-    rowdat (list<dict> or dict): row data to insert.
-    ifnotunique (str): way to handle inserted data if it breaks
-        a table constraint. Choose from FAIL, IGNORE, REPLACE.
-Returns:
-    sqlalchemy query result object.</p>
+            <div class="docstring"><p>Insert a row or rows into the database.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>rowdat (list<dict> or dict):</strong>  row data to insert.</li>
+<li><strong>ifnotunique (str):</strong>  way to handle inserted data if it breaks
+a table constraint. Choose from FAIL, IGNORE, REPLACE.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>sqlalchemy query result object.</p>
+</blockquote>
 </div>
 
 
@@ -2290,14 +2339,26 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Count number of rows which match where condition.
-Notes:
-    Calls select_first under the hood.
-Args:
-    where (sqlalchemy condition): filter rows before counting.
-    wherestr (str): filter rows before counting.
-Returns:
-    int: number of rows that match "where" and "wherestr" criteria.</p>
+            <div class="docstring"><p>Count number of rows which match where condition.</p>
+
+<h6 id="notes">Notes</h6>
+
+<blockquote>
+  <p>Calls select_first under the hood.</p>
+</blockquote>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>where (sqlalchemy condition):</strong>  filter rows before counting.</li>
+<li><strong>wherestr (str):</strong>  filter rows before counting.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>int: number of rows that match "where" and "wherestr" criteria.</p>
+</blockquote>
 </div>
 
 
@@ -2324,11 +2385,19 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Return first n rows as dataframe for quick viewing.
-Args:
-    n (int): number of rows to return in dataframe.
-Returns:
-    Dataframe of the first n rows of the table.</p>
+            <div class="docstring"><p>Return first n rows as dataframe for quick viewing.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>n (int):</strong>  number of rows to return in dataframe.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>Dataframe of the first n rows of the table.</p>
+</blockquote>
 </div>
 
 
@@ -2422,21 +2491,28 @@ Returns:
     by performing one query per row. Can be inefficient for many smaller 
     special data information.</p>
 
-<p>Args:
-    cols: list of sqlalchemy datatypes created from calling .col() method.
-    where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
-    orderby: sqlalchemy orderby directive
-    groupby: sqlalchemy gropuby directive
-    limit (int): number of entries to return before stopping
-    wherestr (str): raw sql "where" conditionals to add to where input
-    from_obj (sqlalchemy join): table from which to perform query (for joined tables)
-    as_dataclass (bool): if schema was provided in dataclass format, should return as 
-        dataclass object?
-    result_container (class): container for result rows. constructor takes single arg
-        may be useful to provide a class that extends list
-    **kwargs: passed to self.execute()
-Yields:
-    sqlalchemy result object: row data</p>
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>cols:</strong>  list of sqlalchemy datatypes created from calling .col() method.</li>
+<li><strong>where (sqlachemy BinaryExpression):</strong>  sqlalchemy "where" object to parse</li>
+<li><strong>orderby:</strong>  sqlalchemy orderby directive</li>
+<li><strong>groupby:</strong>  sqlalchemy gropuby directive</li>
+<li><strong>limit (int):</strong>  number of entries to return before stopping</li>
+<li><strong>wherestr (str):</strong>  raw sql "where" conditionals to add to where input</li>
+<li><strong>from_obj (sqlalchemy join):</strong>  table from which to perform query (for joined tables)</li>
+<li><strong>as_dataclass (bool):</strong>  if schema was provided in dataclass format, should return as 
+dataclass object?</li>
+<li><strong>result_container (class):</strong>  container for result rows. constructor takes single arg
+may be useful to provide a class that extends list</li>
+<li><strong>**kwargs:</strong>  passed to self.execute()</li>
+</ul>
+
+<h6 id="yields">Yields</h6>
+
+<blockquote>
+  <p>sqlalchemy result object: row data</p>
+</blockquote>
 </div>
 
 
@@ -2476,18 +2552,30 @@ Yields:
 
         </details>
 
-            <div class="docstring"><p>Perform regular select query returning only the first result.
-Args:
-    <em>args: args to regular .select() method.
-    *</em>kwargs: args to regular .select() method.
-Returns:
-    sqlalchemy results obect: First result from select query.
-Raises:
-    LookupError: where no items are returned with the select 
-        statement. Couldn't return None or other object because
-        those could be valid objects in a single-row select query.
-        In cases where uncertain if row match exists, use regular 
-        .select() and count num results, or use try/catch.</p>
+            <div class="docstring"><p>Perform regular select query returning only the first result.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>*args:</strong>  args to regular .select() method.</li>
+<li><strong>**kwargs:</strong>  args to regular .select() method.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>sqlalchemy results obect: First result from select query.</p>
+</blockquote>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>LookupError:</strong>  where no items are returned with the select 
+statement. Couldn't return None or other object because
+those could be valid objects in a single-row select query.
+In cases where uncertain if row match exists, use regular 
+.select() and count num results, or use try/catch.</li>
+</ul>
 </div>
 
 
@@ -2526,17 +2614,25 @@ Raises:
 
         </details>
 
-            <div class="docstring"><p>Select returning dataframe.
-Args:
-    cols: sequence of columns to query. Must be sequence,
-        passed directly to .select() method.
-    <em>args: args to regular .select() method.
-    *</em>kwargs: args to regular .select() method.
-Returns:
-    pandas dataframe: Each row is a database row,
-        and output is not indexed according to primary 
-        key or otherwise. Call .set_index('id') on the
-        dataframe to envoke this behavior.</p>
+            <div class="docstring"><p>Select returning dataframe.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>cols:</strong>  sequence of columns to query. Must be sequence,
+passed directly to .select() method.</li>
+<li><strong>*args:</strong>  args to regular .select() method.</li>
+<li><strong>**kwargs:</strong>  args to regular .select() method.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>pandas dataframe: Each row is a database row,
+      and output is not indexed according to primary 
+      key or otherwise. Call .set_index('id') on the
+      dataframe to envoke this behavior.</p>
+</blockquote>
 </div>
 
 
@@ -2570,14 +2666,22 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Select returning pandas Series.
-Args:
-    col: column to query. Passed directly to .select() 
-        method.
-    <em>args: args to regular .select() method.
-    *</em>kwargs: args to regular .select() method.
-Returns:
-    pandas series: enters rows as values.</p>
+            <div class="docstring"><p>Select returning pandas Series.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>col:</strong>  column to query. Passed directly to .select() 
+method.</li>
+<li><strong>*args:</strong>  args to regular .select() method.</li>
+<li><strong>**kwargs:</strong>  args to regular .select() method.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>pandas series: enters rows as values.</p>
+</blockquote>
 </div>
 
 
@@ -2603,10 +2707,14 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Wrapper over table.join(), can pass to from_obj parameter for .select()
-Args:
-    other (DocTable): other doctable to join
-    <em>args, *</em>kwargs: passed to table.join() method</p>
+            <div class="docstring"><p>Wrapper over table.join(), can pass to from_obj parameter for .select()</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>other (DocTable):</strong>  other doctable to join</li>
+<li><strong><em>args, *</em>kwargs:</strong>  passed to table.join() method</li>
+</ul>
 </div>
 
 
@@ -2650,18 +2758,28 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Performs select while querying only a subset of the results at a time.
-Args:
-    cols (col name(s) or sqlalchemy object(s)): columns to query
-    chunksize (int): size of individual queries to be made. Will
-        load this number of rows into memory before yielding.
-    limit (int): maximum number of rows to retrieve. Because 
-        the limit argument is being used internally to limit data
-        to smaller chunks, use this argument instead. Internally,
-        this function will load a maximum of limit + chunksize 
-        - 1 rows into memory, but yields only limit.
-Yields:
-    sqlalchemy result: row data - same as .select() method.</p>
+            <div class="docstring"><p>Performs select while querying only a subset of the results at a time.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>cols (col name(s) or sqlalchemy object(s)):</strong>  columns to query</li>
+<li><strong>chunksize (int):</strong>  size of individual queries to be made. Will
+load this number of rows into memory before yielding.</li>
+<li><strong>limit (int):</strong>  maximum number of rows to retrieve. Because 
+the limit argument is being used internally to limit data
+to smaller chunks, use this argument instead. Internally,
+this function will load a maximum of limit + chunksize 
+<ul>
+<li>1 rows into memory, but yields only limit.</li>
+</ul></li>
+</ul>
+
+<h6 id="yields">Yields</h6>
+
+<blockquote>
+  <p>sqlalchemy result: row data - same as .select() method.</p>
+</blockquote>
 </div>
 
 
@@ -2698,18 +2816,51 @@ Yields:
 
         </details>
 
-            <div class="docstring"><p>Same as .select except results retrieved from db in chunks.
-Args:
-    cols (col name(s) or sqlalchemy object(s)): columns to query
-    chunksize (int): size of individual queries to be made. Will
-        load this number of rows into memory before yielding.
-    limit (int): maximum number of rows to retrieve. Because 
-        the limit argument is being used internally to limit data
-        to smaller chunks, use this argument instead. Internally,
-        this function will load a maximum of limit + chunksize 
-        - 1 rows into memory, but yields only limit.
-Yields:
-    sqlalchemy result: row data - same as .select() method.</p>
+            <div class="docstring"><p>Same as .select except results retrieved from db in chunks.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>cols (col name(s) or sqlalchemy object(s)):</strong>  columns to query</li>
+<li><strong>chunksize (int):</strong>  size of individual queries to be made. Will
+load this number of rows into memory before yielding.</li>
+<li><strong>limit (int):</strong>  maximum number of rows to retrieve. Because 
+the limit argument is being used internally to limit data
+to smaller chunks, use this argument instead. Internally,
+this function will load a maximum of limit + chunksize 
+<ul>
+<li>1 rows into memory, but yields only limit.</li>
+</ul></li>
+</ul>
+
+<h6 id="yields">Yields</h6>
+
+<blockquote>
+  <p>sqlalchemy result: row data - same as .select() method.</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="DocTable.get_queueinserter" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#DocTable.get_queueinserter">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">get_queueinserter</span><span class="signature">(self, **kwargs)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_queueinserter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Get an object that will queue rows for insertion.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">QueueInserter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get an object that will queue rows for insertion.</p>
 </div>
 
 
@@ -2774,23 +2925,30 @@ Yields:
 
         </details>
 
-            <div class="docstring"><p>Update row(s) assigning the provided values.
-Args:
-    values (dict<colname->value> or list<dict> or list&lt;(col,value)&gt;)): 
-        values to populate rows with. If dict, will insert those values
-        into all rows that match conditions. If list of dicts, assigns
-        expression in value (i.e. id['year']+1) to column. If list of 
-        (col,value) 2-tuples, will assign value to col in the order 
-        provided. For example given row values x=1 and y=2, the input
-        [(x,y+10),(y,20)], new values will be x=12, y=20. If opposite
-        order [(y,20),(x,y+10)] is provided new values would be y=20,
-        x=30. In cases where list<dict> is provided, this behavior is 
-        undefined.
-    where (sqlalchemy condition): used to match rows where
-        update will be applied.
-    wherestr (sql string condition): matches same as where arg.
-Returns:
-    SQLAlchemy result proxy object</p>
+            <div class="docstring"><p>Update row(s) assigning the provided values.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>values (dict<colname->value> or list<dict> or list&lt;(col,value)&gt;)):</strong>   values to populate rows with. If dict, will insert those values
+into all rows that match conditions. If list of dicts, assigns
+expression in value (i.e. id['year']+1) to column. If list of 
+(col,value) 2-tuples, will assign value to col in the order 
+provided. For example given row values x=1 and y=2, the input
+[(x,y+10),(y,20)], new values will be x=12, y=20. If opposite
+order [(y,20),(x,y+10)] is provided new values would be y=20,
+x=30. In cases where list<dict> is provided, this behavior is 
+undefined.</li>
+<li><strong>where (sqlalchemy condition):</strong>  used to match rows where
+update will be applied.</li>
+<li><strong>wherestr (sql string condition):</strong>  matches same as where arg.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>SQLAlchemy result proxy object</p>
+</blockquote>
 </div>
 
 
@@ -2867,15 +3025,23 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Delete rows from the table that meet the where criteria.
-Args:
-    where (sqlalchemy condition): criteria for deletion.
-    wherestr (sql string): addtnl criteria for deletion.
-    vacuum (bool): will execute vacuum sql command to reduce
-        storage space needed by SQL table. Use when deleting
-        significant ammounts of data.
-Returns:
-    SQLAlchemy result proxy object.</p>
+            <div class="docstring"><p>Delete rows from the table that meet the where criteria.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>where (sqlalchemy condition):</strong>  criteria for deletion.</li>
+<li><strong>wherestr (sql string):</strong>  addtnl criteria for deletion.</li>
+<li><strong>vacuum (bool):</strong>  will execute vacuum sql command to reduce
+storage space needed by SQL table. Use when deleting
+significant ammounts of data.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>SQLAlchemy result proxy object.</p>
+</blockquote>
 </div>
 
 
@@ -2911,13 +3077,17 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Execute an sql command. Called by most higher-level functions.
-Args:
-    query (sqlalchemy condition or str): query to execute;
-        can be provided as sqlalchemy condition object or
-        plain sql text.
-    verbose (bool or None): Print SQL command issued before
-        execution.</p>
+            <div class="docstring"><p>Execute an sql command. Called by most higher-level functions.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>query (sqlalchemy condition or str):</strong>  query to execute;
+can be provided as sqlalchemy condition object or
+plain sql text.</li>
+<li><strong>verbose (bool or None):</strong>  Print SQL command issued before
+execution.</li>
+</ul>
 </div>
 
 
@@ -2951,17 +3121,29 @@ Args:
 
         </details>
 
-            <div class="docstring"><p>Generates a DocBootstrapper object to sample from.
-Notes:
-    The DocBootstrap object keeps all selected docs in
-        memory, and yields samples with .sample().
-Args:
-    <em>args: passed to .select()
-    n (int): number of samples to bs. If left unset, can
-        specify when drawing sample from DocBootstrap obj.
-    *</em>kwargs: passed to .select()
-Returns:
-    DocBootstrap object for bootstrapping.</p>
+            <div class="docstring"><p>Generates a DocBootstrapper object to sample from.</p>
+
+<h6 id="notes">Notes</h6>
+
+<blockquote>
+  <p>The DocBootstrap object keeps all selected docs in
+      memory, and yields samples with .sample().</p>
+</blockquote>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>*args:</strong>  passed to .select()</li>
+<li><strong>n (int):</strong>  number of samples to bs. If left unset, can
+specify when drawing sample from DocBootstrap obj.</li>
+<li><strong>**kwargs:</strong>  passed to .select()</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>DocBootstrap object for bootstrapping.</p>
+</blockquote>
 </div>
 
 
@@ -3014,10 +3196,14 @@ Returns:
 
         </details>
 
-            <div class="docstring"><p>Make sure there is a 1-1 mapping between files listed in db and files in folder.
-Args:
-    col (str or Column object): column to clean picklefiles for.
-    ignore_missing (bool): if False, throw an error when a db file doesn't exist.</p>
+            <div class="docstring"><p>Make sure there is a 1-1 mapping between files listed in db and files in folder.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>col (str or Column object):</strong>  column to clean picklefiles for.</li>
+<li><strong>ignore_missing (bool):</strong>  if False, throw an error when a db file doesn't exist.</li>
+</ul>
 </div>
 
 

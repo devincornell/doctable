@@ -76,7 +76,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span> <span class="nn">sqlalchemy</span>
 
-
+<span class="kn">from</span> <span class="nn">.custom_coltypes</span> <span class="kn">import</span> <span class="n">PickleFileType</span><span class="p">,</span> <span class="n">ParseTreeDocFileType</span><span class="p">,</span> <span class="n">TextFileType</span>
             
 
 
@@ -119,17 +119,17 @@
 <span class="k">def</span> <span class="nf">PickleFileCol</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Column that will store arbitrary python data in the filesystem and keep only a reference.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">Col</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="s1">&#39;picklefile&#39;</span><span class="p">,</span> <span class="n">type_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">folder</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Col</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">PickleFileType</span><span class="p">,</span> <span class="n">type_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">folder</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">TextFileCol</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Column that will store text data in the filesystem and keep only a reference.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">Col</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="s1">&#39;textfile&#39;</span><span class="p">,</span> <span class="n">type_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">folder</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Col</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">TextFileType</span><span class="p">,</span> <span class="n">type_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">folder</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">ParseTreeFileCol</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Column that will store text data in the filesystem and keep only a reference.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">Col</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="s1">&#39;parsetree&#39;</span><span class="p">,</span> <span class="n">type_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">folder</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Col</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">ParseTreeDocFileType</span><span class="p">,</span> <span class="n">type_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">folder</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     
 </pre></div>
 
@@ -177,10 +177,14 @@
 
         </details>
 
-            <div class="docstring"><p>Returns dataclasses.field() after setting convienient params.
-Args:
-    field_kwargs: passed directly to dataclasses.field.
-    **column_kwargs: passed to the sqlalchemy column object.</p>
+            <div class="docstring"><p>Returns dataclasses.field() after setting convienient params.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>field_kwargs:</strong>  passed directly to dataclasses.field.</li>
+<li><strong>**column_kwargs:</strong>  passed to the sqlalchemy column object.</li>
+</ul>
 </div>
 
 
@@ -263,7 +267,7 @@ Args:
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">PickleFileCol</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Column that will store arbitrary python data in the filesystem and keep only a reference.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">Col</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="s1">&#39;picklefile&#39;</span><span class="p">,</span> <span class="n">type_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">folder</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Col</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">PickleFileType</span><span class="p">,</span> <span class="n">type_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">folder</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -286,7 +290,7 @@ Args:
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">TextFileCol</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Column that will store text data in the filesystem and keep only a reference.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">Col</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="s1">&#39;textfile&#39;</span><span class="p">,</span> <span class="n">type_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">folder</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Col</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">TextFileType</span><span class="p">,</span> <span class="n">type_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">folder</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -309,7 +313,7 @@ Args:
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ParseTreeFileCol</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Column that will store text data in the filesystem and keep only a reference.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">Col</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="s1">&#39;parsetree&#39;</span><span class="p">,</span> <span class="n">type_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">folder</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Col</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">ParseTreeDocFileType</span><span class="p">,</span> <span class="n">type_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">folder</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 
         </details>

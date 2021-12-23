@@ -1,3 +1,38 @@
+'''
+
+# What is doctable?
+
+doctable is a python package for designing and manipulating database tables through an object-oriented interface without the overhead of ORM. Read more on [doctable.org](https://doctable.org).
+
+# Important Objects
+
+* [DocTable](doctable/doctable.html)
+* [ConnectEngine](doctable/connectengine.html)
+
+* [ParsePipeline](doctable/parse/pipeline.html)
+* [Parsing Functions](doctable/parse/parsefuncs.html)
+* [ParseTree](doctable/parse/parsetree.html)
+
+* [Timer](doctable/util/timer.html)
+* [FSStore](doctable/util/fsstore.html)
+* [TempFolder](doctable/util/tempfolder.html)
+* [I/O Functions](doctable/util/io.html)
+
+
+
+
+
+# Additional Resources
+
+[PyPi page](https://pypi.org/project/doctable/)
+
+[Github page](https://github.com/devincornell/doctable)
+
+'''
+
+
+
+
 name = "doctable"
 
 # expose some features of sqlalchemy

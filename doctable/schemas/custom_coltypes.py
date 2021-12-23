@@ -8,7 +8,7 @@ import json
 import pathlib
 from doctable.textmodels import ParseTreeDoc
 
-import dataclasses
+#import dataclasses
 
 class FileTypeControl:
     ''' All instances of FileTypeBase will have a reference to this object.
@@ -16,8 +16,7 @@ class FileTypeControl:
     select_raw_fname: bool = False
     def __init__(self, folder):
         if folder is None:
-            raise Exception('folder must be defined when initializing '
-                            'a file type.')
+            raise ValueError('"folder" must be provided when initializing a file type.')
         self.path = pathlib.Path(folder)
         
         # make directory if it doesn't exist

@@ -14262,11 +14262,11 @@ a.anchor-link {
 <h1 id="Vignette-2:-Storing-Document-Text">Vignette 2: Storing Document Text<a class="anchor-link" href="#Vignette-2:-Storing-Document-Text">&#182;</a></h1><p>In this example, I'll show how to create a database for document text + metadata storage using the <code>DocTable</code> class, and a parser class using a <code>ParsePipeline</code>. We will store the metadata you see below with the raw text and parsed tokens in the same DocTable.</p>
 <p>These are the vignettes I have created:</p>
 <ul>
-<li><p><a href="examples/example_nss_1_intro.html">1: Storing Document Metadata</a></p>
+<li><p><a href="example_nss_1_intro.html">1: Storing Document Metadata</a></p>
 </li>
-<li><p><a href="examples/example_nss_2_parsing.html">2: Storing Document Text</a></p>
+<li><p><a href="example_nss_2_parsing.html">2: Storing Document Text</a></p>
 </li>
-<li><p><a href="examples/example_nss_3_parsetrees.html">3: Storing Parsed Documents</a></p>
+<li><p><a href="example_nss_3_parsetrees.html">3: Storing Parsed Documents</a></p>
 </li>
 </ul>
 
@@ -14439,12 +14439,12 @@ The <code>DocTable</code> class is often used by subclassing. Our <code>NSSDocs<
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">NSSDocTable</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
     <span class="n">_tabname_</span> <span class="o">=</span> <span class="s1">&#39;nss_documents&#39;</span>
     <span class="n">_schema_</span> <span class="o">=</span> <span class="n">NSSDoc</span>
-    <span class="n">_indices_</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;party_index&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;party&#39;</span><span class="p">,),</span>
-    <span class="p">}</span>
-    <span class="n">_constraints_</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;party in (&quot;R&quot;, &quot;D&quot;)&#39;</span><span class="p">),</span> <span class="c1"># party can only take on values R or D.</span>
-    <span class="p">]</span>
+    <span class="n">_indices_</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">doctable</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="s1">&#39;party_index&#39;</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">_constraints_</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">doctable</span><span class="o">.</span><span class="n">Constraint</span><span class="p">(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;party in (&quot;R&quot;, &quot;D&quot;)&#39;</span><span class="p">),</span>
+    <span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14634,7 +14634,7 @@ The <code>DocTable</code> class is often used by subclassing. Our <code>NSSDocs<
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>100%|██████████| 6/6 [00:01&lt;00:00,  5.08it/s]
+<pre>100%|██████████| 6/6 [00:01&lt;00:00,  3.09it/s]
 </pre>
 </div>
 </div>
@@ -15046,8 +15046,8 @@ lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&lt;spacy.lang.en.English at 0x7f01bde63fa0&gt;,
- functools.partial(&lt;function tokenize at 0x7f026ad4f4c0&gt;, split_sents=False, keep_tok_func=functools.partial(&lt;function keep_tok at 0x7f026ad4f5e0&gt;), parse_tok_func=functools.partial(&lt;function parse_tok at 0x7f026ad4f550&gt;))]</pre>
+<pre>[&lt;spacy.lang.en.English at 0x7fe03e1467f0&gt;,
+ functools.partial(&lt;function tokenize at 0x7fe0eaf77160&gt;, split_sents=False, keep_tok_func=functools.partial(&lt;function keep_tok at 0x7fe0eaf77280&gt;), parse_tok_func=functools.partial(&lt;function parse_tok at 0x7fe0eaf771f0&gt;))]</pre>
 </div>
 
 </div>
@@ -15090,7 +15090,7 @@ lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)</code></pre>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>100%|██████████| 6/6 [00:08&lt;00:00,  1.34s/it]
+<pre>100%|██████████| 6/6 [00:07&lt;00:00,  1.19s/it]
 </pre>
 </div>
 </div>
