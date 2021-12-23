@@ -36,8 +36,8 @@ class ConnectEngine:
                                      'exist yet.'.format(target))
 
             if timeout is not None:
-                engine_kwargs = {**engine_kwargs, 'timeout':timeout}
-
+                engine_kwargs.setdefault('connect_args', {})
+                engine_kwargs['connect_args'] = {**engine_kwargs['connect_args'], **{'timeout': 15}}
         
         self._echo = echo
         self._foreign_keys = foreign_keys
