@@ -212,6 +212,16 @@ class DocTable:
         
     
     #################### Connection Methods ###################
+
+    def __enter__(self):
+        '''Calls .open_conn()
+        '''
+        return self.open_conn()
+
+    def __exit__(self):
+        '''Calls .close_conn()
+        '''
+        return self.close_conn()
     
     def close_conn(self):
         ''' Closes connection to db (if one exists). '''
