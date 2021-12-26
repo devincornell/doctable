@@ -19,7 +19,15 @@ class WorkerPool:
     workers: List[WorkerResource] = dataclasses.field(default_factory=list)
 
     def __post_init__(self):
-        pass
+        '''Create WorkerResource objects.
+        '''
+
+        for _ in range(self.num_workers):
+            self.workers.append(WorkerResource(
+                verbose = self.verbose,
+                logging = self.logging,
+                method = self.method,
+            ))
     
     def __del__(self):
         self.terminate(check=False)
@@ -42,7 +50,7 @@ class WorkerPool:
     def any_alive(self):
         '''Check if any processes are alive.
         '''
-        return self.workers is not None and any([w.is_alive() for w in self.workers])
+        return any([w.is_alive() for w in self.workers])
     
     def start(self):
         '''Start workers.
@@ -50,14 +58,7 @@ class WorkerPool:
         if self.any_alive():
             raise ValueError('This Pool already has running workers.')
         
-        # start each worker
-        for _ in range(self.num_workers):
-            self.workers.append(WorkerResource(
-                start=True, 
-                verbose = self.verbose,
-                logging = self.logging,
-                method = self.method,
-            ))
+
         
         return self
 

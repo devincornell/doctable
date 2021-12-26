@@ -1,56 +1,40 @@
-import collections
+import functools
+import typing
 import dataclasses
-import gc
 import multiprocessing
-import os
-from multiprocessing import Lock, Pipe, Pool, Process, Value
-from typing import Any, Callable, Dict, Iterable, List, NewType, Tuple, Union
+import multiprocessing.connection
+#from multiprocessing import Lock, Pipe, Pool, Process, Value
+#from typing import Any, Callable, Dict, Iterable, List, NewType, Tuple, Union
 
 from .exceptions import (UserFuncRaisedException, WorkerDiedError,
                          WorkerIsAliveError, WorkerIsDeadError,
                          WorkerResourceReceivedUnidentifiedMessage)
-from .messaging import (BaseMessage, DataPayload, SigClose, StatusRequest,
-                        UserFunc, UserFuncException, WorkerError, WorkerStatus)
+from .messaging import (BaseMessage, DataPayload, SigClose, StatusRequest)
+#from .userfunc import UserFunc
 from .workerprocess import WorkerProcess
+from .messaging import MessageType
 
-
+@dataclasses.dataclass
 class WorkerResource:
-    '''Manages a worker process and pipe to it.'''
-    __slots__ = ['pipe', 'proc', 'verbose']
-
-    def __init__(self, target: Callable = None, start: bool = False, args=None, kwargs=None, logging: bool = True, verbose: bool = False, method: str = 'forkserver'):
-        '''Open Process and pipe to it.
-        '''
-        self.verbose = verbose
-
-        # set up userfunc
-        if target is not None:
-            args = args if args is not None else tuple()
-            kwargs = kwargs if kwargs is not None else dict()
-            userfunc = UserFunc(target, *args, **kwargs)
-        else:
-            userfunc = None
-
-        ctx = multiprocessing.get_context(method)
-        self.pipe, worker_pipe = Pipe(duplex=True)
-        self.proc = ctx.Process(
-            target=WorkerProcess(worker_pipe, userfunc=userfunc, verbose=verbose, logging=logging), 
-        )
-
-        # start worker if requested
-        if start:
-            self.start()
+    '''Manages a worker process and pipe to it.
+    '''
+    method: str = 'forkserver'
+    logging: bool = True
+    verbose: bool = False
+    proc: multiprocessing.Process = None
+    pipe: multiprocessing.connection.Connection = None
     
-    def __repr__(self):
-        return f'{self.__class__.__name__}[{self.pid}]'
+    #def __repr__(self):
+    #    return f'{self.__class__.__name__}[{self.pid}]'
     
     def __enter__(self):
-        if not self.is_alive():
-            self.start()
+        #if not self.is_alive():
+        #    self.start()
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
-        self.join()
+        #self.join()
+        pass
     
     def __del__(self):
         if self.verbose: print(f'{self}.__del__ was called!')
@@ -60,45 +44,42 @@ class WorkerResource:
     def poll(self) -> bool: 
         '''Check if worker sent anything.
         '''
+        if not self.is_alive():
+            raise WorkerIsDeadError('.poll()', self.proc.pid)
         return self.pipe.poll()
 
-    def execute(self, data: Any):
+    def execute(self, data: typing.Any):
         '''Send data to worker and blocking return result upon reception.
         '''
         self.send_data(data)
         return self.recv_data()
 
-    def recv_data(self) -> Any:
+    def recv_data(self) -> typing.Any:
         '''Receive raw data from user function.'''
         return self.recv().data
     
-    def send_data(self, data: Any, **kwargs) -> None:
+    def send_data(self, data: typing.Any, **kwargs) -> None:
         '''Send any data to worker process to be handled by user function.'''
-        return self.send_payload(DataPayload(data, **kwargs))
-
-    def update_userfunc(self, func: Callable, *args, **kwargs):
-        '''Send a new UserFunc to worker process.
-        '''
-        return self.send_payload(UserFunc(func, *args, **kwargs))
+        return self.send_message(DataPayload(data, **kwargs))
 
     def get_status(self):
         '''Blocking request status update from worker.
         '''
-        self.send_payload(StatusRequest())
+        self.send_message(StatusRequest())
         return self.recv()
 
     ############### Pipe interface ###############
 
-    def send_payload(self, payload: BaseMessage) -> None:
+    def send_message(self, message: BaseMessage) -> None:
         '''Send a Message (DataPayload or otherwise) to worker process.
         '''
-        if not self.proc.is_alive():
-            raise WorkerIsDeadError('.send_payload()', self.proc.pid)
+        if not self.is_alive():
+            raise WorkerIsDeadError('.send_message()', self.proc.pid)
         
-        if self.verbose: print(f'{self} sending: {payload}')
+        if self.verbose: print(f'{self} sending: {message}')
         
         try:
-            return self.pipe.send(payload)
+            return self.pipe.send(message)
         
         except BrokenPipeError:
             raise WorkerDiedError(self.proc.pid)
@@ -107,23 +88,23 @@ class WorkerResource:
         '''Return received DataPayload or raise exception.
         '''
         try:
-            payload = self.pipe.recv()
-            if self.verbose: print(f'{self} received: {payload}')
+            message = self.pipe.recv()
+            if self.verbose: print(f'{self} received: {message}')
         
         except (BrokenPipeError, EOFError, ConnectionResetError):
             if self.verbose: print('caught one of (BrokenPipeError, EOFError, ConnectionResetError)')
             raise WorkerDiedError(self.proc.pid)
         
         # handle incoming data
-        if isinstance(payload, DataPayload) or isinstance(payload, WorkerStatus):
-            return payload
+        if message.type in (MessageType.DATA, MessageType.STATUS):
+            return message
 
-        elif isinstance(payload, WorkerError):
+        elif message.type is MessageType.ERROR:
             #self.terminate(check_alive=True)
-            raise payload.e
+            raise message.e
 
-        elif isinstance(payload, UserFuncException):
-            raise UserFuncRaisedException(payload.e)
+        elif message.type is MessageType.USERFUNC_EXCEPTION:
+            raise UserFuncRaisedException(message.e)
         
         else:
             raise WorkerResourceReceivedUnidentifiedMessage()
@@ -131,22 +112,32 @@ class WorkerResource:
     ############### Process interface ###############
     @property
     def pid(self):
-        '''Get process id from worker.'''
+        '''Get process id from worker.
+        '''
         return self.proc.pid
     
     def is_alive(self, *arsg, **kwargs):
-        '''Get status of process.'''
-        return self.proc.is_alive(*arsg, **kwargs)
-    
-    def start(self):
-        '''Start the process, throws WorkerIsAliveError if already alive.'''
-        if self.proc.is_alive():
-            raise WorkerIsAliveError('.start()', self.proc.pid)
-        return self.proc.start()
+        '''Get status of process.
+        '''
+        return self.proc is not None and self.proc.is_alive(*arsg, **kwargs)
+
+    def start(self, userfunc: typing.Callable, *userfunc_args, **userfunc_kwargs):
+        '''Create a new WorkerProcess and start it.
+        '''
+        self.pipe, worker_pipe = multiprocessing.Pipe(duplex=True)
+        target = WorkerProcess(worker_pipe, verbose=self.verbose, logging=self.logging)
+
+        ctx = multiprocessing.get_context(self.method)
+        self.proc = ctx.Process(
+            target=target, 
+            args=(functools.partial(userfunc, *userfunc_args, **userfunc_kwargs),)
+        )
+        
+        self.proc.start()
     
     def join(self, check_alive=True):
         '''Send SigClose() to Worker and then wait for it to die.'''
-        if check_alive and not self.proc.is_alive():
+        if check_alive and not self.is_alive():
             raise WorkerIsDeadError('.join()', self.proc.pid)
         try:
             self.pipe.send(SigClose())
@@ -156,7 +147,7 @@ class WorkerResource:
 
     def terminate(self, check_alive=True): 
         '''Send terminate signal to worker.'''
-        if check_alive and not self.proc.is_alive():
+        if check_alive and not self.is_alive():
             raise WorkerIsDeadError('.terminate()', self.proc.pid)
         return self.proc.terminate()
 

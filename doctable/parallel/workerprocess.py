@@ -7,21 +7,16 @@ import traceback
 from multiprocessing import Lock, Pipe, Pool, Process, Value
 from typing import Any, Callable, Dict, Iterable, List, Tuple
 
-from .exceptions import (UnidentifiedMessageReceivedError,
-                         WorkerHasNoUserFunctionError, WorkerIsDeadError)
-from .messaging import (DataPayload, WorkerStatus, UserFuncException, SigClose, UserFunc,
-                        WorkerError, StatusRequest)
+from .exceptions import (UnidentifiedMessageReceivedError)
+from .messaging import MessageType, WorkerError, UserFuncException, DataPayload
+from .workerstatus import WorkerStatus
+
 import time
-
-
-
-
 
 @dataclasses.dataclass
 class WorkerProcess:
     '''Basic worker meant to be run in a process.'''
     pipe: multiprocessing.Pipe
-    userfunc: UserFunc = None
     gcollect: bool = False
     verbose: bool = False
     logging: bool = False
@@ -34,7 +29,7 @@ class WorkerProcess:
     def __repr__(self):
         return f'{self.__class__.__name__}[{self.pid}]'
 
-    def __call__(self):
+    def __call__(self, userfunc: Callable):
         '''Call when opening the process.
         '''
         
@@ -44,49 +39,41 @@ class WorkerProcess:
             # wait to receive data
             try:
                 if self.logging: start = time.time()
-                payload = self.recv()
+                message = self.recv()
                 if self.logging: self.status.time_waiting += time.time() - start
             except (EOFError, BrokenPipeError):
                 exit(1)
 
             # kill worker
-            if isinstance(payload, SigClose):
+            if message.type is MessageType.CLOSE:
                 exit(1)
 
             # process received data payload
-            elif isinstance(payload, DataPayload):
-                self.execute_and_send(payload)
-            
-            # load new function
-            elif isinstance(payload, UserFunc):
-                self.userfunc = payload
+            elif message.type is MessageType.DATA:
+                self.execute_and_send(message)
 
             # return status of worker
-            elif isinstance(payload, StatusRequest):
+            elif message.type is MessageType.STATUS_REQUEST:
                 self.status.update_uptime()
                 self.send(self.status)
             
             else:
                 self.send(WorkerError(UnidentifiedMessageReceivedError()))
 
-    def execute_and_send(self, payload: DataPayload):
+    def execute_and_send(self, userfunc: Callable, payload: DataPayload):
         '''Execute the provide function on the payload (modifies in-place), and return it.
         '''
-        # check if worker has a user function
-        if self.userfunc is None:
-            self.send(WorkerError(WorkerHasNoUserFunctionError()))
-            return
-            
-        # update pid and apply userfunc
+        # update pid and apply userfunc to datapayload
         payload.pid = self.pid
         
         # try to execute function and raise any errors
         try:
             if self.logging: start = time.time()
-            payload.data = self.userfunc.execute(payload.data)
+            payload.data = userfunc(payload.data)
             if self.logging:
                 self.status.time_working += time.time() - start
                 self.status.jobs_finished += 1
+        
         except BaseException as e:
             self.send(UserFuncException(e))
             traceback.print_exc()
