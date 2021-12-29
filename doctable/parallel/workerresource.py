@@ -76,7 +76,7 @@ class WorkerResource:
         if not self.is_alive():
             raise WorkerIsDeadError('.send_message()', self.proc.pid)
         
-        self.print(f'sending: {message}')
+        self.print(f'sending: {message.type}')
         
         try:
             return self.pipe.send(message)

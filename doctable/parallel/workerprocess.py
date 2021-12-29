@@ -51,7 +51,7 @@ class WorkerProcess:
 
             # process received data payload
             elif message.type is MessageType.DATA:
-                self.execute_and_send(message)
+                self.execute_and_send(userfunc, message)
 
             # return status of worker
             elif message.type is MessageType.STATUS_REQUEST:

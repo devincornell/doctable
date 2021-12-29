@@ -50,15 +50,14 @@ class WorkerStatus(BaseMessage):
         '''
         return pd.Series({
             'start_ts': self.start_ts,
+            'uptime': self.uptime,
+            'jobs_finished': self.jobs_finished,
             'time_waiting (sec)': self.time_waiting,
             'time_working (sec)': self.time_working,
-            'jobs_finished': self.jobs_finished,
-            'uptime': self.uptime,
-            
-            'efficiency': f'{self.efficiency()}%',
-            'total_efficiency': f'{self.total_efficiency()}%',
-            'sec_per_job': self.sec_per_job(),
-            'memory used': f'{self.memory.rss/1e6:0.2f} MB',
+            'memory (MB)': self.memory.rss/1e6,
+            'efficiency (%)': self.efficiency()*100,
+            'total_efficiency (%)': self.total_efficiency()*100,
+            'sec_per_job (sec)': self.sec_per_job(),
         })
 
 
