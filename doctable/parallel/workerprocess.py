@@ -55,7 +55,7 @@ class WorkerProcess:
 
             # return status of worker
             elif message.type is MessageType.STATUS_REQUEST:
-                self.status.update_uptime()
+                self.status.update()
                 self.send(self.status)
             
             else:
