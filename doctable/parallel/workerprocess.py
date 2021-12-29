@@ -8,7 +8,7 @@ from multiprocessing import Lock, Pipe, Pool, Process, Value
 from typing import Any, Callable, Dict, Iterable, List, Tuple
 
 from .exceptions import (UnidentifiedMessageReceivedError)
-from .messaging import MessageType, WorkerError, UserFuncException, DataPayload
+from .messaging import BaseMessage, MessageType, WorkerError, UserFuncException, DataPayload
 from .workerstatus import WorkerStatus
 
 import time
@@ -30,12 +30,12 @@ class WorkerProcess:
         return f'{self.__class__.__name__}[{self.pid}]'
 
     def __call__(self, userfunc: Callable):
-        '''Call when opening the process.
+        '''Start the process.
         '''
+        self.print(f'process started!: {userfunc}')
         
         # main receive/send loop
         while True:
-
             # wait to receive data
             try:
                 if self.logging: start = time.time()
@@ -43,6 +43,8 @@ class WorkerProcess:
                 if self.logging: self.status.time_waiting += time.time() - start
             except (EOFError, BrokenPipeError):
                 exit(1)
+
+            self.print(f'received {message.type}')
 
             # kill worker
             if message.type is MessageType.CLOSE:
@@ -90,12 +92,16 @@ class WorkerProcess:
     ############## Basic Send/Receive ##############
 
     def recv(self):
-        if self.verbose: print(f'{self} waiting to receive')
-        payload = self.pipe.recv()
-        if self.verbose: print(f'{self} received: {payload}')
-        return payload
+        self.print(f'waiting to receive')
+        message = self.pipe.recv()
+        self.print(f'{self} received: {message.type}')
+        return message
 
-    def send(self, data: Any):
-        if self.verbose: print(f'{self} sending: {data}')
-        return self.pipe.send(data)
+    def send(self, message: BaseMessage):
+        self.print(f'sending {message.type}')
+        return self.pipe.send(message)
+
+    def print(self, message):
+        if self.verbose:
+            print(f'{self}: {message}')
 

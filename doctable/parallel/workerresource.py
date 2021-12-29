@@ -23,22 +23,22 @@ class WorkerResource:
     verbose: bool = False
     proc: multiprocessing.Process = None
     pipe: multiprocessing.connection.Connection = None
-    
-    #def __repr__(self):
-    #    return f'{self.__class__.__name__}[{self.pid}]'
-    
+        
     def __enter__(self):
-        #if not self.is_alive():
-        #    self.start()
+    #    #if not self.is_alive():
+    #    #    self.start()
         return self
-
+    
     def __exit__(self, exc_type, exc_value, exc_tb):
-        #self.join()
-        pass
+        if self.is_alive():
+            self.join()
     
     def __del__(self):
         if self.verbose: print(f'{self}.__del__ was called!')
-        self.terminate(check_alive=False)
+        try:
+            self.terminate(check_alive=False)
+        except:
+            pass
 
     ############### Main interface methods ###############
     def poll(self) -> bool: 
@@ -110,19 +110,13 @@ class WorkerResource:
             raise WorkerResourceReceivedUnidentifiedMessage()
     
     ############### Process interface ###############
-    @property
-    def pid(self):
-        '''Get process id from worker.
-        '''
-        return self.proc.pid
-    
-    def is_alive(self, *arsg, **kwargs):
+    def is_alive(self):
         '''Get status of process.
         '''
-        return self.proc is not None and self.proc.is_alive(*arsg, **kwargs)
+        return self.proc is not None and self.proc.is_alive()
 
     def start(self, userfunc: typing.Callable, *userfunc_args, **userfunc_kwargs):
-        '''Create a new WorkerProcess and start it.
+        '''Create a new WorkerProcess and start it. Can be used in context manager.
         '''
         self.pipe, worker_pipe = multiprocessing.Pipe(duplex=True)
         target = WorkerProcess(worker_pipe, verbose=self.verbose, logging=self.logging)
@@ -134,6 +128,8 @@ class WorkerResource:
         )
         
         self.proc.start()
+        
+        return self
     
     def join(self, check_alive=True):
         '''Send SigClose() to Worker and then wait for it to die.'''
@@ -150,6 +146,12 @@ class WorkerResource:
         if check_alive and not self.is_alive():
             raise WorkerIsDeadError('.terminate()', self.proc.pid)
         return self.proc.terminate()
+
+    @property
+    def pid(self):
+        '''Get process id from worker.
+        '''
+        return self.proc.pid
 
 #class WorkerPool(list):
 #
