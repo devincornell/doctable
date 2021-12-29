@@ -42,13 +42,12 @@ class WorkerProcess:
                 message = self.recv()
                 if self.logging: self.status.time_waiting += time.time() - start
             except (EOFError, BrokenPipeError):
+                # don't send anything back because host is not available
                 exit(1)
-
-            self.print(f'received {message.type}')
-
+            
             # kill worker
             if message.type is MessageType.CLOSE:
-                exit(1)
+                exit(0)
 
             # process received data payload
             elif message.type is MessageType.DATA:
@@ -94,7 +93,7 @@ class WorkerProcess:
     def recv(self):
         self.print(f'waiting to receive')
         message = self.pipe.recv()
-        self.print(f'{self} received: {message.type}')
+        self.print(f'received {message.type}')
         return message
 
     def send(self, message: BaseMessage):
