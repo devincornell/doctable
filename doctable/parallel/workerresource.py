@@ -18,7 +18,7 @@ from .messaging import MessageType
 class WorkerResource:
     '''Manages a worker process and pipe to it.
     '''
-    method: str = 'forkserver'
+    method: str = 'fork'
     logging: bool = True
     verbose: bool = False
     proc: multiprocessing.Process = None
@@ -34,7 +34,7 @@ class WorkerResource:
             self.join()
     
     def __del__(self):
-        if self.verbose: print(f'{self}.__del__ was called!')
+        self.print(f'__del__ was called!')
         try:
             self.terminate(check_alive=False)
         except:
@@ -76,7 +76,7 @@ class WorkerResource:
         if not self.is_alive():
             raise WorkerIsDeadError('.send_message()', self.proc.pid)
         
-        if self.verbose: print(f'{self} sending: {message}')
+        self.print(f'sending: {message}')
         
         try:
             return self.pipe.send(message)
@@ -89,10 +89,10 @@ class WorkerResource:
         '''
         try:
             message = self.pipe.recv()
-            if self.verbose: print(f'{self} received: {message}')
+            self.print(f'received: {message.type}')
         
         except (BrokenPipeError, EOFError, ConnectionResetError):
-            if self.verbose: print('caught one of (BrokenPipeError, EOFError, ConnectionResetError)')
+            self.print('caught one of (BrokenPipeError, EOFError, ConnectionResetError)')
             raise WorkerDiedError(self.proc.pid)
         
         # handle incoming data
@@ -118,6 +118,8 @@ class WorkerResource:
     def start(self, userfunc: typing.Callable, *userfunc_args, **userfunc_kwargs):
         '''Create a new WorkerProcess and start it. Can be used in context manager.
         '''
+        self.print('starting process')
+
         self.pipe, worker_pipe = multiprocessing.Pipe(duplex=True)
         target = WorkerProcess(worker_pipe, verbose=self.verbose, logging=self.logging)
 
@@ -147,11 +149,22 @@ class WorkerResource:
             raise WorkerIsDeadError('.terminate()', self.proc.pid)
         return self.proc.terminate()
 
+
+    ############### Printing and debugging ###############
+
     @property
     def pid(self):
         '''Get process id from worker.
         '''
         return self.proc.pid
+
+    def print(self, message: str):
+        if self.verbose:
+            try:
+                print(f'{self.__class__.__name__}[{self.pid}]: {message}')
+            except AttributeError:
+                print(f'{self.__class__.__name__}[]: {message}')
+            
 
 #class WorkerPool(list):
 #
