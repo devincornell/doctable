@@ -77,6 +77,7 @@ class UserFuncException(BaseMessage):
     '''
     __slots__ = []
     message_type = MessageType.USERFUNC_EXCEPTION
+    e: BaseException = None
 
     def __init__(self, exception=None):
         self.e = exception
