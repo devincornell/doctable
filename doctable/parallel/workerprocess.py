@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, Iterable, List, Tuple
 
 from .exceptions import (UnidentifiedMessageReceivedError)
 from .messaging import BaseMessage, MessageType, WorkerError, UserFuncException, DataPayload
-from .workerstatus import WorkerStatus
+from .workerstatus import WorkerStatus, DisabledWorkerStatus
 
 import time
 
@@ -20,7 +20,16 @@ class WorkerProcess:
     gcollect: bool = False
     verbose: bool = False
     logging: bool = False
-    status: WorkerStatus = dataclasses.field(default_factory=WorkerStatus)
+    status: WorkerStatus = None
+    
+    def __post_init__(self):
+        '''Make a new status object.
+        '''
+        if self.logging:
+            self.status = WorkerStatus()
+        else:
+            self.status = DisabledWorkerStatus()
+        
 
     @property
     def pid(self):
@@ -38,9 +47,8 @@ class WorkerProcess:
         while True:
             # wait to receive data
             try:
-                if self.logging: start = time.time()
-                message = self.recv()
-                if self.logging: self.status.time_waiting += time.time() - start
+                with self.status.waiting():
+                    message = self.recv()
             except (EOFError, BrokenPipeError):
                 # don't send anything back because host is not available
                 exit(1)
@@ -69,11 +77,8 @@ class WorkerProcess:
         
         # try to execute function and raise any errors
         try:
-            if self.logging: start = time.time()
-            payload.data = userfunc(payload.data)
-            if self.logging:
-                self.status.time_working += time.time() - start
-                self.status.jobs_finished += 1
+            with self.status.working():
+                payload.data = userfunc(payload.data)
         
         except BaseException as e:
             self.send(UserFuncException(e))
