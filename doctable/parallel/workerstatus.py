@@ -18,13 +18,35 @@ class TimerStat(enum.Enum):
     WORKING = enum.auto()
 
 @doctable.util.slots_dataclass
-class WorkerStatus(BaseMessage):
+class WorkerStatusDummy(BaseMessage):
+    '''Status object that is not enabled.
+    '''
+    __slots__ = []
+    message_type: MessageType = MessageType.STATUS
+
+    def update(self):
+        return
+    
+    def waiting(self):
+        return self
+    
+    def working(self):
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        pass
+
+@doctable.util.slots_dataclass
+class WorkerStatus(WorkerStatusDummy):
     '''Status information sent from WorkerProcess to WorkerResource.
     '''
     __slots__ = []
-    message_type = MessageType.STATUS
+    message_type: MessageType = MessageType.STATUS
 
-    pid: int = os.getpid()
+    pid: int = dataclasses.field(default_factory=os.getpid)
 
     # time-related fields
     start_ts: int = dataclasses.field(default_factory=datetime.datetime.now)
@@ -70,12 +92,10 @@ class WorkerStatus(BaseMessage):
         return self
 
     def working(self):
-        '''Sets up context manager to measure wait time.
+        '''Sets up context manager to measure working time.
         '''
         self.current_measurement = TimerStat.WORKING
         return self
-
-    
 
     def efficiency(self):
         return self.time_working / (self.time_working + self.time_waiting)
@@ -102,20 +122,4 @@ class WorkerStatus(BaseMessage):
             'sec_per_job (sec)': self.sec_per_job(),
         })
 
-class DisabledWorkerStatus(WorkerStatus):
-    '''Status object that has been disabled.
-    '''
-    def update(self):
-        return
-    
-    def waiting(self):
-        return self
-    
-    def working(self):
-        return self
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, exc_tb):
-        pass

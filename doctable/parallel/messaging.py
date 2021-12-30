@@ -12,12 +12,12 @@ import datetime
 import enum
 
 class MessageType(enum.Enum):
-    DATA = 1
-    STATUS_REQUEST = 2
-    STATUS = 3
-    CLOSE = 4
-    ERROR = 5
-    USERFUNC_EXCEPTION = 6
+    DATA = enum.auto()
+    STATUS_REQUEST = enum.auto()
+    STATUS = enum.auto()
+    CLOSE = enum.auto()
+    ERROR = enum.auto()
+    USERFUNC_EXCEPTION = enum.auto()
 
 class BaseMessage:
     '''All messages between WorkerProcess and WorkerResource inherit from this.

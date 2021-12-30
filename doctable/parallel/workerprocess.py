@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, Iterable, List, Tuple
 
 from .exceptions import (UnidentifiedMessageReceivedError)
 from .messaging import BaseMessage, MessageType, WorkerError, UserFuncException, DataPayload
-from .workerstatus import WorkerStatus, DisabledWorkerStatus
+from .workerstatus import WorkerStatus, WorkerStatusDummy
 
 import time
 
@@ -28,7 +28,7 @@ class WorkerProcess:
         if self.logging:
             self.status = WorkerStatus()
         else:
-            self.status = DisabledWorkerStatus()
+            self.status = WorkerStatusDummy()
         
 
     @property
