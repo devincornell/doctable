@@ -36,7 +36,7 @@ if __name__ == '__main__':
         print(f'result: {w.execute(4)}')
         print(w.is_alive())
         status = w.get_status()
-    print(status.as_series())
+    #print(status.as_series())
     print(w.is_alive())
     #w.start(userfunc)
     #print(w.is_alive())

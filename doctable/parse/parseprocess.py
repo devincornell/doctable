@@ -24,7 +24,7 @@ class ParseProcess:
         '''Execute function in worker process.
         '''
         table = self.connect_db()
-        record = 
+        #record = 
         record = NewsgroupDoc.from_string(text)
         table.insert(record)
 

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import functools
 import typing
 import dataclasses
@@ -14,11 +15,13 @@ from .messaging import (BaseMessage, DataPayload, SigClose, StatusRequest)
 from .workerprocess import WorkerProcess
 from .messaging import MessageType
 
+
+
 @dataclasses.dataclass
 class WorkerResource:
     '''Manages a worker process and pipe to it.
     '''
-    method: str = 'fork'
+    method: str = None
     logging: bool = True
     verbose: bool = False
     proc: multiprocessing.Process = None
@@ -48,7 +51,7 @@ class WorkerResource:
             raise WorkerIsDeadError('.poll()', self.proc.pid)
         return self.pipe.poll()
 
-    def execute(self, data: typing.Any):
+    def execute(self, data: typing.Any) -> typing.Any:
         '''Send data to worker and blocking return result upon reception.
         '''
         self.send_data(data)
@@ -62,7 +65,7 @@ class WorkerResource:
         '''Send any data to worker process to be handled by user function.'''
         return self.send_message(DataPayload(data, **kwargs))
 
-    def get_status(self):
+    def get_status(self) -> typing.Any:
         '''Blocking request status update from worker.
         '''
         self.send_message(StatusRequest())
@@ -110,20 +113,20 @@ class WorkerResource:
             raise WorkerResourceReceivedUnidentifiedMessage()
     
     ############### Process interface ###############
-    def is_alive(self):
+    def is_alive(self) -> bool:
         '''Get status of process.
         '''
         return self.proc is not None and self.proc.is_alive()
 
-    def start(self, userfunc: typing.Callable, *userfunc_args, **userfunc_kwargs):
+    def start(self, userfunc: typing.Callable, *userfunc_args, **userfunc_kwargs) -> WorkerResource:
         '''Create a new WorkerProcess and start it. Can be used in context manager.
         '''
         self.print('starting process')
 
-        self.pipe, worker_pipe = multiprocessing.Pipe(duplex=True)
+        ctx = multiprocessing.get_context(self.method)
+        self.pipe, worker_pipe = ctx.Pipe(duplex=True)
         target = WorkerProcess(worker_pipe, verbose=self.verbose, logging=self.logging)
 
-        ctx = multiprocessing.get_context(self.method)
         self.proc = ctx.Process(
             target=target, 
             args=(functools.partial(userfunc, *userfunc_args, **userfunc_kwargs),)
@@ -133,7 +136,7 @@ class WorkerResource:
         
         return self
     
-    def join(self, check_alive=True):
+    def join(self, check_alive=True) -> None:
         '''Send SigClose() to Worker and then wait for it to die.'''
         if check_alive and not self.is_alive():
             raise WorkerIsDeadError('.join()', self.proc.pid)
@@ -143,7 +146,7 @@ class WorkerResource:
             pass
         return self.proc.join()
 
-    def terminate(self, check_alive=True): 
+    def terminate(self, check_alive=True) -> None: 
         '''Send terminate signal to worker.'''
         if check_alive and not self.is_alive():
             raise WorkerIsDeadError('.terminate()', self.proc.pid)
@@ -153,12 +156,12 @@ class WorkerResource:
     ############### Printing and debugging ###############
 
     @property
-    def pid(self):
+    def pid(self) -> int:
         '''Get process id from worker.
         '''
         return self.proc.pid
 
-    def print(self, message: str):
+    def print(self, message: str) -> None:
         if self.verbose:
             try:
                 print(f'{self.__class__.__name__}[{self.pid}]: {message}')
