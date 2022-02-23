@@ -291,6 +291,12 @@ class DocTable:
                 object.
         '''
         return self._table.c
+
+    @property
+    def c(self):
+        '''See docs for self.columns.
+        '''
+        return self.columns
     
     @property
     def engine(self):
