@@ -12,7 +12,7 @@ class ConnectEngine:
     ''' Class to maintain sqlalchemy engine and metadata information for doctables.
     '''
     def __init__(self, target: str = None, dialect:str = 'sqlite', new_db: bool = False, 
-                    foreign_keys: bool = False, echo: bool = False, 
+                    foreign_keys: bool = True, echo: bool = False, 
                     orm: bool = False, engine_kwargs={}, **connect_args):
         ''' Initializes sqlalchemy engine  and metadata objects.
             Args:
