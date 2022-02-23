@@ -1,7 +1,7 @@
 
-from dataclasses import dataclass
+import dataclasses
 
-@dataclass
+@dataclasses.dataclass(frozen=True, eq=True)
 class EmptyValue:
     ''' Represents value that was not retrieved from select statement.
     '''
