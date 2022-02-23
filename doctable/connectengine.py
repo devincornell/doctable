@@ -175,11 +175,12 @@ class ConnectEngine:
         
         # create new table with provided columns
         if columns is not None:
-            try:
-                table = sqlalchemy.Table(tabname, self._metadata, *columns, **table_kwargs)
-            except: # make error more transparent
-                raise ValueError(f'Error creating table. Data provided: {tabname}, '
-                    f'metadata={self._metadata}, columns={columns}, table_kwargs={table_kwargs}')
+            table = sqlalchemy.Table(tabname, self._metadata, *columns, **table_kwargs)
+            #try:
+            #    table = sqlalchemy.Table(tabname, self._metadata, *columns, **table_kwargs)
+            #except: # make error more transparent
+            #    raise ValueError(f'Error creating table. Data provided: {tabname}, '
+            #        f'metadata={self._metadata}, columns={columns}, table_kwargs={table_kwargs}')
             if tabname not in self._engine.table_names():
                 if new_table:
                     table.create(self._engine)
