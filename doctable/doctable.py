@@ -714,12 +714,11 @@ class DocTable:
             if verbose: print(prstr.format(query))
         elif self.verbose: print(prstr.format(query))
         
-        # try to parse
-        result = self._execute(query, **kwargs)
-        return result
+        return self._execute(query, **kwargs)
     
     def _execute(self, query, conn=None):
-        
+        '''Execute sql query using either existing connection, provided connection, or without a connection.
+        '''
         # takes raw query object
         if conn is not None:
             r = conn.execute(query)
