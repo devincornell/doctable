@@ -1,6 +1,6 @@
 from typing import Iterable, List
 
-def chunk(elements: Iterable, /, chunk_size: int = None, num_chunks: int = None) -> List:
+def chunk(elements: Iterable, /, chunk_size: int = None, num_chunks: int = None) -> List[Iterable]:
     '''Break elements into chunks determined by chunk_kwargs sent to .chunk_slice().
     '''
     slices = chunk_slice(len(elements), chunk_size=chunk_size, num_chunks=num_chunks)
