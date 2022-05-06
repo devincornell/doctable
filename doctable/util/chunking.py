@@ -1,12 +1,13 @@
-from typing import Iterable
+from typing import Iterable, List
 
-def chunk(elements: Iterable, /, **chunk_kwargs):
+def chunk(elements: Iterable, /, chunk_size: int = None, num_chunks: int = None) -> List:
     '''Break elements into chunks determined by chunk_kwargs sent to .chunk_slice().
     '''
-    return [elements[s] for s in chunk_slice(len(elements), **chunk_kwargs)]
+    slices = chunk_slice(len(elements), chunk_size=chunk_size, num_chunks=num_chunks)
+    return [elements[s] for s in slices]
 
 
-def chunk_slice(n: int, /, chunk_size: int = None, num_chunks: int = None):
+def chunk_slice(n: int, /, chunk_size: int = None, num_chunks: int = None) -> List[slice]:
     '''Create slices for chunks of an array of size n.
     '''
     if (chunk_size is None and num_chunks is None) or \
