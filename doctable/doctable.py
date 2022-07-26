@@ -49,7 +49,7 @@ class DocTable:
                 schema: Sequence[Sequence] = None, indices: dict = None, constraints = None,
                 dialect: str = 'sqlite', engine=None, 
                 readonly: bool=False, new_db: bool=False, new_table: bool=True, 
-                persistent_conn: bool=True, verbose: bool=False, **engine_kwargs):
+                persistent_conn: bool=False, verbose: bool=False, **engine_kwargs):
         '''Create new database.
         Args:
             target (str): filename for database to connect to. ":memory:" is a 
@@ -196,8 +196,8 @@ class DocTable:
         self._table = self._engine.add_table(self._tabname, columns=self._columns, 
                                              new_table=self._new_table)
         
-        # connect to database
-        self._conn = self._engine.connect()
+        # create persistent connection to database if requested
+        self._conn = self._engine.connect() if self.persistent_conn else None
         
     def __del__(self):
         ''' Closes database connection to prevent locking db.
@@ -218,7 +218,7 @@ class DocTable:
         '''
         return self.open_conn()
 
-    def __exit__(self):
+    def __exit__(self, exc_type, exc_value, exc_tb):
         '''Calls .close_conn()
         '''
         return self.close_conn()
