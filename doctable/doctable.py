@@ -4,6 +4,7 @@ import pprint
 import random
 import pandas as pd
 import os
+import copy
 from glob import glob
 from datetime import datetime
 import typing
@@ -165,9 +166,9 @@ class DocTable:
         # store arguments as-is
         self._tabname = args['tabname'] if args['tabname'] is not None else DEFAULT_TABNAME
         self._target = args['target']
-        self._schema = args['schema']
-        self._indices = args['indices']
-        self._constraints = args['constraints']
+        self._schema = copy.deepcopy(args['schema'])
+        self._indices = copy.deepcopy(args['indices'])
+        self._constraints = copy.deepcopy(args['constraints'])
         self.dialect = args['dialect']
 
         # flags
