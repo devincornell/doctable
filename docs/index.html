@@ -95,8 +95,8 @@
       <div class="row h-100 align-items-center">
         <div class="col-lg-12">
           <h3 class="display-4 text-white mt-5 mb-2">Databases for text analysis</h3>
-          <p class="lead mb-5 text-white-50"><span style='font-family: "Lucida Console", Monaco, monospace;'>doctable</span> is a python package for designing and manipulating database tables through an object-oriented interface without the overhead of ORM.</p>
-		      <img src="diagram.svg" style="width:60%"/>
+          <p class="lead mb-5 text-white-50"><span style='font-family: "Lucida Console", Monaco, monospace;'>doctable</span> is a Python package for designing and manipulating database tables through an object-oriented interface.</p>
+		      <img src="website_diagram_v4.svg" style="width:60%"/>
         </div>
       </div>
     </div>
@@ -110,10 +110,10 @@
         <!--<br/>-->
         <!--<h2>Here's the thing.</h2>-->
 
-        <p>This package allows you to interface with database tables as objects without the overhead of ORM, and provides tools for building parsing pipelines and storing parsetree objects. See the <a href="examples/example_nss_1_intro.html">vignette example</a> for more details. A typical workflow will follow these steps:</p>
+        <p>This package allows you to define and manipulate databases as regular Python objects. See the <a href="examples/example_nss_1_intro.html">vignette examples</a>.</p>
         
         <ol>
-          <li>Create a schema definition using the <code>@doctable.schema</code> decorator. In addition to providing the schema definition for the table, this class operates much like a dataclass to encapsulate your retrieved or inserted data. See the <a href="examples/doctable_schema.html">schema guide</a> for more details.</li>
+          <li>Create a database schema definition using the <code>@doctable.schema</code> decorator. In addition to providing the schema definition for the table, this class operates much like a dataclass to encapsulate your retrieved or inserted data. See the <a href="examples/doctable_schema.html">schema guide</a> for more details.</li>
           <li>Define the interface to your data model by creating a class that inherits from <a href="#DocTable"><code>DocTable</code></a>. The base class provides methods for inserting, retrieving, and changing database rows.</li>
           <li>Merge your parsed text with relevant document metadata and use your <code>DocTable</code> interface to store and retrieve data from the database.</li>
           <li>Develop a text parsing pipeline using <a href="#ParsePipeline"><code>ParsePipeline</code></a>. This class can distribute your text parsing across multiple processes, and can be used to create <code>ParseTree</code> objects to be stored in your database.</li>
@@ -132,24 +132,22 @@
         <p>Object-oriented interface for querying and manipulating database tables.</p>
         <!--<h5>Examples</h5>-->
         <ul>
-          <li>Make schemas: <i><a href="examples/doctable_schema.html">schema guide</a></i> /
-            <i><a href="examples/dataclass_example.html">dataclass schema example.</a></i>
+          <li>Create schemas: <i><a href="examples/doctable_schema.html">schema guide</a></i>
           </li>
-          <li>Basic operations: 
+          <li>CRUD operations: 
             <i><a href="examples/doctable_insert_delete.html">insert and delete</a></i> /
             <i><a href="examples/doctable_select.html">select</a></i> /
             <i><a href="examples/doctable_update.html">update</a></i>
           </li>
-          <li>Work with multiple tables: <i><a href="examples/doctable_multitable.html">multi-table example</a></i></li>
+          <li>Multiple tables: <i><a href="examples/doctable_multitable.html">multi-table example</a></i></li>
           <li>Concurrent connections: 
             <i><a href="examples/doctable_concurrency.html">guide to concurrent connections</a></i>
           </li>
-          <li>Store python objects: 
+          <li>Python object storage: 
             <i><a href="examples/doctable_file_column_types.html">pickle and text file columntypes</a></i> /
             <i><a href="examples/doctable_parsetreedoc_column.html">parsetree file column type</a></i>
           </li>
-          <li>Manage low-level connections: <i><a href="examples/doctable_connectengine.html">ConnectEngine examples</a></i></li>
-          <li>Bootstrap documents: <i><a href="examples/doctable_bootstrap.html">DocBootstrap examples</a></i></li>
+          <li>Low-level connections: <i><a href="examples/doctable_connectengine.html">ConnectEngine examples</a></i></li>
         </ul>
         <br/><hr/>
 

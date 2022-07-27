@@ -26,11 +26,11 @@ class UnidentifiedMessageReceivedError(WorkerResourceBaseException):
 class WorkerResourceReceivedUnidentifiedMessage(WorkerResourceBaseException):
     message = 'This WorkerResource received an unidentified message.'
 
-#class WorkerHasNoUserFunctionError(WorkerResourceBaseException):
-#    message = (f'Worker was not provided with a function. '
-#            'Either provide a function when the worker is created '
-#            'or update the worker\'s function using '
-#            '.update_userfunc().')
+class WorkerHasNoUserFunctionError(WorkerResourceBaseException):
+    message = (f'Worker was not provided with a function. '
+            'Either provide a function when the worker is created '
+            'or update the worker\'s function using '
+            '.update_userfunc().')
 
 class UserFuncRaisedException(Exception):
     def __init__(self, userfunc_exception, *args, **kwargs):

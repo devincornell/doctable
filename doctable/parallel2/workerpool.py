@@ -13,20 +13,13 @@ from .messaging import DataPayload
 @dataclasses.dataclass
 class WorkerPool:
     num_workers: int
-    method: str = None
     logging: bool = True
     verbose: bool = False
+    method: str = 'forkserver'
     workers: List[WorkerResource] = dataclasses.field(default_factory=list)
 
     def __post_init__(self):
-        '''Create WorkerResource objects.
-        '''
-        for _ in range(self.num_workers):
-            self.workers.append(WorkerResource(
-                verbose = self.verbose,
-                logging = self.logging,
-                method = self.method,
-            ))
+        pass
     
     def __del__(self):
         self.terminate(check=False)
@@ -46,11 +39,10 @@ class WorkerPool:
         return iter(self.workers)
 
     ####################### Starting/Polling Workers #######################
-    
     def any_alive(self):
         '''Check if any processes are alive.
         '''
-        return any([w.is_alive() for w in self.workers])
+        return self.workers is not None and any([w.is_alive() for w in self.workers])
     
     def start(self):
         '''Start workers.
@@ -58,8 +50,22 @@ class WorkerPool:
         if self.any_alive():
             raise ValueError('This Pool already has running workers.')
         
+        # start each worker
+        for _ in range(self.num_workers):
+            self.workers.append(WorkerResource(
+                start=True, 
+                verbose = self.verbose,
+                logging = self.logging,
+                method = self.method,
+            ))
+        
         return self
-    
+
+    def update_userfunc(self, func: Callable, args, kwargs):
+        '''Update userfunction of all workers.
+        '''
+        self.apply(lambda w: w.update_userfunc(func, *args, **kwargs))
+
     ####################### Status Reporting #######################
     def get_statuses(self):
         '''Get statuses of each process (includes uptime, efficiency, etc).

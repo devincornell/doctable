@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="pdoc 7.0.1" />
-    <title>doctable.parallel.workerprocess API documentation</title>
+    <title>doctable.parallel.workerstatus API documentation</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%2244.5%202.5%2015%2015%22%3E%3Cpath%20d%3D%22M49.351%2021.041c-.233-.721-.546-2.408-.772-4.076-.042-.09-.067-.187-.046-.288-.166-1.347-.277-2.625-.241-3.351-1.378-1.008-2.271-2.586-2.271-4.362%200-.976.272-1.935.788-2.774.057-.094.122-.18.184-.268-.033-.167-.052-.339-.052-.516%200-1.477%201.202-2.679%202.679-2.679.791%200%201.496.352%201.987.9a6.3%206.3%200%200%201%201.001.029c.492-.564%201.207-.929%202.012-.929%201.477%200%202.679%201.202%202.679%202.679a2.65%202.65%200%200%201-.269%201.148c.383.747.595%201.572.595%202.41%200%202.311-1.507%204.29-3.635%205.107.037.699.147%202.27.423%203.294l.137.461c.156%202.136-4.612%205.166-5.199%203.215zm.127-4.919a4.78%204.78%200%200%200%20.775-.584c-.172-.115-.505-.254-.88-.378zm.331%202.302l.828-.502c-.202-.143-.576-.328-.984-.49zm.45%202.157l.701-.403c-.214-.115-.536-.249-.891-.376l.19.779zM49.13%204.141c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm.735-.389a1.15%201.15%200%200%201%20.314.783%201.16%201.16%200%200%201-1.162%201.162c-.457%200-.842-.27-1.032-.653-.026.117-.042.238-.042.362a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.843-.626-1.535-1.436-1.654zm3.076%201.654a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.037-.009-.072-.011-.109-.21.3-.541.508-.935.508a1.16%201.16%200%200%201-1.162-1.162%201.14%201.14%200%200%201%20.474-.912c-.015%200-.03-.005-.045-.005-.926.001-1.679.754-1.679%201.68zm1.861-1.265c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm1.823%204.823c0-.52-.103-1.035-.288-1.52-.466.394-1.06.64-1.717.64-1.144%200-2.116-.725-2.499-1.738-.383%201.012-1.355%201.738-2.499%201.738-.867%200-1.631-.421-2.121-1.062-.307.605-.478%201.267-.478%201.942%200%202.486%202.153%204.51%204.801%204.51s4.801-2.023%204.801-4.51zm-3.032%209.156l-.146-.492c-.276-1.02-.395-2.457-.444-3.268a6.11%206.11%200%200%201-1.18.115%206.01%206.01%200%200%201-2.536-.562l.006.175c.802.215%201.848.612%202.021%201.25.079.295-.021.601-.274.837l-.598.501c.667.304%201.243.698%201.311%201.179.02.144.022.507-.393.787l-.564.365c1.285.521%201.361.96%201.381%201.126.018.142.011.496-.427.746l-.854.489c.064-1.19%201.985-2.585%202.697-3.248zM49.34%209.925c0-.667%201-.667%201%200%200%20.653.818%201.205%201.787%201.205s1.787-.552%201.787-1.205c0-.667%201-.667%201%200%200%201.216-1.25%202.205-2.787%202.205s-2.787-.989-2.787-2.205zm-.887-7.633c-.093.077-.205.114-.317.114a.5.5%200%200%201-.318-.886L49.183.397a.5.5%200%200%201%20.703.068.5.5%200%200%201-.069.703zm7.661-.065c-.086%200-.173-.022-.253-.068l-1.523-.893c-.575-.337-.069-1.2.506-.863l1.523.892a.5.5%200%200%201%20.179.685c-.094.158-.261.247-.432.247z%22%20fill%3D%22%233bb300%22/%3E%3C/svg%3E"/>
 
 
@@ -31,40 +31,94 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
-                    <a class="class" href="#WorkerProcess">WorkerProcess</a>
+                    <a class="class" href="#TimerStat">TimerStat</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="function" href="#WorkerProcess.__init__">WorkerProcess</a>
+                                <a class="variable" href="#TimerStat.WAITING">WAITING</a>
                         </li>
                         <li>
-                                <a class="variable" href="#WorkerProcess.pipe">pipe</a>
+                                <a class="variable" href="#TimerStat.WORKING">WORKING</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#WorkerStatusDummy">WorkerStatusDummy</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#WorkerStatusDummy.__init__">WorkerStatusDummy</a>
                         </li>
                         <li>
-                                <a class="variable" href="#WorkerProcess.gcollect">gcollect</a>
+                                <a class="variable" href="#WorkerStatusDummy.message_type">message_type</a>
                         </li>
                         <li>
-                                <a class="variable" href="#WorkerProcess.verbose">verbose</a>
+                                <a class="function" href="#WorkerStatusDummy.update">update</a>
                         </li>
                         <li>
-                                <a class="variable" href="#WorkerProcess.logging">logging</a>
+                                <a class="function" href="#WorkerStatusDummy.waiting">waiting</a>
                         </li>
                         <li>
-                                <a class="variable" href="#WorkerProcess.status">status</a>
+                                <a class="function" href="#WorkerStatusDummy.working">working</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#WorkerStatus">WorkerStatus</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#WorkerStatus.__init__">WorkerStatus</a>
                         </li>
                         <li>
-                                <a class="variable" href="#WorkerProcess.pid">pid</a>
+                                <a class="variable" href="#WorkerStatus.message_type">message_type</a>
                         </li>
                         <li>
-                                <a class="function" href="#WorkerProcess.execute_and_send">execute_and_send</a>
+                                <a class="function" href="#WorkerStatus.update">update</a>
                         </li>
                         <li>
-                                <a class="function" href="#WorkerProcess.recv">recv</a>
+                                <a class="function" href="#WorkerStatus.waiting">waiting</a>
                         </li>
                         <li>
-                                <a class="function" href="#WorkerProcess.send">send</a>
+                                <a class="function" href="#WorkerStatus.working">working</a>
                         </li>
                         <li>
-                                <a class="function" href="#WorkerProcess.print">print</a>
+                                <a class="variable" href="#WorkerStatus.current_measurement">current_measurement</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#WorkerStatus.jobs_finished">jobs_finished</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#WorkerStatus.memory">memory</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#WorkerStatus.pid">pid</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#WorkerStatus.start_ts">start_ts</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#WorkerStatus.time_waiting">time_waiting</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#WorkerStatus.time_working">time_working</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#WorkerStatus.tmp_start">tmp_start</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#WorkerStatus.uptime">uptime</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#WorkerStatus.efficiency">efficiency</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#WorkerStatus.total_efficiency">total_efficiency</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#WorkerStatus.sec_per_job">sec_per_job</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#WorkerStatus.as_series">as_series</a>
                         </li>
                 </ul>
 
@@ -82,249 +136,236 @@
     <main class="pdoc">
             <section>
                     <h1 class="modulename">
-<a href="./../../doctable.html">doctable</a><wbr>.<a href="./../parallel.html">parallel</a><wbr>.workerprocess    </h1>
+<a href="./../../doctable.html">doctable</a><wbr>.<a href="./../parallel.html">parallel</a><wbr>.workerstatus    </h1>
 
                 
                         <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">collections</span>
+            <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">psutil</span>
 <span class="kn">import</span> <span class="nn">dataclasses</span>
-<span class="kn">import</span> <span class="nn">gc</span>
-<span class="kn">import</span> <span class="nn">multiprocessing</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">traceback</span>
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Lock</span><span class="p">,</span> <span class="n">Pipe</span><span class="p">,</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Value</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
-
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="p">(</span><span class="n">UnidentifiedMessageReceivedError</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.messaging</span> <span class="kn">import</span> <span class="n">BaseMessage</span><span class="p">,</span> <span class="n">MessageType</span><span class="p">,</span> <span class="n">WorkerError</span><span class="p">,</span> <span class="n">UserFuncException</span><span class="p">,</span> <span class="n">DataPayload</span>
-<span class="kn">from</span> <span class="nn">.workerstatus</span> <span class="kn">import</span> <span class="n">WorkerStatus</span><span class="p">,</span> <span class="n">WorkerStatusDummy</span>
-
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">import</span> <span class="nn">doctable.util</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
-<span class="k">class</span> <span class="nc">WorkerProcess</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;Basic worker meant to be run in a process.&#39;&#39;&#39;</span>
-    <span class="n">pipe</span><span class="p">:</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pipe</span>
-    <span class="n">gcollect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">logging</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">status</span><span class="p">:</span> <span class="n">WorkerStatus</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="kn">from</span> <span class="nn">.messaging</span> <span class="kn">import</span> <span class="n">BaseMessage</span><span class="p">,</span> <span class="n">MessageType</span>
+
+<span class="kn">import</span> <span class="nn">enum</span>
+<span class="k">class</span> <span class="nc">TimerStat</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Represents the stat that the timer is currently measuring in the context manager.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">WAITING</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+    <span class="n">WORKING</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+
+<span class="nd">@doctable</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">slots_dataclass</span>
+<span class="k">class</span> <span class="nc">WorkerStatusDummy</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Status object that is not enabled.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span><span class="p">:</span> <span class="n">MessageType</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">STATUS</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span>
     
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Make a new status object.</span>
+    <span class="k">def</span> <span class="nf">waiting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    
+    <span class="k">def</span> <span class="nf">working</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<span class="nd">@doctable</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">slots_dataclass</span>
+<span class="k">class</span> <span class="nc">WorkerStatus</span><span class="p">(</span><span class="n">WorkerStatusDummy</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Status information sent from WorkerProcess to WorkerResource.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span><span class="p">:</span> <span class="n">MessageType</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">STATUS</span>
+
+    <span class="n">pid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">)</span>
+
+    <span class="c1"># time-related fields</span>
+    <span class="n">start_ts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+    <span class="n">time_waiting</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">time_working</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">jobs_finished</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># to be populated with call to .update()</span>
+    <span class="n">uptime</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># to be updated before sending</span>
+    <span class="n">memory</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">NamedTuple</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># result of call from .memory_info()</span>
+
+    <span class="c1"># used by contextmanager</span>
+    <span class="n">tmp_start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">current_measurement</span><span class="p">:</span> <span class="n">TimerStat</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">############### for populating attributes in worker process ###############</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Update uptime and memory usage info.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkerStatus</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkerStatusDummy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uptime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_ts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">)</span><span class="o">.</span><span class="n">memory_info</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tmp_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_measurement</span> <span class="ow">is</span> <span class="n">TimerStat</span><span class="o">.</span><span class="n">WORKING</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmp_start</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">jobs_finished</span> <span class="o">+=</span> <span class="mi">1</span>
         
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_measurement</span> <span class="ow">is</span> <span class="n">TimerStat</span><span class="o">.</span><span class="n">WAITING</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_waiting</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmp_start</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">pid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="si">}</span><span class="s1">]&#39;</span>
-
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userfunc</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Start the process.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_measurement</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tmp_start</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">def</span> <span class="nf">waiting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Sets up context manager to measure wait time.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;process started!: </span><span class="si">{</span><span class="n">userfunc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        
-        <span class="c1"># main receive/send loop</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="c1"># wait to receive data</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">waiting</span><span class="p">():</span>
-                    <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
-            <span class="k">except</span> <span class="p">(</span><span class="ne">EOFError</span><span class="p">,</span> <span class="ne">BrokenPipeError</span><span class="p">):</span>
-                <span class="c1"># don&#39;t send anything back because host is not available</span>
-                <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            
-            <span class="c1"># kill worker</span>
-            <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">CLOSE</span><span class="p">:</span>
-                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_measurement</span> <span class="o">=</span> <span class="n">TimerStat</span><span class="o">.</span><span class="n">WAITING</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
-            <span class="c1"># process received data payload</span>
-            <span class="k">elif</span> <span class="n">message</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">DATA</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">execute_and_send</span><span class="p">(</span><span class="n">userfunc</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
-
-            <span class="c1"># return status of worker</span>
-            <span class="k">elif</span> <span class="n">message</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">STATUS_REQUEST</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
-            
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">WorkerError</span><span class="p">(</span><span class="n">UnidentifiedMessageReceivedError</span><span class="p">()))</span>
-
-    <span class="k">def</span> <span class="nf">execute_and_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userfunc</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">DataPayload</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Execute the provide function on the payload (modifies in-place), and return it.</span>
+    <span class="k">def</span> <span class="nf">working</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Sets up context manager to measure working time.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># update pid and apply userfunc to datapayload</span>
-        <span class="n">payload</span><span class="o">.</span><span class="n">pid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid</span>
-        
-        <span class="c1"># try to execute function and raise any errors</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">working</span><span class="p">():</span>
-                <span class="n">payload</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">userfunc</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-        
-        <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">UserFuncException</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
-            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_measurement</span> <span class="o">=</span> <span class="n">TimerStat</span><span class="o">.</span><span class="n">WORKING</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
-        <span class="c1"># send result back to WorkerResource</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-        
-        <span class="c1"># garbage collect if needed</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcollect</span><span class="p">:</span>
-            <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
-        
+    <span class="k">def</span> <span class="nf">efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_waiting</span><span class="p">)</span>
 
-    <span class="c1">############## Basic Send/Receive ##############</span>
+    <span class="k">def</span> <span class="nf">total_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">uptime</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">recv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;waiting to receive&#39;</span><span class="p">)</span>
-        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;received </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">message</span>
-
-    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">BaseMessage</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;sending </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">sec_per_job</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs_finished</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs_finished</span>
+    
+    <span class="k">def</span> <span class="nf">as_series</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the current information as a pandas series object for printing.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span>
+            <span class="s1">&#39;start_ts&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_ts</span><span class="p">,</span>
+            <span class="s1">&#39;uptime&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uptime</span><span class="p">,</span>
+            <span class="s1">&#39;jobs_finished&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs_finished</span><span class="p">,</span>
+            <span class="s1">&#39;time_waiting (sec)&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_waiting</span><span class="p">,</span>
+            <span class="s1">&#39;time_working (sec)&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span><span class="p">,</span>
+            <span class="s1">&#39;memory (MB)&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">rss</span><span class="o">/</span><span class="mf">1e6</span><span class="p">,</span>
+            <span class="s1">&#39;efficiency (%)&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">()</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;total_efficiency (%)&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_efficiency</span><span class="p">()</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;sec_per_job (sec)&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sec_per_job</span><span class="p">(),</span>
+        <span class="p">})</span>
 </pre></div>
 
         </details>
 
             </section>
-                <section id="WorkerProcess">
+                <section id="TimerStat">
                                 <div class="attr class">
-        <a class="headerlink" href="#WorkerProcess">#&nbsp;&nbsp</a>
+        <a class="headerlink" href="#TimerStat">#&nbsp;&nbsp</a>
 
         
         <span class="def">class</span>
-        <span class="name">WorkerProcess</span>:
+        <span class="name">TimerStat</span><wbr>(<span class="base">enum.Enum</span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">WorkerProcess</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;Basic worker meant to be run in a process.&#39;&#39;&#39;</span>
-    <span class="n">pipe</span><span class="p">:</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pipe</span>
-    <span class="n">gcollect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">logging</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">status</span><span class="p">:</span> <span class="n">WorkerStatus</span> <span class="o">=</span> <span class="kc">None</span>
-    
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Make a new status object.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkerStatus</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkerStatusDummy</span><span class="p">()</span>
-        
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">pid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="si">}</span><span class="s1">]&#39;</span>
-
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userfunc</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Start the process.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;process started!: </span><span class="si">{</span><span class="n">userfunc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        
-        <span class="c1"># main receive/send loop</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="c1"># wait to receive data</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">waiting</span><span class="p">():</span>
-                    <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
-            <span class="k">except</span> <span class="p">(</span><span class="ne">EOFError</span><span class="p">,</span> <span class="ne">BrokenPipeError</span><span class="p">):</span>
-                <span class="c1"># don&#39;t send anything back because host is not available</span>
-                <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            
-            <span class="c1"># kill worker</span>
-            <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">CLOSE</span><span class="p">:</span>
-                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-
-            <span class="c1"># process received data payload</span>
-            <span class="k">elif</span> <span class="n">message</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">DATA</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">execute_and_send</span><span class="p">(</span><span class="n">userfunc</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
-
-            <span class="c1"># return status of worker</span>
-            <span class="k">elif</span> <span class="n">message</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">STATUS_REQUEST</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
-            
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">WorkerError</span><span class="p">(</span><span class="n">UnidentifiedMessageReceivedError</span><span class="p">()))</span>
-
-    <span class="k">def</span> <span class="nf">execute_and_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userfunc</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">DataPayload</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Execute the provide function on the payload (modifies in-place), and return it.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># update pid and apply userfunc to datapayload</span>
-        <span class="n">payload</span><span class="o">.</span><span class="n">pid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid</span>
-        
-        <span class="c1"># try to execute function and raise any errors</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">working</span><span class="p">():</span>
-                <span class="n">payload</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">userfunc</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-        
-        <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">UserFuncException</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
-            <span class="k">return</span>
-
-        <span class="c1"># send result back to WorkerResource</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-        
-        <span class="c1"># garbage collect if needed</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcollect</span><span class="p">:</span>
-            <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
-        
-
-    <span class="c1">############## Basic Send/Receive ##############</span>
-
-    <span class="k">def</span> <span class="nf">recv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;waiting to receive&#39;</span><span class="p">)</span>
-        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;received </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">message</span>
-
-    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">BaseMessage</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;sending </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TimerStat</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Represents the stat that the timer is currently measuring in the context manager.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">WAITING</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+    <span class="n">WORKING</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Basic worker meant to be run in a process.</p>
+            <div class="docstring"><p>Represents the stat that the timer is currently measuring in the context manager.</p>
 </div>
 
 
-                            <div id="WorkerProcess.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#WorkerProcess.__init__">#&nbsp;&nbsp</a>
+                            <div id="TimerStat.WAITING" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#TimerStat.WAITING">#&nbsp;&nbsp</a>
+
+        <span class="name">WAITING</span><span class="default_value"> = &lt;<a href="#TimerStat.WAITING">TimerStat.WAITING</a>: 1&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="TimerStat.WORKING" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#TimerStat.WORKING">#&nbsp;&nbsp</a>
+
+        <span class="name">WORKING</span><span class="default_value"> = &lt;<a href="#TimerStat.WORKING">TimerStat.WORKING</a>: 2&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>enum.Enum</dt>
+                                <dd id="TimerStat.name" class="variable">name</dd>
+                <dd id="TimerStat.value" class="variable">value</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="WorkerStatusDummy">
+                                <div class="attr class">
+        <a class="headerlink" href="#WorkerStatusDummy">#&nbsp;&nbsp</a>
 
         
-            <span class="name">WorkerProcess</span><span class="signature">(
-    pipe: &lt;bound method BaseContext.Pipe of &lt;multiprocessing.context.DefaultContext object at 0x7f329092c4c0&gt;&gt;,
-    gcollect: bool = False,
-    verbose: bool = False,
-    logging: bool = False,
-    status: <a href="workerstatus.html#WorkerStatus">doctable.parallel.workerstatus.WorkerStatus</a> = None
+        <span class="def">class</span>
+        <span class="name">WorkerStatusDummy</span><wbr>(<span class="base"><a href="#WorkerStatusDummy">WorkerStatusDummy</a></span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">WorkerStatusDummy</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Status object that is not enabled.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span><span class="p">:</span> <span class="n">MessageType</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">STATUS</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span>
+    
+    <span class="k">def</span> <span class="nf">waiting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    
+    <span class="k">def</span> <span class="nf">working</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Status object that is not enabled.</p>
+</div>
+
+
+                            <div id="WorkerStatusDummy.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#WorkerStatusDummy.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">WorkerStatusDummy</span><span class="signature">(
+    message_type: <a href="messaging.html#MessageType">doctable.parallel.messaging.MessageType</a> = &lt;MessageType.STATUS: 3&gt;
 )</span>
     </div>
 
@@ -332,120 +373,317 @@
     
 
                             </div>
-                            <div id="WorkerProcess.pipe" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerProcess.pipe">#&nbsp;&nbsp</a>
+                            <div id="WorkerStatusDummy.message_type" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatusDummy.message_type">#&nbsp;&nbsp</a>
 
-        <span class="name">pipe</span><span class="annotation">: &lt;bound method BaseContext.Pipe of &lt;multiprocessing.context.DefaultContext object at 0x7f329092c4c0&gt;&gt;</span>
+        <span class="name">message_type</span><span class="annotation">: <a href="messaging.html#MessageType">doctable.parallel.messaging.MessageType</a></span><span class="default_value"> = &lt;member &#39;message_type&#39; of &#39;WorkerStatusDummy&#39; objects&gt;</span>
     </div>
 
     
 
                             </div>
-                            <div id="WorkerProcess.gcollect" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerProcess.gcollect">#&nbsp;&nbsp</a>
-
-        <span class="name">gcollect</span><span class="annotation">: bool</span><span class="default_value"> = False</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="WorkerProcess.verbose" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerProcess.verbose">#&nbsp;&nbsp</a>
-
-        <span class="name">verbose</span><span class="annotation">: bool</span><span class="default_value"> = False</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="WorkerProcess.logging" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerProcess.logging">#&nbsp;&nbsp</a>
-
-        <span class="name">logging</span><span class="annotation">: bool</span><span class="default_value"> = False</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="WorkerProcess.status" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerProcess.status">#&nbsp;&nbsp</a>
-
-        <span class="name">status</span><span class="annotation">: <a href="workerstatus.html#WorkerStatus">doctable.parallel.workerstatus.WorkerStatus</a></span><span class="default_value"> = None</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="WorkerProcess.pid" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerProcess.pid">#&nbsp;&nbsp</a>
-
-        <span class="name">pid</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="WorkerProcess.execute_and_send" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#WorkerProcess.execute_and_send">#&nbsp;&nbsp</a>
+                            <div id="WorkerStatusDummy.update" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#WorkerStatusDummy.update">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">execute_and_send</span><span class="signature">(
-    self,
-    userfunc: Callable,
-    payload: <a href="messaging.html#DataPayload">doctable.parallel.messaging.DataPayload</a>
-)</span>:
+            <span class="name">update</span><span class="signature">(self)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">execute_and_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userfunc</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">DataPayload</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Execute the provide function on the payload (modifies in-place), and return it.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># update pid and apply userfunc to datapayload</span>
-        <span class="n">payload</span><span class="o">.</span><span class="n">pid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid</span>
-        
-        <span class="c1"># try to execute function and raise any errors</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">working</span><span class="p">():</span>
-                <span class="n">payload</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">userfunc</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-        
-        <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">UserFuncException</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
-            <span class="k">return</span>
-
-        <span class="c1"># send result back to WorkerResource</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-        
-        <span class="c1"># garbage collect if needed</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcollect</span><span class="p">:</span>
-            <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Execute the provide function on the payload (modifies in-place), and return it.</p>
+    
+
+                            </div>
+                            <div id="WorkerStatusDummy.waiting" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#WorkerStatusDummy.waiting">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">waiting</span><span class="signature">(self)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">waiting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="WorkerStatusDummy.working" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#WorkerStatusDummy.working">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">working</span><span class="signature">(self)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">working</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="messaging.html#BaseMessage">doctable.parallel.messaging.BaseMessage</a></dt>
+                                <dd id="WorkerStatusDummy.type" class="variable"><a href="messaging.html#BaseMessage.type">type</a></dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="WorkerStatus">
+                                <div class="attr class">
+        <a class="headerlink" href="#WorkerStatus">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">WorkerStatus</span><wbr>(<span class="base"><a href="#WorkerStatus">WorkerStatus</a></span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">WorkerStatusDummy</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Status object that is not enabled.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span><span class="p">:</span> <span class="n">MessageType</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">STATUS</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span>
+    
+    <span class="k">def</span> <span class="nf">waiting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    
+    <span class="k">def</span> <span class="nf">working</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Status information sent from WorkerProcess to WorkerResource.</p>
+</div>
+
+
+                            <div id="WorkerStatus.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#WorkerStatus.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">WorkerStatus</span><span class="signature">(
+    message_type: <a href="messaging.html#MessageType">doctable.parallel.messaging.MessageType</a> = &lt;MessageType.STATUS: 3&gt;,
+    pid: int = &lt;factory&gt;,
+    start_ts: int = &lt;factory&gt;,
+    time_waiting: int = 0,
+    time_working: int = 0,
+    jobs_finished: int = 0,
+    uptime: int = None,
+    memory: &lt;class &#39;NamedTuple&#39;&gt; = None,
+    tmp_start: int = None,
+    current_measurement: <a href="#TimerStat">doctable.parallel.workerstatus.TimerStat</a> = None
+)</span>
+    </div>
+
+        
+    
+
+                            </div>
+                            <div id="WorkerStatus.message_type" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.message_type">#&nbsp;&nbsp</a>
+
+        <span class="name">message_type</span><span class="annotation">: <a href="messaging.html#MessageType">doctable.parallel.messaging.MessageType</a></span><span class="default_value"> = &lt;member &#39;message_type&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="WorkerStatus.update" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#WorkerStatus.update">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">update</span><span class="signature">(self)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Update uptime and memory usage info.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uptime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_ts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">)</span><span class="o">.</span><span class="n">memory_info</span><span class="p">()</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Update uptime and memory usage info.</p>
 </div>
 
 
                             </div>
-                            <div id="WorkerProcess.recv" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#WorkerProcess.recv">#&nbsp;&nbsp</a>
+                            <div id="WorkerStatus.waiting" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#WorkerStatus.waiting">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">recv</span><span class="signature">(self)</span>:
+            <span class="name">waiting</span><span class="signature">(self)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">recv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;waiting to receive&#39;</span><span class="p">)</span>
-        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;received </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">message</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">waiting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Sets up context manager to measure wait time.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_measurement</span> <span class="o">=</span> <span class="n">TimerStat</span><span class="o">.</span><span class="n">WAITING</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Sets up context manager to measure wait time.</p>
+</div>
+
+
+                            </div>
+                            <div id="WorkerStatus.working" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#WorkerStatus.working">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">working</span><span class="signature">(self)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">working</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Sets up context manager to measure working time.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_measurement</span> <span class="o">=</span> <span class="n">TimerStat</span><span class="o">.</span><span class="n">WORKING</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Sets up context manager to measure working time.</p>
+</div>
+
+
+                            </div>
+                            <div id="WorkerStatus.current_measurement" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.current_measurement">#&nbsp;&nbsp</a>
+
+        <span class="name">current_measurement</span><span class="annotation">: <a href="#TimerStat">doctable.parallel.workerstatus.TimerStat</a></span><span class="default_value"> = &lt;member &#39;current_measurement&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="WorkerStatus.jobs_finished" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.jobs_finished">#&nbsp;&nbsp</a>
+
+        <span class="name">jobs_finished</span><span class="annotation">: int</span><span class="default_value"> = &lt;member &#39;jobs_finished&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="WorkerStatus.memory" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.memory">#&nbsp;&nbsp</a>
+
+        <span class="name">memory</span><span class="annotation">: &lt;class &#39;NamedTuple&#39;&gt;</span><span class="default_value"> = &lt;member &#39;memory&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="WorkerStatus.pid" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.pid">#&nbsp;&nbsp</a>
+
+        <span class="name">pid</span><span class="annotation">: int</span><span class="default_value"> = &lt;member &#39;pid&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="WorkerStatus.start_ts" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.start_ts">#&nbsp;&nbsp</a>
+
+        <span class="name">start_ts</span><span class="annotation">: int</span><span class="default_value"> = &lt;member &#39;start_ts&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="WorkerStatus.time_waiting" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.time_waiting">#&nbsp;&nbsp</a>
+
+        <span class="name">time_waiting</span><span class="annotation">: int</span><span class="default_value"> = &lt;member &#39;time_waiting&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="WorkerStatus.time_working" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.time_working">#&nbsp;&nbsp</a>
+
+        <span class="name">time_working</span><span class="annotation">: int</span><span class="default_value"> = &lt;member &#39;time_working&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="WorkerStatus.tmp_start" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.tmp_start">#&nbsp;&nbsp</a>
+
+        <span class="name">tmp_start</span><span class="annotation">: int</span><span class="default_value"> = &lt;member &#39;tmp_start&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="WorkerStatus.uptime" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.uptime">#&nbsp;&nbsp</a>
+
+        <span class="name">uptime</span><span class="annotation">: int</span><span class="default_value"> = &lt;member &#39;uptime&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="WorkerStatus.efficiency" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#WorkerStatus.efficiency">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">efficiency</span><span class="signature">(self)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_waiting</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -453,19 +691,18 @@
     
 
                             </div>
-                            <div id="WorkerProcess.send" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#WorkerProcess.send">#&nbsp;&nbsp</a>
+                            <div id="WorkerStatus.total_efficiency" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#WorkerStatus.total_efficiency">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">send</span><span class="signature">(self, message: <a href="messaging.html#BaseMessage">doctable.parallel.messaging.BaseMessage</a>)</span>:
+            <span class="name">total_efficiency</span><span class="signature">(self)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">BaseMessage</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;sending </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">total_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">uptime</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -473,25 +710,67 @@
     
 
                             </div>
-                            <div id="WorkerProcess.print" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#WorkerProcess.print">#&nbsp;&nbsp</a>
+                            <div id="WorkerStatus.sec_per_job" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#WorkerStatus.sec_per_job">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">print</span><span class="signature">(self, message)</span>:
+            <span class="name">sec_per_job</span><span class="signature">(self)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">sec_per_job</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs_finished</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs_finished</span>
 </pre></div>
 
         </details>
 
     
 
+                            </div>
+                            <div id="WorkerStatus.as_series" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#WorkerStatus.as_series">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">as_series</span><span class="signature">(self)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">as_series</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the current information as a pandas series object for printing.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span>
+            <span class="s1">&#39;start_ts&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_ts</span><span class="p">,</span>
+            <span class="s1">&#39;uptime&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uptime</span><span class="p">,</span>
+            <span class="s1">&#39;jobs_finished&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs_finished</span><span class="p">,</span>
+            <span class="s1">&#39;time_waiting (sec)&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_waiting</span><span class="p">,</span>
+            <span class="s1">&#39;time_working (sec)&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span><span class="p">,</span>
+            <span class="s1">&#39;memory (MB)&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">rss</span><span class="o">/</span><span class="mf">1e6</span><span class="p">,</span>
+            <span class="s1">&#39;efficiency (%)&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">()</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;total_efficiency (%)&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_efficiency</span><span class="p">()</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;sec_per_job (sec)&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sec_per_job</span><span class="p">(),</span>
+        <span class="p">})</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get the current information as a pandas series object for printing.</p>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="messaging.html#BaseMessage">doctable.parallel.messaging.BaseMessage</a></dt>
+                                <dd id="WorkerStatus.type" class="variable"><a href="messaging.html#BaseMessage.type">type</a></dd>
+
+            </div>
+                                </dl>
                             </div>
                 </section>
     </main>

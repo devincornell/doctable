@@ -4,6 +4,7 @@ import pprint
 import random
 import pandas as pd
 import os
+import copy
 from glob import glob
 from datetime import datetime
 import typing
@@ -46,14 +47,11 @@ class DocTable:
             be used when instantiating. Overridden by providing arguments
             to the constructor.
     '''
-    def __init__(self, 
-            target: str = None, tabname: str = None, 
-            schema: Type[DocTableSchema] = None, 
-            indices: Sequence[sqlalchemy.Index] = None, 
-            constraints: Sequence[Constraint] = None,
-            dialect: str = 'sqlite', engine: str = None, 
-            readonly: bool = False, new_db: bool = False, new_table: bool = True, 
-            persistent_conn: bool = False, verbose: bool = False, **engine_kwargs):
+    def __init__(self, target: str = None, tabname: str = None, 
+                schema: Sequence[Sequence] = None, indices: dict = None, constraints = None,
+                dialect: str = 'sqlite', engine: ConnectEngine=None, 
+                readonly: bool=False, new_db: bool=False, new_table: bool=True, 
+                persistent_conn: bool=False, verbose: bool=False, **engine_kwargs):
         '''Create new database.
         Args:
             target: filename for database to connect to. ":memory:" is a 
@@ -61,32 +59,31 @@ class DocTable:
                 should be created in memory. Will create new empty database file
                 if it does not exist and new_db==True, and add a new table using
                 specified schema if new_table==True.
-            tabname: table name for this specific doctable.
-            schema: schema class defined using the @doctable.schema decorator. 
-                Defines the database schema and can also encapsulate rows 
-                retrieved from the database.
-            indices: sequence of sqlalchemy Index objects used to create
-                database indices. `sqlalchemy.Index` can be accessed using 
-                the alias `doctable.Index`.
-            constraints: sequence of `doctable.Constraint` objects used to
-                add constraints to the database.
-            dialect: database engine through which to construct db.
+            tabname (str): table name for this specific doctable.
+            schema (type or list<list>): schema from which to create db. Includes a
+                list of column names and types (including contraints and indexes) as tuples
+                defined according to information needed to construct the sqlalchemy
+                objects. Alternatively, can be a schema class (see docs).
+            dialect (str): database engine through which to construct db.
                 For more info, see sqlalchemy dialect info:
                 https://docs.sqlalchemy.org/en/13/dialects/
-            readonly: Prevents user from calling insert(), delete(), or 
-                update(). Will not block other sql commands that modify db.
-            new_db: Indicate if new db file should be created given 
+            engine (ConnectEngine): engine from another doctable if working with different
+                tables in the same db.
+            readonly (bool): Prevents user from calling insert(), delete(), or 
+                update(). Will not block other sql possible commands.
+            new_db (bool): Indicate if new db file should be created given 
                 that a schema is provided and the db file doesn't exist.
             new_table: Allow doctable to create a new table if one 
                 doesn't exist already.
-            persistent_conn: whether or not to create a persistent conn 
+            persistent_conn (bool): whether or not to create a persistent conn 
                 to database. Otherwise will create temporary connection for each
                 query.
-            verbose: Print every sql command before executing.
-            engine_kwargs: Pass directly to the sqlalchemy
-                .create_engine(). Args typically vary by dialect. For example,
-                you might use an argument like this:
-                connect_args={'timeout': 15}} (sets timeout for sqlite).
+            verbose (bool): Print every sql command before executing.
+            engine_kwargs (**kwargs): Pass directly to the sqlalchemy
+                .create_engine() as connect_args. Args typically vary by dialect.
+                Example: connect_args={'timeout': 15} for sqlite
+                or connect_args={'connect_timeout': 15} for PostgreSQL.
+
         '''
         arg_defaults = {
             # connection info
@@ -170,9 +167,9 @@ class DocTable:
         # store arguments as-is
         self._tabname = args['tabname'] if args['tabname'] is not None else DEFAULT_TABNAME
         self._target = args['target']
-        self._schema = args['schema']
-        self._indices = args['indices']
-        self._constraints = args['constraints']
+        self._schema = copy.deepcopy(args['schema'])
+        self._indices = copy.deepcopy(args['indices'])
+        self._constraints = copy.deepcopy(args['constraints'])
         self.dialect = args['dialect']
 
         # flags
@@ -203,10 +200,8 @@ class DocTable:
         self._table = self._engine.add_table(self._tabname, columns=self._columns, 
                                              new_table=self._new_table)
         
-        # connect to database
-        self._conn = None
-        if self.persistent_conn:
-            self._conn = self._engine.connect()
+        # create persistent connection to database if requested
+        self._conn = self._engine.connect() if self.persistent_conn else None
         
     def __del__(self):
         ''' Closes database connection to prevent locking db.
@@ -218,16 +213,19 @@ class DocTable:
         #self.close_conn()
         pass
 
-    #################### Connections / Context Manager ###################
-    def __enter__(self):
-        '''Opens database connection if does not exist yet.
-        '''
-        self.open_conn()
+        
+    
+    #################### Connection Methods ###################
 
-    def __exit__(self):
-        '''Closes database connection.
+    def __enter__(self):
+        '''Calls .open_conn()
         '''
-        self.close_conn()
+        return self.open_conn()
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        '''Calls .close_conn()
+        '''
+        return self.close_conn()
     
     def close_conn(self):
         ''' Closes connection to db (if one exists).
@@ -298,6 +296,12 @@ class DocTable:
                 object.
         '''
         return self._table.c
+
+    @property
+    def c(self):
+        '''See docs for self.columns.
+        '''
+        return self.columns
     
     @property
     def engine(self):
@@ -732,12 +736,11 @@ class DocTable:
             if verbose: print(prstr.format(query))
         elif self.verbose: print(prstr.format(query))
         
-        # try to parse
-        result = self._execute(query, **kwargs)
-        return result
+        return self._execute(query, **kwargs)
     
     def _execute(self, query, conn=None):
-        
+        '''Execute sql query using either existing connection, provided connection, or without a connection.
+        '''
         # takes raw query object
         if conn is not None:
             r = conn.execute(query)

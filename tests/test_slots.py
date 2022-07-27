@@ -1,5 +1,4 @@
 import numpy as np
-import cupy as cp
 import dataclasses
 import functools
 import random
@@ -21,7 +20,7 @@ class CustomClass:
     '''This is my doc.'''
     __slots__ = []
     a: int
-    b: int = doctable.Col(5)
+    b: int = 5
     c: int = doctable.Col()
 
     # example method

@@ -7,25 +7,29 @@ import traceback
 from multiprocessing import Lock, Pipe, Pool, Process, Value
 from typing import Any, Callable, Dict, Iterable, List, Tuple
 
-from .exceptions import (UnidentifiedMessageReceivedError,
-                         WorkerHasNoUserFunctionError, WorkerIsDeadError)
-from .messaging import (DataPayload, WorkerStatus, UserFuncException, SigClose, UserFunc,
-                        WorkerError, StatusRequest)
+from .exceptions import (UnidentifiedMessageReceivedError)
+from .messaging import BaseMessage, MessageType, WorkerError, UserFuncException, DataPayload
+from .workerstatus import WorkerStatus, WorkerStatusDummy
+
 import time
-
-
-
-
 
 @dataclasses.dataclass
 class WorkerProcess:
     '''Basic worker meant to be run in a process.'''
     pipe: multiprocessing.Pipe
-    userfunc: UserFunc = None
     gcollect: bool = False
     verbose: bool = False
     logging: bool = False
-    status: WorkerStatus = dataclasses.field(default_factory=WorkerStatus)
+    status: WorkerStatus = None
+    
+    def __post_init__(self):
+        '''Make a new status object.
+        '''
+        if self.logging:
+            self.status = WorkerStatus()
+        else:
+            self.status = WorkerStatusDummy()
+        
 
     @property
     def pid(self):
@@ -34,59 +38,48 @@ class WorkerProcess:
     def __repr__(self):
         return f'{self.__class__.__name__}[{self.pid}]'
 
-    def __call__(self):
-        '''Call when opening the process.
+    def __call__(self, userfunc: Callable):
+        '''Start the process.
         '''
+        self.print(f'process started!: {userfunc}')
         
         # main receive/send loop
         while True:
-
             # wait to receive data
             try:
-                if self.logging: start = time.time()
-                payload = self.recv()
-                if self.logging: self.status.time_waiting += time.time() - start
+                with self.status.waiting():
+                    message = self.recv()
             except (EOFError, BrokenPipeError):
+                # don't send anything back because host is not available
                 exit(1)
-
+            
             # kill worker
-            if isinstance(payload, SigClose):
-                exit(1)
+            if message.type is MessageType.CLOSE:
+                exit(0)
 
             # process received data payload
-            elif isinstance(payload, DataPayload):
-                self.execute_and_send(payload)
-            
-            # load new function
-            elif isinstance(payload, UserFunc):
-                self.userfunc = payload
+            elif message.type is MessageType.DATA:
+                self.execute_and_send(userfunc, message)
 
             # return status of worker
-            elif isinstance(payload, StatusRequest):
-                self.status.update_uptime()
+            elif message.type is MessageType.STATUS_REQUEST:
+                self.status.update()
                 self.send(self.status)
             
             else:
                 self.send(WorkerError(UnidentifiedMessageReceivedError()))
 
-    def execute_and_send(self, payload: DataPayload):
+    def execute_and_send(self, userfunc: Callable, payload: DataPayload):
         '''Execute the provide function on the payload (modifies in-place), and return it.
         '''
-        # check if worker has a user function
-        if self.userfunc is None:
-            self.send(WorkerError(WorkerHasNoUserFunctionError()))
-            return
-            
-        # update pid and apply userfunc
+        # update pid and apply userfunc to datapayload
         payload.pid = self.pid
         
         # try to execute function and raise any errors
         try:
-            if self.logging: start = time.time()
-            payload.data = self.userfunc.execute(payload.data)
-            if self.logging:
-                self.status.time_working += time.time() - start
-                self.status.jobs_finished += 1
+            with self.status.working():
+                payload.data = userfunc(payload.data)
+        
         except BaseException as e:
             self.send(UserFuncException(e))
             traceback.print_exc()
@@ -103,12 +96,16 @@ class WorkerProcess:
     ############## Basic Send/Receive ##############
 
     def recv(self):
-        if self.verbose: print(f'{self} waiting to receive')
-        payload = self.pipe.recv()
-        if self.verbose: print(f'{self} received: {payload}')
-        return payload
+        self.print(f'waiting to receive')
+        message = self.pipe.recv()
+        self.print(f'received {message.type}')
+        return message
 
-    def send(self, data: Any):
-        if self.verbose: print(f'{self} sending: {data}')
-        return self.pipe.send(data)
+    def send(self, message: BaseMessage):
+        self.print(f'sending {message.type}')
+        return self.pipe.send(message)
+
+    def print(self, message):
+        if self.verbose:
+            print(f'{self}: {message}')
 

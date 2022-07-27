@@ -94,15 +94,6 @@
 
             </li>
             <li>
-                    <a class="class" href="#WorkerHasNoUserFunctionError">WorkerHasNoUserFunctionError</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="variable" href="#WorkerHasNoUserFunctionError.message">message</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
                     <a class="class" href="#UserFuncRaisedException">UserFuncRaisedException</a>
                             <ul class="memberlist">
                         <li>
@@ -155,11 +146,11 @@
 <span class="k">class</span> <span class="nc">WorkerResourceReceivedUnidentifiedMessage</span><span class="p">(</span><span class="n">WorkerResourceBaseException</span><span class="p">):</span>
     <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;This WorkerResource received an unidentified message.&#39;</span>
 
-<span class="k">class</span> <span class="nc">WorkerHasNoUserFunctionError</span><span class="p">(</span><span class="n">WorkerResourceBaseException</span><span class="p">):</span>
-    <span class="n">message</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Worker was not provided with a function. &#39;</span>
-            <span class="s1">&#39;Either provide a function when the worker is created &#39;</span>
-            <span class="s1">&#39;or update the worker</span><span class="se">\&#39;</span><span class="s1">s function using &#39;</span>
-            <span class="s1">&#39;.update_userfunc().&#39;</span><span class="p">)</span>
+<span class="c1">#class WorkerHasNoUserFunctionError(WorkerResourceBaseException):</span>
+<span class="c1">#    message = (f&#39;Worker was not provided with a function. &#39;</span>
+<span class="c1">#            &#39;Either provide a function when the worker is created &#39;</span>
+<span class="c1">#            &#39;or update the worker\&#39;s function using &#39;</span>
+<span class="c1">#            &#39;.update_userfunc().&#39;)</span>
 
 <span class="k">class</span> <span class="nc">UserFuncRaisedException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userfunc_exception</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -491,54 +482,6 @@
             <div><dt>builtins.BaseException</dt>
                                 <dd id="WorkerResourceReceivedUnidentifiedMessage.with_traceback" class="function">with_traceback</dd>
                 <dd id="WorkerResourceReceivedUnidentifiedMessage.args" class="variable">args</dd>
-
-            </div>
-                                </dl>
-                            </div>
-                </section>
-                <section id="WorkerHasNoUserFunctionError">
-                                <div class="attr class">
-        <a class="headerlink" href="#WorkerHasNoUserFunctionError">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">WorkerHasNoUserFunctionError</span><wbr>(<span class="base"><a href="#WorkerResourceBaseException">WorkerResourceBaseException</a></span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">WorkerHasNoUserFunctionError</span><span class="p">(</span><span class="n">WorkerResourceBaseException</span><span class="p">):</span>
-    <span class="n">message</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Worker was not provided with a function. &#39;</span>
-            <span class="s1">&#39;Either provide a function when the worker is created &#39;</span>
-            <span class="s1">&#39;or update the worker</span><span class="se">\&#39;</span><span class="s1">s function using &#39;</span>
-            <span class="s1">&#39;.update_userfunc().&#39;</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Common base class for all non-exit exceptions.</p>
-</div>
-
-
-                            <div id="WorkerHasNoUserFunctionError.message" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerHasNoUserFunctionError.message">#&nbsp;&nbsp</a>
-
-        <span class="name">message</span><span class="default_value"> = &#34;Worker was not provided with a function. Either provide a function when the worker is created or update the worker&#39;s function using .update_userfunc().&#34;</span>
-    </div>
-
-    
-
-                            </div>
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt><a href="#WorkerResourceBaseException">WorkerResourceBaseException</a></dt>
-                                <dd id="WorkerHasNoUserFunctionError.__init__" class="function"><a href="#WorkerResourceBaseException.__init__">WorkerResourceBaseException</a></dd>
-
-            </div>
-            <div><dt>builtins.BaseException</dt>
-                                <dd id="WorkerHasNoUserFunctionError.with_traceback" class="function">with_traceback</dd>
-                <dd id="WorkerHasNoUserFunctionError.args" class="variable">args</dd>
 
             </div>
                                 </dl>

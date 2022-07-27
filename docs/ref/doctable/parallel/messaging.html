@@ -31,10 +31,40 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
+                    <a class="class" href="#MessageType">MessageType</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#MessageType.DATA">DATA</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MessageType.STATUS_REQUEST">STATUS_REQUEST</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MessageType.STATUS">STATUS</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MessageType.CLOSE">CLOSE</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MessageType.ERROR">ERROR</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MessageType.USERFUNC_EXCEPTION">USERFUNC_EXCEPTION</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#BaseMessage">BaseMessage</a>
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#BaseMessage.__init__">BaseMessage</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#BaseMessage.message_type">message_type</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#BaseMessage.type">type</a>
                         </li>
                 </ul>
 
@@ -44,6 +74,9 @@
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#DataPayload.__init__">DataPayload</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#DataPayload.message_type">message_type</a>
                         </li>
                         <li>
                                 <a class="variable" href="#DataPayload.data">data</a>
@@ -63,65 +96,8 @@
                         <li>
                                 <a class="function" href="#StatusRequest.__init__">StatusRequest</a>
                         </li>
-                </ul>
-
-            </li>
-            <li>
-                    <a class="class" href="#WorkerStatus">WorkerStatus</a>
-                            <ul class="memberlist">
                         <li>
-                                <a class="function" href="#WorkerStatus.__init__">WorkerStatus</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#WorkerStatus.pid">pid</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#WorkerStatus.start_ts">start_ts</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#WorkerStatus.time_waiting">time_waiting</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#WorkerStatus.time_working">time_working</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#WorkerStatus.jobs_finished">jobs_finished</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#WorkerStatus.uptime">uptime</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#WorkerStatus.update_uptime">update_uptime</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#WorkerStatus.efficiency">efficiency</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#WorkerStatus.total_efficiency">total_efficiency</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#WorkerStatus.sec_per_job">sec_per_job</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
-                    <a class="class" href="#UserFunc">UserFunc</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#UserFunc.__init__">UserFunc</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#UserFunc.func">func</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#UserFunc.args">args</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#UserFunc.kwargs">kwargs</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#UserFunc.execute">execute</a>
+                                <a class="variable" href="#StatusRequest.message_type">message_type</a>
                         </li>
                 </ul>
 
@@ -132,6 +108,9 @@
                         <li>
                                 <a class="function" href="#SigClose.__init__">SigClose</a>
                         </li>
+                        <li>
+                                <a class="variable" href="#SigClose.message_type">message_type</a>
+                        </li>
                 </ul>
 
             </li>
@@ -141,6 +120,9 @@
                         <li>
                                 <a class="function" href="#WorkerError.__init__">WorkerError</a>
                         </li>
+                        <li>
+                                <a class="variable" href="#WorkerError.message_type">message_type</a>
+                        </li>
                 </ul>
 
             </li>
@@ -149,6 +131,12 @@
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#UserFuncException.__init__">UserFuncException</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#UserFuncException.message_type">message_type</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#UserFuncException.e">e</a>
                         </li>
                 </ul>
 
@@ -179,87 +167,79 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">import</span> <span class="nn">gc</span>
 <span class="kn">import</span> <span class="nn">doctable.util</span>
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">WorkerHasNoUserFunctionError</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">UnidentifiedMessageReceivedError</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 
+<span class="kn">import</span> <span class="nn">enum</span>
+
+<span class="k">class</span> <span class="nc">MessageType</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">DATA</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+    <span class="n">STATUS_REQUEST</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+    <span class="n">STATUS</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+    <span class="n">CLOSE</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+    <span class="n">ERROR</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+    <span class="n">USERFUNC_EXCEPTION</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+
 <span class="k">class</span> <span class="nc">BaseMessage</span><span class="p">:</span>
-    <span class="k">pass</span>
+    <span class="sd">&#39;&#39;&#39;All messages between WorkerProcess and WorkerResource inherit from this.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span><span class="p">:</span> <span class="n">MessageType</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;To be accessed </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">message_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnidentifiedMessageReceivedError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message_type</span>
 
 <span class="nd">@doctable</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">slots_dataclass</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">DataPayload</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;For passing data to/from Workers.&#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39;Data is passed to/from WorkerResource and WorkerProcess.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">DATA</span>
+
     <span class="n">data</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">ind</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">pid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="c1">#def __lt__(self, other): return self.ind &lt; other.ind</span>
-
 
 <span class="k">class</span> <span class="nc">StatusRequest</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="k">pass</span>
+    <span class="sd">&#39;&#39;&#39;WorkerResource requests status from WorkerProcess.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">STATUS_REQUEST</span>
 
 <span class="nd">@doctable</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">slots_dataclass</span>
-<span class="k">class</span> <span class="nc">WorkerStatus</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">pid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
-    <span class="n">start_ts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
-    <span class="n">time_waiting</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">time_working</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">jobs_finished</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">uptime</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># to be updated before sending</span>
-
-    <span class="k">def</span> <span class="nf">update_uptime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">uptime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_ts</span>
-
-    <span class="k">def</span> <span class="nf">efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_waiting</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">total_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">uptime</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">sec_per_job</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs_finished</span>
-
-<span class="k">class</span> <span class="nc">UserFunc</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Contains a user function and data to be passed to it when calling.</span>
-<span class="sd">    Sent to a process upon init and when function should be changed.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;func&#39;</span><span class="p">,</span> <span class="s1">&#39;args&#39;</span><span class="p">,</span> <span class="s1">&#39;kwargs&#39;</span><span class="p">]</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">argstr</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-        <span class="n">kwargstr</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(x, </span><span class="si">{</span><span class="n">argstr</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">kwargstr</span><span class="si">}</span><span class="s1">))&#39;</span>
-
-    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Call function passing *args and **kwargs.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">WorkerHasNoUserFunctionError</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
-
 <span class="k">class</span> <span class="nc">SigClose</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;WorkerResource telling Worker to close.&#39;&#39;&#39;</span>
-    <span class="k">pass</span>
-
-<span class="k">class</span> <span class="nc">WorkerError</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Sent from Worker to WorkerResource when any worker exception is passed </span>
-<span class="sd">    (not userfunc).</span>
+    <span class="sd">&#39;&#39;&#39;WorkerResource tells WorkerProcess to close.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">CLOSE</span>
+
+<span class="nd">@doctable</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">slots_dataclass</span>
+<span class="k">class</span> <span class="nc">WorkerError</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;WorkerProcess tells WorkerResource that it encountered an exception.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">ERROR</span>
+    
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">e</span> <span class="o">=</span> <span class="n">exception</span>
+    
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">e</span><span class="si">}</span><span class="s1">)&#39;</span>
 
 
+<span class="nd">@doctable</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">slots_dataclass</span>
 <span class="k">class</span> <span class="nc">UserFuncException</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Passes exception from user function to main thread (and lets it know </span>
-<span class="sd">        there was an error with the user function).</span>
+    <span class="sd">&#39;&#39;&#39;WorkerProcess tells WorkerResource that the UserFunc encountered an exception.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">USERFUNC_EXCEPTION</span>
+    <span class="n">e</span><span class="p">:</span> <span class="ne">BaseException</span> <span class="o">=</span> <span class="kc">None</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">e</span> <span class="o">=</span> <span class="n">exception</span>
     
@@ -270,6 +250,97 @@
         </details>
 
             </section>
+                <section id="MessageType">
+                                <div class="attr class">
+        <a class="headerlink" href="#MessageType">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">MessageType</span><wbr>(<span class="base">enum.Enum</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MessageType</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">DATA</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+    <span class="n">STATUS_REQUEST</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+    <span class="n">STATUS</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+    <span class="n">CLOSE</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+    <span class="n">ERROR</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+    <span class="n">USERFUNC_EXCEPTION</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>An enumeration.</p>
+</div>
+
+
+                            <div id="MessageType.DATA" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#MessageType.DATA">#&nbsp;&nbsp</a>
+
+        <span class="name">DATA</span><span class="default_value"> = &lt;<a href="#MessageType.DATA">MessageType.DATA</a>: 1&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="MessageType.STATUS_REQUEST" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#MessageType.STATUS_REQUEST">#&nbsp;&nbsp</a>
+
+        <span class="name">STATUS_REQUEST</span><span class="default_value"> = &lt;<a href="#MessageType.STATUS_REQUEST">MessageType.STATUS_REQUEST</a>: 2&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="MessageType.STATUS" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#MessageType.STATUS">#&nbsp;&nbsp</a>
+
+        <span class="name">STATUS</span><span class="default_value"> = &lt;<a href="#MessageType.STATUS">MessageType.STATUS</a>: 3&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="MessageType.CLOSE" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#MessageType.CLOSE">#&nbsp;&nbsp</a>
+
+        <span class="name">CLOSE</span><span class="default_value"> = &lt;<a href="#MessageType.CLOSE">MessageType.CLOSE</a>: 4&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="MessageType.ERROR" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#MessageType.ERROR">#&nbsp;&nbsp</a>
+
+        <span class="name">ERROR</span><span class="default_value"> = &lt;<a href="#MessageType.ERROR">MessageType.ERROR</a>: 5&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="MessageType.USERFUNC_EXCEPTION" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#MessageType.USERFUNC_EXCEPTION">#&nbsp;&nbsp</a>
+
+        <span class="name">USERFUNC_EXCEPTION</span><span class="default_value"> = &lt;<a href="#MessageType.USERFUNC_EXCEPTION">MessageType.USERFUNC_EXCEPTION</a>: 6&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>enum.Enum</dt>
+                                <dd id="MessageType.name" class="variable">name</dd>
+                <dd id="MessageType.value" class="variable">value</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
                 <section id="BaseMessage">
                                 <div class="attr class">
         <a class="headerlink" href="#BaseMessage">#&nbsp;&nbsp</a>
@@ -282,12 +353,25 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">BaseMessage</span><span class="p">:</span>
-    <span class="k">pass</span>
+    <span class="sd">&#39;&#39;&#39;All messages between WorkerProcess and WorkerResource inherit from this.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span><span class="p">:</span> <span class="n">MessageType</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;To be accessed </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">message_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnidentifiedMessageReceivedError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message_type</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>All messages between WorkerProcess and WorkerResource inherit from this.</p>
+</div>
+
 
                             <div id="BaseMessage.__init__" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#BaseMessage.__init__">#&nbsp;&nbsp</a>
@@ -298,6 +382,26 @@
 
         
     
+
+                            </div>
+                            <div id="BaseMessage.message_type" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#BaseMessage.message_type">#&nbsp;&nbsp</a>
+
+        <span class="name">message_type</span><span class="annotation">: <a href="#MessageType">doctable.parallel.messaging.MessageType</a></span><span class="default_value"> = None</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="BaseMessage.type" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#BaseMessage.type">#&nbsp;&nbsp</a>
+
+        <span class="name">type</span>
+    </div>
+
+            <div class="docstring"><p>To be accessed</p>
+</div>
+
 
                             </div>
                 </section>
@@ -313,8 +417,11 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">DataPayload</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;For passing data to/from Workers.&#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39;Data is passed to/from WorkerResource and WorkerProcess.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">DATA</span>
+
     <span class="n">data</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">ind</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">pid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
@@ -322,7 +429,7 @@
 
         </details>
 
-            <div class="docstring"><p>For passing data to/from Workers.</p>
+            <div class="docstring"><p>Data is passed to/from WorkerResource and WorkerProcess.</p>
 </div>
 
 
@@ -334,6 +441,15 @@
     </div>
 
         
+    
+
+                            </div>
+                            <div id="DataPayload.message_type" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#DataPayload.message_type">#&nbsp;&nbsp</a>
+
+        <span class="name">message_type</span><span class="annotation">: <a href="#MessageType">doctable.parallel.messaging.MessageType</a></span><span class="default_value"> = &lt;<a href="#MessageType.DATA">MessageType.DATA</a>: 1&gt;</span>
+    </div>
+
     
 
                             </div>
@@ -364,6 +480,15 @@
     
 
                             </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="#BaseMessage">BaseMessage</a></dt>
+                                <dd id="DataPayload.type" class="variable"><a href="#BaseMessage.type">type</a></dd>
+
+            </div>
+                                </dl>
+                            </div>
                 </section>
                 <section id="StatusRequest">
                                 <div class="attr class">
@@ -377,12 +502,17 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">StatusRequest</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="k">pass</span>
+    <span class="sd">&#39;&#39;&#39;WorkerResource requests status from WorkerProcess.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">STATUS_REQUEST</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>WorkerResource requests status from WorkerProcess.</p>
+</div>
+
 
                             <div id="StatusRequest.__init__" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#StatusRequest.__init__">#&nbsp;&nbsp</a>
@@ -395,307 +525,23 @@
     
 
                             </div>
-                </section>
-                <section id="WorkerStatus">
-                                <div class="attr class">
-        <a class="headerlink" href="#WorkerStatus">#&nbsp;&nbsp</a>
+                            <div id="StatusRequest.message_type" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#StatusRequest.message_type">#&nbsp;&nbsp</a>
 
-        
-        <span class="def">class</span>
-        <span class="name">WorkerStatus</span><wbr>(<span class="base"><a href="#WorkerStatus">WorkerStatus</a></span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">WorkerStatus</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">pid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
-    <span class="n">start_ts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
-    <span class="n">time_waiting</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">time_working</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">jobs_finished</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">uptime</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># to be updated before sending</span>
-
-    <span class="k">def</span> <span class="nf">update_uptime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">uptime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_ts</span>
-
-    <span class="k">def</span> <span class="nf">efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_waiting</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">total_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">uptime</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">sec_per_job</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs_finished</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>WorkerStatus(pid: int = 34558, start_ts: int = <factory>, time_waiting: int = 0, time_working: int = 0, jobs_finished: int = 0, uptime: int = None)</p>
-</div>
-
-
-                            <div id="WorkerStatus.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#WorkerStatus.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">WorkerStatus</span><span class="signature">(
-    pid: int = 34558,
-    start_ts: int = &lt;factory&gt;,
-    time_waiting: int = 0,
-    time_working: int = 0,
-    jobs_finished: int = 0,
-    uptime: int = None
-)</span>
-    </div>
-
-        
-    
-
-                            </div>
-                            <div id="WorkerStatus.pid" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.pid">#&nbsp;&nbsp</a>
-
-        <span class="name">pid</span><span class="annotation">: int</span><span class="default_value"> = &lt;member &#39;pid&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
+        <span class="name">message_type</span><span class="annotation">: <a href="#MessageType">doctable.parallel.messaging.MessageType</a></span><span class="default_value"> = &lt;<a href="#MessageType.STATUS_REQUEST">MessageType.STATUS_REQUEST</a>: 2&gt;</span>
     </div>
 
     
 
                             </div>
-                            <div id="WorkerStatus.start_ts" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.start_ts">#&nbsp;&nbsp</a>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="#BaseMessage">BaseMessage</a></dt>
+                                <dd id="StatusRequest.type" class="variable"><a href="#BaseMessage.type">type</a></dd>
 
-        <span class="name">start_ts</span><span class="annotation">: int</span><span class="default_value"> = &lt;member &#39;start_ts&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="WorkerStatus.time_waiting" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.time_waiting">#&nbsp;&nbsp</a>
-
-        <span class="name">time_waiting</span><span class="annotation">: int</span><span class="default_value"> = &lt;member &#39;time_waiting&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="WorkerStatus.time_working" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.time_working">#&nbsp;&nbsp</a>
-
-        <span class="name">time_working</span><span class="annotation">: int</span><span class="default_value"> = &lt;member &#39;time_working&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="WorkerStatus.jobs_finished" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.jobs_finished">#&nbsp;&nbsp</a>
-
-        <span class="name">jobs_finished</span><span class="annotation">: int</span><span class="default_value"> = &lt;member &#39;jobs_finished&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="WorkerStatus.uptime" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerStatus.uptime">#&nbsp;&nbsp</a>
-
-        <span class="name">uptime</span><span class="annotation">: int</span><span class="default_value"> = &lt;member &#39;uptime&#39; of &#39;WorkerStatus&#39; objects&gt;</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="WorkerStatus.update_uptime" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#WorkerStatus.update_uptime">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">update_uptime</span><span class="signature">(self)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">update_uptime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">uptime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_ts</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div id="WorkerStatus.efficiency" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#WorkerStatus.efficiency">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">efficiency</span><span class="signature">(self)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_waiting</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div id="WorkerStatus.total_efficiency" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#WorkerStatus.total_efficiency">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">total_efficiency</span><span class="signature">(self)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">total_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">uptime</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div id="WorkerStatus.sec_per_job" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#WorkerStatus.sec_per_job">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">sec_per_job</span><span class="signature">(self)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">sec_per_job</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_working</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs_finished</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                </section>
-                <section id="UserFunc">
-                                <div class="attr class">
-        <a class="headerlink" href="#UserFunc">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">UserFunc</span><wbr>(<span class="base"><a href="#BaseMessage">BaseMessage</a></span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">UserFunc</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Contains a user function and data to be passed to it when calling.</span>
-<span class="sd">    Sent to a process upon init and when function should be changed.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;func&#39;</span><span class="p">,</span> <span class="s1">&#39;args&#39;</span><span class="p">,</span> <span class="s1">&#39;kwargs&#39;</span><span class="p">]</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">argstr</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-        <span class="n">kwargstr</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(x, </span><span class="si">{</span><span class="n">argstr</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">kwargstr</span><span class="si">}</span><span class="s1">))&#39;</span>
-
-    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Call function passing *args and **kwargs.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">WorkerHasNoUserFunctionError</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Contains a user function and data to be passed to it when calling.
-Sent to a process upon init and when function should be changed.</p>
-</div>
-
-
-                            <div id="UserFunc.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#UserFunc.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">UserFunc</span><span class="signature">(func: Callable, *args, **kwargs)</span>
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div id="UserFunc.func" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#UserFunc.func">#&nbsp;&nbsp</a>
-
-        <span class="name">func</span><span class="default_value"> = &lt;member &#39;func&#39; of &#39;UserFunc&#39; objects&gt;</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="UserFunc.args" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#UserFunc.args">#&nbsp;&nbsp</a>
-
-        <span class="name">args</span><span class="default_value"> = &lt;member &#39;args&#39; of &#39;UserFunc&#39; objects&gt;</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="UserFunc.kwargs" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#UserFunc.kwargs">#&nbsp;&nbsp</a>
-
-        <span class="name">kwargs</span><span class="default_value"> = &lt;member &#39;kwargs&#39; of &#39;UserFunc&#39; objects&gt;</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="UserFunc.execute" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#UserFunc.execute">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">execute</span><span class="signature">(self, data: Any)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Call function passing *args and **kwargs.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">WorkerHasNoUserFunctionError</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Call function passing <em>args and *</em>kwargs.</p>
-</div>
-
-
+            </div>
+                                </dl>
                             </div>
                 </section>
                 <section id="SigClose">
@@ -704,19 +550,21 @@ Sent to a process upon init and when function should be changed.</p>
 
         
         <span class="def">class</span>
-        <span class="name">SigClose</span><wbr>(<span class="base"><a href="#BaseMessage">BaseMessage</a></span>):
+        <span class="name">SigClose</span><wbr>(<span class="base"><a href="#SigClose">SigClose</a></span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SigClose</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;WorkerResource telling Worker to close.&#39;&#39;&#39;</span>
-    <span class="k">pass</span>
+    <span class="sd">&#39;&#39;&#39;WorkerResource tells WorkerProcess to close.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">CLOSE</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>WorkerResource telling Worker to close.</p>
+            <div class="docstring"><p>WorkerResource tells WorkerProcess to close.</p>
 </div>
 
 
@@ -731,6 +579,24 @@ Sent to a process upon init and when function should be changed.</p>
     
 
                             </div>
+                            <div id="SigClose.message_type" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#SigClose.message_type">#&nbsp;&nbsp</a>
+
+        <span class="name">message_type</span><span class="annotation">: <a href="#MessageType">doctable.parallel.messaging.MessageType</a></span><span class="default_value"> = &lt;<a href="#MessageType.CLOSE">MessageType.CLOSE</a>: 4&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="#BaseMessage">BaseMessage</a></dt>
+                                <dd id="SigClose.type" class="variable"><a href="#BaseMessage.type">type</a></dd>
+
+            </div>
+                                </dl>
+                            </div>
                 </section>
                 <section id="WorkerError">
                                 <div class="attr class">
@@ -738,25 +604,27 @@ Sent to a process upon init and when function should be changed.</p>
 
         
         <span class="def">class</span>
-        <span class="name">WorkerError</span><wbr>(<span class="base"><a href="#BaseMessage">BaseMessage</a></span>):
+        <span class="name">WorkerError</span><wbr>(<span class="base"><a href="#WorkerError">WorkerError</a></span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">WorkerError</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Sent from Worker to WorkerResource when any worker exception is passed </span>
-<span class="sd">    (not userfunc).</span>
+    <span class="sd">&#39;&#39;&#39;WorkerProcess tells WorkerResource that it encountered an exception.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">ERROR</span>
+    
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">e</span> <span class="o">=</span> <span class="n">exception</span>
+    
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">e</span><span class="si">}</span><span class="s1">)&#39;</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Sent from Worker to WorkerResource when any worker exception is passed 
-(not userfunc).</p>
+            <div class="docstring"><p>WorkerProcess tells WorkerResource that it encountered an exception.</p>
 </div>
 
 
@@ -778,6 +646,24 @@ Sent to a process upon init and when function should be changed.</p>
     
 
                             </div>
+                            <div id="WorkerError.message_type" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#WorkerError.message_type">#&nbsp;&nbsp</a>
+
+        <span class="name">message_type</span><span class="annotation">: <a href="#MessageType">doctable.parallel.messaging.MessageType</a></span><span class="default_value"> = &lt;<a href="#MessageType.ERROR">MessageType.ERROR</a>: 5&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="#BaseMessage">BaseMessage</a></dt>
+                                <dd id="WorkerError.type" class="variable"><a href="#BaseMessage.type">type</a></dd>
+
+            </div>
+                                </dl>
+                            </div>
                 </section>
                 <section id="UserFuncException">
                                 <div class="attr class">
@@ -785,15 +671,18 @@ Sent to a process upon init and when function should be changed.</p>
 
         
         <span class="def">class</span>
-        <span class="name">UserFuncException</span><wbr>(<span class="base"><a href="#BaseMessage">BaseMessage</a></span>):
+        <span class="name">UserFuncException</span><wbr>(<span class="base"><a href="#UserFuncException">UserFuncException</a></span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">UserFuncException</span><span class="p">(</span><span class="n">BaseMessage</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Passes exception from user function to main thread (and lets it know </span>
-<span class="sd">        there was an error with the user function).</span>
+    <span class="sd">&#39;&#39;&#39;WorkerProcess tells WorkerResource that the UserFunc encountered an exception.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">message_type</span> <span class="o">=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">USERFUNC_EXCEPTION</span>
+    <span class="n">e</span><span class="p">:</span> <span class="ne">BaseException</span> <span class="o">=</span> <span class="kc">None</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">e</span> <span class="o">=</span> <span class="n">exception</span>
     
@@ -803,8 +692,7 @@ Sent to a process upon init and when function should be changed.</p>
 
         </details>
 
-            <div class="docstring"><p>Passes exception from user function to main thread (and lets it know 
-there was an error with the user function).</p>
+            <div class="docstring"><p>WorkerProcess tells WorkerResource that the UserFunc encountered an exception.</p>
 </div>
 
 
@@ -825,6 +713,33 @@ there was an error with the user function).</p>
 
     
 
+                            </div>
+                            <div id="UserFuncException.message_type" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#UserFuncException.message_type">#&nbsp;&nbsp</a>
+
+        <span class="name">message_type</span><span class="annotation">: <a href="#MessageType">doctable.parallel.messaging.MessageType</a></span><span class="default_value"> = &lt;<a href="#MessageType.USERFUNC_EXCEPTION">MessageType.USERFUNC_EXCEPTION</a>: 6&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="UserFuncException.e" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#UserFuncException.e">#&nbsp;&nbsp</a>
+
+        <span class="name">e</span><span class="annotation">: BaseException</span><span class="default_value"> = &lt;member &#39;e&#39; of &#39;UserFuncException&#39; objects&gt;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="#BaseMessage">BaseMessage</a></dt>
+                                <dd id="UserFuncException.type" class="variable"><a href="#BaseMessage.type">type</a></dd>
+
+            </div>
+                                </dl>
                             </div>
                 </section>
     </main>
