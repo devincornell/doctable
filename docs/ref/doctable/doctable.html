@@ -58,6 +58,9 @@
                                 <a class="variable" href="#DocTable.columns">columns</a>
                         </li>
                         <li>
+                                <a class="variable" href="#DocTable.c">c</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#DocTable.engine">engine</a>
                         </li>
                         <li>
@@ -159,6 +162,7 @@
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span> <span class="nn">typing</span>
@@ -202,9 +206,9 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tabname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
                 <span class="n">schema</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">constraints</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">dialect</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                <span class="n">dialect</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="p">:</span> <span class="n">ConnectEngine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                 <span class="n">readonly</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_db</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_table</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-                <span class="n">persistent_conn</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
+                <span class="n">persistent_conn</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Create new database.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            target (str): filename for database to connect to. &quot;:memory:&quot; is a </span>
@@ -212,29 +216,31 @@
 <span class="sd">                should be created in memory. Will create new empty database file</span>
 <span class="sd">                if it does not exist and new_db==True, and add a new table using</span>
 <span class="sd">                specified schema if new_table==True.</span>
-<span class="sd">            schema (list&lt;list&gt;): schema from which to create db. Includes a</span>
+<span class="sd">            tabname (str): table name for this specific doctable.</span>
+<span class="sd">            schema (type or list&lt;list&gt;): schema from which to create db. Includes a</span>
 <span class="sd">                list of column names and types (including contraints and indexes) as tuples</span>
 <span class="sd">                defined according to information needed to construct the sqlalchemy</span>
-<span class="sd">                objects.</span>
-<span class="sd">            tabname (str): table name for this specific doctable.</span>
+<span class="sd">                objects. Alternatively, can be a schema class (see docs).</span>
 <span class="sd">            dialect (str): database engine through which to construct db.</span>
 <span class="sd">                For more info, see sqlalchemy dialect info:</span>
 <span class="sd">                https://docs.sqlalchemy.org/en/13/dialects/</span>
-<span class="sd">            persistent_conn (bool): whether or not to create a persistent conn </span>
-<span class="sd">                to database. Otherwise will create temporary connection for each</span>
-<span class="sd">                query.</span>
+<span class="sd">            engine (ConnectEngine): engine from another doctable if working with different</span>
+<span class="sd">                tables in the same db.</span>
 <span class="sd">            readonly (bool): Prevents user from calling insert(), delete(), or </span>
 <span class="sd">                update(). Will not block other sql possible commands.</span>
 <span class="sd">            new_db (bool): Indicate if new db file should be created given </span>
 <span class="sd">                that a schema is provided and the db file doesn&#39;t exist.</span>
 <span class="sd">            new_table (bool): Allow doctable to create a new table if one </span>
 <span class="sd">                doesn&#39;t exist already.</span>
-<span class="sd">            connect_args (**kwargs): Pass directly to the sqlalchemy</span>
+<span class="sd">            persistent_conn (bool): whether or not to create a persistent conn </span>
+<span class="sd">                to database. Otherwise will create temporary connection for each</span>
+<span class="sd">                query.</span>
+<span class="sd">            verbose (bool): Print every sql command before executing.</span>
+<span class="sd">            engine_kwargs (**kwargs): Pass directly to the sqlalchemy</span>
 <span class="sd">                .create_engine() as connect_args. Args typically vary by dialect.</span>
 <span class="sd">                Example: connect_args={&#39;timeout&#39;: 15} for sqlite</span>
 <span class="sd">                or connect_args={&#39;connect_timeout&#39;: 15} for PostgreSQL.</span>
-<span class="sd">            verbose (bool): Print every sql command before executing.</span>
-<span class="sd">            echo (bool): Print sqlalchemy engine log for each query.</span>
+
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">arg_defaults</span> <span class="o">=</span> <span class="p">{</span>
             <span class="c1"># connection info</span>
@@ -318,9 +324,9 @@
         <span class="c1"># store arguments as-is</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;tabname&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;tabname&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">DEFAULT_TABNAME</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;indices&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;constraints&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;indices&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;constraints&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dialect</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
 
         <span class="c1"># flags</span>
@@ -351,8 +357,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">,</span> 
                                              <span class="n">new_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_new_table</span><span class="p">)</span>
         
-        <span class="c1"># connect to database</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="c1"># create persistent connection to database if requested</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persistent_conn</span> <span class="k">else</span> <span class="kc">None</span>
         
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Closes database connection to prevent locking db.</span>
@@ -367,6 +373,16 @@
         
     
     <span class="c1">#################### Connection Methods ###################</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calls .open_conn()</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_conn</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calls .close_conn()</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">close_conn</span><span class="p">()</span>
     
     <span class="k">def</span> <span class="nf">close_conn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Closes connection to db (if one exists). &#39;&#39;&#39;</span>
@@ -436,6 +452,12 @@
 <span class="sd">                object.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="o">.</span><span class="n">c</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">c</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;See docs for self.columns.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
     
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">engine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -853,12 +875,11 @@
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">prstr</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">prstr</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
         
-        <span class="c1"># try to parse</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     
     <span class="k">def</span> <span class="nf">_execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">conn</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        
+        <span class="sd">&#39;&#39;&#39;Execute sql query using either existing connection, provided connection, or without a connection.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="c1"># takes raw query object</span>
         <span class="k">if</span> <span class="n">conn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
@@ -974,9 +995,9 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tabname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
                 <span class="n">schema</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">constraints</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">dialect</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                <span class="n">dialect</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="p">:</span> <span class="n">ConnectEngine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                 <span class="n">readonly</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_db</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_table</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-                <span class="n">persistent_conn</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
+                <span class="n">persistent_conn</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Create new database.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            target (str): filename for database to connect to. &quot;:memory:&quot; is a </span>
@@ -984,29 +1005,31 @@
 <span class="sd">                should be created in memory. Will create new empty database file</span>
 <span class="sd">                if it does not exist and new_db==True, and add a new table using</span>
 <span class="sd">                specified schema if new_table==True.</span>
-<span class="sd">            schema (list&lt;list&gt;): schema from which to create db. Includes a</span>
+<span class="sd">            tabname (str): table name for this specific doctable.</span>
+<span class="sd">            schema (type or list&lt;list&gt;): schema from which to create db. Includes a</span>
 <span class="sd">                list of column names and types (including contraints and indexes) as tuples</span>
 <span class="sd">                defined according to information needed to construct the sqlalchemy</span>
-<span class="sd">                objects.</span>
-<span class="sd">            tabname (str): table name for this specific doctable.</span>
+<span class="sd">                objects. Alternatively, can be a schema class (see docs).</span>
 <span class="sd">            dialect (str): database engine through which to construct db.</span>
 <span class="sd">                For more info, see sqlalchemy dialect info:</span>
 <span class="sd">                https://docs.sqlalchemy.org/en/13/dialects/</span>
-<span class="sd">            persistent_conn (bool): whether or not to create a persistent conn </span>
-<span class="sd">                to database. Otherwise will create temporary connection for each</span>
-<span class="sd">                query.</span>
+<span class="sd">            engine (ConnectEngine): engine from another doctable if working with different</span>
+<span class="sd">                tables in the same db.</span>
 <span class="sd">            readonly (bool): Prevents user from calling insert(), delete(), or </span>
 <span class="sd">                update(). Will not block other sql possible commands.</span>
 <span class="sd">            new_db (bool): Indicate if new db file should be created given </span>
 <span class="sd">                that a schema is provided and the db file doesn&#39;t exist.</span>
 <span class="sd">            new_table (bool): Allow doctable to create a new table if one </span>
 <span class="sd">                doesn&#39;t exist already.</span>
-<span class="sd">            connect_args (**kwargs): Pass directly to the sqlalchemy</span>
+<span class="sd">            persistent_conn (bool): whether or not to create a persistent conn </span>
+<span class="sd">                to database. Otherwise will create temporary connection for each</span>
+<span class="sd">                query.</span>
+<span class="sd">            verbose (bool): Print every sql command before executing.</span>
+<span class="sd">            engine_kwargs (**kwargs): Pass directly to the sqlalchemy</span>
 <span class="sd">                .create_engine() as connect_args. Args typically vary by dialect.</span>
 <span class="sd">                Example: connect_args={&#39;timeout&#39;: 15} for sqlite</span>
 <span class="sd">                or connect_args={&#39;connect_timeout&#39;: 15} for PostgreSQL.</span>
-<span class="sd">            verbose (bool): Print every sql command before executing.</span>
-<span class="sd">            echo (bool): Print sqlalchemy engine log for each query.</span>
+
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">arg_defaults</span> <span class="o">=</span> <span class="p">{</span>
             <span class="c1"># connection info</span>
@@ -1090,9 +1113,9 @@
         <span class="c1"># store arguments as-is</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;tabname&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;tabname&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">DEFAULT_TABNAME</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;indices&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;constraints&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;indices&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;constraints&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dialect</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
 
         <span class="c1"># flags</span>
@@ -1123,8 +1146,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">,</span> 
                                              <span class="n">new_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_new_table</span><span class="p">)</span>
         
-        <span class="c1"># connect to database</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="c1"># create persistent connection to database if requested</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persistent_conn</span> <span class="k">else</span> <span class="kc">None</span>
         
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Closes database connection to prevent locking db.</span>
@@ -1139,6 +1162,16 @@
         
     
     <span class="c1">#################### Connection Methods ###################</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calls .open_conn()</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_conn</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calls .close_conn()</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">close_conn</span><span class="p">()</span>
     
     <span class="k">def</span> <span class="nf">close_conn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Closes connection to db (if one exists). &#39;&#39;&#39;</span>
@@ -1208,6 +1241,12 @@
 <span class="sd">                object.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="o">.</span><span class="n">c</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">c</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;See docs for self.columns.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
     
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">engine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1625,12 +1664,11 @@
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">prstr</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">prstr</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
         
-        <span class="c1"># try to parse</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     
     <span class="k">def</span> <span class="nf">_execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">conn</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        
+        <span class="sd">&#39;&#39;&#39;Execute sql query using either existing connection, provided connection, or without a connection.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="c1"># takes raw query object</span>
         <span class="k">if</span> <span class="n">conn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
@@ -1736,11 +1774,11 @@ Description: This class manages schema and connection information to provide
     indices: dict = None,
     constraints=None,
     dialect: str = &#39;sqlite&#39;,
-    engine=None,
+    engine: <a href="connectengine.html#ConnectEngine">doctable.connectengine.ConnectEngine</a> = None,
     readonly: bool = False,
     new_db: bool = False,
     new_table: bool = True,
-    persistent_conn: bool = True,
+    persistent_conn: bool = False,
     verbose: bool = False,
     **engine_kwargs
 )</span>
@@ -1750,9 +1788,9 @@ Description: This class manages schema and connection information to provide
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tabname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
                 <span class="n">schema</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">constraints</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">dialect</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                <span class="n">dialect</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="p">:</span> <span class="n">ConnectEngine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                 <span class="n">readonly</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_db</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_table</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-                <span class="n">persistent_conn</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
+                <span class="n">persistent_conn</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Create new database.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            target (str): filename for database to connect to. &quot;:memory:&quot; is a </span>
@@ -1760,29 +1798,31 @@ Description: This class manages schema and connection information to provide
 <span class="sd">                should be created in memory. Will create new empty database file</span>
 <span class="sd">                if it does not exist and new_db==True, and add a new table using</span>
 <span class="sd">                specified schema if new_table==True.</span>
-<span class="sd">            schema (list&lt;list&gt;): schema from which to create db. Includes a</span>
+<span class="sd">            tabname (str): table name for this specific doctable.</span>
+<span class="sd">            schema (type or list&lt;list&gt;): schema from which to create db. Includes a</span>
 <span class="sd">                list of column names and types (including contraints and indexes) as tuples</span>
 <span class="sd">                defined according to information needed to construct the sqlalchemy</span>
-<span class="sd">                objects.</span>
-<span class="sd">            tabname (str): table name for this specific doctable.</span>
+<span class="sd">                objects. Alternatively, can be a schema class (see docs).</span>
 <span class="sd">            dialect (str): database engine through which to construct db.</span>
 <span class="sd">                For more info, see sqlalchemy dialect info:</span>
 <span class="sd">                https://docs.sqlalchemy.org/en/13/dialects/</span>
-<span class="sd">            persistent_conn (bool): whether or not to create a persistent conn </span>
-<span class="sd">                to database. Otherwise will create temporary connection for each</span>
-<span class="sd">                query.</span>
+<span class="sd">            engine (ConnectEngine): engine from another doctable if working with different</span>
+<span class="sd">                tables in the same db.</span>
 <span class="sd">            readonly (bool): Prevents user from calling insert(), delete(), or </span>
 <span class="sd">                update(). Will not block other sql possible commands.</span>
 <span class="sd">            new_db (bool): Indicate if new db file should be created given </span>
 <span class="sd">                that a schema is provided and the db file doesn&#39;t exist.</span>
 <span class="sd">            new_table (bool): Allow doctable to create a new table if one </span>
 <span class="sd">                doesn&#39;t exist already.</span>
-<span class="sd">            connect_args (**kwargs): Pass directly to the sqlalchemy</span>
+<span class="sd">            persistent_conn (bool): whether or not to create a persistent conn </span>
+<span class="sd">                to database. Otherwise will create temporary connection for each</span>
+<span class="sd">                query.</span>
+<span class="sd">            verbose (bool): Print every sql command before executing.</span>
+<span class="sd">            engine_kwargs (**kwargs): Pass directly to the sqlalchemy</span>
 <span class="sd">                .create_engine() as connect_args. Args typically vary by dialect.</span>
 <span class="sd">                Example: connect_args={&#39;timeout&#39;: 15} for sqlite</span>
 <span class="sd">                or connect_args={&#39;connect_timeout&#39;: 15} for PostgreSQL.</span>
-<span class="sd">            verbose (bool): Print every sql command before executing.</span>
-<span class="sd">            echo (bool): Print sqlalchemy engine log for each query.</span>
+
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">arg_defaults</span> <span class="o">=</span> <span class="p">{</span>
             <span class="c1"># connection info</span>
@@ -1866,9 +1906,9 @@ Description: This class manages schema and connection information to provide
         <span class="c1"># store arguments as-is</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;tabname&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;tabname&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">DEFAULT_TABNAME</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;indices&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;constraints&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;indices&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;constraints&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dialect</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;dialect&#39;</span><span class="p">]</span>
 
         <span class="c1"># flags</span>
@@ -1899,8 +1939,8 @@ Description: This class manages schema and connection information to provide
         <span class="bp">self</span><span class="o">.</span><span class="n">_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tabname</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">,</span> 
                                              <span class="n">new_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_new_table</span><span class="p">)</span>
         
-        <span class="c1"># connect to database</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="c1"># create persistent connection to database if requested</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persistent_conn</span> <span class="k">else</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
@@ -1915,29 +1955,30 @@ special value indicating to the python sqlite engine that the db
 should be created in memory. Will create new empty database file
 if it does not exist and new_db==True, and add a new table using
 specified schema if new_table==True.</li>
-<li><strong>schema (list<list>):</strong>  schema from which to create db. Includes a
+<li><strong>tabname (str):</strong>  table name for this specific doctable.</li>
+<li><strong>schema (type or list<list>):</strong>  schema from which to create db. Includes a
 list of column names and types (including contraints and indexes) as tuples
 defined according to information needed to construct the sqlalchemy
-objects.</li>
-<li><strong>tabname (str):</strong>  table name for this specific doctable.</li>
+objects. Alternatively, can be a schema class (see docs).</li>
 <li><strong>dialect (str):</strong>  database engine through which to construct db.
 For more info, see sqlalchemy dialect info:
 https://docs.sqlalchemy.org/en/13/dialects/</li>
-<li><strong>persistent_conn (bool):</strong>  whether or not to create a persistent conn 
-to database. Otherwise will create temporary connection for each
-query.</li>
+<li><strong>engine (ConnectEngine):</strong>  engine from another doctable if working with different
+tables in the same db.</li>
 <li><strong>readonly (bool):</strong>  Prevents user from calling insert(), delete(), or 
 update(). Will not block other sql possible commands.</li>
 <li><strong>new_db (bool):</strong>  Indicate if new db file should be created given 
 that a schema is provided and the db file doesn't exist.</li>
 <li><strong>new_table (bool):</strong>  Allow doctable to create a new table if one 
 doesn't exist already.</li>
-<li><strong>connect_args (</strong>kwargs):**  Pass directly to the sqlalchemy
+<li><strong>persistent_conn (bool):</strong>  whether or not to create a persistent conn 
+to database. Otherwise will create temporary connection for each
+query.</li>
+<li><strong>verbose (bool):</strong>  Print every sql command before executing.</li>
+<li><strong>engine_kwargs (</strong>kwargs):**  Pass directly to the sqlalchemy
 .create_engine() as connect_args. Args typically vary by dialect.
 Example: connect_args={'timeout': 15} for sqlite
 or connect_args={'connect_timeout': 15} for PostgreSQL.</li>
-<li><strong>verbose (bool):</strong>  Print every sql command before executing.</li>
-<li><strong>echo (bool):</strong>  Print sqlalchemy engine log for each query.</li>
 </ul>
 </div>
 
@@ -2108,6 +2149,17 @@ sqlalchemy columns object.</li>
   <p>sqlalchemy columns: access to underlying columns
       object.</p>
 </blockquote>
+</div>
+
+
+                            </div>
+                            <div id="DocTable.c" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#DocTable.c">#&nbsp;&nbsp</a>
+
+        <span class="name">c</span>
+    </div>
+
+            <div class="docstring"><p>See docs for self.columns.</p>
 </div>
 
 
@@ -3070,9 +3122,7 @@ significant ammounts of data.</li>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">prstr</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">prstr</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
         
-        <span class="c1"># try to parse</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 
         </details>

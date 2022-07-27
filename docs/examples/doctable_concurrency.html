@@ -14302,7 +14302,7 @@ a.anchor-link {
     <span class="n">number</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
 
 <span class="n">tmp</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">TempFolder</span><span class="p">(</span><span class="s1">&#39;exdb&#39;</span><span class="p">)</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">SimpleRow</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">tmp</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;tmp_concurrent.db&#39;</span><span class="p">),</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">SimpleRow</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">tmp</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;tmp_concurrent.db&#39;</span><span class="p">),</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">connect_args</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;timeout&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">})</span>
 </pre></div>
 
      </div>
@@ -14349,11 +14349,11 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>starting process DF
-starting process MB
-starting process SA
-starting process PTstarting process AP
-
+<pre>starting process DZ
+starting process JL
+starting process VM
+starting process KT
+starting process CW
 </pre>
 </div>
 </div>
@@ -14394,72 +14394,72 @@ starting process PTstarting process AP
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>None</td>
-      <td>DF</td>
+      <td>2022-07-26 19:56:26.192070</td>
+      <td>DZ</td>
       <td>0</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>None</td>
-      <td>DF</td>
-      <td>1</td>
+      <td>2022-07-26 19:56:26.196852</td>
+      <td>JL</td>
+      <td>20</td>
     </tr>
     <tr>
       <th>2</th>
       <td>3</td>
-      <td>None</td>
-      <td>MB</td>
-      <td>60</td>
+      <td>2022-07-26 19:56:26.202347</td>
+      <td>VM</td>
+      <td>40</td>
     </tr>
     <tr>
       <th>3</th>
       <td>4</td>
-      <td>None</td>
-      <td>SA</td>
-      <td>80</td>
+      <td>2022-07-26 19:56:26.205927</td>
+      <td>DZ</td>
+      <td>1</td>
     </tr>
     <tr>
       <th>4</th>
       <td>5</td>
-      <td>None</td>
-      <td>DF</td>
-      <td>2</td>
+      <td>2022-07-26 19:56:26.208501</td>
+      <td>CW</td>
+      <td>80</td>
     </tr>
     <tr>
       <th>5</th>
       <td>6</td>
-      <td>None</td>
-      <td>MB</td>
-      <td>61</td>
+      <td>2022-07-26 19:56:26.210643</td>
+      <td>JL</td>
+      <td>21</td>
     </tr>
     <tr>
       <th>6</th>
       <td>7</td>
-      <td>None</td>
-      <td>SA</td>
-      <td>81</td>
+      <td>2022-07-26 19:56:26.205855</td>
+      <td>KT</td>
+      <td>60</td>
     </tr>
     <tr>
       <th>7</th>
       <td>8</td>
-      <td>None</td>
-      <td>DF</td>
-      <td>3</td>
+      <td>2022-07-26 19:56:26.216189</td>
+      <td>VM</td>
+      <td>41</td>
     </tr>
     <tr>
       <th>8</th>
       <td>9</td>
-      <td>None</td>
-      <td>MB</td>
-      <td>62</td>
+      <td>2022-07-26 19:56:26.221924</td>
+      <td>CW</td>
+      <td>81</td>
     </tr>
     <tr>
       <th>9</th>
       <td>10</td>
-      <td>None</td>
-      <td>AP</td>
-      <td>40</td>
+      <td>2022-07-26 19:56:26.224920</td>
+      <td>JL</td>
+      <td>22</td>
     </tr>
   </tbody>
 </table>

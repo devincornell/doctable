@@ -40,9 +40,6 @@
                                 <a class="variable" href="#WorkerProcess.pipe">pipe</a>
                         </li>
                         <li>
-                                <a class="variable" href="#WorkerProcess.userfunc">userfunc</a>
-                        </li>
-                        <li>
                                 <a class="variable" href="#WorkerProcess.gcollect">gcollect</a>
                         </li>
                         <li>
@@ -65,6 +62,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#WorkerProcess.send">send</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#WorkerProcess.print">print</a>
                         </li>
                 </ul>
 
@@ -96,25 +96,29 @@
 <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Lock</span><span class="p">,</span> <span class="n">Pipe</span><span class="p">,</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Value</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="p">(</span><span class="n">UnidentifiedMessageReceivedError</span><span class="p">,</span>
-                         <span class="n">WorkerHasNoUserFunctionError</span><span class="p">,</span> <span class="n">WorkerIsDeadError</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.messaging</span> <span class="kn">import</span> <span class="p">(</span><span class="n">DataPayload</span><span class="p">,</span> <span class="n">WorkerStatus</span><span class="p">,</span> <span class="n">UserFuncException</span><span class="p">,</span> <span class="n">SigClose</span><span class="p">,</span> <span class="n">UserFunc</span><span class="p">,</span>
-                        <span class="n">WorkerError</span><span class="p">,</span> <span class="n">StatusRequest</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="p">(</span><span class="n">UnidentifiedMessageReceivedError</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.messaging</span> <span class="kn">import</span> <span class="n">BaseMessage</span><span class="p">,</span> <span class="n">MessageType</span><span class="p">,</span> <span class="n">WorkerError</span><span class="p">,</span> <span class="n">UserFuncException</span><span class="p">,</span> <span class="n">DataPayload</span>
+<span class="kn">from</span> <span class="nn">.workerstatus</span> <span class="kn">import</span> <span class="n">WorkerStatus</span><span class="p">,</span> <span class="n">WorkerStatusDummy</span>
+
 <span class="kn">import</span> <span class="nn">time</span>
-
-
-
-
 
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
 <span class="k">class</span> <span class="nc">WorkerProcess</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;Basic worker meant to be run in a process.&#39;&#39;&#39;</span>
     <span class="n">pipe</span><span class="p">:</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pipe</span>
-    <span class="n">userfunc</span><span class="p">:</span> <span class="n">UserFunc</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">gcollect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">logging</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">status</span><span class="p">:</span> <span class="n">WorkerStatus</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">WorkerStatus</span><span class="p">)</span>
+    <span class="n">status</span><span class="p">:</span> <span class="n">WorkerStatus</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Make a new status object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkerStatus</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkerStatusDummy</span><span class="p">()</span>
+        
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -123,59 +127,48 @@
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="si">}</span><span class="s1">]&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Call when opening the process.</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userfunc</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Start the process.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;process started!: </span><span class="si">{</span><span class="n">userfunc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         
         <span class="c1"># main receive/send loop</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-
             <span class="c1"># wait to receive data</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span> <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-                <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">time_waiting</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">waiting</span><span class="p">():</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">EOFError</span><span class="p">,</span> <span class="ne">BrokenPipeError</span><span class="p">):</span>
+                <span class="c1"># don&#39;t send anything back because host is not available</span>
                 <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
+            
             <span class="c1"># kill worker</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">SigClose</span><span class="p">):</span>
-                <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">CLOSE</span><span class="p">:</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
             <span class="c1"># process received data payload</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">DataPayload</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">execute_and_send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-            
-            <span class="c1"># load new function</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">UserFunc</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">userfunc</span> <span class="o">=</span> <span class="n">payload</span>
+            <span class="k">elif</span> <span class="n">message</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">DATA</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">execute_and_send</span><span class="p">(</span><span class="n">userfunc</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
 
             <span class="c1"># return status of worker</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">StatusRequest</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">update_uptime</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">message</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">STATUS_REQUEST</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
             
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">WorkerError</span><span class="p">(</span><span class="n">UnidentifiedMessageReceivedError</span><span class="p">()))</span>
 
-    <span class="k">def</span> <span class="nf">execute_and_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">DataPayload</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">execute_and_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userfunc</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">DataPayload</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Execute the provide function on the payload (modifies in-place), and return it.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># check if worker has a user function</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">userfunc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">WorkerError</span><span class="p">(</span><span class="n">WorkerHasNoUserFunctionError</span><span class="p">()))</span>
-            <span class="k">return</span>
-            
-        <span class="c1"># update pid and apply userfunc</span>
+        <span class="c1"># update pid and apply userfunc to datapayload</span>
         <span class="n">payload</span><span class="o">.</span><span class="n">pid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid</span>
         
         <span class="c1"># try to execute function and raise any errors</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span> <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="n">payload</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">userfunc</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">time_working</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">jobs_finished</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">working</span><span class="p">():</span>
+                <span class="n">payload</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">userfunc</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        
         <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">UserFuncException</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
             <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
@@ -192,14 +185,18 @@
     <span class="c1">############## Basic Send/Receive ##############</span>
 
     <span class="k">def</span> <span class="nf">recv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> waiting to receive&#39;</span><span class="p">)</span>
-        <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> received: </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">payload</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;waiting to receive&#39;</span><span class="p">)</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;received </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">message</span>
 
-    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> sending: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">BaseMessage</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;sending </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -219,11 +216,19 @@
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">WorkerProcess</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;Basic worker meant to be run in a process.&#39;&#39;&#39;</span>
     <span class="n">pipe</span><span class="p">:</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pipe</span>
-    <span class="n">userfunc</span><span class="p">:</span> <span class="n">UserFunc</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">gcollect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">logging</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">status</span><span class="p">:</span> <span class="n">WorkerStatus</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">WorkerStatus</span><span class="p">)</span>
+    <span class="n">status</span><span class="p">:</span> <span class="n">WorkerStatus</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Make a new status object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkerStatus</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkerStatusDummy</span><span class="p">()</span>
+        
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -232,59 +237,48 @@
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="si">}</span><span class="s1">]&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Call when opening the process.</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userfunc</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Start the process.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;process started!: </span><span class="si">{</span><span class="n">userfunc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         
         <span class="c1"># main receive/send loop</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-
             <span class="c1"># wait to receive data</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span> <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-                <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">time_waiting</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">waiting</span><span class="p">():</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">EOFError</span><span class="p">,</span> <span class="ne">BrokenPipeError</span><span class="p">):</span>
+                <span class="c1"># don&#39;t send anything back because host is not available</span>
                 <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
+            
             <span class="c1"># kill worker</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">SigClose</span><span class="p">):</span>
-                <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">CLOSE</span><span class="p">:</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
             <span class="c1"># process received data payload</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">DataPayload</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">execute_and_send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-            
-            <span class="c1"># load new function</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">UserFunc</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">userfunc</span> <span class="o">=</span> <span class="n">payload</span>
+            <span class="k">elif</span> <span class="n">message</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">DATA</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">execute_and_send</span><span class="p">(</span><span class="n">userfunc</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
 
             <span class="c1"># return status of worker</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">StatusRequest</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">update_uptime</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">message</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">STATUS_REQUEST</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
             
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">WorkerError</span><span class="p">(</span><span class="n">UnidentifiedMessageReceivedError</span><span class="p">()))</span>
 
-    <span class="k">def</span> <span class="nf">execute_and_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">DataPayload</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">execute_and_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userfunc</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">DataPayload</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Execute the provide function on the payload (modifies in-place), and return it.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># check if worker has a user function</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">userfunc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">WorkerError</span><span class="p">(</span><span class="n">WorkerHasNoUserFunctionError</span><span class="p">()))</span>
-            <span class="k">return</span>
-            
-        <span class="c1"># update pid and apply userfunc</span>
+        <span class="c1"># update pid and apply userfunc to datapayload</span>
         <span class="n">payload</span><span class="o">.</span><span class="n">pid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid</span>
         
         <span class="c1"># try to execute function and raise any errors</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span> <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="n">payload</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">userfunc</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">time_working</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">jobs_finished</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">working</span><span class="p">():</span>
+                <span class="n">payload</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">userfunc</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        
         <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">UserFuncException</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
             <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
@@ -301,14 +295,18 @@
     <span class="c1">############## Basic Send/Receive ##############</span>
 
     <span class="k">def</span> <span class="nf">recv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> waiting to receive&#39;</span><span class="p">)</span>
-        <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> received: </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">payload</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;waiting to receive&#39;</span><span class="p">)</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;received </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">message</span>
 
-    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> sending: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">BaseMessage</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;sending </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -322,12 +320,11 @@
 
         
             <span class="name">WorkerProcess</span><span class="signature">(
-    pipe: &lt;bound method BaseContext.Pipe of &lt;multiprocessing.context.DefaultContext object at 0x7f49d571b2b0&gt;&gt;,
-    userfunc: <a href="messaging.html#UserFunc">doctable.parallel.messaging.UserFunc</a> = None,
+    pipe: &lt;bound method BaseContext.Pipe of &lt;multiprocessing.context.DefaultContext object at 0x7f24319694c0&gt;&gt;,
     gcollect: bool = False,
     verbose: bool = False,
     logging: bool = False,
-    status: <a href="messaging.html#WorkerStatus">doctable.parallel.messaging.WorkerStatus</a> = &lt;factory&gt;
+    status: <a href="workerstatus.html#WorkerStatus">doctable.parallel.workerstatus.WorkerStatus</a> = None
 )</span>
     </div>
 
@@ -338,16 +335,7 @@
                             <div id="WorkerProcess.pipe" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#WorkerProcess.pipe">#&nbsp;&nbsp</a>
 
-        <span class="name">pipe</span><span class="annotation">: &lt;bound method BaseContext.Pipe of &lt;multiprocessing.context.DefaultContext object at 0x7f49d571b2b0&gt;&gt;</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="WorkerProcess.userfunc" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#WorkerProcess.userfunc">#&nbsp;&nbsp</a>
-
-        <span class="name">userfunc</span><span class="annotation">: <a href="messaging.html#UserFunc">doctable.parallel.messaging.UserFunc</a></span><span class="default_value"> = None</span>
+        <span class="name">pipe</span><span class="annotation">: &lt;bound method BaseContext.Pipe of &lt;multiprocessing.context.DefaultContext object at 0x7f24319694c0&gt;&gt;</span>
     </div>
 
     
@@ -383,7 +371,7 @@
                             <div id="WorkerProcess.status" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#WorkerProcess.status">#&nbsp;&nbsp</a>
 
-        <span class="name">status</span><span class="annotation">: <a href="messaging.html#WorkerStatus">doctable.parallel.messaging.WorkerStatus</a></span>
+        <span class="name">status</span><span class="annotation">: <a href="workerstatus.html#WorkerStatus">doctable.parallel.workerstatus.WorkerStatus</a></span><span class="default_value"> = None</span>
     </div>
 
     
@@ -403,29 +391,26 @@
 
         
             <span class="def">def</span>
-            <span class="name">execute_and_send</span><span class="signature">(self, payload: <a href="messaging.html#DataPayload">doctable.parallel.messaging.DataPayload</a>)</span>:
+            <span class="name">execute_and_send</span><span class="signature">(
+    self,
+    userfunc: Callable,
+    payload: <a href="messaging.html#DataPayload">doctable.parallel.messaging.DataPayload</a>
+)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">execute_and_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">DataPayload</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">execute_and_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userfunc</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">DataPayload</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Execute the provide function on the payload (modifies in-place), and return it.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># check if worker has a user function</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">userfunc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">WorkerError</span><span class="p">(</span><span class="n">WorkerHasNoUserFunctionError</span><span class="p">()))</span>
-            <span class="k">return</span>
-            
-        <span class="c1"># update pid and apply userfunc</span>
+        <span class="c1"># update pid and apply userfunc to datapayload</span>
         <span class="n">payload</span><span class="o">.</span><span class="n">pid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid</span>
         
         <span class="c1"># try to execute function and raise any errors</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span> <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="n">payload</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">userfunc</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">time_working</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">jobs_finished</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">working</span><span class="p">():</span>
+                <span class="n">payload</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">userfunc</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        
         <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">UserFuncException</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
             <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
@@ -457,10 +442,10 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">recv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> waiting to receive&#39;</span><span class="p">)</span>
-        <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> received: </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">payload</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;waiting to receive&#39;</span><span class="p">)</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;received </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">message</span>
 </pre></div>
 
         </details>
@@ -473,14 +458,34 @@
 
         
             <span class="def">def</span>
-            <span class="name">send</span><span class="signature">(self, data: Any)</span>:
+            <span class="name">send</span><span class="signature">(self, message: <a href="messaging.html#BaseMessage">doctable.parallel.messaging.BaseMessage</a>)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> sending: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">BaseMessage</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;sending </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="WorkerProcess.print" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#WorkerProcess.print">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">print</span><span class="signature">(self, message)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 
         </details>

@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>doctable_connectengine</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>depric_vignette_newsgroups</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -14259,43 +14259,26 @@ a.anchor-link {
 
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Manage-SQL-Connections-with-DocTable">Manage SQL Connections with DocTable<a class="anchor-link" href="#Manage-SQL-Connections-with-DocTable">&#182;</a></h1><p>This is meant to give a bit more depth describing how doctable works under-the-hood. I won't cover the details of DocTable methods or working with doctable objects, but I will try to give a clearer sense of how connections and tables are managed within a doctable instance.</p>
-<p>The driving motivator behind doctable is to create an object-oriented interface for working with sql tables by linking schemas described in your code with the structure of the databases you work with. This model is less ideal for the kinds of application-based frameworks where you would define the database schema once and build code around it separately, but works well for data science applications where you will be creating new tables and playing with different schemas regularly as your approach and end-goals change.</p>
-<p>When you instantiate a DocTable (or inheriting class), the object will convert your provided schema into a set of sqlalchemy objects which are then stored in-memory as part of the doctable instance. If the table does not already exist in the actual database, DocTable can create one that matches the provided schema, and then the schema will be used to work with the underlying database table. I will now discuss the lower-level objects that manage the metadata and connections to the database.</p>
+<h1 id="NewsGroups-Dataset-Vignette">NewsGroups Dataset Vignette<a class="anchor-link" href="#NewsGroups-Dataset-Vignette">&#182;</a></h1><p>In this vignette, I will show you how to create a database for storing and manipulating</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
-<span class="kn">import</span> <span class="nn">doctable</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="ConnectEngine-Class">ConnectEngine Class<a class="anchor-link" href="#ConnectEngine-Class">&#182;</a></h2><p>Each doctable maintains a <code>ConnectEngine</code> object to manage database connections and metadata that make all other database operations possible. I'll demonstrate how to instantiate this class manually to show how it works.</p>
-<p>The constructor takes arguments for dialect (sqlite, mysql, etc) and database target (filename or database server) to create new sqlalchemy <a href="https://docs.sqlalchemy.org/en/13/core/engines_connections.html">engine</a> and <a href="https://docs.sqlalchemy.org/en/13/faq/metadata_schema.html">metadata</a> objects. The engine object stores information about the target and can generate database connections, the metadata object stores schemas for registered tables. To work with a table, the metadata object must have the table schema registered, although it can be constructed from the database object itself.</p>
-<p>See here that the constructor requires a target (file or server where the database is located) and a dialect (flavor of database engine). This connection sits above individual table connections, and thus maintains no connections of it's own - only the engine that can create connections. We can, however list the tables in the database and perform other operations on the table.</p>
+<h2 id="Introduction-to-dataset">Introduction to dataset<a class="anchor-link" href="#Introduction-to-dataset">&#182;</a></h2><p>We will be using the <a href="http://qwone.com/~jason/20Newsgroups/">20 Newsgroups dataset</a> for this vignette. This is the <a href="https://scikit-learn.org/stable/datasets/real_world.html#the-20-newsgroups-text-dataset">sklearn website description</a>:</p>
+<p><em>The 20 newsgroups dataset comprises around 18000 newsgroups posts on 20 topics split in two subsets: one for training (or development) and the other one for testing (or for performance evaluation). The split between the train and test set is based upon a messages posted before and after a specific date.</em></p>
+<p>We use sklearn's <a href="https://scikit-learn.org/stable/modules/generated/sklearn.datasets.fetch_20newsgroups.html#sklearn.datasets.fetch_20newsgroups">fetch_20newsgroups</a> method to download and access articles from the politics newsgroup.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">engine</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ConnectEngine</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="s1">&#39;sqlite&#39;</span><span class="p">)</span>
-<span class="n">engine</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sklearn.datasets</span>
+<span class="n">newsgroups</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_20newsgroups</span><span class="p">(</span><span class="n">categories</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;talk.politics.guns&#39;</span><span class="p">,</span> <span class="s1">&#39;talk.politics.mideast&#39;</span><span class="p">,</span> <span class="s1">&#39;talk.politics.misc&#39;</span><span class="p">])</span>
+<span class="n">newsgroups</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="nb">len</span><span class="p">(</span><span class="n">newsgroups</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
 </pre></div>
 
      </div>
@@ -14311,13 +14294,13 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[1]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>sqlite:///:memory:</pre>
+<pre>(dict_keys([&#39;data&#39;, &#39;filenames&#39;, &#39;target_names&#39;, &#39;target&#39;, &#39;DESCR&#39;]), 1575)</pre>
 </div>
 
 </div>
@@ -14329,8 +14312,69 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Working-with-tables">Working with tables<a class="anchor-link" href="#Working-with-tables">&#182;</a></h3><p>You can also execute connectionless queries directly from this object, although normally you would create a connection object first and then execute queries from the connection. In this example I use a custom sql query to create a new table.</p>
-<p>As the ConnectEngine sits above the level of tables, we can list and drop tables from here.</p>
+<p>This is an example of a newsgroup post.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">newsgroups</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>From: golchowy@alchemy.chem.utoronto.ca (Gerald Olchowy)
+Subject: Re: Help fight the Clinton Administration&#39;s invasion of your privacy
+Organization: University of Toronto Chemistry Department
+Lines: 16
+
+In article &lt;9308@blue.cis.pitt.edu&gt; cjp+@pitt.edu (Casimir J Palowitch) writes:
+&gt;The Clinton Administration wants to &#34;manage&#34; your use of digital
+&gt;encryption. This includes a proposal which would limit your use of
+&gt;encryption to a standard developed by the NSA, the technical details of 
+&gt;which would remain classified with the government.
+&gt;
+&gt;This cannot be allowed to happen.
+&gt;
+
+It is a bit unfair to call blame the Clinton Administration alone...this
+initiative was underway under the Bush Administration...it is basically
+a bipartisan effort of the establishment Demopublicans and
+Republicrats...the same bipartisan effort that brought the S&amp;L scandal,
+and BCCI, etc.
+
+Gerald
+
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>It looks very similar to an email, so we will use Python's <code>email</code> package to parse the text and return a dictionary containing the various relevant fields. Our <code>parse_email</code> function shows how we can extract metadata fields like author, subject, and organization from the message, as well as the main text body.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14339,8 +14383,19 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see there are no tables here yet.</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">email</span>
+
+<span class="k">def</span> <span class="nf">parse_newsgroup</span><span class="p">(</span><span class="n">email_text</span><span class="p">):</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">email</span><span class="o">.</span><span class="n">message_from_string</span><span class="p">(</span><span class="n">email_text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="n">message</span><span class="p">[</span><span class="s1">&#39;from&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="n">message</span><span class="p">[</span><span class="s1">&#39;Subject&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;organization&#39;</span><span class="p">:</span> <span class="n">message</span><span class="p">[</span><span class="s1">&#39;Organization&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;lines&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">message</span><span class="p">[</span><span class="s1">&#39;Lines&#39;</span><span class="p">]),</span>
+        <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">message</span><span class="o">.</span><span class="n">get_payload</span><span class="p">(),</span>
+    <span class="p">}</span>
+
+<span class="n">parse_newsgroup</span><span class="p">(</span><span class="n">newsgroups</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 
      </div>
@@ -14362,7 +14417,11 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[]</pre>
+<pre>{&#39;author&#39;: &#39;golchowy@alchemy.chem.utoronto.ca (Gerald Olchowy)&#39;,
+ &#39;subject&#39;: &#34;Re: Help fight the Clinton Administration&#39;s invasion of your privacy&#34;,
+ &#39;organization&#39;: &#39;University of Toronto Chemistry Department&#39;,
+ &#39;lines&#39;: 16,
+ &#39;text&#39;: &#39;In article &lt;9308@blue.cis.pitt.edu&gt; cjp+@pitt.edu (Casimir J Palowitch) writes:\n&gt;The Clinton Administration wants to &#34;manage&#34; your use of digital\n&gt;encryption. This includes a proposal which would limit your use of\n&gt;encryption to a standard developed by the NSA, the technical details of \n&gt;which would remain classified with the government.\n&gt;\n&gt;This cannot be allowed to happen.\n&gt;\n\nIt is a bit unfair to call blame the Clinton Administration alone...this\ninitiative was underway under the Bush Administration...it is basically\na bipartisan effort of the establishment Demopublicans and\nRepublicrats...the same bipartisan effort that brought the S&amp;L scandal,\nand BCCI, etc.\n\nGerald\n&#39;}</pre>
 </div>
 
 </div>
@@ -14371,17 +14430,72 @@ a.anchor-link {
 
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Creating-a-database-schema">Creating a database schema<a class="anchor-link" href="#Creating-a-database-schema">&#182;</a></h2><p>The first step will be to create a database schema that is appropriate for the newsgroup dataset by defining a container dataclass using the <code>@schema</code> decorator.  The <code>schema</code> decorator will convert the class into a <a href="https://realpython.com/python-data-classes/"><code>dataclass</code></a> with <a href="https://docs.python.org/3/reference/datamodel.html#slots">slots</a> enabled (provided <code>__slots__ = []</code> is given in the definition), and inherit from <code>DocTableRow</code> to add some additional functionality. The type hints associated with each variable will be used in the schema definition for the new tables, and arguments to <code>Col()</code>, <code>IDCol()</code>, <code>AddedCol()</code>, and <code>UpdatedCol()</code> will mostly be passed to <code>dataclasses.field</code> (see <a href="https://doctable.org/ref/doctable/schemas/field_columns.html#Col">docs</a> for more detail), so all dataclass functionality is maintained. The <a href="doctable_schema.html">doctable schema guide</a> explains more about schema and schema object definitions.</p>
+<p>Here I define a <code>NewsgroupDoc</code> class to represent a single document and define <code>__slots__</code> so the decorator can automatically create a slot class. Each member variable will act as a column in our database schema, and the first variable we define is an <code>id</code> column with the defaulted value <code>IDCol()</code>. This is a special function that will translate to a schema that uses the <code>id</code> colum as the primary key and enable auto-incrementing. Because <code>id</code> is defaulted, we must default our other variables as well.</p>
+<p>I also define a couple of methods as part of our schema class - they are ignored in the schema creation process, but allow us to manipulate the object within Python. The <code>author_email</code> property will extract just the email address from the author field. Note that even though it is a property, it is defined as a method and therefore will not be considered when creating the class schema. I also define a <code>classmethod</code> that can be used to create a new <code>NewsgroupDoc</code> from the newsgroup text - this replaces the functionality of the <code>parse_email</code> function we created above. This way, the class knows how to create itself from the raw newsgroup text.</p>
+
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># run this raw sql query just for example</span>
-<span class="c1"># NOTE: Normally you would NOT create a table this way using doctable.</span>
-<span class="c1"># This is just for example purposes.</span>
-<span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;CREATE TABLE temp (id INTEGER PRIMARY KEY, number INTEGER NOT NULL)&#39;</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">doctable</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">email</span>
+<span class="kn">import</span> <span class="nn">dataclasses</span>
+
+<span class="k">def</span> <span class="nf">try_int</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span>
+<span class="k">class</span> <span class="nc">NewsgroupDoc</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1"># schema columns</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
+    <span class="n">author</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">organization</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">author_email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b&#39;</span><span class="p">)):</span>
+        <span class="sd">&#39;&#39;&#39;Get the author\&#39;s email address from the author field text.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">author</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">newsgroup_text</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Code to create a NewsGroupDoc object from the original newsgroup string.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">email</span><span class="o">.</span><span class="n">message_from_string</span><span class="p">(</span><span class="n">newsgroup_text</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">author</span> <span class="o">=</span> <span class="n">message</span><span class="p">[</span><span class="s1">&#39;from&#39;</span><span class="p">],</span>
+            <span class="n">subject</span> <span class="o">=</span> <span class="n">message</span><span class="p">[</span><span class="s1">&#39;Subject&#39;</span><span class="p">],</span>
+            <span class="n">organization</span> <span class="o">=</span> <span class="n">message</span><span class="p">[</span><span class="s1">&#39;Organization&#39;</span><span class="p">],</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">get_payload</span><span class="p">()),</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">get_payload</span><span class="p">(),</span>
+        <span class="p">)</span>
+        
+        
+<span class="c1"># for example, we create a new NewsGroupDoc from the first newsgroup article</span>
+<span class="n">ngdoc</span> <span class="o">=</span> <span class="n">NewsgroupDoc</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">newsgroups</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ngdoc</span><span class="o">.</span><span class="n">author</span><span class="p">)</span>
+<span class="n">ngdoc</span><span class="o">.</span><span class="n">author_email</span>
 </pre></div>
 
      </div>
@@ -14397,13 +14511,25 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>golchowy@alchemy.chem.utoronto.ca (Gerald Olchowy)
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;sqlalchemy.engine.result.ResultProxy at 0x7f62a10e9370&gt;</pre>
+<pre>&#39;golchowy@alchemy.chem.utoronto.ca&#39;</pre>
 </div>
 
 </div>
@@ -14412,14 +14538,20 @@ a.anchor-link {
 
 </div>
 
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>To make sure the <code>NewsgroupDoc</code> will translate to the database schema we expect, we can create a new <code>DocTable</code> object that uses it as a schema. We use the <code>schema</code> argument of the <code>DocTable</code> constructor to specify the schema, and print it below. See that most fields were translated to <code>VARCHAR</code> type fields, but <code>id</code> and <code>length</code> were translated to <code>INTEGER</code> types based on their type hints.</p>
+
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see that the table is now in the database</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ng_table</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="s1">&#39;documents&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">NewsgroupDoc</span><span class="p">)</span>
+<span class="n">ng_table</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14439,9 +14571,91 @@ a.anchor-link {
 
 
 
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&#39;temp&#39;]</pre>
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>author</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>subject</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>organization</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>length</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>text</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 </div>
 
 </div>
@@ -14450,14 +14664,27 @@ a.anchor-link {
 
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>To better describe the data we are interested in, we now create a class that inherits from <code>DocTable</code>. This class will act as the main interface for working with our dataset. We use the <code>_tabname_</code> and <code>_schema_</code> properties to define the table name and schema so we don't need to include them in the constructor. We also define a method <code>count_author_emails</code> - we will describe the behavior of this method later.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># uses inspect to ask the database directly for the schema</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">collections</span>
+
+<span class="k">class</span> <span class="nc">NewsgroupTable</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
+    <span class="n">_tabname_</span> <span class="o">=</span> <span class="s1">&#39;documents&#39;</span>
+    <span class="n">_schema_</span> <span class="o">=</span> <span class="n">NewsgroupDoc</span>
+    
+    <span class="k">def</span> <span class="nf">count_author_emails</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">author_emails</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;author&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">(</span><span class="n">author_emails</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14465,48 +14692,24 @@ a.anchor-link {
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[{&#39;name&#39;: &#39;id&#39;,
-  &#39;type&#39;: INTEGER(),
-  &#39;nullable&#39;: True,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 1},
- {&#39;name&#39;: &#39;number&#39;,
-  &#39;type&#39;: INTEGER(),
-  &#39;nullable&#39;: False,
-  &#39;default&#39;: None,
-  &#39;autoincrement&#39;: &#39;auto&#39;,
-  &#39;primary_key&#39;: 0}]</pre>
 </div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Instead of using <code>target=':memory:'</code>, we want to create a database on our filesystem so we can store data. By default, <code>DocTable</code> uses sqlite as the database engine, so with <code>target</code> we need only specify a filename. Because this is just a demonstration, we will create the database in a temporary folder using the <code>tempfile</code> package. This database does not exist yet, so we use the <code>new_db</code> flag to indicate that a new one should be created.</p>
 
 </div>
-
-</div>
-
-</div>
-
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># or as a dataframe</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">schema_df</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">tempfile</span>
+
+<span class="n">tempfolder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+<span class="n">table_fname</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tempfolder</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/tmp1.db&#39;</span>
+<span class="n">ng_table</span> <span class="o">=</span> <span class="n">NewsgroupTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">table_fname</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ng_table</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14558,16 +14761,52 @@ a.anchor-link {
       <th>0</th>
       <td>id</td>
       <td>INTEGER</td>
-      <td>True</td>
+      <td>False</td>
       <td>None</td>
       <td>auto</td>
       <td>1</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>number</td>
+      <td>author</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>subject</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>organization</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>length</td>
       <td>INTEGER</td>
-      <td>False</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>text</td>
+      <td>VARCHAR</td>
+      <td>True</td>
       <td>None</td>
       <td>auto</td>
       <td>0</td>
@@ -14586,8 +14825,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>All of these methods I've shown so far access the database tables directly, but currently our python objects do not have any idea of what the table schema looks like. You can view the sqlalchemy table objects actually registered with the engine by using the .tables property. See that it is currently empty! Our python code is not able to work with the table using objects because it does not have record of the schema. Now we'll show how to register tables with the engine.</p>
-<h3 id="Creating-and-accessing-tables">Creating and accessing tables<a class="anchor-link" href="#Creating-and-accessing-tables">&#182;</a></h3><p>To create a data structure internally representing the database structure, we can either ask sqlalchemy to read the database and create the schema, or we can provide lists of sqlalchemy column objects. Wee that we can access the registered tables using the .tables property.</p>
+<h2 id="Parsing-and-storing-documents">Parsing and storing documents<a class="anchor-link" href="#Parsing-and-storing-documents">&#182;</a></h2><p>Now we would like to parse our documents for storage in the database. It is relatively straighforward to create a list of parsed texts using the <code>from_string</code> method. After doing this, we could potentially just insert them directly into the database.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14596,660 +14834,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see that currently our engine does not have information about the table we created above.</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">tables</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>immutabledict({})</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># now I ask doctable to read the database schema and register the table in metadata.</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Table(&#39;temp&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp&gt;, primary_key=True, nullable=False), Column(&#39;number&#39;, INTEGER(), table=&lt;temp&gt;, nullable=False), schema=None)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># and we can see that the table is registered</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">tables</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>immutabledict({&#39;temp&#39;: Table(&#39;temp&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp&gt;, primary_key=True, nullable=False), Column(&#39;number&#39;, INTEGER(), table=&lt;temp&gt;, nullable=False), schema=None)})</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>When add_table() is called, a new sqlalchemy.Table object is registered in the engine's metadata and returned. If add_table() is called again, it will return the table already registered in the metadata. Because we usually use doctable to manage tables, we'll just show a short example here.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># while we can use doctable to do most of this work </span>
-<span class="c1">#  usually, I&#39;ll just show how sqlalchemy core objects </span>
-<span class="c1">#  can be used to create a table in ConnectEngine.</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">String</span>
-
-<span class="c1"># create a list of columns</span>
-<span class="n">columns</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">Column</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span> <span class="o">=</span> <span class="kc">True</span><span class="p">),</span> 
-    <span class="n">Column</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">),</span> 
-<span class="p">)</span>
-
-<span class="c1"># we similarly use the add_table() method to store the schema</span>
-<span class="c1">#  in the metadata</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s1">&#39;temp2&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Table(&#39;temp2&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, Integer(), table=&lt;temp2&gt;, primary_key=True, nullable=False), Column(&#39;name&#39;, String(), table=&lt;temp2&gt;), schema=None)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see now that the engine has information about both tables</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">tables</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>immutabledict({&#39;temp&#39;: Table(&#39;temp&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp&gt;, primary_key=True, nullable=False), Column(&#39;number&#39;, INTEGER(), table=&lt;temp&gt;, nullable=False), schema=None), &#39;temp2&#39;: Table(&#39;temp2&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, Integer(), table=&lt;temp2&gt;, primary_key=True, nullable=False), Column(&#39;name&#39;, String(), table=&lt;temp2&gt;), schema=None)})</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># and see that you can get individual table object references like this</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s1">&#39;temp&#39;</span><span class="p">]</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>Table(&#39;temp&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp&gt;, primary_key=True, nullable=False), Column(&#39;number&#39;, INTEGER(), table=&lt;temp&gt;, nullable=False), schema=None)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Dropping-tables">Dropping tables<a class="anchor-link" href="#Dropping-tables">&#182;</a></h3><p>Dropping tables is simple enough, but remember that the schema stored in the database and the objects in code mirror each other, so it is best to manipulate them at the same time. Use .drop_table instead of issuing CREATE TABLE query to make sure they stay in sync. The method can also be used on tables that are not in the metadata engine.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># by providing the argument as a string</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">drop_table</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[15]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&#39;temp2&#39;]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>In cases where an underlying table has been deleted but metadata is retained, the drop_table() method will still work but you may need to call clear_metadata() to flush all metadata and add_all_tables() to re-create the metadata from the actual data.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see this works although the temp3 table is not registered in engine metadata</span>
-<span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;CREATE TABLE temp3 (id INTEGER PRIMARY KEY, number INTEGER NOT NULL)&#39;</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">drop_table</span><span class="p">(</span><span class="s1">&#39;temp3&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># this will delete the underlying table even though the metadata information still exists.</span>
-<span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;CREATE TABLE temp4 (id INTEGER PRIMARY KEY, number INTEGER NOT NULL)&#39;</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;DROP TABLE IF EXISTS temp4&#39;</span><span class="p">)</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&#39;temp2&#39;]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see that the table is still registered in the metadata</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">tables</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[18]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>immutabledict({&#39;temp&#39;: Table(&#39;temp&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp&gt;, primary_key=True, nullable=False), Column(&#39;number&#39;, INTEGER(), table=&lt;temp&gt;, nullable=False), schema=None), &#39;temp2&#39;: Table(&#39;temp2&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, Integer(), table=&lt;temp2&gt;, primary_key=True, nullable=False), Column(&#39;name&#39;, String(), table=&lt;temp2&gt;), schema=None), &#39;temp3&#39;: Table(&#39;temp3&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp3&gt;, primary_key=True, nullable=False), Column(&#39;number&#39;, INTEGER(), table=&lt;temp3&gt;, nullable=False), schema=None)})</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># in this case, it might be simplest just to clear all metadata</span>
-<span class="c1"># and re-build according to exising tables</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">clear_metadata</span><span class="p">()</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">reflect</span><span class="p">()</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">tables</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[19]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>immutabledict({&#39;temp2&#39;: Table(&#39;temp2&#39;, MetaData(bind=Engine(sqlite:///:memory:)), Column(&#39;id&#39;, INTEGER(), table=&lt;temp2&gt;, primary_key=True, nullable=False), Column(&#39;name&#39;, VARCHAR(), table=&lt;temp2&gt;), schema=None)})</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Managing-connections-with-ConnectEngine">Managing connections with ConnectEngine<a class="anchor-link" href="#Managing-connections-with-ConnectEngine">&#182;</a></h2><p>ConnectEngine objects are used to create database connections which are maintained by individual doctable objects. Use the get_connection() function to retreive a new connection object which you can use to execute queries. While garbage collecting the connection objects will close the individual connection, sometimes all connections need to be closed simultaneously. This is especially important because garbage-collecting the ConnectEngine object doesn't mean the connections will be garbage-collected if they have references elsewhere in your code. You can close all connections using the close_connections() method.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># make new connection</span>
-<span class="n">conn</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
-<span class="n">conn</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[20]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;sqlalchemy.engine.base.Connection at 0x7f62a10301f0&gt;</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># see here we just run a select query on the empty table, returning an empty list</span>
-<span class="nb">list</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM temp2&#39;</span><span class="p">))</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[21]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>An important use-case of this feature is when you have multiple processes accessing the same database. In general, each process should have separate connections to the database, but both the engine and metadata stored with the ConnectEngine can be copied. Here I'll show a basic multiprocessing case using the Distribute class (it works much like multiprocessing.Pool()).</p>
-<p>In using the map function we open two processes, and in the thread function we call the close_connections() method to delete existing connections which don't exist in this new memory space.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">thread</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">engine</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ConnectEngine</span><span class="p">):</span>
-    <span class="c1"># close connections that were opened in other thread</span>
-    <span class="c1">#engine.close_connections()</span>
-    <span class="n">engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
-    
-    <span class="c1"># create a new connection for this thread</span>
-    <span class="n">thread_conn</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
-
-<span class="n">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
-<span class="k">with</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Distribute</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
-    <span class="n">d</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">thread</span><span class="p">,</span> <span class="n">numbers</span><span class="p">,</span> <span class="n">engine</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[23]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&#39;temp2&#39;]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="DocTable-and-ConnectEngine">DocTable and ConnectEngine<a class="anchor-link" href="#DocTable-and-ConnectEngine">&#182;</a></h2><p>Every DocTable object maintains a ConnectEngine to store information about the table they represent, and can be accessed through the engine property. When a target and dialect are provided to doctable, it will automatically initialize a new ConnectEngine and store a new connection object.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># create a new doctable and view it&#39;s engine</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="p">((</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">))</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;:memory:&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
-<span class="nb">str</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[24]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&#39;&lt;ConnectEngine::sqlite:///:memory:&gt;&#39;</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The DocTable constructor can also accept an engine in place of a target and dialect, and thus share ConnectEngines between multiple DocTable objects. In this case, the doctable constructor will use the provided schema to insert the table information into the engine metadata and create the table if doesn't already exist. It will also generate a new connection object from the ConnectEngine.</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># a w</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">clear_metadata</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">())</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">timeit</span> [NewsgroupDoc.from_string(text) for text in newsgroups[&#39;data&#39;]]
 </pre></div>
 
      </div>
@@ -15269,166 +14854,9 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>dict_keys([])
-[&#39;temp2&#39;]
+<pre>191 ms ± 527 µs per loop (mean ± std. dev. of 7 runs, 1 loop each)
 </pre>
 </div>
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># make a new doctable using the existing engine</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="p">((</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">))</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="s1">&#39;tmp5&#39;</span><span class="p">)</span>
-<span class="n">db</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[26]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;doctable.doctable.DocTable at 0x7f62a1096b20&gt;</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># make another doctable using existing engine</span>
-<span class="n">schema2</span> <span class="o">=</span> <span class="p">((</span><span class="s1">&#39;idcol&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">))</span>
-<span class="n">db2</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema2</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="s1">&#39;tmp6&#39;</span><span class="p">)</span>
-<span class="n">db2</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[27]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;doctable.doctable.DocTable at 0x7f62a0fd4cd0&gt;</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># we can see that both tables have been created in the database</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[28]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&#39;temp2&#39;, &#39;tmp5&#39;, &#39;tmp6&#39;]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># and that both are registered in the metadata</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[29]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>dict_keys([&#39;tmp5&#39;, &#39;tmp6&#39;])</pre>
-</div>
-
 </div>
 
 </div>
@@ -15438,16 +14866,29 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Some ConnectEngine methods are also accessable through the DocTable instances.</p>
+<p>This is a relatively straigtforward task with a dataset of this size, but if we had a larger dataset or used more costly parsing algorithms, we would want to distribute parsing across multiple processes - we will take that approach for demonstration. First we define the <code>process_and_store</code> class to be used in each worker process.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">thread_func</span><span class="p">(</span><span class="n">numbers</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;starting process&#39;</span><span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">reopen_engine</span><span class="p">()</span> <span class="c1"># create all new connections</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">([{</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span>  <span class="n">i</span> <span class="ow">in</span> <span class="n">numbers</span><span class="p">])</span>
+    <span class="c1">#for num in numbers:</span>
+    <span class="c1">#    db.insert({&#39;process&#39;: process_id, &#39;number&#39;: num})</span>
+    <span class="c1">#    time.sleep(0.01)</span>
+
+<span class="n">numbers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span> <span class="c1"># these numbers are to be inserted into the database</span>
+
+<span class="n">ng_table</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+<span class="k">with</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Distribute</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">map_chunk</span><span class="p">(</span><span class="n">thread_func</span><span class="p">,</span> <span class="n">numbers</span><span class="p">,</span> <span class="n">ng_table</span><span class="p">)</span>
+<span class="n">ng_table</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15463,44 +14904,23 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[30]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&#39;temp2&#39;, &#39;tmp5&#39;, &#39;tmp6&#39;]</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[31]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
-</pre></div>
-
-     </div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>starting process
+starting process
+starting process
+starting process
+starting process
+</pre>
 </div>
 </div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
 
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[31]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
 
 
 
@@ -15523,32 +14943,104 @@ a.anchor-link {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>name</th>
-      <th>type</th>
-      <th>nullable</th>
-      <th>default</th>
-      <th>autoincrement</th>
-      <th>primary_key</th>
+      <th>id</th>
+      <th>author</th>
+      <th>subject</th>
+      <th>organization</th>
+      <th>length</th>
+      <th>text</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>id</td>
-      <td>INTEGER</td>
-      <td>False</td>
-      <td>None</td>
-      <td>auto</td>
       <td>1</td>
+      <td>None</td>
+      <td>0</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>name</td>
-      <td>VARCHAR</td>
-      <td>True</td>
+      <td>2</td>
       <td>None</td>
-      <td>auto</td>
-      <td>0</td>
+      <td>1</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>None</td>
+      <td>2</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>None</td>
+      <td>3</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>None</td>
+      <td>4</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>None</td>
+      <td>5</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>None</td>
+      <td>6</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>None</td>
+      <td>7</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>None</td>
+      <td>8</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>None</td>
+      <td>9</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
     </tr>
   </tbody>
 </table>
@@ -15561,15 +15053,239 @@ a.anchor-link {
 
 </div>
 
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">printer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">table</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">doctable</span><span class="o">.</span><span class="n">WorkerPool</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+    <span class="k">assert</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">any_alive</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;av efficiency: </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">av_efficiency</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">printer</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)),</span> <span class="n">table</span><span class="o">=</span><span class="n">ng_table</span><span class="p">)</span>
+
+
+    <span class="c1"># test most basic map function</span>
+    <span class="c1">#elements = list(range(100))</span>
+    <span class="c1">#assert(pool.map(example_func, elements) == [example_func(e) for e in elements])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;av efficiency: </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">av_efficiency</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">AssertionError</span>                            Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-10-48aa27ce5dc0&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">      3</span> 
+<span class="ansi-green-intense-fg ansi-bold">      4</span> <span class="ansi-green-fg">with</span> doctable<span class="ansi-blue-fg">.</span>WorkerPool<span class="ansi-blue-fg">(</span><span class="ansi-cyan-fg">3</span><span class="ansi-blue-fg">,</span> verbose<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">as</span> p<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">----&gt; 5</span><span class="ansi-red-fg">     </span><span class="ansi-green-fg">assert</span><span class="ansi-blue-fg">(</span>p<span class="ansi-blue-fg">.</span>any_alive<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">      6</span>     print<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">f&#39;av efficiency: {p.av_efficiency()}&#39;</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">      7</span> 
+
+<span class="ansi-red-fg">AssertionError</span>: </pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[32]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># and this is equivalent to calling the engine method reopen(), which clears </span>
-<span class="c1">#  metadata and closes connection pool</span>
-<span class="n">db</span><span class="o">.</span><span class="n">reopen_engine</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">ng_table</span><span class="o">.</span><span class="n">schema_info</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="k">class</span> <span class="nc">parse_thread</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="n">table</span>
+    
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
+            <span class="c1">#records = [NewsgroupDoc.from_string(text) for text in texts]</span>
+            
+            <span class="n">t</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">NewsgroupDoc</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">parse_thread2</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="kc">None</span>
+            
+<span class="n">chunks</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">chunk</span><span class="p">(</span><span class="n">newsgroups</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="n">chunk_size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="c1">#parse_func = parse_thread(ng_table)</span>
+<span class="k">with</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+    <span class="o">%</span><span class="k">time</span> p.map(parse_thread(ng_table), chunks, 100)
+<span class="c1">#%time map(parse_thread(1), chunks)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">process_and_store</span><span class="p">:</span>
+    <span class="n">table</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span> <span class="o">=</span> <span class="kc">None</span>
+        
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_cls</span><span class="p">,</span> <span class="o">*</span><span class="n">table_args</span><span class="p">,</span> <span class="o">**</span><span class="n">table_kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Store info to construct the table.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_cls</span> <span class="o">=</span> <span class="n">table_cls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_args</span> <span class="o">=</span> <span class="n">table_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_kwargs</span> <span class="o">=</span> <span class="n">table_kwargs</span>
+        
+    <span class="k">def</span> <span class="nf">connect_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Make a new connection to the database and return the associated table.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_cls</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">table_args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">table_kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span>
+    
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Execute function in worker process.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect_db</span><span class="p">()</span>
+        
+        <span class="n">record</span> <span class="o">=</span> <span class="n">NewsgroupDoc</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+        
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="k">with</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+    <span class="o">%</span><span class="k">time</span> p.map(process_and_store(NewsgroupTable, target=table_fname), newsgroups[&#39;data&#39;])
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Notice that this takes very little CPU time, but a long "wall time" (overall time it takes to run the program). This is because the threads are IO-starved - they spend a lot of time waiting on each other to commit database transactions. This might be a good opportunity to use variations on threading models, but most parsing classes</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">process_and_store_chunk</span><span class="p">(</span><span class="n">process_and_store</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Execute function in worker process.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect_db</span><span class="p">()</span>
+        
+        <span class="n">records</span> <span class="o">=</span> <span class="p">[</span><span class="n">NewsgroupDoc</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="p">]</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+
+<span class="n">chunked_newsgroups</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">chunk</span><span class="p">(</span><span class="n">newsgroups</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="n">chunk_size</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+    <span class="o">%</span><span class="k">time</span> p.map(process_and_store_chunk(NewsgroupTable, target=table_fname), chunked_newsgroups)
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">parser</span> <span class="o">=</span> <span class="n">ParsePipeline</span><span class="p">([</span>
+    <span class="n">parse_email</span>
+<span class="p">])</span>
+
+
+<span class="k">for</span> <span class="n">email_text</span> <span class="ow">in</span> <span class="n">newsgroups</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+    <span class="n">email_data</span> <span class="o">=</span> <span class="n">parse_email</span><span class="p">(</span><span class="n">email_text</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="k">with</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 </pre></div>
 
      </div>

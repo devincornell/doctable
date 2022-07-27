@@ -54,15 +54,16 @@
                 
                         <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span>
+            <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span>
 
-<span class="k">def</span> <span class="nf">chunk</span><span class="p">(</span><span class="n">elements</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">**</span><span class="n">chunk_kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">chunk</span><span class="p">(</span><span class="n">elements</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">num_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Iterable</span><span class="p">]:</span>
     <span class="sd">&#39;&#39;&#39;Break elements into chunks determined by chunk_kwargs sent to .chunk_slice().</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">elements</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">chunk_slice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">),</span> <span class="o">**</span><span class="n">chunk_kwargs</span><span class="p">)]</span>
+    <span class="n">slices</span> <span class="o">=</span> <span class="n">chunk_slice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">),</span> <span class="n">chunk_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span> <span class="n">num_chunks</span><span class="o">=</span><span class="n">num_chunks</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">elements</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">slices</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">chunk_slice</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">num_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">chunk_slice</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">num_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">slice</span><span class="p">]:</span>
     <span class="sd">&#39;&#39;&#39;Create slices for chunks of an array of size n.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">chunk_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">num_chunks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> \
@@ -94,15 +95,21 @@
 
         
             <span class="def">def</span>
-            <span class="name">chunk</span><span class="signature">(elements: Iterable, /, **chunk_kwargs)</span>:
+            <span class="name">chunk</span><span class="signature">(
+    elements: Iterable,
+    /,
+    chunk_size: int = None,
+    num_chunks: int = None
+) -&gt; List[Iterable]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">chunk</span><span class="p">(</span><span class="n">elements</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">**</span><span class="n">chunk_kwargs</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">chunk</span><span class="p">(</span><span class="n">elements</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">num_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Iterable</span><span class="p">]:</span>
     <span class="sd">&#39;&#39;&#39;Break elements into chunks determined by chunk_kwargs sent to .chunk_slice().</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">elements</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">chunk_slice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">),</span> <span class="o">**</span><span class="n">chunk_kwargs</span><span class="p">)]</span>
+    <span class="n">slices</span> <span class="o">=</span> <span class="n">chunk_slice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">),</span> <span class="n">chunk_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span> <span class="n">num_chunks</span><span class="o">=</span><span class="n">num_chunks</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">elements</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">slices</span><span class="p">]</span>
 </pre></div>
 
         </details>
@@ -117,12 +124,17 @@
 
         
             <span class="def">def</span>
-            <span class="name">chunk_slice</span><span class="signature">(n: int, /, chunk_size: int = None, num_chunks: int = None)</span>:
+            <span class="name">chunk_slice</span><span class="signature">(
+    n: int,
+    /,
+    chunk_size: int = None,
+    num_chunks: int = None
+) -&gt; List[slice]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">chunk_slice</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">num_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">chunk_slice</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">num_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">slice</span><span class="p">]:</span>
     <span class="sd">&#39;&#39;&#39;Create slices for chunks of an array of size n.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">chunk_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">num_chunks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> \
