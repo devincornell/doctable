@@ -13,7 +13,7 @@ class ConnectEngine:
     '''
     def __init__(self, target: str = None, dialect:str = 'sqlite', new_db: bool = False, 
                     foreign_keys: bool = True, echo: bool = False, 
-                    engine_kwargs={}):
+                    **engine_kwargs):
         ''' Initializes sqlalchemy engine  and metadata objects.
             Args:
                 target: choose target database for connection.
