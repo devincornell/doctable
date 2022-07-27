@@ -47,7 +47,7 @@ class DocTable:
     '''
     def __init__(self, target: str = None, tabname: str = None, 
                 schema: Sequence[Sequence] = None, indices: dict = None, constraints = None,
-                dialect: str = 'sqlite', engine=None, 
+                dialect: str = 'sqlite', engine: ConnectEngine=None, 
                 readonly: bool=False, new_db: bool=False, new_table: bool=True, 
                 persistent_conn: bool=False, verbose: bool=False, **engine_kwargs):
         '''Create new database.
@@ -57,29 +57,31 @@ class DocTable:
                 should be created in memory. Will create new empty database file
                 if it does not exist and new_db==True, and add a new table using
                 specified schema if new_table==True.
-            schema (list<list>): schema from which to create db. Includes a
+            tabname (str): table name for this specific doctable.
+            schema (type or list<list>): schema from which to create db. Includes a
                 list of column names and types (including contraints and indexes) as tuples
                 defined according to information needed to construct the sqlalchemy
-                objects.
-            tabname (str): table name for this specific doctable.
+                objects. Alternatively, can be a schema class (see docs).
             dialect (str): database engine through which to construct db.
                 For more info, see sqlalchemy dialect info:
                 https://docs.sqlalchemy.org/en/13/dialects/
-            persistent_conn (bool): whether or not to create a persistent conn 
-                to database. Otherwise will create temporary connection for each
-                query.
+            engine (ConnectEngine): engine from another doctable if working with different
+                tables in the same db.
             readonly (bool): Prevents user from calling insert(), delete(), or 
                 update(). Will not block other sql possible commands.
             new_db (bool): Indicate if new db file should be created given 
                 that a schema is provided and the db file doesn't exist.
             new_table (bool): Allow doctable to create a new table if one 
                 doesn't exist already.
-            connect_args (**kwargs): Pass directly to the sqlalchemy
+            persistent_conn (bool): whether or not to create a persistent conn 
+                to database. Otherwise will create temporary connection for each
+                query.
+            verbose (bool): Print every sql command before executing.
+            engine_kwargs (**kwargs): Pass directly to the sqlalchemy
                 .create_engine() as connect_args. Args typically vary by dialect.
                 Example: connect_args={'timeout': 15} for sqlite
                 or connect_args={'connect_timeout': 15} for PostgreSQL.
-            verbose (bool): Print every sql command before executing.
-            echo (bool): Print sqlalchemy engine log for each query.
+
         '''
         arg_defaults = {
             # connection info
