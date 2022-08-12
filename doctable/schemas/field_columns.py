@@ -2,7 +2,7 @@
 from doctable.schemas.parse_schema_dataclass import ColumnMetadata
 from .emptyvalue import EmptyValue
 from datetime import datetime
-from dataclasses import dataclass, field, fields
+import dataclasses
 from typing import Any, Union
 import sqlalchemy
 
@@ -10,7 +10,7 @@ from .custom_coltypes import PickleFileType, ParseTreeDocFileType, TextFileType
             
 
 
-def Col(column_type: Any = None, field_kwargs: dict = None, type_kwargs: dict = None, **column_kwargs):
+def Col(column_type: type = None, field_kwargs: dict = None, type_kwargs: dict = None, **column_kwargs) -> dataclasses.Field:
     ''' Returns dataclasses.field() after setting convienient params.
     Args:
         field_kwargs: passed directly to dataclasses.field.
@@ -31,32 +31,32 @@ def Col(column_type: Any = None, field_kwargs: dict = None, type_kwargs: dict = 
         column_kwargs = column_kwargs,
     )
 
-    return field(init=True, metadata={'column_metadata': column_metadata}, repr=True, **field_kwargs)
+    return dataclasses.field(init=True, metadata={'column_metadata': column_metadata}, repr=True, **field_kwargs)
 
-def IDCol():
+def IDCol() -> dataclasses.Field:
     return Col(primary_key=True, autoincrement=True)
 
-def UpdatedCol():
+def UpdatedCol() -> dataclasses.Field:
     ''' Column that will automatically update the date/time when the row is modified.
     '''
     return Col(default=datetime.now)
 
-def AddedCol():
+def AddedCol() -> dataclasses.Field:
     ''' Column that will automatically update the date/time when the row is inserted.
     '''
     return Col(default=datetime.now, onupdate=datetime.now)
 
-def PickleFileCol(folder, **kwargs):
+def PickleFileCol(folder, **kwargs) -> dataclasses.Field:
     ''' Column that will store arbitrary python data in the filesystem and keep only a reference.
     '''
     return Col(column_type=PickleFileType, type_kwargs=dict(folder=folder), **kwargs)
 
-def TextFileCol(folder, **kwargs):
+def TextFileCol(folder, **kwargs) -> dataclasses.Field:
     ''' Column that will store text data in the filesystem and keep only a reference.
     '''
     return Col(column_type=TextFileType, type_kwargs=dict(folder=folder), **kwargs)
 
-def ParseTreeFileCol(folder, **kwargs):
+def ParseTreeFileCol(folder, **kwargs) -> dataclasses.Field:
     ''' Column that will store text data in the filesystem and keep only a reference.
     '''
     return Col(column_type=ParseTreeDocFileType, type_kwargs=dict(folder=folder), **kwargs)
