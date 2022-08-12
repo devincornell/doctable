@@ -4,9 +4,11 @@ import sqlalchemy
 from sqlalchemy import Index
 from .constraints import Constraint
 
+
+from .errors import *
 from .doctableschema import DocTableSchema
-from .schema_decorator import schema, SlotsRequiredError
-from .emptyvalue import EmptyValue
+from .schema_decorator import schema, schema_depric
+from .missingvalue import MissingValue
 
 from .field_columns import Col, IDCol, UpdatedCol, AddedCol, PickleFileCol, TextFileCol, ParseTreeFileCol
 

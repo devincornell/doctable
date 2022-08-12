@@ -1,6 +1,6 @@
 
 import dataclasses
-from .emptyvalue import EmptyValue
+from .missingvalue import MissingValue
 
 miss_col_message = 'The column "{name}" was not retreived in the select statement.'
 
@@ -19,7 +19,7 @@ class DocTableSchema:
                 retrieved from the database.
         '''
         val = getattr(self, attr)#self.__dict__[attr]
-        if isinstance(val, EmptyValue):
+        if isinstance(val, MissingValue):
             raise KeyError(miss_col_message.format(name=attr))
         return val
     
@@ -29,7 +29,7 @@ class DocTableSchema:
         return getattr(self, attr)
     
     def __repr__(self):
-        '''Hides cols with values of type EmptyValue.
+        '''Hides cols with values of type MissingValue.
         '''
         cn = ", ".join([(f'{k}=\'{v}\'' if isinstance(v,str) else f'{k}={v}') 
             for k,v in self._doctable_as_dict().items()])
@@ -43,15 +43,15 @@ class DocTableSchema:
         return self._doctable_as_dict(*args, **kwargs)
 
     def _doctable_as_dict(self):
-        '''Convert to dictionary, ignoring EmptyValue objects.
+        '''Convert to dictionary, ignoring MissingValue objects.
         '''
         attrs = dict()
 
         if hasattr(self, '__dict__'):
-            attrs = {**attrs, **{k:v for k,v in self.__dict__.items() if not isinstance(v, EmptyValue)}}
+            attrs = {**attrs, **{k:v for k,v in self.__dict__.items() if v is not MissingValue}}
         
         if hasattr(self, '__slots__'):
             attrs = {**attrs, **{name:getattr(self, name) for name in self.__slots__ 
-                                if not isinstance(getattr(self, name), EmptyValue)}}
+                                if getattr(self, name) is not MissingValue}}
 
         return attrs

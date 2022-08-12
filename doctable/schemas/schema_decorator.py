@@ -3,7 +3,7 @@ import functools
 import dataclasses
 
 from .errors import *
-from .emptyvalue import EmptyValue
+from .missingvalue import MissingValue
 from .doctableschema import DocTableSchema
 
 
@@ -20,7 +20,7 @@ def get_getter_setter(property_name: str):
     class TmpGetterSetter:
         @property
         def a(self):
-            if getattr(self, property_name) is dataclasses._MISSING_TYPE:
+            if getattr(self, property_name) is MissingValue:
                 raise ValueNotRetrievedEror(f'The "{property_name[1:]}" property '
                     'was never retrieved from the database. This might appear if '
                     'you specified columns in your SELECT statement.')
@@ -45,12 +45,12 @@ def schema(_Cls=None, *, require_slots=True, **dataclass_kwargs):
             
             # dataclasses don't actually create the property unless the default
             # value was a constant, so we just want to replicate that behavior
-            # with EmptyValue as the object. Normally it would do that in the 
+            # with MissingValue as the object. Normally it would do that in the 
             # constructor, but we want to create it ahead of time.
             if hasattr(Cls, field.name):
                 setattr(Cls, property_name, getattr(Cls, field.name))
             else:
-                setattr(Cls, property_name, EmptyValue())
+                setattr(Cls, property_name, MissingValue)
             
             # used a function to generate a class and return the property
             # to solve issue with class definitions in loops
