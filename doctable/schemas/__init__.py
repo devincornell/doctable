@@ -5,7 +5,7 @@ from sqlalchemy import Index
 from .constraints import Constraint
 
 from .doctableschema import DocTableSchema
-from .schema_decorator import schema
+from .schema_decorator import schema, SlotsRequiredError
 from .emptyvalue import EmptyValue
 
 from .field_columns import Col, IDCol, UpdatedCol, AddedCol, PickleFileCol, TextFileCol, ParseTreeFileCol
