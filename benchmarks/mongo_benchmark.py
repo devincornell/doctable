@@ -26,7 +26,7 @@ class DataObj:
     name9: str = doctable.Col(type_args={'length':32})
     name10: str = doctable.Col(type_args={'length':32})
     def __post_init__(self):
-        if self.name1 == doctable.MissingValue:
+        if self.name1 == doctable.MISSING_VALUE:
             self.name1 = str(self.arc)
             self.name2 = str(self.arc)
             self.name3 = str(self.arc)
