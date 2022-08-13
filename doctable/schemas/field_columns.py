@@ -1,6 +1,6 @@
 
 from doctable.schemas.parse_schema_dataclass import ColumnMetadata
-from .missingvalue import MissingValue
+from .missingvalue import MISSING_VALUE
 from datetime import datetime
 import dataclasses
 from typing import Any, Union
@@ -23,7 +23,7 @@ def Col(column_type: type = None, field_kwargs: dict = None, type_kwargs: dict =
         type_kwargs = dict()
 
     if 'default' not in field_kwargs and 'default_factory' not in field_kwargs:
-        field_kwargs['default'] = MissingValue
+        field_kwargs['default'] = MISSING_VALUE
 
     column_metadata = ColumnMetadata(
         column_type = column_type,

@@ -3,6 +3,6 @@
 class SlotsRequiredError(BaseException):
     pass
 
-class ValueNotRetrievedEror(BaseException):
+class DataNotAvailableError(BaseException):
     pass
 

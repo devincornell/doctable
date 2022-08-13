@@ -3,8 +3,8 @@ import functools
 import dataclasses
 
 from .errors import *
-from .missingvalue import MissingValue
-from .doctableschema import DocTableSchema
+from .missingvalue import MISSING_VALUE
+from .doctableschema import DocTableSchema, colname_to_property
 
 
 
@@ -14,43 +14,27 @@ from .doctableschema import DocTableSchema
 # outer function used to handle arguments to the decorator
 # e.g. @doctable.schema(require_slots=True)
 
-
-
-def get_getter_setter(property_name: str):
-    class TmpGetterSetter:
-        @property
-        def a(self):
-            if getattr(self, property_name) is MissingValue:
-                raise ValueNotRetrievedEror(f'The "{property_name[1:]}" property '
-                    'was never retrieved from the database. This might appear if '
-                    'you specified columns in your SELECT statement.')
-            return getattr(self, property_name)
-        
-        @a.setter
-        def a(self, val):
-            setattr(self, property_name, val)
-    return TmpGetterSetter.a
-
-
 def schema(_Cls=None, *, require_slots=True, **dataclass_kwargs):
-
+    '''A decorator to change a regular class into a schema class.
+    '''
     # this is the actual decorator
     def decorator_schema(Cls):
         # creates constructor/other methods using dataclasses
         Cls = dataclasses.dataclass(Cls, **dataclass_kwargs)
         
-        slot_var_names = list()
+        property_names = list()
         for field in dataclasses.fields(Cls):
-            property_name = f'_{field.name}'
+            property_name = colname_to_property(field.name)#f'_{field.name}'
+            property_names.append(property_name)
             
             # dataclasses don't actually create the property unless the default
             # value was a constant, so we just want to replicate that behavior
-            # with MissingValue as the object. Normally it would do that in the 
+            # with MISSING_VALUE as the object. Normally it would do that in the 
             # constructor, but we want to create it ahead of time.
             if hasattr(Cls, field.name):
                 setattr(Cls, property_name, getattr(Cls, field.name))
             else:
-                setattr(Cls, property_name, MissingValue)
+                setattr(Cls, property_name, MISSING_VALUE)
             
             # used a function to generate a class and return the property
             # to solve issue with class definitions in loops
@@ -63,14 +47,33 @@ def schema(_Cls=None, *, require_slots=True, **dataclass_kwargs):
         
         @functools.wraps(Cls, updated=[])
         class NewClass(DocTableSchema, Cls):
-            __slots__ = [f.name for f in dataclasses.fields(Cls)]
-        
+            __slots__ = tuple(property_names)
+                    
         return NewClass
 
     if _Cls is None:
         return decorator_schema
     else:
         return decorator_schema(_Cls)
+
+
+def get_getter_setter(property_name: str):
+    class TmpGetterSetter:
+        @property
+        def a(self):
+            if getattr(self, property_name) is MISSING_VALUE:
+                raise DataNotAvailableError(f'The "{property_name[1:]}" property '
+                    'is not available. This might happen if you did not retrieve '
+                    'the information from a database or if you did not provide '
+                    'a value in the class constructor.')
+            
+            return getattr(self, property_name)
+        
+        @a.setter
+        def a(self, val):
+            setattr(self, property_name, val)
+    return TmpGetterSetter.a
+
 
 def schema_depric(_Cls=None, *, require_slots=True, **dataclass_kwargs):
 
@@ -85,7 +88,7 @@ def schema_depric(_Cls=None, *, require_slots=True, **dataclass_kwargs):
         # add slots
         @functools.wraps(Cls, updated=[])
         class NewClass(DocTableSchema, Cls):
-            __slots__ = [f.name for f in dataclasses.fields(Cls)]
+            __slots__ = tuple([f.name for f in dataclasses.fields(Cls)])
         
         return NewClass
 
