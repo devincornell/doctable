@@ -330,7 +330,7 @@ class DocTable:
     
     ################# INSERT METHODS ##################
     
-    def insert(self, rowdat, ifnotunique='fail', **kwargs):
+    def insert(self, rowdat, ifnotunique='fail', **kwargs) -> sqlalchemy.engine.ResultProxy:
         '''Insert a row or rows into the database.
         Args:
             rowdat (list<dict> or dict): row data to insert.
@@ -370,6 +370,30 @@ class DocTable:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
     
+    def insert_single(self, rowdat: DocTableSchema, ifnotunique='fail', **kwargs) -> sqlalchemy.engine.ResultProxy:
+        '''Insert a row into the database.
+        Args:
+            rowdat (list<dict> or dict): row data to insert.
+            ifnotunique (str): way to handle inserted data if it breaks
+                a table constraint. Choose from FAIL, IGNORE, REPLACE.
+        Returns:
+            sqlalchemy query result object.
+        '''
+        if self._readonly:
+            raise ValueError('Cannot call .insert() when doctable set to readonly.')
+
+        if dataclasses.is_dataclass(self._schema):
+            if isinstance(rowdat, DocTableSchema):
+                rowdat = rowdat._doctable_as_dict()
+                
+        q = sqlalchemy.sql.insert(self._table, rowdat)
+        q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
+        
+        r = self.execute(q, **kwargs)
+        
+        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
+        return r
+
     ################# SELECT METHODS ##################
     
     
@@ -442,11 +466,11 @@ class DocTable:
             return result_container(row[0] for row in result.fetchall())
         else:
             if dataclasses.is_dataclass(self._schema) and as_dataclass:
-                try:
-                    return result_container(self._schema(**row) for row in result.fetchall())
-                except TypeError as e:
-                    print('Did you mean to use as_dataclass=False to return joined or reduced results?')
-                    raise e
+                #try:
+                return result_container(self._schema._doctable_from_db(**row) for row in result.fetchall())
+                #except TypeError as e:
+                #    print('Did you mean to use as_dataclass=False to return joined or reduced results?')
+                #    raise e
             else:
                 if result_container is list:
                     return result.fetchall()
