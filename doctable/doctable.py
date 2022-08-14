@@ -12,7 +12,7 @@ from typing import Union, Mapping, Sequence, Tuple, Set, List
 import dataclasses
 
 from doctable.util import QueueInserter
-
+from .errors import *
 # operators like and_, or_, and not_, functions like sum, min, max, etc
 #import sqlalchemy as sa
 import sqlalchemy
@@ -345,7 +345,7 @@ class DocTable:
             sqlalchemy query result object.
         '''
         if self._readonly:
-            raise ValueError('Cannot call .insert() when doctable set to readonly.')
+            raise SetToReadOnlyMode('Cannot call .insert() when doctable set to readonly.')
 
         if dataclasses.is_dataclass(self._schema):
             if isinstance(rowdat, DocTableSchema):
@@ -376,16 +376,16 @@ class DocTable:
         return r
     
     def insert_single(self, rowdat: DocTableSchema, ifnotunique='fail', **kwargs) -> sqlalchemy.engine.ResultProxy:
-        '''Insert a row into the database.
+        '''Insert a single row into the database.
         Args:
-            rowdat (list<dict> or dict): row data to insert.
+            rowdata: either schema object or dict) to insert
             ifnotunique (str): way to handle inserted data if it breaks
                 a table constraint. Choose from FAIL, IGNORE, REPLACE.
         Returns:
-            sqlalchemy query result object.
+            sqlalchemy result proxy.
         '''
         if self._readonly:
-            raise ValueError('Cannot call .insert() when doctable set to readonly.')
+            raise SetToReadOnlyMode('Cannot call .insert() when doctable set to readonly.')
 
         if dataclasses.is_dataclass(self._schema):
             if isinstance(rowdat, DocTableSchema):
@@ -396,8 +396,42 @@ class DocTable:
         
         r = self.execute(q, **kwargs)
         
-        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
+
+    def insert_many(self, rowdata: typing.List[DocTableSchema], ifnotunique='fail', **kwargs) -> sqlalchemy.engine.ResultProxy:
+        '''Insert multiple rows into the database.
+        Args:
+            rowdata: iterable of row data (either schema object or dict) to insert
+            ifnotunique (str): way to handle inserted data if it breaks
+                a table constraint. Choose from FAIL, IGNORE, REPLACE.
+        Returns:
+            sqlalchemy result proxy.
+        '''
+        if self._readonly:
+            raise SetToReadOnlyMode('Cannot call .insert() when doctable set to readonly.')
+        
+        if not len(rowdata):
+            raise NoDataToInsert('.insert_many() was called with no actual data to insert.')
+
+        if dataclasses.is_dataclass(self._schema):
+            if is_sequence(rowdata) and isinstance(rowdata[0], DocTableSchema):
+                rowdata = [r._doctable_as_dict() for r in rowdata]
+        
+        q = sqlalchemy.sql.insert(self._table, rowdata)
+        q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
+        
+        #NOTE: there is a weird issue with using verbose mode with a 
+        #  multiple insert. The printing interface is not aware of 
+        #  the SQL dialect and therefore throws an error.
+        
+        # To print correctly, would need something like this:
+        #from sqlalchemy.dialects import mysql
+        #print str(q.statement.compile(dialect=mysql.dialect()))
+    
+        if 'verbose' in kwargs:
+            del kwargs['verbose']
+        return self.execute(q, verbose=False, **kwargs)
+
 
     ################# SELECT METHODS ##################
     
@@ -656,7 +690,7 @@ class DocTable:
             SQLAlchemy result proxy object
         '''
         if self._readonly:
-            raise ValueError('Cannot call .update() when doctable set to readonly.')
+            raise SetToReadOnlyMode('Cannot call .update() when doctable set to readonly.')
             
         # update the main column values
         if isinstance(values,list) or isinstance(values,tuple):
@@ -713,7 +747,7 @@ class DocTable:
             SQLAlchemy result proxy object.
         '''
         if self._readonly:
-            raise ValueError('Cannot call .delete() when doctable set to readonly.')
+            raise SetToReadOnlyMode('Cannot call .delete() when doctable set to readonly.')
         
         q = sqlalchemy.sql.delete(self._table)
 
