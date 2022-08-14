@@ -219,7 +219,8 @@ class DocTable:
     def __enter__(self):
         '''Calls .open_conn()
         '''
-        return self.open_conn()
+        self.open_conn()
+        return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
         '''Calls .close_conn()
@@ -238,6 +239,10 @@ class DocTable:
         
         if self._conn is None:
             self._conn = self._engine.connect()
+            
+    def connect(self):
+        '''Returns a connection from the sqlalchemy engine.'''
+        return self._engine.connect()
     
     def reopen_engine(self, open_conn=None):
         ''' Opens connection engine. 
