@@ -34,7 +34,7 @@ if __name__ == '__main__':
     # make sure it is a slots class
     assert(not hasattr(sc, '__dict__'))
     assert(sc.aplusb() == 15)
-    assert(len(sc._doctable_as_dict()) == 2) # ignores EmptyValue
-    assert(sc._uses_slots())
+    assert(len(sc._doctable_as_dict()) == 2) # ignores MISSING_VALUE
+    #assert(sc._uses_slots())
     assert(len(dataclasses.fields(sc)) == 3)
     
