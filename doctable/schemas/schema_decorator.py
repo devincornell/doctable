@@ -14,11 +14,11 @@ from .doctableschema import DocTableSchema, colname_to_property
 # outer function used to handle arguments to the decorator
 # e.g. @doctable.schema(require_slots=True)
 
-def schema(_Cls=None, *, require_slots=True, **dataclass_kwargs):
+def schema(_Cls=None, *, require_slots: bool = True, enable_accessors: bool = True, **dataclass_kwargs):
     '''A decorator to change a regular class into a schema class.
     '''
     # this is the actual decorator
-    def decorator_schema(Cls):
+    def decorator_schema_accessors(Cls):
         # creates constructor/other methods using dataclasses
         Cls = dataclasses.dataclass(Cls, **dataclass_kwargs)
         
@@ -50,6 +50,27 @@ def schema(_Cls=None, *, require_slots=True, **dataclass_kwargs):
             __slots__ = tuple(property_names)
                     
         return NewClass
+    
+    # this is the actual decorator
+    def decorator_schema_basic(Cls):
+        # creates constructor/other methods using dataclasses
+        Cls = dataclasses.dataclass(Cls, **dataclass_kwargs)
+        if require_slots and not hasattr(Cls, '__slots__'):
+            raise SlotsRequiredError('Slots must be enabled by including "__slots__ = []". '
+                'Otherwise set doctable.schema(require_slots=False).')
+
+        # add slots
+        @functools.wraps(Cls, updated=[])
+        class NewClass(DocTableSchema, Cls):
+            __slots__ = tuple([f.name for f in dataclasses.fields(Cls)])
+        
+        return NewClass
+
+    # in case the user needs to access the old version
+    if enable_accessors:
+        decorator_schema = decorator_schema_accessors
+    else:
+        decorator_schema = decorator_schema_basic
 
     if _Cls is None:
         return decorator_schema
