@@ -30,7 +30,7 @@ def test_parsetreedocs():
     db.insert([{'doc':doc} for doc in docs])
     
     # select the documents back
-    sdocs = [r['doc'] for r in db.select()]
+    sdocs = [r.doc for r in db.select()]
     assert(isinstance(sdocs[0], doctable.ParseTreeDoc))
 
     for doc, new_doc in zip(docs, sdocs):
