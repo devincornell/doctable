@@ -6,6 +6,7 @@ from dataclasses import dataclass, field, fields
 from .coltype_map import python_to_slqlchemy_type, string_to_sqlalchemy_type, constraint_lookup
 from .constraints import Constraint
 from typing import Union, Any, List, Tuple
+from .errors import *
 
 def parse_schema_dataclass(Cls, indices: Tuple[sqlalchemy.Index], constraints: Tuple[Constraint]):
     ''' Convert a dataclass definition to a list of sqlalchemy columns.
@@ -34,7 +35,12 @@ class ColumnMetadata:
 
         # has no column type information
         if self.column_type is None:
+            #try:
             return python_to_slqlchemy_type.get(type_hint, sqlalchemy.PickleType)(**self.type_kwargs)
+            #except KeyError as e:
+            #    raise TypeNotRecognizedError(f'The type "{type_hint}" does not have a corresponding '
+            #        'sqlalchemy datatype. If unsure and unconcerned with performance, use typing.Any '
+            #        '(which resolves to sqlalchemy.PickleType).')
 
         # is a string for a type
         elif isinstance(self.column_type, str):

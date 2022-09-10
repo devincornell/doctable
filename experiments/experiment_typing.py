@@ -1,3 +1,5 @@
+#from __future__ import annotations
+
 from typing import Union, Mapping, Sequence, Tuple, Set, List
 from dataclasses import dataclass#, field, fields
 import datetime
@@ -27,3 +29,5 @@ if __name__ == '__main__':
     #orderby=tab['name'].desc()
     print(type(sqlalchemy.sql.select(tab.columns)))
     print(tab.select())
+    
+    print(tab.schema_table())
