@@ -227,24 +227,24 @@ class DocTable:
         '''
         return self.close_conn()
     
-    def close_conn(self):
+    def close_conn(self) -> None:
         ''' Closes connection to db (if one exists). '''
         if self._conn is not None:
             self._conn.close()
             self._conn = None
             
         
-    def open_conn(self):
+    def open_conn(self) -> None:
         ''' Opens connection to db (if one does not exist). '''
         
         if self._conn is None:
             self._conn = self._engine.connect()
             
-    def connect(self):
+    def connect(self) -> sqlalchemy.engine.Connection:
         '''Returns a connection from the sqlalchemy engine.'''
         return self._engine.connect()
     
-    def reopen_engine(self, open_conn=None):
+    def reopen_engine(self, open_conn=None) -> None:
         ''' Opens connection engine. 
         Args:
             open_conn (bool): create a new db connection.
@@ -260,11 +260,11 @@ class DocTable:
     def __str__(self) -> str:
         return f'<{self.__class__.__name__} ({len(self.columns)} cols)::{repr(self._engine)}:{self._tabname}>'
     
-    def __getitem__(self, colname):
+    def __getitem__(self, colname) -> sqlalchemy.Column:
         '''Accesses a column object by calling .col().'''
         return self.col(colname)
     
-    def col(self,name):
+    def col(self,name) -> sqlalchemy.Column:
         '''Accesses a column object.
         Args:
             Name of column to access. Applied as subscript to 
@@ -307,16 +307,16 @@ class DocTable:
         return self.columns
     
     @property
-    def engine(self):
+    def engine(self) -> ConnectEngine:
         return self._engine
     
-    def list_tables(self):
+    def list_tables(self) -> typing.List[str]:
         return self._engine.list_tables()
     
-    def colnames(self):
+    def colnames(self) -> typing.List[str]:
         return [c.name for c in self.columns]
 
-    def primary_keys(self):
+    def primary_keys(self) -> typing.List[str]:
         return [c['name'] for c in self.schema_info() if c['primary_key']]
     
     def schema_info(self):
@@ -326,7 +326,7 @@ class DocTable:
         '''
         return self._engine.schema(self._tabname)
     
-    def schema_table(self):
+    def schema_table(self) -> pd.DataFrame:
         '''Get info about each column as a dictionary.
         Returns:
             DataFrame: info about each column.
@@ -436,7 +436,7 @@ class DocTable:
     ################# SELECT METHODS ##################
     
     
-    def count(self, where=None, wherestr=None, **kwargs):
+    def count(self, where=None, wherestr=None, **kwargs) -> int:
         '''Count number of rows which match where condition.
         Notes:
             Calls select_first under the hood.
@@ -450,7 +450,7 @@ class DocTable:
         ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
         return ct
     
-    def head(self, n=5):
+    def head(self, n=5) -> pd.DataFrame:
         ''' Return first n rows as dataframe for quick viewing.
         Args:
             n (int): number of rows to return in dataframe.
@@ -459,7 +459,16 @@ class DocTable:
         '''
         return self.select_df(limit=n)
     
-    def select(self, cols=None, where=None, orderby=None, groupby=None, limit=None, wherestr=None, offset=None, from_obj=None, as_dataclass=True, result_container=list, **kwargs):
+    def select(self, 
+               cols: typing.Union[str, sqlalchemy.Column, typing.List[str], typing.List[sqlalchemy.Column]] = None, 
+               where: sqlalchemy.sql.expression.BinaryExpression = None, 
+               orderby: typing.Union[str, sqlalchemy.Column, sqlalchemy.sql.expression.UnaryExpression] = None, 
+               groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None, 
+               limit: int = None, 
+               wherestr: str = None, 
+               offset: int = None, 
+               as_dataclass: bool = True, 
+               **kwargs):
         '''Perform select query, yield result for each row.
         
         Description: Because output must be iterable, returns special column results 
@@ -473,11 +482,8 @@ class DocTable:
             groupby: sqlalchemy gropuby directive
             limit (int): number of entries to return before stopping
             wherestr (str): raw sql "where" conditionals to add to where input
-            from_obj (sqlalchemy join): table from which to perform query (for joined tables)
             as_dataclass (bool): if schema was provided in dataclass format, should return as 
                 dataclass object?
-            result_container (class): container for result rows. constructor takes single arg
-                may be useful to provide a class that extends list
             **kwargs: passed to self.execute()
         Yields:
             sqlalchemy result object: row data
@@ -492,7 +498,9 @@ class DocTable:
         cols = [c if not isinstance(c,str) else self[c] for c in cols]
                 
         # query colunmns in main table
-        result = self._exec_select_query(cols,where,orderby,groupby,limit,wherestr,offset,from_obj,**kwargs)
+        query = self._build_select_query(cols=cols,where=where,orderby=orderby,groupby=groupby,limit=limit,wherestr=wherestr,offset=offset)
+        
+        result = self.execute(query, **kwargs)
         # this is the result object:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         
@@ -502,19 +510,16 @@ class DocTable:
         # row is an object that can be accessed by col keyword
         # i.e. row['id'] or num index, i.e. row[0].
         if return_single:
-            return result_container(row[0] for row in result.fetchall())
+            return [row[0] for row in result.fetchall()]
         else:
             if dataclasses.is_dataclass(self._schema) and as_dataclass:
                 #try:
-                return result_container(self._schema._doctable_from_db(**row) for row in result.fetchall())
+                return [self._schema._doctable_from_db(**row) for row in result.fetchall()]
                 #except TypeError as e:
                 #    print('Did you mean to use as_dataclass=False to return joined or reduced results?')
                 #    raise e
             else:
-                if result_container is list:
-                    return result.fetchall()
-                else:
-                    return result_container(result.fetchall())
+                return result.fetchall()
     
     def select_first(self, *args, **kwargs):
         '''Perform regular select query returning only the first result.
@@ -538,7 +543,7 @@ class DocTable:
                 '.select() method with limit=1.')
         return result[0]
     
-    def select_df(self, cols=None, *args, **kwargs):
+    def select_df(self, cols=None, *args, **kwargs) -> pd.DataFrame:
         '''Select returning dataframe.
         Args:
             cols: sequence of columns to query. Must be sequence,
@@ -559,7 +564,7 @@ class DocTable:
         sel = self.select(cols, *args, as_dataclass=False, **kwargs)
         return pd.DataFrame([dict(r) for r in sel])
     
-    def select_series(self, col, *args, **kwargs):
+    def select_series(self, col, *args, **kwargs) -> pd.Series:
         '''Select returning pandas Series.
         Args:
             col: column to query. Passed directly to .select() 
@@ -575,12 +580,10 @@ class DocTable:
         sel = self.select(col, *args, **kwargs)
         return pd.Series(sel)
     
-    def _exec_select_query(self, cols, where, orderby, groupby, limit, wherestr, offset, from_obj, **kwargs):
+    def _build_select_query(self, cols, where, orderby, groupby, limit, wherestr, offset, **kwargs) -> sqlalchemy.sql.Select:
+        '''Build and exectute select query given all the conditionals provided as parameters.'''
         
-        if from_obj is None:
-            q = sqlalchemy.sql.select(cols)
-        else:
-            q = sqlalchemy.sql.select(cols, from_obj=from_obj)
+        q = sqlalchemy.sql.select(cols)
         
         if where is not None:
             q = q.where(where)
@@ -601,11 +604,12 @@ class DocTable:
             q = q.limit(limit)
         if offset is not None:
             q = q.offset(offset)
-        
-        result = self.execute(q, **kwargs)
-        
+            
+        return q
+        # old code:
+        #result = self.execute(q, **kwargs)
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
-        return result
+        #return result
 
     def join(self, other, *args, **kwargs):
         ''' Wrapper over table.join(), can pass to from_obj parameter for .select()
@@ -670,7 +674,7 @@ class DocTable:
 
     #################### Update Methods ###################
     
-    def update(self, values, where=None, wherestr=None, **kwargs):
+    def update(self, values, where=None, wherestr=None, **kwargs) -> sqlalchemy.engine.ResultProxy:
         '''Update row(s) assigning the provided values.
         Args:
             values (dict<colname->value> or list<dict> or list<(col,value)>)): 
@@ -717,7 +721,7 @@ class DocTable:
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
 
-    def update_dataclass(self, obj, key_name=None, **kwargs):
+    def update_dataclass(self, obj, key_name=None, **kwargs) -> sqlalchemy.engine.ResultProxy:
         ''' Updates database with single modified object based on the provided key.
         '''
         if key_name is None:
@@ -735,7 +739,7 @@ class DocTable:
     
     #################### Delete Methods ###################
     
-    def delete(self, where=None, wherestr=None, vacuum=False, **kwargs):
+    def delete(self, where=None, wherestr=None, vacuum=False, **kwargs) -> sqlalchemy.engine.ResultProxy:
         '''Delete rows from the table that meet the where criteria.
         Args:
             where (sqlalchemy condition): criteria for deletion.
@@ -766,7 +770,7 @@ class DocTable:
     
     ################# CRITICAL SQL METHODS ##################
     
-    def execute(self, query, verbose=None, **kwargs):
+    def execute(self, query, verbose=None, **kwargs) -> sqlalchemy.engine.ResultProxy:
         '''Execute an sql command. Called by most higher-level functions.
         Args:
             query (sqlalchemy condition or str): query to execute;
@@ -782,7 +786,7 @@ class DocTable:
         
         return self._execute(query, **kwargs)
     
-    def _execute(self, query, conn=None):
+    def _execute(self, query, conn=None) -> sqlalchemy.engine.ResultProxy:
         '''Execute sql query using either existing connection, provided connection, or without a connection.
         '''
         # takes raw query object
