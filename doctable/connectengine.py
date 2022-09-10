@@ -167,7 +167,8 @@ class ConnectEngine:
             columns (list/tuple): column objects passed to sqlalchemy.Table
             table_kwargs: passed to sqlalchemy.Table constructor.
         '''
-
+        table_kwargs = dict(table_kwargs)
+        
         # remove table if it is already in metadata, then replace it
         if tabname in self._metadata.tables:
             #self.remove_table(self.tables[tabname])
@@ -190,7 +191,8 @@ class ConnectEngine:
                 
             #self._metadata.create_all(self._engine) # create table if it doesn't exist
         
-        else: # infer schema from existing table
+        # infer schema from existing table
+        else: 
             try:
                 table = sqlalchemy.Table(tabname, self._metadata, autoload=True, autoload_with=self._engine, **table_kwargs)
             except sqlalchemy.exc.NoSuchTableError:
