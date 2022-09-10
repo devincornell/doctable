@@ -6,3 +6,7 @@ class SlotsRequiredError(BaseException):
 class DataNotAvailableError(BaseException):
     pass
 
+class TypeNotRecognizedError(BaseException):
+    pass
+
+
