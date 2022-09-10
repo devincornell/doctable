@@ -6,7 +6,10 @@ miss_col_message = 'The column "{name}" was not retreived in the select statemen
 
 
 def colname_to_property(colname: str) -> str:
-    return f'_doctable_{colname}'
+    return f'_doctable__{colname}'
+
+def property_to_colname(property: str) -> str:
+    return '__'.join(property.split('__')[1:])
 
 class DocTableSchema:
     ''' Base class for column objects.

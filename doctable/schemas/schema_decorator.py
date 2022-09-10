@@ -4,7 +4,7 @@ import dataclasses
 
 from .errors import *
 from .missingvalue import MISSING_VALUE
-from .doctableschema import DocTableSchema, colname_to_property
+from .doctableschema import DocTableSchema, colname_to_property, property_to_colname
 
 
 
@@ -39,6 +39,12 @@ def schema(_Cls=None, *, require_slots: bool = True, enable_accessors: bool = Tr
             # used a function to generate a class and return the property
             # to solve issue with class definitions in loops
             setattr(Cls, field.name, get_getter_setter(property_name))
+            
+        # implement new hash function if needed
+        if hasattr(Cls, '__hash__'):
+            def hashfunc(self):
+                return hash(tuple(getattr(self, name) for name in property_names))
+            Cls.__hash__ = hashfunc
     
         # add slots
         if require_slots and not hasattr(Cls, '__slots__'):
@@ -83,7 +89,7 @@ def get_getter_setter(property_name: str):
         @property
         def a(self):
             if getattr(self, property_name) is MISSING_VALUE:
-                raise DataNotAvailableError(f'The "{property_name[1:]}" property '
+                raise DataNotAvailableError(f'The "{property_to_colname(property_name)}" property '
                     'is not available. This might happen if you did not retrieve '
                     'the information from a database or if you did not provide '
                     'a value in the class constructor.')
