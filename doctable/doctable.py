@@ -96,6 +96,12 @@ class DocTable:
                 raise ValueError('Static attribute "_schema_" exists but a schema was provided in __init__')
             schema = self._schema_
             
+        if hasattr(self, '_target_'):
+            if target is not None:
+                raise ValueError('Static attribute "_target_" exists but a target was provided in __init__')
+            target = self._target_
+
+            
         # handle defaults
         tabname = tabname if tabname is not None else DEFAULT_TABNAME
         indices = indices if indices is not None else dict()
