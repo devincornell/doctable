@@ -1,11 +1,12 @@
 
+import typing
 import datetime
 import sqlalchemy as sa
 
 from doctable.textmodels import ParseTreeDoc
 from .custom_coltypes import CpickleType, ParseTreeDocFileType, PickleFileType, TextFileType, FileTypeBase, JSONType#, ParseTreeType
 
-#type_lookup = {
+
 python_to_slqlchemy_type = {
     int: sa.Integer,
     float: sa.Float,
@@ -15,7 +16,12 @@ python_to_slqlchemy_type = {
     datetime.time: sa.Time,
     datetime.date: sa.Date,
     ParseTreeDoc: ParseTreeDocFileType,
+    bytes: sa.LargeBinary,
+    typing.Any: sa.PickleType,
 }
+# this works for newer versions of python where type hints are strings
+for pytype, satype in list(python_to_slqlchemy_type.items()):
+    python_to_slqlchemy_type[str(pytype)] = satype
 
 constraint_lookup = {
     'check': sa.CheckConstraint,
