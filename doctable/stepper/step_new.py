@@ -1,17 +1,22 @@
+
 from __future__ import annotations
-import dataclasses
+
+import typing
 import datetime
 import psutil
+import os
+import dataclasses
 
-from doctable.util.unit_format import format_memory
-from ..util import format_memory, format_time
+import doctable
+
+
 
 @dataclasses.dataclass
 class Step:
-    _msg: str
     i: int
-    ts: datetime# = dataclasses.field(default_factory=datetime.now)
-    mem: int# = dataclasses.field(default_factory=lambda: psutil.virtual_memory().used)
+    msg: str
+    ts: datetime# = field(default_factory=datetime.now)
+    mem: int#psutil._pslinux.svmem# = field(default_factory=lambda: psutil.virtual_memory().used)
 
     @classmethod
     def now(cls, i: int = None, msg: str = None, pid: int = None) -> Step:
@@ -24,35 +29,43 @@ class Step:
             mem = psutil.Process(pid).memory_info()#psutil.virtual_memory(),
         )
 
-    @property
-    def msg(self):
-        return self._msg if self._msg is not None else '.'
 
+    #################################### For Getting up-to-date info ####################################
+    @property
+    def mem_used(self) -> int:
+        '''Memory usage at the start of this step.'''
+        return self.mem.vms
+    
+    #################################### For Printing ####################################
     def __sub__(self, other: Step):
         return self.ts_diff(other)
 
     def ts_diff(self, other: Step):
         return (self.ts - other.ts).total_seconds()
 
-    def format(self, prev_step: Step = None, show_ts=True, show_delta=True, show_mem=True):
+    def format(self, prev_step: Step = None, name: str = None, show_ts=True, show_delta=True, show_mem=True):
         if show_ts:
             ts_str = f"{self.ts.strftime('%a %H:%M:%S')}/"
         else:
             ts_str = ''
 
         if show_mem:
-            mem_usage = f"{format_memory(self.mem):>9}/"
+            mem_usage = f"{doctable.format_memory(self.mem_used):>9}/"
         else:
             mem_usage = ''
 
         if show_delta:
             if prev_step is not None:
-                ts_diff = f"+{format_time(self.ts_diff(prev_step)):>10}/"
+                ts_diff = f"+{doctable.format_time(self.ts_diff(prev_step)):>10}/"
             else:
                 ts_diff = f'{" "*11}/'
         else:
             ts_diff = ''
+            
+        if name is not None:
+            name_str = f'{name} | '
+        else:
+            name_str = ''
 
-        return f'{ts_str}{mem_usage}{ts_diff}{self.i:2}: {self.msg}'
-        
-        
+        return f'{name_str}{ts_str}{mem_usage}{ts_diff}{self.i:2}: {self.msg}'
+

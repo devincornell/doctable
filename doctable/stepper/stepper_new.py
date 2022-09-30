@@ -1,85 +1,95 @@
+from __future__ import annotations
 
 import time
-from datetime import datetime
-from dataclasses import dataclass, field
+#from datetime import datetime
+import datetime
+import dataclasses
 from typing import Callable, List, Dict, Any, TypeVar
-import os
-import psutil
 import pathlib
 import collections
 import statistics
-from .unit_format import format_time
+import psutil
 
 import doctable
 
-StepType = TypeVar('StepType')
+from .step import Step
+
+
+
 
 class Stepper:
-    """ Times a task.
-    """
-    def __init__(self, message: str = None, logfile=None, new_log=False, 
+    '''Replaces Timer: logs info about script progresion.'''
+
+    def __init__(self, name: str = None, logfile=None, new_log=False, 
             verbose=True, show_ts=True, show_delta=True, show_mem=True):
         ''' Add single step for current datetime.
         '''
+        self.name = name
+        self.logfile = pathlib.Path(logfile) if logfile is not None else None
+        
         self.show_ts = show_ts
         self.show_delta = show_delta
         self.show_mem = show_mem
         self.verbose = verbose
-        self.logfile = pathlib.Path(logfile) if logfile is not None else None
+        
         self.steps = list()
-        self.enterstack = collections.deque()
+        self.init_step = Step.now()
+        self.context_stack = collections.deque()
         
         # create a new logfile if needed
         if new_log and self.logfile is not None:
             self.rm_log()
 
         # add first timestamp (don't print star)
-        self.step(message=message, verbose=message is not None)
+        #self.step(verbose=message is not None)
 
     ######################## basic accessors ########################
     def __len__(self):
         return len(self.steps)
     
-    def __getitem__(self, ind):
+    def __getitem__(self, ind: int) -> Step:
         return self.steps[ind]
     
     @property
     def last(self):
-        return self[-1] if len(self.steps) else None
+        return self.steps[-1]
 
     @property
     def first(self):
-        return self[0] if len(self.steps) else None
+        return self.steps[0]
 
     ######################## enter/exit methods ########################
-    def __enter__(self):
-        self.enterstack.append(self.last)
-        return self
-        
-    def __exit__(self, *args):
-        start = self.enterstack.pop()
-        end = self.step(f'END {start.msg}')
+    #def __enter__(self):
+    #    self.context_stack.append(self.last)
+    #    return self
+    #    
+    #def __exit__(self, *args):
+    #    start = self.context_stack.pop()
+    #    end = self.step(f'END {start.msg}')
     
     ######################## main functionality ########################
-    def step(self, message=None, verbose=None, **format_args):
+    def step(self, message: str = None, verbose: bool = None, pid: int = None, **format_args) -> StepContext:
         ''' Add a new step, print and log it if needed.
         '''
-        # little printout to log if timer is just starting
-        if not len(self) and self.logfile is not None:
-            self.write_log(f"\n{'='*10} New Stepper {'='*10}")
-
         # create new step
-        newstep = Step(message, len(self.steps))
-        #print(f'making step: {newstep}')
-        self.print_step(newstep)
+        new_step = Step.now(msg=message, i=len(self.steps), pid=pid)
+        
+        # log it
+        self.log_step(new_step, verbose=verbose)
 
         # add step
-        self.steps.append(newstep)
-        return newstep
+        self.steps.append(new_step)
+        
+        return StepContext(self, new_step)
+
     
     ######################## logging functionality ########################
-    def print_step(self, step: StepType, verbose=None, **format_args):
-
+    def log_step(self, step: Step, verbose: bool = None, **format_args):
+        '''Add this step to the log and print to screen if requested.
+        '''
+        if not len(self) and self.logfile is not None:
+            self.write_log(f"\n{'='*10} New Timer {'='*10}")
+        
         # apply defaults
         default_format_args = dict(show_ts=self.show_ts, show_delta=self.show_delta, 
                         show_mem=self.show_mem)
@@ -134,7 +144,7 @@ class Stepper:
 
         result = getattr(statistics, stat)(diffs)
         if as_str:
-            return format_time(result)
+            return doctable.util.format_time(result)
         else:
             return result
 
@@ -143,7 +153,7 @@ class Stepper:
         ''' Time function call with 0.05 ms latency per call.
         '''
         timer = cls(verbose=False)
-        timer = cls(verbose=False)
+        timer = doctable.Timer(verbose=False)
         for i in range(10):
             func(*args, **kwargs)
             timer.step()
@@ -155,51 +165,5 @@ class Stepper:
             return f'{mean} ({med}) ± {stdev}'
         else:
             return timer.get_diff_stat(stat='mean', as_str=False)
-
-    #def print_table(self):
-    #    ''' Print table showing how long each step took.
-    #    '''
-    #    print(f'{self.__class__.__name__} started {self[0].ts}: {self[0].msg}')
-    #    for i, step in enumerate(self.steps[:-1]):
-    #        print(f'    {step.ts}: (took {self[i+1].diff(step)}) {step.msg}')
-
-        
-@dataclass
-class Step:
-    _msg: str
-    i: int
-    ts: datetime = field(default_factory=datetime.now)
-    mem: int = field(default_factory=lambda: psutil.virtual_memory().used)
-
-    @property
-    def msg(self):
-        return self._msg if self._msg is not None else '.'
-
-    def __sub__(self, other: StepType):
-        return self.ts_diff(other)
-
-    def ts_diff(self, other: StepType):
-        return (self.ts - other.ts).total_seconds()
-
-    def format(self, prev_step: StepType = None, show_ts=True, show_delta=True, show_mem=True):
-        if show_ts:
-            ts_str = f"{self.ts.strftime('%a %H:%M:%S')}/"
-        else:
-            ts_str = ''
-
-        if show_mem:
-            mem_usage = f"{doctable.format_memory(self.mem):>9}/"
-        else:
-            mem_usage = ''
-
-        if show_delta:
-            if prev_step is not None:
-                ts_diff = f"+{doctable.format_time(self.ts_diff(prev_step)):>10}/"
-            else:
-                ts_diff = f'{" "*11}/'
-        else:
-            ts_diff = ''
-
-        return f'{ts_str}{mem_usage}{ts_diff}{self.i:2}: {self.msg}'
 
 
