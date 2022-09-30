@@ -13,7 +13,7 @@ doctable is a python package for designing and manipulating database tables thro
 * [Parsing Functions](doctable/parse/parsefuncs.html)
 * [ParseTree](doctable/parse/parsetree.html)
 
-* [Timer](doctable/util/timer.html)
+* [Stepper](doctable/util/stepper.html)
 * [FSStore](doctable/util/fsstore.html)
 * [TempFolder](doctable/util/tempfolder.html)
 * [I/O Functions](doctable/util/io.html)

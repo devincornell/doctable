@@ -14,7 +14,7 @@ import doctable
 
 StepType = TypeVar('StepType')
 
-class Timer:
+class Stepper:
     """ Times a task.
     """
     def __init__(self, message: str = None, logfile=None, new_log=False, 
@@ -66,7 +66,7 @@ class Timer:
         '''
         # little printout to log if timer is just starting
         if not len(self) and self.logfile is not None:
-            self.write_log(f"\n{'='*10} New Timer {'='*10}")
+            self.write_log(f"\n{'='*10} New Stepper {'='*10}")
 
         # create new step
         newstep = Step(message, len(self.steps))
@@ -143,7 +143,7 @@ class Timer:
         ''' Time function call with 0.05 ms latency per call.
         '''
         timer = cls(verbose=False)
-        timer = doctable.Timer(verbose=False)
+        timer = cls(verbose=False)
         for i in range(10):
             func(*args, **kwargs)
             timer.step()
