@@ -56,6 +56,7 @@ from .models import *
 from .api import *
 from .parallel import *
 from .util import *
+from .stepper import *
 from .dbutils import list_tables, migrate_db
 
 # submodules (future?)

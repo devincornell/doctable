@@ -2,16 +2,21 @@ from __future__ import annotations
 import dataclasses
 import datetime
 import psutil
+import os
 
 from doctable.util.unit_format import format_memory
 from ..util import format_memory, format_time
 
 @dataclasses.dataclass
 class Step:
-    _msg: str
     i: int
-    ts: datetime# = dataclasses.field(default_factory=datetime.now)
-    mem: int# = dataclasses.field(default_factory=lambda: psutil.virtual_memory().used)
+    msg: str
+    ts: datetime
+    pid: int
+    mem: psutil.pmem = None
+    
+    def __post_init__(self):
+        self.mem = self.current_mem()
 
     @classmethod
     def now(cls, i: int = None, msg: str = None, pid: int = None) -> Step:
@@ -21,18 +26,27 @@ class Step:
             i = i,
             msg = msg,
             ts = datetime.datetime.now(),
-            mem = psutil.Process(pid).memory_info()#psutil.virtual_memory(),
+            pid = pid,
+            #mem = psutil.Process(pid).memory_info(),#psutil.virtual_memory(),
         )
 
-    @property
-    def msg(self):
-        return self._msg if self._msg is not None else '.'
-
+    def current_mem(self) -> psutil.pmem:
+        '''Get current memory usage.'''
+        return psutil.Process(self.pid).memory_info()
+    
+    def current_mem_bytes(self) -> int:
+        return self.current_mem().rss
+    
     def __sub__(self, other: Step):
         return self.ts_diff(other)
 
     def ts_diff(self, other: Step):
         return (self.ts - other.ts).total_seconds()
+    
+    @property
+    def mem_bytes(self) -> int:
+        '''Get memory usage in bytes.'''
+        return self.mem.rss
 
     def format(self, prev_step: Step = None, show_ts=True, show_delta=True, show_mem=True):
         if show_ts:
@@ -41,7 +55,7 @@ class Step:
             ts_str = ''
 
         if show_mem:
-            mem_usage = f"{format_memory(self.mem):>9}/"
+            mem_usage = f"{format_memory(self.mem_bytes):>9}/"
         else:
             mem_usage = ''
 

@@ -1,24 +1,30 @@
 from __future__ import annotations
+import typing
+
+from doctable.util.unit_format import format_memory
+if typing.TYPE_CHECKING:
+    from .stepper import Stepper
+
 import dataclasses
 import datetime
 import psutil
+from ..util import format_time, format_memory
+
 from .step import Step
 
 @dataclasses.dataclass
 class StepContext:
-    stepper: "Stepper"
+    stepper: Stepper
     step: Step
+    format_kwargs: typing.Dict[str,bool]
     
     ######################## enter/exit methods ########################
     def __enter__(self):
-        #self.context_stack.append(self.last)
-        #return self
-        pass
+        return self
         
     def __exit__(self, *args):
-        #start = self.context_stack.pop()
-        #end = self.step(f'END {start.msg}')
-        self.stepper()
+        msg = f'END {self.step.msg}' if self.step.msg is not None else None
+        self.stepper.step(message=msg, **self.format_kwargs)
 
     ######################## Useful Attributes ########################
     @property
@@ -37,4 +43,16 @@ class StepContext:
     
     def memory_change(self) -> int:
         '''Change in memory usage, in Bytes.'''
-        return psutil.virtual_memory().used - self.step.mem
+        return int(self.step.current_mem_bytes() - self.step.mem_bytes)
+    
+    ########## String Version of Properties ##########
+    def start_memory_str(self) -> str:
+        '''Memory usage at the start of this step.'''
+        return format_memory(self.step.mem_bytes)
+    
+    def elapsed_str(self) -> str:
+        return format_time(self.elapsed().total_seconds())
+    
+    def memory_change_str(self) -> str:
+        return format_memory(self.memory_change())
+    
