@@ -54,7 +54,7 @@ class Benchmark:
         if kwargs is None:
             kwargs = dict()
         
-        stepper = Stepper()
+        stepper = Stepper(verbose=False)
         result = BenchResult()
         for i in range(num_calls):
             with stepper.step() as step_ctx:
