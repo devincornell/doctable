@@ -154,6 +154,8 @@ class Stepper:
         else:
             return result
 
+
+
     @classmethod
     def time_call(cls, func: Callable, *args, num_calls=1, as_str = False, **kwargs):
         ''' Time function call with 0.05 ms latency per call.

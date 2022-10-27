@@ -10,3 +10,4 @@ from .chunking import chunk_slice, chunk
 from .slots import slots_dataclass
 from .logstep import LogStep, LogStepDiff
 from .queueinserter import QueueInserter
+from .benchmark import *

@@ -48,7 +48,7 @@ class Step:
         '''Get memory usage in bytes.'''
         return self.mem.rss
 
-    def format(self, prev_step: Step = None, show_ts=True, show_delta=True, show_mem=True):
+    def format(self, prev_step: Step = None, show_ts=True, show_delta=True, show_mem=True) -> str:
         if show_ts:
             ts_str = f"{self.ts.strftime('%a %H:%M:%S')}/"
         else:
