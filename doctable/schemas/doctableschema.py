@@ -21,14 +21,14 @@ class DocTableSchema:
     #    return hasattr(self, '__slots__')
 
     ########################## Basic Accessors ##########################
-    #def __getitem__(self, attr):
-    #    ''' Access data, throwing error when accessing element that was not
-    #            retrieved from the database.
-    #    '''
-    #    val = getattr(self, attr)#self.__dict__[attr]
-    #    if val is MISSING_VALUE:
-    #        raise KeyError(miss_col_message.format(name=attr))
-    #    return val
+    def __getitem__(self, attr):
+        ''' Access data, throwing error when accessing element that was not
+                retrieved from the database.
+        '''
+        val = getattr(self, attr)#self.__dict__[attr]
+        if val is MISSING_VALUE:
+            raise KeyError(miss_col_message.format(name=attr))
+        return val
     
     def get_val(self, colname):
         ''' Access data related to the property.

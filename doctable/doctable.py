@@ -150,10 +150,10 @@ class DocTable:
                                      **engine_kwargs)
         else:
             self._engine = engine
-        print('what the bloody hell')
+        #print('what the bloody hell')
         # connect to existing table or create new one
         if dataclasses.is_dataclass(self._schema):
-            print('parsing dataclass schema')
+            #print('parsing dataclass schema')
             if not issubclass(self._schema, DocTableSchema):
                 raise TypeError('A dataclass schema must inherit from doctable.DocTableSchema.')
             
