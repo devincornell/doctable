@@ -93,14 +93,9 @@ class Stepper:
         '''Write to log and print to screen if needed.'''
         verbose = verbose if verbose is not None else self.verbose
         
-        # apply defaults
-        format_kwargs = {**self.default_format_kwargs, **format_kwargs}
-        
         # execute format method
-        if len(self):
-            out_str = step.format(self.steps[step.i-1], **format_kwargs)
-        else:
-            out_str = step.format(**format_kwargs)
+        prev_step = self.steps[step.i-1] if len(self.steps) else None
+        out_str = self.format_step_str(step, prev_step=prev_step, **format_kwargs)
         
         if self.used_tqdm:
             out_str = f'\n{out_str}'
@@ -135,9 +130,8 @@ class Stepper:
 
     def format_step_str(self, step: Step, prev_step: Step = None, show_ts=True, show_delta=True, show_mem=True) -> str:
         
-        # set defaults
+        # helper to get a default value
         get_default = lambda x,y: x if x is not None else y
-
         
         if get_default(show_ts, self.show_ts):
             ts_str = f"{step.ts.strftime('%m/%d %H:%M:%S')}/"
