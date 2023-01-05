@@ -11,7 +11,7 @@ import collections
 import statistics
 import tqdm
 
-from ..util import format_time
+from ..util import format_memory, format_time
 from .step import Step
 import typing
 from .errors import *
@@ -20,8 +20,8 @@ from .stepcontext import StepContext
 @dataclasses.dataclass
 class Stepper:
     """ Record information and output info as script progresses."""
-    name: str = None
     log_fname: str = None
+    name: str = None
     new_log: bool = False
     verbose: bool = True
     show_ts: bool = True
@@ -38,6 +38,12 @@ class Stepper:
         
         if self.new_log and self.log_fname is not None:
             self.rm_log()
+
+        #self.default_format_kwargs = dict(
+        #    show_ts=self.show_ts, 
+        #    show_delta=self.show_delta, 
+        #    show_mem=self.show_mem
+        #)
         
     ######################## basic accessors ########################
     def __len__(self):
@@ -88,9 +94,7 @@ class Stepper:
         verbose = verbose if verbose is not None else self.verbose
         
         # apply defaults
-        default_format_kwargs = dict(show_ts=self.show_ts, show_delta=self.show_delta, 
-                        show_mem=self.show_mem)
-        format_kwargs = {**default_format_kwargs, **format_kwargs}
+        format_kwargs = {**self.default_format_kwargs, **format_kwargs}
         
         # execute format method
         if len(self):
@@ -128,6 +132,33 @@ class Stepper:
         '''
         if self.log_fpath.exists():
             return self.log_fpath.unlink()
+
+    def format_step_str(self, step: Step, prev_step: Step = None, show_ts=True, show_delta=True, show_mem=True) -> str:
+        
+        # set defaults
+        get_default = lambda x,y: x if x is not None else y
+
+        
+        if get_default(show_ts, self.show_ts):
+            ts_str = f"{step.ts.strftime('%m/%d %H:%M:%S')}/"
+        else:
+            ts_str = ''
+
+        if get_default(show_mem, self.show_mem):
+            mem_usage = f"{format_memory(step.mem_bytes):>9}/"
+        else:
+            mem_usage = ''
+
+        if get_default(show_delta, self.show_delta):
+            if prev_step is not None:
+                ts_diff = f"+{format_time(step.ts_diff(prev_step)):>10}/"
+            else:
+                ts_diff = f'{" "*11}/'
+        else:
+            ts_diff = ''
+
+        return f'{ts_str}{mem_usage}{ts_diff}{step.i:2}: {step.msg}'
+
 
     ######################## for handling tqdm ########################
     def tqdm(self, *args, **kwargs):

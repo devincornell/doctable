@@ -4,14 +4,13 @@ import datetime
 import psutil
 import os
 
-from doctable.util.unit_format import format_memory
-from ..util import format_memory, format_time
+
 
 @dataclasses.dataclass
 class Step:
     i: int
     msg: str
-    ts: datetime
+    ts: datetime.datetime
     pid: int
     mem: psutil.pmem = None
     
@@ -48,25 +47,5 @@ class Step:
         '''Get memory usage in bytes.'''
         return self.mem.rss
 
-    def format(self, prev_step: Step = None, show_ts=True, show_delta=True, show_mem=True) -> str:
-        if show_ts:
-            ts_str = f"{self.ts.strftime('%a %H:%M:%S')}/"
-        else:
-            ts_str = ''
-
-        if show_mem:
-            mem_usage = f"{format_memory(self.mem_bytes):>9}/"
-        else:
-            mem_usage = ''
-
-        if show_delta:
-            if prev_step is not None:
-                ts_diff = f"+{format_time(self.ts_diff(prev_step)):>10}/"
-            else:
-                ts_diff = f'{" "*11}/'
-        else:
-            ts_diff = ''
-
-        return f'{ts_str}{mem_usage}{ts_diff}{self.i:2}: {self.msg}'
         
         
