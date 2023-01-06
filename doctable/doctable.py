@@ -140,7 +140,7 @@ class DocTable:
         # flags
         self.verbose = verbose
         self.persistent_conn = persistent_conn
-        self._readonly = readonly
+        self.readonly = readonly
         self._new_db = new_db
         self._new_table = new_table
         
@@ -315,8 +315,7 @@ class DocTable:
         Returns:
             sqlalchemy query result object.
         '''
-        if self._readonly:
-            raise SetToReadOnlyMode('Cannot call .insert() when doctable set to readonly.')
+        self._check_readonly('insert')
 
         if dataclasses.is_dataclass(self._schema):
             if isinstance(rowdat, DocTableSchema):
@@ -355,8 +354,7 @@ class DocTable:
         Returns:
             sqlalchemy result proxy.
         '''
-        if self._readonly:
-            raise SetToReadOnlyMode('Cannot call .insert() when doctable set to readonly.')
+        self._check_readonly('insert_single')
 
         if dataclasses.is_dataclass(self._schema):
             if isinstance(rowdat, DocTableSchema):
@@ -378,17 +376,23 @@ class DocTable:
         Returns:
             sqlalchemy result proxy.
         '''
-        if self._readonly:
-            raise SetToReadOnlyMode('Cannot call .insert() when doctable set to readonly.')
+        self._check_readonly('insert_many')
+
+        try:
+            row_iter = iter(rowdata)
+        except TypeError as e:
+            raise TypeError(f'rowdata passed to insert_many must be an iterable.')
         
-        if not len(rowdata):
-            raise NoDataToInsert('.insert_many() was called with no actual data to insert.')
+        #if not len(rowdata):
+        #    raise NoDataToInsert('.insert_many() was called with no actual data to insert.')
 
         if dataclasses.is_dataclass(self._schema):
             if is_sequence(rowdata) and isinstance(rowdata[0], DocTableSchema):
                 rowdata = [r._doctable_as_dict() for r in rowdata]
         
-        q = sqlalchemy.sql.insert(self._table, rowdata)
+
+        
+        q = sqlalchemy.sql.insert(self._table)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         
         #NOTE: there is a weird issue with using verbose mode with a 
@@ -401,7 +405,12 @@ class DocTable:
     
         if 'verbose' in kwargs:
             del kwargs['verbose']
-        return self.execute(q, verbose=False, **kwargs)
+        
+        try:
+            return self.execute(q, verbose=False, **kwargs)
+        except Exception as e:
+            print(type(e))
+            exit()
 
 
     ################# SELECT METHODS ##################
@@ -664,8 +673,7 @@ class DocTable:
         Returns:
             SQLAlchemy result proxy object
         '''
-        if self._readonly:
-            raise SetToReadOnlyMode('Cannot call .update() when doctable set to readonly.')
+        self._check_readonly('update')
             
         # update the main column values
         if isinstance(values,list) or isinstance(values,tuple):
@@ -721,8 +729,7 @@ class DocTable:
         Returns:
             SQLAlchemy result proxy object.
         '''
-        if self._readonly:
-            raise SetToReadOnlyMode('Cannot call .delete() when doctable set to readonly.')
+        self._check_readonly('delete')
         
         q = sqlalchemy.sql.delete(self._table)
 
@@ -769,6 +776,11 @@ class DocTable:
             # execute query using connectengine directly
             r = self._engine.execute(query)
         return r
+
+    def _check_readonly(self, funcname: str) -> None:
+        if self.readonly:
+            raise SetToReadOnlyMode(f'Cannot call .{funcname}() when doctable set to readonly.')
+
     
     
     #################### Bootstrapping Methods ###################    
