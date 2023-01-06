@@ -417,7 +417,7 @@ class DocTable:
         Returns:
             int: number of rows that match "where" and "wherestr" criteria.
         '''
-        cter = sqlalchemy.sql.func.count(self._table)
+        cter = sqlalchemy.func.count()
         ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
         return ct
     
