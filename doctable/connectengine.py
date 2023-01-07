@@ -159,7 +159,7 @@ class ConnectEngine:
         '''
         return self._metadata.remove(table)
     
-    def add_table(self, tabname: str, columns: Sequence[typing.Sequence] = None, 
+    def add_table(self, tabname: str, columns: Sequence[sqlalchemy.Column] = None, 
                     new_table: bool = True, **table_kwargs) -> None:
         ''' Adds a table to the metadata by name. If columns not provided, creates by autoload.
         Args:
