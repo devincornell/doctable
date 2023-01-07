@@ -6,11 +6,11 @@ import pandas as pd
 
 from ..doctable import DocTable
 from ..schemas import DocTableSchema
-from .selectqueryargs import SelectQueryArgs
 from ..util import is_sequence
 
-class ObjectIsNotSchemaClass(TypeError):
-    pass
+from .selectqueryargs import SelectQueryArgs
+from .errors import *
+
 
 SingleColumn = typing.Union[str, sqlalchemy.Column]
 ColumnList = typing.List[SingleColumn]
@@ -19,7 +19,41 @@ ColumnList = typing.List[SingleColumn]
 class Query:
     dtab: DocTable
     
-    ######################################## Select ########################################
+    ######################################## Insert Multiple ########################################
+    def insert_objects(self, schema_objs: typing.List[DocTableSchema], ifnotunique: str = 'fail') -> sqlalchemy.engine.ResultProxy:
+        obj_dicts = [self._schema_obj_to_dict(o) for o in schema_objs]
+        return self.insert_dicts(obj_dicts, ifnotunique=ifnotunique)
+        
+    def insert_dicts(self, datum: typing.List[typing.Dict[str, typing.Any]], ifnotunique: str = 'fail') -> sqlalchemy.engine.ResultProxy:
+        q = self.query(ifnotunique=ifnotunique)
+        return self.execute(q, datum)
+
+    ######################################## Insert Single ########################################
+    def insert_object(self, obj: DocTableSchema, ifnotunique: str = 'fail', **kwargs) -> sqlalchemy.engine.ResultProxy:
+        obj_dict = self._schema_obj_to_dict(obj)
+        return self.insert_dict(obj_dict, ifnotunique=ifnotunique)
+
+    def insert_dict(self, data: typing.Dict[str, typing.Any], ifnotunique: str = 'fail') -> sqlalchemy.engine.ResultProxy:
+        q = self.query(ifnotunique=ifnotunique)
+        return self.execute(q, data)
+
+    ######################################## Build Insert Query ########################################
+    def query(self, ifnotunique: str = 'fail') -> sqlalchemy.sql.Insert:
+        q: sqlalchemy.sql.Select = sqlalchemy.sql.insert(self.dtab.table)
+        q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
+        return q
+    
+    
+    ######################################## Pandas Select ########################################
+    
+    def count(self, where=None, wherestr=None, **kwargs) -> int:
+        ''''''
+        cter = sqlalchemy.func.count()
+        ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
+        return ct
+    
+    def head(self, n: int = 5, **kwargs) -> pd.DataFrame:
+        return self.select_df(limit=n, **kwargs)
         
     def select_series(self,
             col: SingleColumn,
@@ -40,29 +74,6 @@ class Query:
             wherestr = wherestr,
             offset = offset,
         ))
-    
-    def select_col(self, 
-            col: SingleColumn,
-            where: sqlalchemy.sql.expression.BinaryExpression = None,
-            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            limit: int = None,
-            wherestr: str = None,
-            offset: int = None,
-        ) -> typing.List[typing.Any]:
-        '''Select values of a single column.'''
-        
-        rows = self.select_base(
-            cols = self.parse_col(col),
-            where = where,
-            orderby = orderby,
-            groupby = groupby,
-            limit = limit,
-            wherestr = wherestr,
-            offset = offset,
-            raw_result = True,
-        )
-        return [r[0] for r in rows]
         
     def select_df(self, 
             cols: ColumnList,
@@ -84,7 +95,33 @@ class Query:
             offset = offset,
             raw_result = True,
         ))
+        
+    ######################################## Single-column Select ########################################
+    
+    def select_col(self, 
+            col: SingleColumn,
+            where: sqlalchemy.sql.expression.BinaryExpression = None,
+            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            limit: int = None,
+            wherestr: str = None,
+            offset: int = None,
+        ) -> typing.List[typing.Any]:
+        '''Select values of a single column.'''
+        
+        rows = self.select_base(
+            cols = self.parse_input_col(col),
+            where = where,
+            orderby = orderby,
+            groupby = groupby,
+            limit = limit,
+            wherestr = wherestr,
+            offset = offset,
+            raw_result = True,
+        )
+        return [r[0] for r in rows]
 
+    ######################################## Base Selection Funcs ########################################
     def select_first(self,
             cols: ColumnList,
             where: sqlalchemy.sql.expression.BinaryExpression = None,
@@ -152,7 +189,7 @@ class Query:
         
         return cols
     
-    def parse_col(self, col: SingleColumn) -> typing.List[sqlalchemy.Column]:
+    def parse_input_col(self, col: SingleColumn) -> typing.List[sqlalchemy.Column]:
         if is_sequence(col):
             raise TypeError('col argument should be single column.')
         
@@ -160,6 +197,10 @@ class Query:
         return [use_col]
 
     ############################## General Purpose ##############################
+
+    def _check_readonly(self, funcname: str) -> None:
+        if self.readonly:
+            raise SetToReadOnlyMode(f'Cannot call .{funcname}() when doctable set to readonly.')
 
     def _schema_obj_to_dict(self, obj: DocTableSchema) -> typing.Dict[str, typing.Any]:
         '''Convert schema object to a dictionary.'''

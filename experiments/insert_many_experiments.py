@@ -53,16 +53,26 @@ if __name__ == '__main__':
         
         with tab.connect() as conn:
 
-            #tab.execute, q, objs_list[0]
-            q = sqlalchemy.sql.insert(tab._table)
-            newobj = MySchema2(0, 'hi')
-            nt = attr.asdict(newobj)
-            print(nt)
-            conn.execute(q, {MySchema(name='hi'), MySchema(name='hello')})
-            exit()
+
+            
             
 
-
+            #tab.execute, q, objs_list[0]
+            q = sqlalchemy.sql.insert(tab._table)
+            conn.execute(q, objs_list)
+            
+            #q = sqlalchemy.sql.select([tab.c.idx, tab.c.name])
+            #print(conn.execute(q).fetchall())
+            
+            
+            #q = sqlalchemy.func.count(tab.columns[0])
+            #print(conn.execute(q).fetchall())
+            print(type(tab.table))
+            
+            exit()
+            
+            
+            
             q = sqlalchemy.sql.insert(tab._table).values(objs_list)
             av_time = stepper.time_call(functools.partial(conn.execute, q))
             print(f'adding with .values(): {av_time}')

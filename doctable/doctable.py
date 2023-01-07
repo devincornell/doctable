@@ -12,7 +12,7 @@ from typing import Union, Mapping, Sequence, Tuple, Set, List
 import dataclasses
 
 from doctable.util import QueueInserter
-from .errors import *
+from .query.errors import NoDataToInsert
 # operators like and_, or_, and not_, functions like sum, min, max, etc
 #import sqlalchemy as sa
 import sqlalchemy
@@ -23,6 +23,7 @@ from .models import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
 from .schemas import parse_schema_strings, parse_schema_dataclass, DocTableSchema
+from .query import Query
 
 DEFAULT_TABNAME = '_documents_'
 
@@ -151,10 +152,9 @@ class DocTable:
                                      **engine_kwargs)
         else:
             self._engine = engine
-        #print('what the bloody hell')
+        
         # connect to existing table or create new one
         if self._schema_is_obj():
-            #print('parsing dataclass schema')
             if not issubclass(self._schema, DocTableSchema):
                 raise TypeError('A dataclass schema must inherit from doctable.DocTableSchema.')
             
@@ -204,8 +204,7 @@ class DocTable:
         if self._conn is not None:
             self._conn.close()
             self._conn = None
-            
-        
+    
     def open_conn(self) -> None:
         ''' Opens connection to db (if one does not exist). '''
         
@@ -227,11 +226,14 @@ class DocTable:
             self.open_conn()
 
 
-    #################### Convenience Methods ###################
+    #################### Dunder ###################
     
     def __str__(self) -> str:
         return f'<{self.__class__.__name__} ({len(self.columns)} cols)::{repr(self._engine)}:{self._tabname}>'
     
+    
+    
+    #################### Expose Underlying Table ###################
     def __getitem__(self, colname) -> sqlalchemy.Column:
         '''Accesses a column object by calling .col().'''
         return self.col(colname)
@@ -247,18 +249,18 @@ class DocTable:
         return self._table.c[name]
         
     @property
-    def table(self):
+    def table(self) -> sqlalchemy.Table:
         '''Returns underlying sqlalchemy table object for manual manipulation.
         '''
         return self._table
     
     @property
-    def tabname(self):
+    def tabname(self) -> str:
         '''Gets name of table for this connection.'''
         return self._tabname
     
     @property
-    def columns(self):
+    def columns(self) -> sqlalchemy.sql.base.ImmutableColumnCollection:
         '''Exposes SQLAlchemy core table columns object.
         Notes:
             some info here: 
@@ -273,14 +275,18 @@ class DocTable:
         return self._table.c
 
     @property
-    def c(self):
-        '''See docs for self.columns.
+    def c(self) -> sqlalchemy.sql.base.ImmutableColumnCollection:
+        '''Alias for self.columns.
         '''
-        return self.columns
+        return self._table.c
     
     @property
     def engine(self) -> ConnectEngine:
         return self._engine
+    
+    @property
+    def schema(self) -> DocTableSchema:
+        return self._schema
     
     def list_tables(self) -> typing.List[str]:
         return self._engine.list_tables()
@@ -304,6 +310,16 @@ class DocTable:
             DataFrame: info about each column.
         '''
         return self._engine.schema_df(self._tabname)
+    
+    #################### Expose Query Functionality ###################
+    @property
+    def query(self) -> Query:
+        return Query(self)
+    
+    @property
+    def q(self) -> Query:
+        '''Gets a query object for this doctable.'''
+        return Query(self)
     
     ################# INSERT METHODS ##################
     
@@ -411,8 +427,6 @@ class DocTable:
 
 
     ################# SELECT METHODS ##################
-    
-    
     def count(self, where=None, wherestr=None, **kwargs) -> int:
         '''Count number of rows which match where condition.
         Notes:
@@ -423,7 +437,7 @@ class DocTable:
         Returns:
             int: number of rows that match "where" and "wherestr" criteria.
         '''
-        cter = sqlalchemy.func.count()
+        cter = sqlalchemy.func.count(self._columns[0])
         ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
         return ct
     
