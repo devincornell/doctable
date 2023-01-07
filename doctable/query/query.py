@@ -27,7 +27,237 @@ typing.Literal['FAIL', 'IGNORE', 'REPLACE']
 @dataclasses.dataclass
 class Query:
     dtab: DocTable
+        
+    ######################################## Pandas Select ########################################
     
+    def count(self, where=None, wherestr=None, **kwargs) -> int:
+        '''Count the number of rows in a table.'''
+        cter = sqlalchemy.func.count()
+        ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
+        
+        cter = sqlalchemy.func.count(self.dtab.columns[0])
+        ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
+
+        return ct
+    
+    def select_head(self, n: int = 5, **kwargs) -> pd.DataFrame:
+        return self.select_df(limit=n, **kwargs)
+        
+    def select_series(self,
+            col: SingleColumn,
+            where: sqlalchemy.sql.expression.BinaryExpression = None,
+            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            limit: int = None,
+            wherestr: str = None,
+            offset: int = None,
+        ) -> pd.Series:
+        '''Select returning pandas Series.
+        Args:
+            col: column to query. Passed directly to .select() 
+                method.
+            *args: args to regular .select() method.
+            **kwargs: args to regular .select() method.
+        Returns:
+            pandas series: enters rows as values.
+        '''
+        return pd.Series(self.select_col(
+            col = col,
+            where = where,
+            orderby = orderby,
+            groupby = groupby,
+            limit = limit,
+            wherestr = wherestr,
+            offset = offset,
+        ))
+        
+    def select_df(self, 
+            cols: ColumnList = None,
+            where: sqlalchemy.sql.expression.BinaryExpression = None,
+            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            limit: int = None,
+            wherestr: str = None,
+            offset: int = None,
+        ) -> pd.DataFrame:
+        '''Select returning dataframe.
+        Args:
+            cols: sequence of columns to query. Must be sequence,
+                passed directly to .select() method.
+            *args: args to regular .select() method.
+            **kwargs: args to regular .select() method.
+        Returns:
+            pandas dataframe: Each row is a database row,
+                and output is not indexed according to primary 
+                key or otherwise. Call .set_index('id') on the
+                dataframe to envoke this behavior.
+        '''
+        return pd.DataFrame(self.select_raw(
+            cols = self.parse_input_cols(cols),
+            where = where,
+            orderby = orderby,
+            groupby = groupby,
+            limit = limit,
+            wherestr = wherestr,
+            offset = offset,
+        ))
+        
+    ######################################## Single-column Select ########################################
+    
+    def select_col(self, 
+            col: SingleColumn,
+            where: sqlalchemy.sql.expression.BinaryExpression = None,
+            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            limit: int = None,
+            wherestr: str = None,
+            offset: int = None,
+        ) -> typing.List[typing.Any]:
+        '''Select values of a single column.'''
+        
+        rows = self.select_raw(
+            cols = self.parse_input_col(col),
+            where = where,
+            orderby = orderby,
+            groupby = groupby,
+            limit = limit,
+            wherestr = wherestr,
+            offset = offset,
+        )
+        return [r[0] for r in rows]
+
+    ######################################## Base Selection Funcs ########################################
+    def select_first(self,
+            cols: ColumnList,
+            where: sqlalchemy.sql.expression.BinaryExpression = None,
+            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            wherestr: str = None,
+            offset: int = None,
+            raw_result: bool = False, 
+        ) -> pd.Series:
+        
+        select_func = self.select if not raw_result else self.select_raw
+        results = select_func(
+            cols = cols,
+            where = where,
+            orderby = orderby,
+            groupby = groupby,
+            limit = 1,
+            wherestr = wherestr,
+            offset = offset,
+        )
+        
+        if len(results) == 0:
+            raise LookupError('No results were returned. Needed to error '
+                'so this result wasn not confused with case where actual '
+                'result is None. If not sure about result, use regular '
+                '.select() method with limit=1.')
+
+        return results[0]
+
+    def select(self, 
+            cols: typing.List[sqlalchemy.Column] = None,
+            where: sqlalchemy.sql.expression.BinaryExpression = None,
+            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            limit: int = None,
+            wherestr: str = None,
+            offset: int = None,
+        ) -> typing.List[typing.Dict[str, typing.Any]]:
+        '''
+        Select some basic shit.
+        Description: Because output must be iterable, returns special column results 
+            by performing one query per row. Can be inefficient for many smaller 
+            special data information.
+        
+        Args:
+            cols: list of sqlalchemy datatypes created from calling .col() method.
+            where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
+            orderby: sqlalchemy orderby directive
+            groupby: sqlalchemy gropuby directive
+            limit (int): number of entries to return before stopping
+            wherestr (str): raw sql "where" conditionals to add to where input
+            as_dataclass (bool): if schema was provided in dataclass format, should return as 
+                dataclass object?
+            **kwargs: passed to self.execute()
+        Yields:
+            sqlalchemy result object: row data
+
+        '''
+        results = self.select_raw(
+            cols = self.parse_input_cols(cols),
+            where = where,
+            orderby = orderby,
+            groupby = groupby,
+            limit = limit,
+            wherestr = wherestr,
+            offset = offset,
+        )
+        return [self.dtab.schema.dict_to_object(r) for r in results]
+
+    def select_raw(self, 
+            cols: typing.List[sqlalchemy.Column] = None,
+            where: sqlalchemy.sql.expression.BinaryExpression = None,
+            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            limit: int = None,
+            wherestr: str = None,
+            offset: int = None,
+        ) -> typing.List[typing.Dict[str, typing.Any]]:
+        '''
+        Select some basic shit.
+        Description: Because output must be iterable, returns special column results 
+            by performing one query per row. Can be inefficient for many smaller 
+            special data information.
+        
+        Args:
+            cols: list of sqlalchemy datatypes created from calling .col() method.
+            where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
+            orderby: sqlalchemy orderby directive
+            groupby: sqlalchemy gropuby directive
+            limit (int): number of entries to return before stopping
+            wherestr (str): raw sql "where" conditionals to add to where input
+            as_dataclass (bool): if schema was provided in dataclass format, should return as 
+                dataclass object?
+            **kwargs: passed to self.execute()
+        Yields:
+            sqlalchemy result object: row data
+
+        '''
+        q = SelectQueryArgs(
+            cols = self.parse_input_cols(cols),
+            where = where,
+            orderby = orderby,
+            groupby = groupby,
+            limit = limit,
+            wherestr = wherestr,
+            offset = offset,
+        ).get_query()
+        
+        return self.dtab.execute(q).fetchall()
+    
+    ############################## Parse User Input ##############################
+    def parse_input_cols(self, cols: ColumnList) -> typing.List[sqlalchemy.Column]:
+        '''Pass variable passed to cols.'''        
+        if cols is None:
+            cols = list(self.dtab.columns)
+        else:
+            if not is_sequence(cols):
+                raise TypeError('cols argument should be a list of columns.')
+
+            cols = [self.dtab.col(c) if isinstance(c,str) else c for c in cols]
+        
+        return cols
+    
+    def parse_input_col(self, col: SingleColumn) -> typing.List[sqlalchemy.Column]:
+        if is_sequence(col):
+            raise TypeError('col argument should be single column.')
+        
+        use_col = self.dtab.col(col) if isinstance(col,str) else col
+        return [use_col]
+
+
     ######################################## High-level inserts that infer type. ########################################
     def insert(self, 
             rowdat: typing.Union[DocTableSchema, typing.Dict, typing.List[typing.Union[DocTableSchema, typing.Dict]]], 
@@ -104,235 +334,15 @@ class Query:
         q: sqlalchemy.sql.Select = sqlalchemy.sql.insert(self.dtab.table)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         return q
-    
-    
-    ######################################## Pandas Select ########################################
-    
-    def count(self, where=None, wherestr=None, **kwargs) -> int:
-        '''Count the number of rows in a table.'''
-        cter = sqlalchemy.func.count()
-        ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
-        
-        cter = sqlalchemy.func.count(self.dtab.columns[0])
-        ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
-
-        return ct
-    
-    def select_head(self, n: int = 5, **kwargs) -> pd.DataFrame:
-        return self.select_df(limit=n, **kwargs)
-        
-    def select_series(self,
-            col: SingleColumn,
-            where: sqlalchemy.sql.expression.BinaryExpression = None,
-            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            limit: int = None,
-            wherestr: str = None,
-            offset: int = None,
-        ) -> pd.Series:
-        
-        return pd.Series(self.select_col(
-            col = col,
-            where = where,
-            orderby = orderby,
-            groupby = groupby,
-            limit = limit,
-            wherestr = wherestr,
-            offset = offset,
-        ))
-        
-    def select_df(self, 
-            cols: ColumnList = None,
-            where: sqlalchemy.sql.expression.BinaryExpression = None,
-            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            limit: int = None,
-            wherestr: str = None,
-            offset: int = None,
-        ) -> pd.DataFrame:
-        
-        return pd.DataFrame(self.select_raw(
-            cols = self.parse_input_cols(cols),
-            where = where,
-            orderby = orderby,
-            groupby = groupby,
-            limit = limit,
-            wherestr = wherestr,
-            offset = offset,
-        ))
-        
-    ######################################## Single-column Select ########################################
-    
-    def select_col(self, 
-            col: SingleColumn,
-            where: sqlalchemy.sql.expression.BinaryExpression = None,
-            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            limit: int = None,
-            wherestr: str = None,
-            offset: int = None,
-        ) -> typing.List[typing.Any]:
-        '''Select values of a single column.'''
-        
-        rows = self.select_raw(
-            cols = self.parse_input_col(col),
-            where = where,
-            orderby = orderby,
-            groupby = groupby,
-            limit = limit,
-            wherestr = wherestr,
-            offset = offset,
-        )
-        return [r[0] for r in rows]
-
-    ######################################## Base Selection Funcs ########################################
-    def select_first(self,
-            cols: ColumnList,
-            where: sqlalchemy.sql.expression.BinaryExpression = None,
-            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            wherestr: str = None,
-            offset: int = None,
-            raw_result: bool = False, 
-        ) -> pd.Series:
-        
-        select_func = self.select if not raw_result else self.select_raw
-        results = select_func(
-            cols = cols,
-            where = where,
-            orderby = orderby,
-            groupby = groupby,
-            limit = 1,
-            wherestr = wherestr,
-            offset = offset,
-        )
-        
-        if len(results) == 0:
-            raise LookupError('No results were returned. Needed to error '
-                'so this result wasn not confused with case where actual '
-                'result is None. If not sure about result, use regular '
-                '.select() method with limit=1.')
-
-        return results[0]
-
-    def select(self, 
-            cols: typing.List[sqlalchemy.Column],
-            where: sqlalchemy.sql.expression.BinaryExpression = None,
-            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            limit: int = None,
-            wherestr: str = None,
-            offset: int = None,
-        ) -> typing.List[typing.Dict[str, typing.Any]]:
-        '''
-        Select some basic shit.
-        Description: Because output must be iterable, returns special column results 
-            by performing one query per row. Can be inefficient for many smaller 
-            special data information.
-        
-        Args:
-            cols: list of sqlalchemy datatypes created from calling .col() method.
-            where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
-            orderby: sqlalchemy orderby directive
-            groupby: sqlalchemy gropuby directive
-            limit (int): number of entries to return before stopping
-            wherestr (str): raw sql "where" conditionals to add to where input
-            as_dataclass (bool): if schema was provided in dataclass format, should return as 
-                dataclass object?
-            **kwargs: passed to self.execute()
-        Yields:
-            sqlalchemy result object: row data
-
-        '''
-        results = self.select_raw(
-            cols = self.parse_input_cols(cols),
-            where = where,
-            orderby = orderby,
-            groupby = groupby,
-            limit = limit,
-            wherestr = wherestr,
-            offset = offset,
-        )
-        return [self.dtab.schema.dict_to_object(r) for r in results]
-
-    def select_raw(self, 
-            cols: typing.List[sqlalchemy.Column],
-            where: sqlalchemy.sql.expression.BinaryExpression = None,
-            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            limit: int = None,
-            wherestr: str = None,
-            offset: int = None,
-        ) -> typing.List[typing.Dict[str, typing.Any]]:
-        '''
-        Select some basic shit.
-        Description: Because output must be iterable, returns special column results 
-            by performing one query per row. Can be inefficient for many smaller 
-            special data information.
-        
-        Args:
-            cols: list of sqlalchemy datatypes created from calling .col() method.
-            where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
-            orderby: sqlalchemy orderby directive
-            groupby: sqlalchemy gropuby directive
-            limit (int): number of entries to return before stopping
-            wherestr (str): raw sql "where" conditionals to add to where input
-            as_dataclass (bool): if schema was provided in dataclass format, should return as 
-                dataclass object?
-            **kwargs: passed to self.execute()
-        Yields:
-            sqlalchemy result object: row data
-
-        '''
-        q = SelectQueryArgs(
-            cols = self.parse_input_cols(cols),
-            where = where,
-            orderby = orderby,
-            groupby = groupby,
-            limit = limit,
-            wherestr = wherestr,
-            offset = offset,
-        ).get_query()
-        
-        return self.dtab.execute(q).fetchall()
-    
-    ############################## Parse User Input ##############################
-    def parse_input_cols(self, cols: ColumnList) -> typing.List[sqlalchemy.Column]:
-        '''Pass variable passed to cols.'''        
-        if cols is None:
-            cols = list(self.dtab.columns)
-        else:
-            if not is_sequence(cols):
-                raise TypeError('cols argument should be a list of columns.')
-
-            cols = [self.dtab.col(c) if isinstance(c,str) else c for c in cols]
-        
-        return cols
-    
-    def parse_input_col(self, col: SingleColumn) -> typing.List[sqlalchemy.Column]:
-        if is_sequence(col):
-            raise TypeError('col argument should be single column.')
-        
-        use_col = self.dtab.col(col) if isinstance(col,str) else col
-        return [use_col]
-
 
     ############################## Update Methods ##############################
-
-    def update_dataclass(self, obj, key_name=None, **kwargs) -> sqlalchemy.engine.ResultProxy:
-        ''' Updates database with single modified object based on the provided key.
-        '''
-        if key_name is None:
-            keynames = self.primary_keys()
-            if not len(keynames):
-                raise ValueError('The "key_name" argument should be provided if '
-                                    'database has no primary key.')
-            key_name = keynames[0]
-
-        return self.update(obj, where=self[key_name]==obj[key_name], **kwargs)
-
-
-    def update(self, values, where=None, wherestr=None, **kwargs) -> sqlalchemy.engine.ResultProxy:
+    def update(self, 
+            values: typing.Dict[typing.Union[str,sqlalchemy.Column], typing.Any], 
+            where: sqlalchemy.sql.expression.BinaryExpression = None, 
+            wherestr: str = None,
+            preserve_parameter_order: bool = True,
+            **kwargs
+        ) -> sqlalchemy.engine.ResultProxy:
         '''Update row(s) assigning the provided values.
         Args:
             values (dict<colname->value> or list<dict> or list<(col,value)>)): 
@@ -350,43 +360,6 @@ class Query:
             wherestr (sql string condition): matches same as where arg.
         Returns:
             SQLAlchemy result proxy object
-        '''
-        self._check_readonly('update')
-            
-        # update the main column values
-        if isinstance(values,list) or isinstance(values,tuple):
-            
-            if is_sequence(values) and len(values) > 0 and isinstance(values[0], DocTableSchema):
-                values = [v._doctable_as_dict() for v in values]
-            
-            q = sqlalchemy.sql.update(self._table, preserve_parameter_order=True)
-            q = q.values(values)
-        else:
-            if isinstance(values, DocTableSchema):
-                values = values._doctable_as_dict()
-
-            q = sqlalchemy.sql.update(self._table)
-            q = q.values(values)
-        
-        if where is not None:
-            q = q.where(where)
-        if wherestr is not None:
-            q = q.where(sqlalchemy.text(wherestr))
-        
-        r = self.execute(q, **kwargs)
-        
-        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
-        return r
-
-    def update(self, 
-            values: typing.Dict[typing.Union[str,sqlalchemy.Column], typing.Any], 
-            where: sqlalchemy.sql.expression.BinaryExpression = None, 
-            wherestr: str = None,
-            preserve_parameter_order: bool = True,
-            **kwargs
-        ) -> sqlalchemy.engine.ResultProxy:
-        '''Update row(s) assigning the provided values.
-        NOTE: see sqlalchemy's UPDATE documentation for more details on values.
         '''
         self._check_readonly('update')
         
@@ -440,18 +413,6 @@ class Query:
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

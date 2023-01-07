@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import collections
 from time import time
 import pprint
@@ -10,9 +12,10 @@ from datetime import datetime
 import typing
 from typing import Union, Mapping, Sequence, Tuple, Set, List
 import dataclasses
+import warnings
 
 from doctable.util import QueueInserter
-from .query.errors import NoDataToInsert
+
 # operators like and_, or_, and not_, functions like sum, min, max, etc
 #import sqlalchemy as sa
 import sqlalchemy
@@ -339,161 +342,44 @@ class DocTable:
             return self.insert_single(rowdat, **kwargs)
     
     ################# SELECT METHODS ##################
-    def count(self, where=None, wherestr=None, **kwargs) -> int:
-        '''Count number of rows which match where condition.
-        Notes:
-            Calls select_first under the hood.
-        Args:
-            where (sqlalchemy condition): filter rows before counting.
-            wherestr (str): filter rows before counting.
-        Returns:
-            int: number of rows that match "where" and "wherestr" criteria.
-        '''
-        cter = sqlalchemy.func.count(self._columns[0])
-        ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
-        return ct
     
-    def head(self, n: int = 5, **kwargs) -> pd.DataFrame:
-        ''' Return first n rows as dataframe for quick viewing.
-        '''
-        return self.q.select_head(n=n, **kwargs)
-    
-    def select(self, 
-            cols: typing.Union[str, sqlalchemy.Column, typing.List[str], typing.List[sqlalchemy.Column]] = None, 
-            **kwargs
-        ):
-        '''Perform select query, yield result for each row.
-        '''
-        return_single = False
-        if cols is None:
-            cols = list(self._table.columns)
-        else:
-            if not is_sequence(cols):
-                return_single = True
-                cols = [cols]
-        cols = [c if not isinstance(c,str) else self[c] for c in cols]
-                
-        # query colunmns in main table
-        query = self._build_select_query(cols=cols,where=where,orderby=orderby,groupby=groupby,limit=limit,wherestr=wherestr,offset=offset)
+    def count(self, *args, **kwargs):
+        '''Depricated. See docs for .q.count(), Query.count().'''
+        warnings.warn('Method .count() is depricated. Please use .q.count() instead.')
+        return self.q.count(*args, **kwargs)
         
-        result = self.execute(query, **kwargs)
-        # this is the result object:
-        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
-        
-        # NOTE: I USE LIST RETURN BECAUSE UNDERLYING SQL ENGINE
-        # WILL LOAD THE DATA INTO MEMORY ANYWAYS. THIS JUST PRESENTS
-        # A MORE FLEXIBLE INTERFACE TO THE USER.
-        # row is an object that can be accessed by col keyword
-        # i.e. row['id'] or num index, i.e. row[0].
-        if return_single:
-            return [row[0] for row in result.fetchall()]
-        else:
-            if self._schema_is_obj() and as_dataclass:
-                #try:
-                return [self._schema._doctable_from_db(row) for row in result.fetchall()]
-                #except TypeError as e:
-                #    print('Did you mean to use as_dataclass=False to return joined or reduced results?')
-                #    raise e
-            else:
-                return result.fetchall()
+    def head(self, *args, **kwargs):
+        '''Depricated. See docs for .q.select_head(), Query.select_head().'''
+        warnings.warn('Method .head() is depricated. Please use .q.select_head() instead.')
+        return self.q.select_head(*args, **kwargs)
+
+    def select_series(self, *args, **kwargs):
+        '''Depricated. See docs for .q.select_series(), Query.select_series().'''
+        warnings.warn('Method .select_series() is depricated. Please use .q.select() instead.')
+        return self.q.select_series(*args, **kwargs)
+
+    def select_df(self, *args, **kwargs):
+        '''Depricated. See docs for .q.select_df(), Query.select_df().'''
+        warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+        return self.q.select_df(*args, **kwargs)
     
     def select_first(self, *args, **kwargs):
-        '''Perform regular select query returning only the first result.
-        Args:
-            *args: args to regular .select() method.
-            **kwargs: args to regular .select() method.
-        Returns:
-            sqlalchemy results obect: First result from select query.
-        Raises:
-            LookupError: where no items are returned with the select 
-                statement. Couldn't return None or other object because
-                those could be valid objects in a single-row select query.
-                In cases where uncertain if row match exists, use regular 
-                .select() and count num results, or use try/catch.
-        '''
-        result = self.select(*args, limit=1, **kwargs)
-        if len(result) == 0:
-            raise LookupError('No results were returned. Needed to error '
-                'so this result wasn not confused with case where actual '
-                'result is None. If not sure about result, use regular '
-                '.select() method with limit=1.')
-        return result[0]
+        '''Depricated. See docs for .q.select_first(), Query.select_first().'''
+        warnings.warn('Method .select_first() is depricated. Please use .q.select_first() instead.')
+        return self.q.select_first(*args, **kwargs)
     
-    def select_df(self, cols=None, *args, **kwargs) -> pd.DataFrame:
-        '''Select returning dataframe.
-        Args:
-            cols: sequence of columns to query. Must be sequence,
-                passed directly to .select() method.
-            *args: args to regular .select() method.
-            **kwargs: args to regular .select() method.
-        Returns:
-            pandas dataframe: Each row is a database row,
-                and output is not indexed according to primary 
-                key or otherwise. Call .set_index('id') on the
-                dataframe to envoke this behavior.
-        '''
-        if cols is None:
-            cols = list(self._table.columns)
-        elif not is_sequence(cols):
-            cols = [cols]
-        
-        sel = self.select(cols, *args, as_dataclass=False, **kwargs)
-        return pd.DataFrame([dict(r) for r in sel])
-    
-    def select_series(self, col, *args, **kwargs) -> pd.Series:
-        '''Select returning pandas Series.
-        Args:
-            col: column to query. Passed directly to .select() 
-                method.
-            *args: args to regular .select() method.
-            **kwargs: args to regular .select() method.
-        Returns:
-            pandas series: enters rows as values.
-        '''
-        if is_sequence(col):
-            raise TypeError('col argument should be single column.')
-        
-        sel = self.select(col, *args, **kwargs)
-        return pd.Series(sel)
-    
-    def _build_select_query(self, cols, where, orderby, groupby, limit, wherestr, offset, **kwargs) -> sqlalchemy.sql.Select:
-        '''Build and exectute select query given all the conditionals provided as parameters.'''
-        
-        q = sqlalchemy.sql.select(cols)
-        
-        if where is not None:
-            q = q.where(where)
-        if wherestr is not None:
-            q = q.where(sqlalchemy.text(f'({wherestr})'))
-        if orderby is not None:
-            if is_sequence(orderby):
-                q = q.order_by(*orderby)
-            else:
-                q = q.order_by(orderby)
-        if groupby is not None:
-            if is_sequence(groupby):
-                q = q.group_by(*groupby)
-            else:
-                q = q.group_by(groupby)
-            
-        if limit is not None:
-            q = q.limit(limit)
-        if offset is not None:
-            q = q.offset(offset)
-            
-        return q
-        # old code:
-        #result = self.execute(q, **kwargs)
-        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
-        #return result
+    def select(self, *args, **kwargs):
+        '''Depricated. See docs for .q.select(), Query.select().'''
+        warnings.warn('Method .select() is depricated. Please use .q.select() instead.')
+        return self.q.select(*args, **kwargs)
 
-    def join(self, other, *args, **kwargs):
+    def join(self, other: DocTable, *args, **kwargs):
         ''' Wrapper over table.join(), can pass to from_obj parameter for .select()
         Args:
             other (DocTable): other doctable to join
             *args, **kwargs: passed to table.join() method
         '''
-        return self._table.join(other._table, *args, **kwargs)
+        return self.table.join(other._table, *args, **kwargs)
     
     
     #################### Select/Insert in Chunk Methods ###################
@@ -548,100 +434,17 @@ class DocTable:
         '''
         return QueueInserter(self, **kwargs)
 
-    #################### Update Methods ###################
-    
-    def update(self, values, where=None, wherestr=None, **kwargs) -> sqlalchemy.engine.ResultProxy:
-        '''Update row(s) assigning the provided values.
-        Args:
-            values (dict<colname->value> or list<dict> or list<(col,value)>)): 
-                values to populate rows with. If dict, will insert those values
-                into all rows that match conditions. If list of dicts, assigns
-                expression in value (i.e. id['year']+1) to column. If list of 
-                (col,value) 2-tuples, will assign value to col in the order 
-                provided. For example given row values x=1 and y=2, the input
-                [(x,y+10),(y,20)], new values will be x=12, y=20. If opposite
-                order [(y,20),(x,y+10)] is provided new values would be y=20,
-                x=30. In cases where list<dict> is provided, this behavior is 
-                undefined.
-            where (sqlalchemy condition): used to match rows where
-                update will be applied.
-            wherestr (sql string condition): matches same as where arg.
-        Returns:
-            SQLAlchemy result proxy object
-        '''
-        self._check_readonly('update')
-            
-        # update the main column values
-        if isinstance(values,list) or isinstance(values,tuple):
-            
-            if is_sequence(values) and len(values) > 0 and isinstance(values[0], DocTableSchema):
-                values = [v._doctable_as_dict() for v in values]
-            
-            q = sqlalchemy.sql.update(self._table, preserve_parameter_order=True)
-            q = q.values(values)
-        else:
-            if isinstance(values, DocTableSchema):
-                values = values._doctable_as_dict()
+    #################### Update and Delete Methods ###################
+    def update(self, *args, **kwargs):
+        '''Depricated. See docs for .q.update(), Query.update().'''
+        warnings.warn('Method .update() is depricated. Please use .q.update() instead.')
+        return self.q.update(*args, **kwargs)
 
-            q = sqlalchemy.sql.update(self._table)
-            q = q.values(values)
-        
-        if where is not None:
-            q = q.where(where)
-        if wherestr is not None:
-            q = q.where(sqlalchemy.text(wherestr))
-        
-        r = self.execute(q, **kwargs)
-        
-        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
-        return r
+    def delete(self, *args, **kwargs):
+        '''Depricated. See docs for .q.delete(), Query.delete().'''
+        warnings.warn('Method .delete() is depricated. Please use .q.delete() instead.')
+        return self.q.delete(*args, **kwargs)
 
-    def update_dataclass(self, obj, key_name=None, **kwargs) -> sqlalchemy.engine.ResultProxy:
-        ''' Updates database with single modified object based on the provided key.
-        '''
-        if key_name is None:
-            keynames = self.primary_keys()
-            if not len(keynames):
-                raise ValueError('The "primary_key_name" argument should be provided if '
-                                    'database has no primary key.')
-            key_name = keynames[0]
-
-        return self.update(obj, where=self[key_name]==obj[key_name], **kwargs)
-            
-        
-
-    
-    
-    #################### Delete Methods ###################
-    
-    def delete(self, where=None, wherestr=None, vacuum=False, **kwargs) -> sqlalchemy.engine.ResultProxy:
-        '''Delete rows from the table that meet the where criteria.
-        Args:
-            where (sqlalchemy condition): criteria for deletion.
-            wherestr (sql string): addtnl criteria for deletion.
-            vacuum (bool): will execute vacuum sql command to reduce
-                storage space needed by SQL table. Use when deleting
-                significant ammounts of data.
-        Returns:
-            SQLAlchemy result proxy object.
-        '''
-        self._check_readonly('delete')
-        
-        q = sqlalchemy.sql.delete(self._table)
-
-        if where is not None:
-            q = q.where(where)
-        if wherestr is not None:
-            q = q.where(sqlalchemy.text(wherestr))
-        
-        r = self.execute(q, **kwargs)
-        
-        if vacuum:
-            self.execute('VACUUM')
-        
-        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
-        return r
-    
     ################# CRITICAL SQL METHODS ##################
     
     def execute(self, query, *params, verbose=None, **kwargs) -> sqlalchemy.engine.ResultProxy:
