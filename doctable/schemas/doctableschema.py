@@ -1,5 +1,6 @@
 
 import dataclasses
+import typing
 from .missingvalue import MISSING_VALUE
 
 miss_col_message = 'The column "{name}" was not retreived in the select statement.'
@@ -69,9 +70,9 @@ class DocTableSchema:
                                         if getattr(self,f.name) is not MISSING_VALUE}
 
     @classmethod
-    def _doctable_from_db(cls, **col_values):
+    def _doctable_from_db(cls, row: typing.Dict[str, typing.Any]):
         '''DocTable uses this as a constructor to fill missing values with MISSING_VALUE objects.
         '''
-        return cls(**{f.name:col_values.get(f.name,MISSING_VALUE) for f in dataclasses.fields(cls)})
+        return cls(**{f.name:row.get(f.name,MISSING_VALUE) for f in dataclasses.fields(cls)})
     
     
