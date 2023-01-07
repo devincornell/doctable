@@ -5,7 +5,6 @@ import dataclasses
 import typing
 import pandas as pd
 
-from .schemaobject import SchemaObject
 
 @dataclasses.dataclass
 class SchemaBase:
@@ -14,8 +13,8 @@ class SchemaBase:
     def from_schema_definition(cls) -> SchemaBase:
         raise NotImplementedError()
     
-    def object_to_dict(self, obj: SchemaObject) -> typing.Dict:
+    def object_to_dict(self, obj: typing.Any) -> typing.Dict:
         raise NotImplementedError()
     
-    def dict_to_object(self, obj: SchemaObject) -> typing.Any:
+    def dict_to_object(self, data: typing.Dict[str, typing.Any]) -> typing.Any:
         raise NotImplementedError()

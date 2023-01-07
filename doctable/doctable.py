@@ -24,6 +24,7 @@ from .models import DocBootstrap
 from .connectengine import ConnectEngine
 from .schemas import parse_schema_strings, parse_schema_dataclass, DocTableSchema
 from .query import Query
+from .schema import StringSchema, DataclassSchema
 
 DEFAULT_TABNAME = '_documents_'
 
@@ -134,9 +135,6 @@ class DocTable:
         # store arguments as-is
         self._tabname = tabname
         self._target = target
-        self._schema = copy.deepcopy(schema)
-        self._indices = copy.deepcopy(indices)
-        self._constraints = copy.deepcopy(constraints)
         self.dialect = dialect
 
         # flags
@@ -154,21 +152,24 @@ class DocTable:
             self._engine = engine
         
         # connect to existing table or create new one
-        if self._schema_is_obj():
-            if not issubclass(self._schema, DocTableSchema):
-                raise TypeError('A dataclass schema must inherit from doctable.DocTableSchema.')
+        if dataclasses.is_dataclass(schema):
             
-            self._columns = parse_schema_dataclass(self._schema, self._indices, self._constraints)
-            
+            self._schema = DataclassSchema.from_schema_definition(
+                schema_class = schema,
+                indices = indices,
+                constraints = constraints,
+            )
+                        
         elif is_sequence(self._schema):
-            print('parsing non-dataclass schema')
-            self._columns = parse_schema_strings(self._schema, self._target+'_'+self._tabname)
-        
+            self._schema = StringSchema.from_schema_definition(
+                schema_list = schema,
+                default_fpath = self._target+'_'+self._tabname,
+            )
         else:
             self._columns = None # inferred from existing table
 
         # add this table
-        self._table = self._engine.add_table(self._tabname, columns=self._columns, 
+        self._table = self._engine.add_table(self._tabname, columns=self._schema.columns, 
                                              new_table=self._new_table)
         
         # create persistent connection to database if requested
@@ -285,7 +286,7 @@ class DocTable:
         return self._engine
     
     @property
-    def schema(self) -> DocTableSchema:
+    def schema(self) -> DataclassSchema:
         return self._schema
     
     def list_tables(self) -> typing.List[str]:
@@ -312,9 +313,6 @@ class DocTable:
         return self._engine.schema_df(self._tabname)
     
     #################### Expose Query Functionality ###################
-    @property
-    def query(self) -> Query:
-        return Query(self)
     
     @property
     def q(self) -> Query:
@@ -323,7 +321,9 @@ class DocTable:
     
     ################# INSERT METHODS ##################
     
-    def insert(self, rowdat, ifnotunique='fail', **kwargs) -> sqlalchemy.engine.ResultProxy:
+    def insert(self, 
+            rowdat: typing.Union[DocTableSchema, typing.Dict, typing.List[typing.Union[DocTableSchema, typing.Dict]]], 
+        **kwargs) -> sqlalchemy.engine.ResultProxy:
         '''Insert a row or rows into the database.
         Args:
             rowdat (list<dict> or dict): row data to insert.
@@ -332,100 +332,12 @@ class DocTable:
         Returns:
             sqlalchemy query result object.
         '''
-        self._check_readonly('insert')
-
-        if self._schema_is_obj():
-            if isinstance(rowdat, DocTableSchema):
-                rowdat = rowdat._doctable_as_dict()
-            
-            elif is_sequence(rowdat) and len(rowdat) > 0 and isinstance(rowdat[0], DocTableSchema):
-                rowdat = [r._doctable_as_dict() for r in rowdat]
-        
-        q = sqlalchemy.sql.insert(self._table, rowdat)
-        q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
-        
-        #NOTE: there is a weird issue with using verbose mode with a 
-        #  multiple insert. The printing interface is not aware of 
-        #  the SQL dialect and therefore throws an error.
-        
-        # To print correctly, would need something like this:
-        #from sqlalchemy.dialects import mysql
-        #print str(q.statement.compile(dialect=mysql.dialect()))
         
         if is_sequence(rowdat):
-            if 'verbose' in kwargs:
-                del kwargs['verbose']
-            r = self.execute(q, verbose=False, **kwargs)
+            return self.insert_many(rowdat, **kwargs)
         else:
-            r = self.execute(q, **kwargs)
-        
-        # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
-        return r
+            return self.insert_single(rowdat, **kwargs)
     
-    def insert_single(self, rowdat: DocTableSchema, ifnotunique='fail', **kwargs) -> sqlalchemy.engine.ResultProxy:
-        '''Insert a single row into the database.
-        Args:
-            rowdata: either schema object or dict) to insert
-            ifnotunique (str): way to handle inserted data if it breaks
-                a table constraint. Choose from FAIL, IGNORE, REPLACE.
-        Returns:
-            sqlalchemy result proxy.
-        '''
-        self._check_readonly('insert_single')
-
-        if self._schema_is_obj():
-            if isinstance(rowdat, DocTableSchema):
-                rowdat = rowdat._doctable_as_dict()
-                
-        q = sqlalchemy.sql.insert(self._table, rowdat)
-        q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
-        
-        r = self.execute(q, **kwargs)
-        
-        return r
-
-    def insert_many(self, rowdata: typing.List[DocTableSchema], ifnotunique='fail', **kwargs) -> sqlalchemy.engine.ResultProxy:
-        '''Insert multiple rows into the database.
-        Args:
-            rowdata: iterable of row data (either schema object or dict) to insert
-            ifnotunique (str): way to handle inserted data if it breaks
-                a table constraint. Choose from FAIL, IGNORE, REPLACE.
-        Returns:
-            sqlalchemy result proxy.
-        '''
-        self._check_readonly('insert_many')
-
-        if not is_sequence(rowdata):
-            raise TypeError(f'rowdata passed to insert_many must be a list or dict (sqlalchemy will force that anyways).')
-        
-        if not len(rowdata):
-            raise NoDataToInsert('.insert_many() was called with no actual data to insert.')
-
-        if self._schema_is_obj():
-            if is_sequence(rowdata) and isinstance(rowdata[0], DocTableSchema):
-                rowdata = [r._doctable_as_dict() for r in rowdata]
-        
-        q = sqlalchemy.sql.insert(self._table)
-        q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
-        
-        #NOTE: there is a weird issue with using verbose mode with a 
-        #  multiple insert. The printing interface is not aware of 
-        #  the SQL dialect and therefore throws an error.
-        
-        # To print correctly, would need something like this:
-        #from sqlalchemy.dialects import mysql
-        #print str(q.statement.compile(dialect=mysql.dialect()))
-    
-        if 'verbose' in kwargs:
-            del kwargs['verbose']
-        
-        try:
-            return self.execute(q, verbose=False, **kwargs)
-        except Exception as e:
-            print(type(e))
-            exit()
-
-
     ################# SELECT METHODS ##################
     def count(self, where=None, wherestr=None, **kwargs) -> int:
         '''Count number of rows which match where condition.
@@ -441,43 +353,16 @@ class DocTable:
         ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
         return ct
     
-    def head(self, n=5) -> pd.DataFrame:
+    def head(self, n: int = 5, **kwargs) -> pd.DataFrame:
         ''' Return first n rows as dataframe for quick viewing.
-        Args:
-            n (int): number of rows to return in dataframe.
-        Returns:
-            Dataframe of the first n rows of the table.
         '''
-        return self.select_df(limit=n)
+        return self.q.select_head(n=n, **kwargs)
     
     def select(self, 
-               cols: typing.Union[str, sqlalchemy.Column, typing.List[str], typing.List[sqlalchemy.Column]] = None, 
-               where: sqlalchemy.sql.expression.BinaryExpression = None, 
-               orderby: typing.Union[str, sqlalchemy.Column, sqlalchemy.sql.expression.UnaryExpression] = None, 
-               groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None, 
-               limit: int = None, 
-               wherestr: str = None, 
-               offset: int = None, 
-               as_dataclass: bool = True, 
-               **kwargs):
+            cols: typing.Union[str, sqlalchemy.Column, typing.List[str], typing.List[sqlalchemy.Column]] = None, 
+            **kwargs
+        ):
         '''Perform select query, yield result for each row.
-        
-        Description: Because output must be iterable, returns special column results 
-            by performing one query per row. Can be inefficient for many smaller 
-            special data information.
-        
-        Args:
-            cols: list of sqlalchemy datatypes created from calling .col() method.
-            where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
-            orderby: sqlalchemy orderby directive
-            groupby: sqlalchemy gropuby directive
-            limit (int): number of entries to return before stopping
-            wherestr (str): raw sql "where" conditionals to add to where input
-            as_dataclass (bool): if schema was provided in dataclass format, should return as 
-                dataclass object?
-            **kwargs: passed to self.execute()
-        Yields:
-            sqlalchemy result object: row data
         '''
         return_single = False
         if cols is None:
@@ -505,7 +390,7 @@ class DocTable:
         else:
             if self._schema_is_obj() and as_dataclass:
                 #try:
-                return [self._schema._doctable_from_db(**row) for row in result.fetchall()]
+                return [self._schema._doctable_from_db(row) for row in result.fetchall()]
                 #except TypeError as e:
                 #    print('Did you mean to use as_dataclass=False to return joined or reduced results?')
                 #    raise e
@@ -788,16 +673,6 @@ class DocTable:
             r = self._engine.execute(query, *params)
         return r
 
-
-
-    #################### Checking and Validation ###################
-    def _check_readonly(self, funcname: str) -> None:
-        if self.readonly:
-            raise SetToReadOnlyMode(f'Cannot call .{funcname}() when doctable set to readonly.')
-
-    def _schema_is_obj(self) -> bool:
-        return dataclasses.is_dataclass(self._schema)
-        
     
     #################### Bootstrapping Methods ###################
     

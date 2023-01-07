@@ -6,9 +6,6 @@ import typing
 import pandas as pd
 
 from ..util import is_sequence
-from ..doctable import DocTable
-from ..schemas import DocTableSchema
-from .basequery import BaseQuery
 
 
 @dataclasses.dataclass

@@ -68,7 +68,11 @@ if __name__ == '__main__':
             #q = sqlalchemy.func.count(tab.columns[0])
             #print(conn.execute(q).fetchall())
             print(type(tab.table))
+            q = sqlalchemy.sql.update(tab._table)
+            q = q.where(tab['idx']>3)
+            print(conn.execute(q, {'name': 'joanne'}))
             
+            print(tab.head())
             exit()
             
             

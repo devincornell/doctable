@@ -8,18 +8,19 @@ import datetime
 
 from .schemabase import SchemaBase
 from .columnmetadata import ColumnMetadata
-from .schemaobject import SchemaClass
 from ..schemas import string_to_sqlalchemy_type
 from ..util import is_sequence
 
 @dataclasses.dataclass
 class StringSchema(SchemaBase):
     columns: typing.List[sqlalchemy.Column]
-
+    schema_list: typing.List[typing.Tuple]
+    
     @classmethod
-    def from_schema_definition(cls, schema_obj: typing.List[typing.Tuple], default_fpath = './'):
+    def from_schema_definition(cls, schema_list: typing.List[typing.Tuple], default_fpath = './'):
         new_schema: cls = cls(
-            columns = cls.parse_schema_strings(schema_obj, default_fpath=default_fpath)
+            columns = cls.parse_schema_strings(schema_list, default_fpath=default_fpath),
+            schema_list = schema_list,
         )
         return new_schema
     
