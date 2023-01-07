@@ -17,6 +17,7 @@ from .errors import *
 #import sqlalchemy as sa
 import sqlalchemy
 
+from .util import is_sequence
 from .schemas import FileTypeBase
 from .models import DocBootstrap
 #from .util import list_tables
@@ -152,7 +153,7 @@ class DocTable:
             self._engine = engine
         #print('what the bloody hell')
         # connect to existing table or create new one
-        if dataclasses.is_dataclass(self._schema):
+        if self._schema_is_obj():
             #print('parsing dataclass schema')
             if not issubclass(self._schema, DocTableSchema):
                 raise TypeError('A dataclass schema must inherit from doctable.DocTableSchema.')
@@ -317,7 +318,7 @@ class DocTable:
         '''
         self._check_readonly('insert')
 
-        if dataclasses.is_dataclass(self._schema):
+        if self._schema_is_obj():
             if isinstance(rowdat, DocTableSchema):
                 rowdat = rowdat._doctable_as_dict()
             
@@ -356,7 +357,7 @@ class DocTable:
         '''
         self._check_readonly('insert_single')
 
-        if dataclasses.is_dataclass(self._schema):
+        if self._schema_is_obj():
             if isinstance(rowdat, DocTableSchema):
                 rowdat = rowdat._doctable_as_dict()
                 
@@ -378,19 +379,15 @@ class DocTable:
         '''
         self._check_readonly('insert_many')
 
-        try:
-            row_iter = iter(rowdata)
-        except TypeError as e:
-            raise TypeError(f'rowdata passed to insert_many must be an iterable.')
+        if not is_sequence(rowdata):
+            raise TypeError(f'rowdata passed to insert_many must be a list or dict (sqlalchemy will force that anyways).')
         
-        #if not len(rowdata):
-        #    raise NoDataToInsert('.insert_many() was called with no actual data to insert.')
+        if not len(rowdata):
+            raise NoDataToInsert('.insert_many() was called with no actual data to insert.')
 
-        if dataclasses.is_dataclass(self._schema):
+        if self._schema_is_obj():
             if is_sequence(rowdata) and isinstance(rowdata[0], DocTableSchema):
                 rowdata = [r._doctable_as_dict() for r in rowdata]
-        
-
         
         q = sqlalchemy.sql.insert(self._table)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
@@ -492,7 +489,7 @@ class DocTable:
         if return_single:
             return [row[0] for row in result.fetchall()]
         else:
-            if dataclasses.is_dataclass(self._schema) and as_dataclass:
+            if self._schema_is_obj() and as_dataclass:
                 #try:
                 return [self._schema._doctable_from_db(**row) for row in result.fetchall()]
                 #except TypeError as e:
@@ -748,7 +745,7 @@ class DocTable:
     
     ################# CRITICAL SQL METHODS ##################
     
-    def execute(self, query, verbose=None, **kwargs) -> sqlalchemy.engine.ResultProxy:
+    def execute(self, query, *params, verbose=None, **kwargs) -> sqlalchemy.engine.ResultProxy:
         '''Execute an sql command. Called by most higher-level functions.
         Args:
             query (sqlalchemy condition or str): query to execute;
@@ -762,28 +759,33 @@ class DocTable:
             if verbose: print(prstr.format(query))
         elif self.verbose: print(prstr.format(query))
         
-        return self._execute(query, **kwargs)
+        return self._execute(query, *params, **kwargs)
     
-    def _execute(self, query, conn=None) -> sqlalchemy.engine.ResultProxy:
+    def _execute(self, query, *params, conn: sqlalchemy.engine.Connection = None) -> sqlalchemy.engine.ResultProxy:
         '''Execute sql query using either existing connection, provided connection, or without a connection.
         '''
         # takes raw query object
         if conn is not None:
-            r = conn.execute(query)
+            r = conn.execute(query, *params)
         elif self._conn is not None:
-            r = self._conn.execute(query)
+            r = self._conn.execute(query, *params)
         else:
             # execute query using connectengine directly
-            r = self._engine.execute(query)
+            r = self._engine.execute(query, *params)
         return r
 
+
+
+    #################### Checking and Validation ###################
     def _check_readonly(self, funcname: str) -> None:
         if self.readonly:
             raise SetToReadOnlyMode(f'Cannot call .{funcname}() when doctable set to readonly.')
 
+    def _schema_is_obj(self) -> bool:
+        return dataclasses.is_dataclass(self._schema)
+        
     
-    
-    #################### Bootstrapping Methods ###################    
+    #################### Bootstrapping Methods ###################
     
     def bootstrap(self, *args, n=None, **kwargs):
         '''Generates a DocBootstrapper object to sample from.
@@ -841,10 +843,4 @@ class DocTable:
             raise FileNotFoundError('These files were not found while cleaning: {}'
                 ''.format(miss_fnames))
     
-    
-    
-def is_sequence(obj):
-    return isinstance(obj, list) or isinstance(obj,set) or isinstance(obj,tuple)
 
-def is_ord_sequence(obj):
-    return isinstance(obj, list) or isinstance(obj,tuple)
