@@ -15,30 +15,88 @@ from .errors import *
 SingleColumn = typing.Union[str, sqlalchemy.Column]
 ColumnList = typing.List[SingleColumn]
 
+typing.Literal['FAIL', 'IGNORE', 'REPLACE']
+
 @dataclasses.dataclass
 class Query:
     dtab: DocTable
     
+    ######################################## High-level inserts that infer type. ########################################
+    def insert(self, 
+            rowdat: typing.Union[DocTableSchema, typing.Dict, typing.List[typing.Union[DocTableSchema, typing.Dict]]], 
+            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
+        ) -> sqlalchemy.engine.ResultProxy:
+        '''Insert a row or rows into the database.
+        Args:
+            rowdat (list<dict> or dict): row data to insert.
+            ifnotunique (str): way to handle inserted data if it breaks
+                a table constraint. Choose from FAIL, IGNORE, REPLACE.
+        Returns:
+            sqlalchemy query result object.
+        '''
+        if is_sequence(rowdat):
+            return self.insert_many(rowdat, ifnotunique=ifnotunique)
+        else:
+            return self.insert_single(rowdat, ifnotunique=ifnotunique)
+
+    
+    def insert_single(self, 
+            rowdata: typing.Union[DocTableSchema, typing.Dict], 
+            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
+        ) -> sqlalchemy.engine.ResultProxy:
+        '''Insert a single row into the database.
+        '''
+        if isinstance(rowdata, DocTableSchema) and self.dtab._schema_is_obj():
+            return self.q.insert_object(rowdata, ifnotunique=ifnotunique)
+        else:
+            return self.q.insert_dict(rowdata, ifnotunique=ifnotunique)
+
+    def insert_many(self, 
+            rowdata: typing.List[typing.Union[DocTableSchema, typing.Dict]], 
+            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail'
+        ) -> sqlalchemy.engine.ResultProxy:
+        '''Insert multiple rows into the database, infer type.'''
+        if isinstance(rowdata[0], DocTableSchema) and self.dtab._schema_is_obj():
+            return self.insert_objects(rowdata, ifnotunique=ifnotunique)
+        else:
+            return self.insert_dicts(rowdata, ifnotunique=ifnotunique)
+    
     ######################################## Insert Multiple ########################################
-    def insert_objects(self, schema_objs: typing.List[DocTableSchema], ifnotunique: str = 'fail') -> sqlalchemy.engine.ResultProxy:
+    def insert_objects(self, 
+            schema_objs: typing.List[DocTableSchema], 
+            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail'
+        ) -> sqlalchemy.engine.ResultProxy:
+        '''Insert multiple rows as objects into the db.'''
+        self._check_readonly('insert_objects')
+        if not is_sequence(schema_objs):
+            raise TypeError('insert_objects needs a list or tuple of schema objects.')
         obj_dicts = [self._schema_obj_to_dict(o) for o in schema_objs]
         return self.insert_dicts(obj_dicts, ifnotunique=ifnotunique)
         
-    def insert_dicts(self, datum: typing.List[typing.Dict[str, typing.Any]], ifnotunique: str = 'fail') -> sqlalchemy.engine.ResultProxy:
+    def insert_dicts(self, 
+            datum: typing.List[typing.Dict[str, typing.Any]], 
+            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail'
+        ) -> sqlalchemy.engine.ResultProxy:
+        '''Insert multiple rows as dictionaries into the db.'''
+        self._check_readonly('insert_dicts')
+        if not is_sequence(datum):
+            raise TypeError('insert_dicts needs a list or tuple of schema objects.')
         q = self.query(ifnotunique=ifnotunique)
-        return self.execute(q, datum)
+        return self.insert_query(q, datum)
 
     ######################################## Insert Single ########################################
-    def insert_object(self, obj: DocTableSchema, ifnotunique: str = 'fail', **kwargs) -> sqlalchemy.engine.ResultProxy:
+    def insert_object(self, obj: DocTableSchema, ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail', **kwargs) -> sqlalchemy.engine.ResultProxy:
+        self._check_readonly('insert_object')
         obj_dict = self._schema_obj_to_dict(obj)
         return self.insert_dict(obj_dict, ifnotunique=ifnotunique)
 
-    def insert_dict(self, data: typing.Dict[str, typing.Any], ifnotunique: str = 'fail') -> sqlalchemy.engine.ResultProxy:
+    def insert_dict(self, data: typing.Dict[str, typing.Any], ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail') -> sqlalchemy.engine.ResultProxy:
+        self._check_readonly('insert_dict')
         q = self.query(ifnotunique=ifnotunique)
-        return self.execute(q, data)
+        return self.insert_query(q, data)
 
     ######################################## Build Insert Query ########################################
-    def query(self, ifnotunique: str = 'fail') -> sqlalchemy.sql.Insert:
+    def insert_query(self, ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail') -> sqlalchemy.sql.Insert:
         q: sqlalchemy.sql.Select = sqlalchemy.sql.insert(self.dtab.table)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         return q
@@ -52,7 +110,7 @@ class Query:
         ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
         return ct
     
-    def head(self, n: int = 5, **kwargs) -> pd.DataFrame:
+    def select_head(self, n: int = 5, **kwargs) -> pd.DataFrame:
         return self.select_df(limit=n, **kwargs)
         
     def select_series(self,
@@ -159,7 +217,26 @@ class Query:
             offset: int = None,
             raw_result: bool = False,
         ) -> typing.List[typing.Dict[str, typing.Any]]:
-                
+        '''
+        Select some basic shit.
+        Description: Because output must be iterable, returns special column results 
+            by performing one query per row. Can be inefficient for many smaller 
+            special data information.
+        
+        Args:
+            cols: list of sqlalchemy datatypes created from calling .col() method.
+            where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
+            orderby: sqlalchemy orderby directive
+            groupby: sqlalchemy gropuby directive
+            limit (int): number of entries to return before stopping
+            wherestr (str): raw sql "where" conditionals to add to where input
+            as_dataclass (bool): if schema was provided in dataclass format, should return as 
+                dataclass object?
+            **kwargs: passed to self.execute()
+        Yields:
+            sqlalchemy result object: row data
+
+        '''
         q = SelectQueryArgs(
             cols = self.parse_input_cols(cols),
             where = where,
