@@ -28,6 +28,53 @@ typing.Literal['FAIL', 'IGNORE', 'REPLACE']
 class Query:
     dtab: DocTable
         
+    ######################################## Compound Selects ########################################
+    def select_chunks(self, cols: ColumnList = None, chunksize: int = 100, limit: int = None, raw_result: bool = False, **kwargs):
+        ''' Performs select while querying only a subset of the results at a time.
+        Args:
+            cols (col name(s) or sqlalchemy object(s)): columns to query
+            chunksize (int): size of individual queries to be made. Will
+                load this number of rows into memory before yielding.
+            limit (int): maximum number of rows to retrieve. Because 
+                the limit argument is being used internally to limit data
+                to smaller chunks, use this argument instead. Internally,
+                this function will load a maximum of limit + chunksize 
+                - 1 rows into memory, but yields only limit.
+        Yields:
+            sqlalchemy result: row data - same as .select() method.
+        '''
+        offset = 0
+        while True:
+            select_func = self.select_raw if raw_result else self.select
+            rows = select_func(cols, offset=offset, limit=chunksize, **kwargs)
+            chunk = rows[:limit-offset] if limit is not None else rows
+            
+            yield chunk
+            
+            offset += len(rows)
+            
+            if (limit is not None and offset >= limit) or len(rows) == 0:
+                break
+        
+    def select_iter(self, cols=None, chunksize=1, limit=None, **kwargs):
+        ''' Same as .select except results retrieved from db in chunks.
+        Args:
+            cols (col name(s) or sqlalchemy object(s)): columns to query
+            chunksize (int): size of individual queries to be made. Will
+                load this number of rows into memory before yielding.
+            limit (int): maximum number of rows to retrieve. Because 
+                the limit argument is being used internally to limit data
+                to smaller chunks, use this argument instead. Internally,
+                this function will load a maximum of limit + chunksize 
+                - 1 rows into memory, but yields only limit.
+        Yields:
+            sqlalchemy result: row data - same as .select() method.
+        '''
+        for chunk in self.select_chunks(cols=cols, chunksize=chunksize, 
+                                                    limit=limit, **kwargs):
+            for row in chunk:
+                yield row
+
     ######################################## Pandas Select ########################################
     
     def count(self, where=None, wherestr=None, **kwargs) -> int:
@@ -259,57 +306,17 @@ class Query:
 
 
     ######################################## High-level inserts that infer type. ########################################
-    def insert(self, 
-            rowdat: typing.Union[DocTableSchema, typing.Dict, typing.List[typing.Union[DocTableSchema, typing.Dict]]], 
-            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
-        ) -> sqlalchemy.engine.ResultProxy:
-        '''Insert a row or rows into the database.
-        Args:
-            rowdat (list<dict> or dict): row data to insert.
-            ifnotunique (str): way to handle inserted data if it breaks
-                a table constraint. Choose from FAIL, IGNORE, REPLACE.
-        Returns:
-            sqlalchemy query result object.
-        '''
-        if is_sequence(rowdat):
-            return self.insert_many(rowdat, ifnotunique=ifnotunique)
-        else:
-            return self.insert_single(rowdat, ifnotunique=ifnotunique)
 
-    def insert_many(self, 
-            rowdata: typing.List[typing.Union[DocTableSchema, typing.Dict]], 
-            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail'
-        ) -> sqlalchemy.engine.ResultProxy:
-        '''Insert multiple rows into the database, infer type.'''
-        if not is_sequence(rowdata):
-            raise TypeError('insert_many requires a list or tuple of objects to insert.')
-        
-        if isinstance(rowdata[0], dict):
-            return self.insert_raw_rows(rowdata, ifnotunique=ifnotunique)
-        else:
-            return self.insert_objects(rowdata, ifnotunique=ifnotunique)
-    
-    def insert_single(self, 
-            rowdata: typing.Union[DocTableSchema, typing.Dict], 
-            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
-        ) -> sqlalchemy.engine.ResultProxy:
-        '''Insert a single row into the database.
-        '''
-        if isinstance(rowdata, dict):
-            return self.insert_raw(rowdata, ifnotunique=ifnotunique)
-        else:
-            return self.insert_object(rowdata, ifnotunique=ifnotunique)
-    
     ######################################## Insert Multiple ########################################
-    def insert_objects(self, 
-            schema_objs: typing.List[DocTableSchema], 
+    def insert_many(self, 
+            schema_objs: ColumnList, 
             ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail'
         ) -> sqlalchemy.engine.ResultProxy:
         '''Insert multiple rows as objects into the db.'''
         obj_dicts = [self.dtab.schema.object_to_dict(o) for o in schema_objs]
-        return self.insert_dicts(obj_dicts, ifnotunique=ifnotunique)
+        return self.insert_many_raw(obj_dicts, ifnotunique=ifnotunique)
         
-    def insert_raw_rows(self, 
+    def insert_many_raw(self, 
             datum: typing.List[typing.Dict[str, typing.Any]], 
             ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail'
         ) -> sqlalchemy.engine.ResultProxy:
@@ -320,11 +327,11 @@ class Query:
         return self.insert_query(q, datum)
 
     ######################################## Insert Single ########################################
-    def insert_object(self, obj: DocTableSchema, ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail', **kwargs) -> sqlalchemy.engine.ResultProxy:
+    def insert_single(self, obj: DocTableSchema, ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail', **kwargs) -> sqlalchemy.engine.ResultProxy:
         obj_dict = self.dtab.schema.object_to_dict(obj)
         return self.insert_raw(obj_dict, ifnotunique=ifnotunique)
 
-    def insert_raw(self, data: typing.Dict[str, typing.Any], ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail') -> sqlalchemy.engine.ResultProxy:
+    def insert_single_raw(self, data: typing.Dict[str, typing.Any], ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail') -> sqlalchemy.engine.ResultProxy:
         q = self.insert_query(ifnotunique=ifnotunique)
         return self.insert_query(q, data)
 

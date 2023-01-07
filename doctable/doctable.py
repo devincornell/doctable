@@ -266,15 +266,6 @@ class DocTable:
     @property
     def columns(self) -> sqlalchemy.sql.base.ImmutableColumnCollection:
         '''Exposes SQLAlchemy core table columns object.
-        Notes:
-            some info here: 
-            https://docs.sqlalchemy.org/en/13/core/metadata.html
-            
-            c = db.columns['id']
-            c.type, c.name, c.
-        Returns:
-            sqlalchemy columns: access to underlying columns
-                object.
         '''
         return self._table.c
 
@@ -323,23 +314,46 @@ class DocTable:
         return Query(self)
     
     ################# INSERT METHODS ##################
-    
+            
     def insert(self, 
-            rowdat: typing.Union[DocTableSchema, typing.Dict, typing.List[typing.Union[DocTableSchema, typing.Dict]]], 
-        **kwargs) -> sqlalchemy.engine.ResultProxy:
-        '''Insert a row or rows into the database.
-        Args:
-            rowdat (list<dict> or dict): row data to insert.
-            ifnotunique (str): way to handle inserted data if it breaks
-                a table constraint. Choose from FAIL, IGNORE, REPLACE.
-        Returns:
-            sqlalchemy query result object.
-        '''
+            rowdata: typing.Union[DocTableSchema, typing.Dict[str, typing.Any], typing.List[DocTableSchema], typing.List[typing.Dict[str, typing.Any]]],
+            *args, 
+            **kwargs,
+        ):
+        '''Depricated. See docs for .q.insert_single() or .q.insert_many().'''
+        warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+            '.q.insert_single_raw(), .q.insert_many(), or .q.insert_many_raw() instead.')
         
-        if is_sequence(rowdat):
-            return self.insert_many(rowdat, **kwargs)
+        if is_sequence(rowdata):
+            return self.insert_many(rowdata, *args, **kwargs)
         else:
-            return self.insert_single(rowdat, **kwargs)
+            return self.insert_single(rowdata, *args, **kwargs)
+    
+    def insert_many(self, 
+            rowdata: typing.Union[typing.List[DocTableSchema], typing.List[typing.Dict[str, typing.Any]]],
+            *args, 
+            **kwargs
+        ):
+        '''Depricated. See docs for .q.insert_many(), .q.insert_many_raw()'''
+        warnings.warn(f'.insert_many() is depricated: please use .q.insert_many() or '
+            '.q.insert_many_raw()')
+        if not is_sequence(rowdata):
+            raise TypeError('insert_many needs a list or tuple of schema objects.')
+        
+        if isinstance(rowdata[0], dict):
+            return self.q.insert_many_raw(rowdata, *args, **kwargs)
+        else:
+            return self.q.insert_many(rowdata, *args, **kwargs)
+    
+    def insert_single(self, rowdata: typing.Union[DocTableSchema, typing.Dict[str, typing.Any]], *args, **kwargs):
+        '''Depricated. See docs for .q.insert_single(), .q.insert_single_raw().'''
+        warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+            '.q.insert_single_raw()')
+        
+        if isinstance(rowdata, dict):
+            return self.q.insert_single_raw(rowdata, *args, **kwargs)
+        else:
+            return self.q.insert_single(rowdata, *args, **kwargs)
     
     ################# SELECT METHODS ##################
     
@@ -384,31 +398,9 @@ class DocTable:
     
     #################### Select/Insert in Chunk Methods ###################
     
-    def select_chunks(self, cols=None, chunksize=100, limit=None, **kwargs):
-        ''' Performs select while querying only a subset of the results at a time.
-        Args:
-            cols (col name(s) or sqlalchemy object(s)): columns to query
-            chunksize (int): size of individual queries to be made. Will
-                load this number of rows into memory before yielding.
-            limit (int): maximum number of rows to retrieve. Because 
-                the limit argument is being used internally to limit data
-                to smaller chunks, use this argument instead. Internally,
-                this function will load a maximum of limit + chunksize 
-                - 1 rows into memory, but yields only limit.
-        Yields:
-            sqlalchemy result: row data - same as .select() method.
-        '''
-        offset = 0
-        while True:
-            rows = self.select(cols, offset=offset, limit=chunksize, **kwargs)
-            chunk = rows[:limit-offset] if limit is not None else rows
-            
-            yield chunk
-            
-            offset += len(rows)
-            
-            if (limit is not None and offset >= limit) or len(rows) == 0:
-                break
+    def select_chunks(self, *args, **kwargs):
+        '''Depricated: see docs for .q.select_chunks()'''
+        return self.q.select_chunks(*args, **kwargs)
                 
     def select_iter(self, cols=None, chunksize=1, limit=None, **kwargs):
         ''' Same as .select except results retrieved from db in chunks.
