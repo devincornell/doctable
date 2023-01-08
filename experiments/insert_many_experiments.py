@@ -38,7 +38,7 @@ if __name__ == '__main__':
         tab = doctable.DocTable(target=f'{td1}/tmp.db', tabname='test', schema=MySchema, new_db=True)
         #tab2 = doctable.DocTable(target=f'{td1}/tmp.db', tabname='test', schema=MySchema, new_db=True)
         #print(tab)
-        
+    
 
         stepper = doctable.Stepper()
 
@@ -53,29 +53,23 @@ if __name__ == '__main__':
         
         with tab.connect() as conn:
 
-
+            tab.q.insert_many_raw(objs_list)
+            print(tab.q.select_head())
             
+            #av_time = stepper.time_call(functools.partial(conn.execute, q))
+            #print(f'adding with .values(): {av_time}')
             
-
-            #tab.execute, q, objs_list[0]
-            q = sqlalchemy.sql.insert(tab._table)
-            conn.execute(q, objs_list)
+            #print(f'{type(tab.q.select_raw(limit=1)[0])=}')
             
-            #q = sqlalchemy.sql.select([tab.c.idx, tab.c.name])
-            #print(conn.execute(q).fetchall())
+            def test_select():
+                objs = [tab.schema.row_to_object(d) for d in tab.q.select_raw()]
+            av_time = stepper.time_call(test_select, num_calls=100)
             
+            print(f'test_select: {av_time}')
             
-            #q = sqlalchemy.func.count(tab.columns[0])
-            #print(conn.execute(q).fetchall())
-            print(type(tab.table))
-            q = sqlalchemy.sql.update(tab._table)
-            q = q.where(tab['idx']>3)
-            print(conn.execute(q, {'name': 'joanne'}))
-            
-            print(tab.head())
             exit()
             
-            
+            tab.delete()
             
             q = sqlalchemy.sql.insert(tab._table).values(objs_list)
             av_time = stepper.time_call(functools.partial(conn.execute, q))
