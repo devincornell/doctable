@@ -87,7 +87,8 @@ def get_getter_setter(property_name: str):
         @property
         def a(self):
             if getattr(self, property_name) is MISSING_VALUE:
-                raise RowDataNotAvailableError(f'The "{property_to_colname(property_name)}" property '
+                colname = property_to_colname(property_name)
+                raise RowDataNotAvailableError(f'The "{colname}" property '
                     'is not available. This might happen if you did not retrieve '
                     'the information from a database or if you did not provide '
                     'a value in the class constructor.')
