@@ -184,7 +184,7 @@ class Query:
 
     ######################################## Base Selection Funcs ########################################
     def select_first(self,
-            cols: ColumnList,
+            cols: ColumnList = None,
             where: sqlalchemy.sql.expression.BinaryExpression = None,
             orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
             groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
@@ -192,7 +192,7 @@ class Query:
             offset: int = None,
             raw_result: bool = False, 
             **kwargs
-        ) -> pd.Series:
+        ) -> DocTableSchema:
         
         select_func = self.select if not raw_result else self.select_raw
         results = select_func(
@@ -223,7 +223,7 @@ class Query:
             wherestr: str = None,
             offset: int = None,
             **kwargs
-        ) -> typing.List[typing.Dict[str, typing.Any]]:
+        ) -> typing.List[DocTableSchema]:
         '''
         Select some basic shit.
         Description: Because output must be iterable, returns special column results 
