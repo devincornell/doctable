@@ -63,10 +63,10 @@ class ConnectEngine:
         pass
         
     ######################### Core Methods ######################    
-    def execute(self, query:str, **kwargs) -> sqlalchemy.engine.ResultProxy:
+    def execute(self, query:str, *args, **kwargs) -> sqlalchemy.engine.ResultProxy:
         '''Execute query using a temporary connection.
         '''
-        return self._engine.execute(query, **kwargs)
+        return self._engine.execute(query, *args, **kwargs)
         
     ######################### Convenient Properties ######################
     @property
