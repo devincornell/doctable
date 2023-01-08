@@ -27,7 +27,7 @@ class StringSchema(SchemaBase):
     def object_to_dict(self, data: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]:
         return data
     
-    def dict_to_object(self, data: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]:
+    def row_to_object(self, data: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]:
         return data
 
     @classmethod

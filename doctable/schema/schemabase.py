@@ -16,5 +16,5 @@ class SchemaBase:
     def object_to_dict(self, obj: typing.Any) -> typing.Dict:
         raise NotImplementedError()
     
-    def dict_to_object(self, data: typing.Dict[str, typing.Any]) -> typing.Any:
+    def row_to_object(self, data: typing.Dict[str, typing.Any]) -> typing.Any:
         raise NotImplementedError()

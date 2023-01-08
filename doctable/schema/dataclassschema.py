@@ -5,7 +5,7 @@ import dataclasses
 import typing
 import copy
 
-from ..schemas import DocTableSchema
+from ..schemas import DocTableSchema, MISSING_VALUE
 from .schemabase import SchemaBase
 from .columnmetadata import ColumnMetadata
 from ..schemas import Constraint, python_to_slqlchemy_type
@@ -33,10 +33,21 @@ class DataclassSchema(SchemaBase):
         return new_schema
     
     def object_to_dict(self, obj: DocTableSchema) -> typing.Dict:
-        return obj._doctable_as_dict()
+        #try:
+        #    return {f.name:getattr(self,f.name) for f in dataclasses.fields(obj) 
+        #                                if self.get_val(f.name) is not MISSING_VALUE}
+        #except AttributeError:
+        try:
+            return {f.name:getattr(self,f.name) for f in dataclasses.fields(self.schema_class) 
+                                        if getattr(self,f.name) is not MISSING_VALUE}
+        except AttributeError as e:
+            missing_attrs = {f.name:hasattr(self,f.name) for f in dataclasses.fields(self.schema_class)}
+            raise AttributeError(f'{type(obj)} object to be inserted does not have '
+                f'required attributes. These attributes are missing: {missing_attrs=}') from e
     
-    def dict_to_object(self, data: typing.Dict[str, typing.Any]) -> typing.Any:
-        return self.schema_class._doctable_from_db(data)
+    def row_to_object(self, row: sqlalchemy.engine.row.LegacyRow) -> typing.Any:
+        return self.schema_class(**dict(row))
+    
 
     def parse_columns(Cls):
         ''' Convert the dataclass member variables to sqlalchemy columns.
