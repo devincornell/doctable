@@ -32,18 +32,14 @@ class DataclassSchema(SchemaBase):
         )
         return new_schema
     
-    def object_to_dict(self, obj: DocTableSchema) -> typing.Dict:
-        #try:
-        #    return {f.name:getattr(self,f.name) for f in dataclasses.fields(obj) 
-        #                                if self.get_val(f.name) is not MISSING_VALUE}
-        #except AttributeError:
-        try:
-            return {f.name:getattr(self,f.name) for f in dataclasses.fields(self.schema_class) 
+    def object_to_dict(self, obj: DocTableSchema) -> typing.Dict:            
+        if hasattr(obj, '_doctable_get_val'):
+            return {f.name:getattr(self,f.name) for f in dataclasses.fields(self) 
+                                        if obj._doctable_get_val(f.name) is not MISSING_VALUE}
+        else:
+            return {f.name:getattr(self,f.name) for f in dataclasses.fields(self) 
                                         if getattr(self,f.name) is not MISSING_VALUE}
-        except AttributeError as e:
-            missing_attrs = {f.name:hasattr(self,f.name) for f in dataclasses.fields(self.schema_class)}
-            raise AttributeError(f'{type(obj)} object to be inserted does not have '
-                f'required attributes. These attributes are missing: {missing_attrs=}') from e
+
     
     def row_to_object(self, row: sqlalchemy.engine.row.LegacyRow) -> typing.Any:
         return self.schema_class(**dict(row))

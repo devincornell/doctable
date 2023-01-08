@@ -3,7 +3,7 @@
 class SlotsRequiredError(BaseException):
     pass
 
-class DataNotAvailableError(BaseException):
+class RowDataNotAvailableError(BaseException):
     pass
 
 class TypeNotRecognizedError(BaseException):

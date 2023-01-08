@@ -1,7 +1,11 @@
+from __future__ import annotations
 
 import dataclasses
 import typing
+import functools
+
 from .missingvalue import MISSING_VALUE
+from .errors import RowDataNotAvailableError
 
 miss_col_message = 'The column "{name}" was not retreived in the select statement.'
 
@@ -12,28 +16,25 @@ def colname_to_property(colname: str) -> str:
 def property_to_colname(property: str) -> str:
     return '__'.join(property.split('__')[1:])
 
+
 class DocTableSchema:
     ''' Base class for column objects.
     '''
     __slots__ = [] # for inheriting class
-    #def _uses_slots(self):
-    #    ''' Check if this class uses slots.
-    #    '''
-    #    return hasattr(self, '__slots__')
 
-    ########################## Basic Accessors ##########################
+    ########################## Basic Accessors ##########################    
     def __getitem__(self, attr):
         ''' Access data, throwing error when accessing element that was not
                 retrieved from the database.
         '''
-        val = getattr(self, attr)#self.__dict__[attr]
-        if val is MISSING_VALUE:
-            raise KeyError(miss_col_message.format(name=attr))
-        return val
+        return getattr(self, attr)
     
     def get_val(self, colname):
         ''' Access data related to the property.
         '''
+        return self._doctable_get_val(colname)
+        
+    def _doctable_get_val(self, colname):
         return getattr(self, colname_to_property(colname))
     
     def __repr__(self):
@@ -53,15 +54,6 @@ class DocTableSchema:
     def _doctable_as_dict(self):
         '''Convert to dictionary, ignoring MISSING_VALUE objects.
         '''
-        #attrs = dict()
-        #if hasattr(self, '__dict__'):
-        #    attrs = {**attrs, **{k:v for k,v in self.__dict__.items() if v is not MISSING_VALUE}}
-        #
-        #if hasattr(self, '__slots__'):
-        #    attrs = {**attrs, **{name:getattr(self, name) for name in self.__slots__ 
-        #                        if getattr(self, name) is not MISSING_VALUE}}
-        #return attrs
-        # will be slightly different depending on schema decorator being used
         try:
             return {f.name:getattr(self,f.name) for f in dataclasses.fields(self) 
                                         if self.get_val(f.name) is not MISSING_VALUE}
@@ -73,6 +65,7 @@ class DocTableSchema:
     def _doctable_from_db(cls, row: typing.Dict[str, typing.Any]):
         '''DocTable uses this as a constructor to fill missing values with MISSING_VALUE objects.
         '''
+        row = dict(row)
         return cls(**{f.name:row.get(f.name,MISSING_VALUE) for f in dataclasses.fields(cls)})
     
     

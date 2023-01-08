@@ -1,13 +1,11 @@
 
 import functools
 import dataclasses
+import typing
 
-from .errors import *
+from .errors import RowDataNotAvailableError, SlotsRequiredError
 from .missingvalue import MISSING_VALUE
 from .doctableschema import DocTableSchema, colname_to_property, property_to_colname
-
-
-
 
 
 # I used this formula for the decorator: https://realpython.com/primer-on-python-decorators/#both-please-but-never-mind-the-bread
@@ -45,7 +43,7 @@ def schema(_Cls=None, *, require_slots: bool = True, enable_accessors: bool = Tr
             def hashfunc(self):
                 return hash(tuple(getattr(self, name) for name in property_names))
             Cls.__hash__ = hashfunc
-    
+        
         # add slots
         if require_slots and not hasattr(Cls, '__slots__'):
             raise SlotsRequiredError('Slots must be enabled by including "__slots__ = []". '
@@ -89,7 +87,7 @@ def get_getter_setter(property_name: str):
         @property
         def a(self):
             if getattr(self, property_name) is MISSING_VALUE:
-                raise DataNotAvailableError(f'The "{property_to_colname(property_name)}" property '
+                raise RowDataNotAvailableError(f'The "{property_to_colname(property_name)}" property '
                     'is not available. This might happen if you did not retrieve '
                     'the information from a database or if you did not provide '
                     'a value in the class constructor.')
@@ -100,6 +98,9 @@ def get_getter_setter(property_name: str):
         def a(self, val):
             setattr(self, property_name, val)
     return TmpGetterSetter.a
+
+
+
 
 
 def schema_depric(_Cls=None, *, require_slots=True, **dataclass_kwargs):
