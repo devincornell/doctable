@@ -21,11 +21,11 @@ from doctable.util import QueueInserter
 import sqlalchemy
 
 from .util import is_sequence
-from .schemas import FileTypeBase
+from .schemas import FileTypeBase, RowDataConversionFailed
 from .models import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
-from .schemas import parse_schema_strings, parse_schema_dataclass, DocTableSchema
+from .schemas import DocTableSchema
 from .query import Query
 from .schema import StringSchema, DataclassSchema
 
@@ -313,6 +313,46 @@ class DocTable:
         '''Gets a query object for this doctable.'''
         return Query(self)
     
+
+
+    ################# CRITICAL SQL METHODS ##################
+    
+    def execute(self, query, *params, verbose=None, **kwargs) -> sqlalchemy.engine.ResultProxy:
+        '''Execute an sql command. Called by most higher-level functions.
+        Args:
+            query (sqlalchemy condition or str): query to execute;
+                can be provided as sqlalchemy condition object or
+                plain sql text.
+            verbose (bool or None): Print SQL command issued before
+                execution.
+        '''
+        prstr = 'DocTable: {}'
+        if verbose is not None:
+            if verbose: print(prstr.format(query))
+        elif self.verbose: print(prstr.format(query))
+        
+        return self._execute(query, *params, **kwargs)
+    
+    def _execute(self, query, *params, conn: sqlalchemy.engine.Connection = None) -> sqlalchemy.engine.ResultProxy:
+        '''Execute sql query using either existing connection, provided connection, or without a connection.
+        '''
+        # takes raw query object
+        if conn is not None:
+            r = conn.execute(query, *params)
+        elif self._conn is not None:
+            r = self._conn.execute(query, *params)
+        else:
+            # execute query using connectengine directly
+            r = self._engine.execute(query, *params)
+        return r
+
+    
+
+    ################# DEPRICATED: ALL BELOW THIS HAS BEEN DEPRICATED ##################
+
+
+
+
     ################# INSERT METHODS ##################
             
     def insert(self, 
@@ -386,7 +426,14 @@ class DocTable:
         warnings.warn('Method .select_first() is depricated. Please use .q.select_first() instead.')
         if not is_sequence(cols) and cols is not None:
             cols = [cols]
-        return self.q.select_first(cols=cols, **kwargs)
+        try:
+            return self.q.select_first(cols=cols, **kwargs)
+        except RowDataConversionFailed as e:
+            warnings.warn(f'Conversion from row to object failed according to the following '
+                f'error. Please use .q.select_first(..,raw_result=True) next time '
+                f'in the future to avoid this issue. {e=}')
+            return self.q.select_first(cols=cols, raw_result=True, **kwargs)
+            
     
     def select(self, cols: typing.List[sqlalchemy.Column] = None, **kwargs):
         '''Depricated. See docs for .q.select(), Query.select().'''
@@ -410,28 +457,16 @@ class DocTable:
         '''Depricated: see docs for .q.select_chunks()'''
         return self.q.select_chunks(*args, **kwargs)
                 
-    def select_iter(self, cols=None, chunksize=1, limit=None, **kwargs):
-        ''' Same as .select except results retrieved from db in chunks.
-        Args:
-            cols (col name(s) or sqlalchemy object(s)): columns to query
-            chunksize (int): size of individual queries to be made. Will
-                load this number of rows into memory before yielding.
-            limit (int): maximum number of rows to retrieve. Because 
-                the limit argument is being used internally to limit data
-                to smaller chunks, use this argument instead. Internally,
-                this function will load a maximum of limit + chunksize 
-                - 1 rows into memory, but yields only limit.
-        Yields:
-            sqlalchemy result: row data - same as .select() method.
-        '''
-        for chunk in self.select_chunks(cols=cols, chunksize=chunksize, 
-                                                    limit=limit, **kwargs):
-            for row in chunk:
-                yield row
+    def select_iter(self, *args, **kwargs):
+        '''Depricated. See docs for .q.select_iter.'''
+        warnings.warn(f'.select_iter() is depricated. Please use .q.select_iter()')
+        return self.q.select_iter(*args, **kwargs)
                 
     def get_queueinserter(self, **kwargs):
         ''' Get an object that will queue rows for insertion.
         '''
+        warnings.warn(f'.get_queueinserter() has been depricated entirely. please'
+            'avoid using it.')
         return QueueInserter(self, **kwargs)
 
     #################### Update and Delete Methods ###################
@@ -444,38 +479,7 @@ class DocTable:
         '''Depricated. See docs for .q.delete(), Query.delete().'''
         warnings.warn('Method .delete() is depricated. Please use .q.delete() instead.')
         return self.q.delete(*args, **kwargs)
-
-    ################# CRITICAL SQL METHODS ##################
     
-    def execute(self, query, *params, verbose=None, **kwargs) -> sqlalchemy.engine.ResultProxy:
-        '''Execute an sql command. Called by most higher-level functions.
-        Args:
-            query (sqlalchemy condition or str): query to execute;
-                can be provided as sqlalchemy condition object or
-                plain sql text.
-            verbose (bool or None): Print SQL command issued before
-                execution.
-        '''
-        prstr = 'DocTable: {}'
-        if verbose is not None:
-            if verbose: print(prstr.format(query))
-        elif self.verbose: print(prstr.format(query))
-        
-        return self._execute(query, *params, **kwargs)
-    
-    def _execute(self, query, *params, conn: sqlalchemy.engine.Connection = None) -> sqlalchemy.engine.ResultProxy:
-        '''Execute sql query using either existing connection, provided connection, or without a connection.
-        '''
-        # takes raw query object
-        if conn is not None:
-            r = conn.execute(query, *params)
-        elif self._conn is not None:
-            r = self._conn.execute(query, *params)
-        else:
-            # execute query using connectengine directly
-            r = self._engine.execute(query, *params)
-        return r
-
     
     #################### Bootstrapping Methods ###################
     
@@ -534,5 +538,4 @@ class DocTable:
         if check_missing and len(miss_fnames) > 0:
             raise FileNotFoundError('These files were not found while cleaning: {}'
                 ''.format(miss_fnames))
-    
-
+        

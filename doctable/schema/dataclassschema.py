@@ -4,8 +4,9 @@ import sqlalchemy
 import dataclasses
 import typing
 import copy
+import warnings
 
-from ..schemas import DocTableSchema, MISSING_VALUE
+from ..schemas import DocTableSchema, MISSING_VALUE, RowDataConversionFailed
 from .schemabase import SchemaBase
 from .columnmetadata import ColumnMetadata
 from ..schemas import Constraint, python_to_slqlchemy_type
@@ -42,7 +43,11 @@ class DataclassSchema(SchemaBase):
 
     
     def row_to_object(self, row: sqlalchemy.engine.row.LegacyRow) -> typing.Any:
-        return self.schema_class(**dict(row))
+        try:
+            return self.schema_class(**dict(row))
+        except TypeError as e: # raised when returned row data does not match schema object
+            raise RowDataConversionFailed(f'Conversion from {type(row)} to {self.schema_class} '
+                f'failed.') from e
     
 
     def parse_columns(Cls):
