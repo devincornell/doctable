@@ -80,15 +80,12 @@ class Query:
 
     ######################################## Pandas Select ########################################
     
-    def count(self, where=None, wherestr=None, **kwargs) -> int:
+    def count(self, where: sqlalchemy.sql.expression.BinaryExpression = None, wherestr: str = None, **kwargs) -> int:
         '''Count the number of rows in a table.'''
-        cter = sqlalchemy.func.count()
-        ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
-        
         cter = sqlalchemy.func.count(self.dtab.columns[0])
-        ct = self.select_first(cter, where=where, wherestr=wherestr, **kwargs)
+        ct = self.select_col(cter, where=where, wherestr=wherestr, limit=1, **kwargs)
 
-        return ct
+        return ct[0]
     
     def select_head(self, n: int = 5, **kwargs) -> pd.DataFrame:
         return self.select_df(limit=n, **kwargs)
@@ -237,8 +234,6 @@ class Query:
             groupby: sqlalchemy gropuby directive
             limit (int): number of entries to return before stopping
             wherestr (str): raw sql "where" conditionals to add to where input
-            as_dataclass (bool): if schema was provided in dataclass format, should return as 
-                dataclass object?
             **kwargs: passed to self.execute()
         Yields:
             sqlalchemy result object: row data
@@ -279,8 +274,6 @@ class Query:
             groupby: sqlalchemy gropuby directive
             limit (int): number of entries to return before stopping
             wherestr (str): raw sql "where" conditionals to add to where input
-            as_dataclass (bool): if schema was provided in dataclass format, should return as 
-                dataclass object?
             **kwargs: passed to self.execute()
         Yields:
             sqlalchemy result object: row data
@@ -322,16 +315,16 @@ class Query:
     ######################################## High-level inserts that infer type. ########################################
 
     ######################################## Insert Multiple ########################################
-    def insert_many(self, 
+    def insert_multi(self, 
             schema_objs: ColumnList, 
             ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
             **kwargs
         ) -> sqlalchemy.engine.ResultProxy:
         '''Insert multiple rows as objects into the db.'''
         obj_dicts = [self.dtab.schema.object_to_dict(o) for o in schema_objs]
-        return self.insert_many_raw(obj_dicts, ifnotunique=ifnotunique, **kwargs)
+        return self.insert_multi_raw(obj_dicts, ifnotunique=ifnotunique, **kwargs)
         
-    def insert_many_raw(self, 
+    def insert_multi_raw(self, 
             datum: typing.List[typing.Dict[str, typing.Any]], 
             ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
             **kwargs
@@ -371,7 +364,6 @@ class Query:
             values: typing.Dict[typing.Union[str,sqlalchemy.Column], typing.Any], 
             where: sqlalchemy.sql.expression.BinaryExpression = None, 
             wherestr: str = None,
-            preserve_parameter_order: bool = True,
             **kwargs
         ) -> sqlalchemy.engine.ResultProxy:
         '''Update row(s) assigning the provided values.
@@ -396,15 +388,17 @@ class Query:
         
         q: sqlalchemy.sql.Update = sqlalchemy.sql.update(
             self.dtab.table, 
-            preserve_parameter_order=preserve_parameter_order
+            preserve_parameter_order = is_sequence(values),
         )
-            
+        
         if where is not None:
             q = q.where(where)
         if wherestr is not None:
             q = q.where(sqlalchemy.text(wherestr))
+        
+        q = q.values(values)
          
-        return self.dtab.execute(q, values)
+        return self.dtab.execute(q, **kwargs)
 
     ############################## Delete Methods ##############################
     
@@ -413,6 +407,7 @@ class Query:
             wherestr: str = None,
             delete_all: bool = False, 
             vacuum: bool = False,
+            **kwargs,
         ) -> sqlalchemy.engine.ResultProxy:
         '''Delete rows from the table that meet the where criteria.
         Args:
@@ -437,7 +432,7 @@ class Query:
         if wherestr is not None:
             q = q.where(sqlalchemy.text(wherestr))
         
-        r = self.dtab.execute(q)
+        r = self.dtab.execute(q, **kwargs)
         
         if vacuum:
             self.dtab.execute('VACUUM')

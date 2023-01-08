@@ -17,7 +17,7 @@ class QueueInserter:
         self.queue.append(record)
         self.dump_check()
     
-    def insert_many(self, records):
+    def insert_multi(self, records):
         ''' Insert multiple records into the queue.
         '''
         self.queue += list(records)

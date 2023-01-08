@@ -320,9 +320,9 @@ class DocTable:
             *args, 
             **kwargs,
         ):
-        '''Depricated. See docs for .q.insert_single() or .q.insert_many().'''
+        '''Depricated. See docs for .q.insert_single() or .q.insert_multi().'''
         warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
-            '.q.insert_single_raw(), .q.insert_many(), or .q.insert_many_raw() instead.')
+            '.q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.')
         
         if is_sequence(rowdata):
             return self.insert_many(rowdata, *args, **kwargs)
@@ -334,16 +334,16 @@ class DocTable:
             *args, 
             **kwargs
         ):
-        '''Depricated. See docs for .q.insert_many(), .q.insert_many_raw()'''
-        warnings.warn(f'.insert_many() is depricated: please use .q.insert_many() or '
-            '.q.insert_many_raw()')
+        '''Depricated. See docs for .q.insert_multi(), .q.insert_multi_raw()'''
+        warnings.warn(f'.insert_many() is depricated: please use .q.insert_multi() or '
+            '.q.insert_multi_raw()')
         if not is_sequence(rowdata):
             raise TypeError('insert_many needs a list or tuple of schema objects.')
         
         if isinstance(rowdata[0], dict):
-            return self.q.insert_many_raw(rowdata, *args, **kwargs)
+            return self.q.insert_multi_raw(rowdata, *args, **kwargs)
         else:
-            return self.q.insert_many(rowdata, *args, **kwargs)
+            return self.q.insert_multi(rowdata, *args, **kwargs)
     
     def insert_single(self, rowdata: typing.Union[DocTableSchema, typing.Dict[str, typing.Any]], *args, **kwargs):
         '''Depricated. See docs for .q.insert_single(), .q.insert_single_raw().'''
@@ -362,30 +362,38 @@ class DocTable:
         warnings.warn('Method .count() is depricated. Please use .q.count() instead.')
         return self.q.count(*args, **kwargs)
         
-    def head(self, *args, **kwargs):
+    def head(self, cols: typing.List[sqlalchemy.Column] = None, **kwargs):
         '''Depricated. See docs for .q.select_head(), Query.select_head().'''
         warnings.warn('Method .head() is depricated. Please use .q.select_head() instead.')
-        return self.q.select_head(*args, **kwargs)
+        if not is_sequence(cols) and cols is not None:
+            cols = [cols]
+        return self.q.select_head(cols=cols, **kwargs)
 
-    def select_series(self, *args, **kwargs):
+    def select_series(self, col: sqlalchemy.Column = None, **kwargs):
         '''Depricated. See docs for .q.select_series(), Query.select_series().'''
         warnings.warn('Method .select_series() is depricated. Please use .q.select_series() instead.')
-        return self.q.select_series(*args, **kwargs)
+        return self.q.select_series(col=col, **kwargs)
 
-    def select_df(self, *args, **kwargs):
+    def select_df(self, cols: typing.List[sqlalchemy.Column] = None, **kwargs):
         '''Depricated. See docs for .q.select_df(), Query.select_df().'''
         warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
-        return self.q.select_df(*args, **kwargs)
+        if not is_sequence(cols) and cols is not None:
+            cols = [cols]
+        return self.q.select_df(cols=cols, **kwargs)
     
-    def select_first(self, *args, **kwargs):
+    def select_first(self, cols: typing.List[sqlalchemy.Column] = None, **kwargs):
         '''Depricated. See docs for .q.select_first(), Query.select_first().'''
         warnings.warn('Method .select_first() is depricated. Please use .q.select_first() instead.')
-        return self.q.select_first(*args, **kwargs)
+        if not is_sequence(cols) and cols is not None:
+            cols = [cols]
+        return self.q.select_first(cols=cols, **kwargs)
     
-    def select(self, *args, **kwargs):
+    def select(self, cols: typing.List[sqlalchemy.Column] = None, **kwargs):
         '''Depricated. See docs for .q.select(), Query.select().'''
         warnings.warn('Method .select() is depricated. Please use .q.select() instead.')
-        return self.q.select(*args, **kwargs)
+        if not is_sequence(cols) and cols is not None:
+            cols = [cols]
+        return self.q.select(cols=cols, **kwargs)
 
     def join(self, other: DocTable, *args, **kwargs):
         ''' Wrapper over table.join(), can pass to from_obj parameter for .select()
