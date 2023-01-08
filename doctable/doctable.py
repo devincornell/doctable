@@ -369,7 +369,7 @@ class DocTable:
 
     def select_series(self, *args, **kwargs):
         '''Depricated. See docs for .q.select_series(), Query.select_series().'''
-        warnings.warn('Method .select_series() is depricated. Please use .q.select() instead.')
+        warnings.warn('Method .select_series() is depricated. Please use .q.select_series() instead.')
         return self.q.select_series(*args, **kwargs)
 
     def select_df(self, *args, **kwargs):
