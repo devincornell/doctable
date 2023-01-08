@@ -27,35 +27,8 @@ typing.Literal['FAIL', 'IGNORE', 'REPLACE']
 @dataclasses.dataclass
 class Query:
     dtab: DocTable
-        
-    ######################################## Compound Selects ########################################
-    def select_chunks(self, cols: ColumnList = None, chunksize: int = 100, limit: int = None, raw_result: bool = False, **kwargs):
-        ''' Performs select while querying only a subset of the results at a time.
-        Args:
-            cols (col name(s) or sqlalchemy object(s)): columns to query
-            chunksize (int): size of individual queries to be made. Will
-                load this number of rows into memory before yielding.
-            limit (int): maximum number of rows to retrieve. Because 
-                the limit argument is being used internally to limit data
-                to smaller chunks, use this argument instead. Internally,
-                this function will load a maximum of limit + chunksize 
-                - 1 rows into memory, but yields only limit.
-        Yields:
-            sqlalchemy result: row data - same as .select() method.
-        '''
-        offset = 0
-        while True:
-            select_func = self.select_raw if raw_result else self.select
-            rows = select_func(cols, offset=offset, limit=chunksize, **kwargs)
-            chunk = rows[:limit-offset] if limit is not None else rows
-            
-            yield chunk
-            
-            offset += len(rows)
-            
-            if (limit is not None and offset >= limit) or len(rows) == 0:
-                break
-        
+    
+    
     def select_iter(self, cols=None, chunksize=1, limit=None, **kwargs):
         ''' Same as .select except results retrieved from db in chunks.
         Args:
@@ -74,6 +47,36 @@ class Query:
                                                     limit=limit, **kwargs):
             for row in chunk:
                 yield row
+    
+    ######################################## Compound Selects ########################################
+    def select_chunks(self, cols: ColumnList = None, chunksize: int = 100, limit: int = None, raw_result: bool = False, **kwargs):
+        ''' Performs select while querying only a subset of the results at a time.
+        Args:
+            cols (col name(s) or sqlalchemy object(s)): columns to query
+            chunksize (int): size of individual queries to be made. Will
+                load this number of rows into memory before yielding.
+            limit (int): maximum number of rows to retrieve. Because 
+                the limit argument is being used internally to limit data
+                to smaller chunks, use this argument instead. Internally,
+                this function will load a maximum of limit + chunksize 
+                - 1 rows into memory, but yields only limit.
+        Yields:
+            result: chunked rows.
+        '''
+        select_func = self.select_raw if raw_result else self.select
+        
+        offset = 0
+        while True:
+            
+            rows = select_func(cols, offset=offset, limit=chunksize, **kwargs)
+            chunk = rows[:limit-offset] if limit is not None else rows
+            
+            yield chunk
+            
+            offset += len(rows)
+            
+            if (limit is not None and offset >= limit) or len(rows) == 0:
+                break
 
     ######################################## Pandas Select ########################################
     
@@ -98,6 +101,7 @@ class Query:
             limit: int = None,
             wherestr: str = None,
             offset: int = None,
+            **kwargs
         ) -> pd.Series:
         '''Select returning pandas Series.
         Args:
@@ -116,6 +120,7 @@ class Query:
             limit = limit,
             wherestr = wherestr,
             offset = offset,
+            **kwargs
         ))
         
     def select_df(self, 
@@ -126,6 +131,7 @@ class Query:
             limit: int = None,
             wherestr: str = None,
             offset: int = None,
+            **kwargs
         ) -> pd.DataFrame:
         '''Select returning dataframe.
         Args:
@@ -147,6 +153,7 @@ class Query:
             limit = limit,
             wherestr = wherestr,
             offset = offset,
+            **kwargs
         ))
         
     ######################################## Single-column Select ########################################
@@ -159,6 +166,7 @@ class Query:
             limit: int = None,
             wherestr: str = None,
             offset: int = None,
+            **kwargs
         ) -> typing.List[typing.Any]:
         '''Select values of a single column.'''
         
@@ -170,6 +178,7 @@ class Query:
             limit = limit,
             wherestr = wherestr,
             offset = offset,
+            **kwargs
         )
         return [r[0] for r in rows]
 
@@ -182,6 +191,7 @@ class Query:
             wherestr: str = None,
             offset: int = None,
             raw_result: bool = False, 
+            **kwargs
         ) -> pd.Series:
         
         select_func = self.select if not raw_result else self.select_raw
@@ -193,6 +203,7 @@ class Query:
             limit = 1,
             wherestr = wherestr,
             offset = offset,
+            **kwargs
         )
         
         if len(results) == 0:
@@ -211,6 +222,7 @@ class Query:
             limit: int = None,
             wherestr: str = None,
             offset: int = None,
+            **kwargs
         ) -> typing.List[typing.Dict[str, typing.Any]]:
         '''
         Select some basic shit.
@@ -240,8 +252,9 @@ class Query:
             limit = limit,
             wherestr = wherestr,
             offset = offset,
+            **kwargs
         )
-        return [self.dtab.schema.dict_to_object(r) for r in results]
+        return [self.dtab.schema.row_to_object(r) for r in results]
 
     def select_raw(self, 
             cols: typing.List[sqlalchemy.Column] = None,
@@ -251,6 +264,7 @@ class Query:
             limit: int = None,
             wherestr: str = None,
             offset: int = None,
+            **kwargs
         ) -> typing.List[typing.Dict[str, typing.Any]]:
         '''
         Select some basic shit.
@@ -282,7 +296,7 @@ class Query:
             offset = offset,
         ).get_query()
         
-        return self.dtab.execute(q).fetchall()
+        return self.dtab.execute(q, **kwargs).fetchall()
     
     ############################## Parse User Input ##############################
     def parse_input_cols(self, cols: ColumnList) -> typing.List[sqlalchemy.Column]:
@@ -310,30 +324,40 @@ class Query:
     ######################################## Insert Multiple ########################################
     def insert_many(self, 
             schema_objs: ColumnList, 
-            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail'
+            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
+            **kwargs
         ) -> sqlalchemy.engine.ResultProxy:
         '''Insert multiple rows as objects into the db.'''
         obj_dicts = [self.dtab.schema.object_to_dict(o) for o in schema_objs]
-        return self.insert_many_raw(obj_dicts, ifnotunique=ifnotunique)
+        return self.insert_many_raw(obj_dicts, ifnotunique=ifnotunique, **kwargs)
         
     def insert_many_raw(self, 
             datum: typing.List[typing.Dict[str, typing.Any]], 
-            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail'
+            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
+            **kwargs
         ) -> sqlalchemy.engine.ResultProxy:
         '''Insert multiple rows as dictionaries into the db.'''
         if not is_sequence(datum):
             raise TypeError('insert_objects and insert_objects need a list or tuple of schema objects.')
         q = self.insert_query(ifnotunique=ifnotunique)
-        return self.insert_query(q, datum)
+        return self.dtab.execute(q, datum, **kwargs)
 
     ######################################## Insert Single ########################################
-    def insert_single(self, obj: DocTableSchema, ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail', **kwargs) -> sqlalchemy.engine.ResultProxy:
+    def insert_single(self, 
+            obj: DocTableSchema, 
+            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail', 
+            **kwargs
+        ) -> sqlalchemy.engine.ResultProxy:
         obj_dict = self.dtab.schema.object_to_dict(obj)
-        return self.insert_raw(obj_dict, ifnotunique=ifnotunique)
+        return self.insert_single_raw(obj_dict, ifnotunique=ifnotunique, **kwargs)
 
-    def insert_single_raw(self, data: typing.Dict[str, typing.Any], ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail') -> sqlalchemy.engine.ResultProxy:
+    def insert_single_raw(self, 
+            data: typing.Dict[str, typing.Any], 
+            ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
+            **kwargs
+        ) -> sqlalchemy.engine.ResultProxy:
         q = self.insert_query(ifnotunique=ifnotunique)
-        return self.insert_query(q, data)
+        return self.dtab.execute(q, data, **kwargs)
 
     ######################################## Build Insert Query ########################################
     def insert_query(self, ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail') -> sqlalchemy.sql.Insert:
