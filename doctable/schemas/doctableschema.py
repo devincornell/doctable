@@ -60,7 +60,7 @@ class DocTableSchema:
         except AttributeError:
             return {f.name:getattr(self,f.name) for f in dataclasses.fields(self) 
                                         if getattr(self,f.name) is not MISSING_VALUE}
-
+      
     @classmethod
     def _doctable_from_db(cls, row: typing.Dict[str, typing.Any]):
         '''DocTable uses this as a constructor to fill missing values with MISSING_VALUE objects.
