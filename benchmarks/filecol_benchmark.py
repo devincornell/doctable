@@ -155,7 +155,10 @@ def main():
     # set up database objects
     #folder = '/tmp/devintest'
     
-    tmpf = doctable.TempFolder(folder)
+    #tmpf = doctable.TempFolder(folder)
+    import tempfile
+    fkasdfjlaj = tempfile.TemporaryDirectory()
+    folder = fkasdfjlaj.name
 
 
     target = f'{folder}/benchmark_fileobj.db'

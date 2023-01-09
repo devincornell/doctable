@@ -51,7 +51,10 @@ if __name__ == '__main__':
     #mdb.insert({'arc':5})
     
     folder = 'tmp_mongo'
-    tmpf = doctable.TempFolder(folder)
+    #tmpf = doctable.TempFolder(folder)
+    import tempfile
+    fkasdfjlaj = tempfile.TemporaryDirectory()
+    folder = fkasdfjlaj.name
     db = doctable.DocTable(schema=DataObj, target=f'{folder}/test.db', new_db=True)
     db.delete()
 

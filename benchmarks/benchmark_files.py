@@ -29,7 +29,9 @@ class TestObj2(TestObjBase):
 
 def run_benchmark(num_vals = 10):
 
-    tmp = doctable.TempFolder('tmp')
+    import tempfile
+tempdir = tempfile.TemporaryDirectory()
+tmp = tempdir.name
     
     timer = doctable.Timer('creating databases', logfile=tmp.joinpath('log.txt'))
     db1 = doctable.DocTable(schema=TestObj1, target=tmp.joinpath('1.db'), new_db=True)

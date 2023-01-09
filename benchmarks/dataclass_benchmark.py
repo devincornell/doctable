@@ -43,7 +43,10 @@ if __name__ == '__main__':
     
     # create doctable
     folder = 'tmp_dataclass_benchmark'
-    tmpf = doctable.TempFolder(folder)
+    #tmpf = doctable.TempFolder(folder)
+    import tempfile
+    fkasdfjlaj = tempfile.TemporaryDirectory()
+    folder = fkasdfjlaj.name
     db = doctable.DocTable(schema=DataObj, target=f'{folder}/test.db', new_db=True)
 
     # make data payload

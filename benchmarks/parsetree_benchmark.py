@@ -67,8 +67,13 @@ if __name__ == '__main__':
     print(trees[2])
 
     timer.step('creating file paths')
-    tmp = doctable.TempFolder('tmp_parsetrees')
-    fpaths = [tmp.path/f'{i}.pic' for i in range(len(trees))]
+    #tmp = doctable.TempFolder('tmp_parsetrees')
+    import tempfile
+    import pathlib
+    fkasdfjlaj = tempfile.TemporaryDirectory()
+    folder = fkasdfjlaj.name
+
+    fpaths = [f'{folder}/{i}.pic' for i in range(len(trees))]
     
     timer.step('testing dictionary-based method')
     f = lambda: write_trees_pickle(trees, fpaths, use_dict=True)
