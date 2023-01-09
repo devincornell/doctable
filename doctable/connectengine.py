@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 import os
 from datetime import datetime
 import typing
+import functools
 from typing import Union, Mapping, Sequence, Tuple, Set, List
 #from sqlalchemy.sql import func
 
@@ -201,11 +202,17 @@ class ConnectEngine:
         
         # Binds .max(), .min(), .count(), .sum() to each column object.
         # https://docs.sqlalchemy.org/en/13/core/functions.html
+        
         for col in table.c:
-            col.max = sqlalchemy.sql.func.max(col)
-            col.min = sqlalchemy.sql.func.min(col)
-            col.count = sqlalchemy.sql.func.count(col)
-            col.sum = sqlalchemy.sql.func.sum(col)
+            col.max = functools.partial(sqlalchemy.sql.func.max, col)
+            col.min = functools.partial(sqlalchemy.sql.func.min, col)
+            col.count = functools.partial(sqlalchemy.sql.func.count, col)
+            col.sum = functools.partial(sqlalchemy.sql.func.sum, col)
+
+            def func_custom(attr: str):
+                '''Allows user to specify any sqlalchemy function name.'''
+                return getattr(sqlalchemy.sql.func, attr)(col)
+            col.func = func_custom
         
         return table
     

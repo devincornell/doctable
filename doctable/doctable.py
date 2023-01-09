@@ -27,7 +27,7 @@ from .models import DocBootstrap
 from .connectengine import ConnectEngine
 from .schemas import DocTableSchema
 from .query import Query
-from .schema import StringSchema, DataclassSchema
+from .schema import StringSchema, DataclassSchema, InferredSchema
 
 DEFAULT_TABNAME = '_documents_'
 
@@ -162,14 +162,15 @@ class DocTable:
                 indices = indices,
                 constraints = constraints,
             )
-                        
-        elif is_sequence(self._schema):
+        
+        elif is_sequence(schema):
             self._schema = StringSchema.from_schema_definition(
                 schema_list = schema,
                 default_fpath = self._target+'_'+self._tabname,
             )
         else:
-            self._columns = None # inferred from existing table
+            #self._schema = None # inferred from existing table
+            self._schema = InferredSchema.from_schema_definition(schema)
 
         # add this table
         self._table = self._engine.add_table(self._tabname, columns=self._schema.columns, 
@@ -427,15 +428,23 @@ class DocTable:
         if as_dataclass is not None:
             warnings.warn(f'The "as_dataclass" parameter has been depricated: please set get_raw=True or '
                 'select_raw to specify that you would like to retrieve a raw RowProxy pobject.')
+        
         if not is_sequence(cols) and cols is not None:
-            cols = [cols]
-        try:
-            return self.q.select_first(cols=cols, **kwargs)
-        except RowDataConversionFailed as e:
-            warnings.warn(f'Conversion from row to object failed according to the following '
-                f'error. Please use .q.select_first(..,raw_result=True) next time '
-                f'in the future to avoid this issue. {e=}')
-            return self.q.select_first(cols=cols, raw_result=True, **kwargs)
+            return self.q.select_scalar(col=cols, **kwargs)
+            
+        else:
+
+            # determine to get result as a dataclass or not
+            raw_result = as_dataclass is not None and not as_dataclass
+            
+            try:
+                return self.q.select_first(cols=cols, raw_result=raw_result, **kwargs)
+            except RowDataConversionFailed as e:
+                warnings.warn(f'Conversion from row to object failed according to the following '
+                    f'error. Please use .q.select_first(..,raw_result=True) next time '
+                    f'in the future to avoid this issue. {e=}')
+                return self.q.select_first(cols=cols, raw_result=True, **kwargs)
+            
             
     
     def select(self, cols: typing.List[sqlalchemy.Column] = None, as_dataclass: bool = None, **kwargs):
@@ -444,16 +453,22 @@ class DocTable:
         if as_dataclass is not None:
             warnings.warn(f'The "as_dataclass" parameter has been depricated: please set get_raw=True or '
                 'select_raw to specify that you would like to retrieve a raw RowProxy pobject.')
+        
+        raw_result = as_dataclass is not None and not as_dataclass
         if not is_sequence(cols) and cols is not None:
             return self.q.select_col(col=cols, **kwargs)
         else:
-            try:
-                return self.q.select(cols=cols, **kwargs)
-            except RowDataConversionFailed as e:
-                warnings.warn(f'Conversion from row to object failed according to the following '
-                    f'error. Please use .q.select_raw() next time '
-                    f'in the future to avoid this issue. {e=}')
+            if raw_result:
                 return self.q.select_raw(cols=cols, **kwargs)
+            else:
+                try:
+                    return self.q.select(cols=cols, **kwargs)
+                except RowDataConversionFailed as e:
+                    warnings.warn(f'Conversion from row to object failed according to the following '
+                        f'error. Please use .q.select_raw() when requesting non-object formatted '
+                        f'data such as counts or sums in the future. For now it is automatically '
+                        f'converted. {e=}')
+                    return self.q.select_raw(cols=cols, **kwargs)
 
 
     def join(self, other: DocTable, *args, **kwargs):

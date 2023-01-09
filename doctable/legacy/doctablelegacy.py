@@ -87,7 +87,7 @@ class DocTableLegacy:
                         'existing table cols: {}')
                 raise ValueError(estr.format(cname, self.columns))
                 
-            elif ctype != self.schema.loc[cname,'type']:
+            elif ctype.upper() != self.schema.loc[cname,'type'].upper():
                 exist_type = self.schema.loc[cname,'type']
                 estr = ('provided "{}" column type "{}" does not match '
                         'existing data schema type "{}".')

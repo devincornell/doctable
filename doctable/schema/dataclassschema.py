@@ -34,10 +34,10 @@ class DataclassSchema(SchemaBase):
         return new_schema
     
     def object_to_dict(self, obj: DocTableSchema) -> typing.Dict:            
-        if hasattr(obj, '_doctable_get_val'):
+        try:
             return {f.name:getattr(obj,f.name) for f in dataclasses.fields(self.schema_class) 
                                         if obj._doctable_get_val(f.name) is not MISSING_VALUE}
-        else:
+        except AttributeError as e:
             return {f.name:getattr(obj,f.name) for f in dataclasses.fields(self.schema_class) 
                                         if getattr(obj,f.name) is not MISSING_VALUE}
 

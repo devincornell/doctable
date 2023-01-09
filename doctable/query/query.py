@@ -180,6 +180,55 @@ class Query:
         return [r[0] for r in rows]
 
     ######################################## Base Selection Funcs ########################################
+    def select_scalar(self, 
+            col: SingleColumn,
+            where: sqlalchemy.sql.expression.BinaryExpression = None,
+            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            wherestr: str = None,
+            offset: int = None,
+            **kwargs
+        ) -> typing.List[typing.Any]:
+        '''Select values of a single column.'''
+        
+        row = self.select_first(
+            cols = self.parse_input_col(col),
+            where = where,
+            orderby = orderby,
+            groupby = groupby,
+            wherestr = wherestr,
+            offset = offset,
+            raw_result = True,
+            **kwargs
+        )
+        return row[0]
+
+
+    def select_col(self, 
+            col: SingleColumn,
+            where: sqlalchemy.sql.expression.BinaryExpression = None,
+            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+            limit: int = None,
+            wherestr: str = None,
+            offset: int = None,
+            **kwargs
+        ) -> typing.List[typing.Any]:
+        '''Select values of a single column.'''
+        
+        rows = self.select_raw(
+            cols = self.parse_input_col(col),
+            where = where,
+            orderby = orderby,
+            groupby = groupby,
+            limit = limit,
+            wherestr = wherestr,
+            offset = offset,
+            **kwargs
+        )
+        return [r[0] for r in rows]
+    
+    
     def select_first(self,
             cols: ColumnList = None,
             where: sqlalchemy.sql.expression.BinaryExpression = None,
@@ -331,7 +380,8 @@ class Query:
         ) -> sqlalchemy.engine.ResultProxy:
         '''Insert multiple rows as dictionaries into the db.'''
         if not is_sequence(datum):
-            raise TypeError('insert_objects and insert_objects need a list or tuple of schema objects.')
+            raise TypeError('insert_multi and insert_multi_raw accept a list or '
+            f'tuple of schema objects to insert.')
         q = self.insert_query(ifnotunique=ifnotunique)
         return self.dtab.execute(q, datum, **kwargs)
 
@@ -349,6 +399,9 @@ class Query:
             ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
             **kwargs
         ) -> sqlalchemy.engine.ResultProxy:
+        if is_sequence(data):
+            raise TypeError('insert_single and insert_single_raw accept a '
+            f'single schema object for insertion.')
         q = self.insert_query(ifnotunique=ifnotunique)
         return self.dtab.execute(q, data, **kwargs)
 
