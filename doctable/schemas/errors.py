@@ -5,7 +5,11 @@ class RowDataConversionFailed(BaseException):
 class SlotsRequiredError(BaseException):
     pass
 
-class RowDataNotAvailableError(BaseException):
+# DEPRICATED: KEPT FOR BACKWARDS-COMPATIBILITY
+class DataNotAvailableError(BaseException):
+    pass
+
+class RowDataNotAvailableError(DataNotAvailableError):
     pass
 
 class TypeNotRecognizedError(BaseException):

@@ -421,9 +421,12 @@ class DocTable:
             cols = [cols]
         return self.q.select_df(cols=cols, **kwargs)
     
-    def select_first(self, cols: typing.List[sqlalchemy.Column] = None, **kwargs):
+    def select_first(self, cols: typing.List[sqlalchemy.Column] = None, as_dataclass: bool = None, **kwargs):
         '''Depricated. See docs for .q.select_first(), Query.select_first().'''
         warnings.warn('Method .select_first() is depricated. Please use .q.select_first() instead.')
+        if as_dataclass is not None:
+            warnings.warn(f'The "as_dataclass" parameter has been depricated: please set get_raw=True or '
+                'select_raw to specify that you would like to retrieve a raw RowProxy pobject.')
         if not is_sequence(cols) and cols is not None:
             cols = [cols]
         try:
@@ -435,12 +438,23 @@ class DocTable:
             return self.q.select_first(cols=cols, raw_result=True, **kwargs)
             
     
-    def select(self, cols: typing.List[sqlalchemy.Column] = None, **kwargs):
+    def select(self, cols: typing.List[sqlalchemy.Column] = None, as_dataclass: bool = None, **kwargs):
         '''Depricated. See docs for .q.select(), Query.select().'''
         warnings.warn('Method .select() is depricated. Please use .q.select() instead.')
+        if as_dataclass is not None:
+            warnings.warn(f'The "as_dataclass" parameter has been depricated: please set get_raw=True or '
+                'select_raw to specify that you would like to retrieve a raw RowProxy pobject.')
         if not is_sequence(cols) and cols is not None:
-            cols = [cols]
-        return self.q.select(cols=cols, **kwargs)
+            return self.q.select_col(col=cols, **kwargs)
+        else:
+            try:
+                return self.q.select(cols=cols, **kwargs)
+            except RowDataConversionFailed as e:
+                warnings.warn(f'Conversion from row to object failed according to the following '
+                    f'error. Please use .q.select_raw() next time '
+                    f'in the future to avoid this issue. {e=}')
+                return self.q.select_raw(cols=cols, **kwargs)
+
 
     def join(self, other: DocTable, *args, **kwargs):
         ''' Wrapper over table.join(), can pass to from_obj parameter for .select()
@@ -475,10 +489,10 @@ class DocTable:
         warnings.warn('Method .update() is depricated. Please use .q.update() instead.')
         return self.q.update(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
+    def delete(self, *args, delete_all: bool = True, **kwargs):
         '''Depricated. See docs for .q.delete(), Query.delete().'''
         warnings.warn('Method .delete() is depricated. Please use .q.delete() instead.')
-        return self.q.delete(*args, **kwargs)
+        return self.q.delete(*args, delete_all=delete_all, **kwargs)
     
     
     #################### Bootstrapping Methods ###################
