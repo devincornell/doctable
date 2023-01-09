@@ -21,13 +21,13 @@ from doctable.util import QueueInserter
 import sqlalchemy
 
 from .util import is_sequence
-from .schemas import FileTypeBase, RowDataConversionFailed
+from .schemas import FileTypeBase
 from .models import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
 from .schemas import DocTableSchema
 from .query import Query
-from .schema import StringSchema, DataclassSchema, InferredSchema
+from .schema import StringSchema, DataclassSchema, InferredSchema, RowToObjectConversionFailedError, ObjectToDictCovnersionFailedError
 
 DEFAULT_TABNAME = '_documents_'
 
@@ -439,7 +439,7 @@ class DocTable:
             
             try:
                 return self.q.select_first(cols=cols, raw_result=raw_result, **kwargs)
-            except RowDataConversionFailed as e:
+            except RowToObjectConversionFailedError as e:
                 warnings.warn(f'Conversion from row to object failed according to the following '
                     f'error. Please use .q.select_first(..,raw_result=True) next time '
                     f'in the future to avoid this issue. {e=}')
@@ -463,7 +463,7 @@ class DocTable:
             else:
                 try:
                     return self.q.select(cols=cols, **kwargs)
-                except RowDataConversionFailed as e:
+                except RowToObjectConversionFailedError as e:
                     warnings.warn(f'Conversion from row to object failed according to the following '
                         f'error. Please use .q.select_raw() when requesting non-object formatted '
                         f'data such as counts or sums in the future. For now it is automatically '

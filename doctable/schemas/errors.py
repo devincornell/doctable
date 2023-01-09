@@ -1,6 +1,4 @@
 
-class RowDataConversionFailed(BaseException):
-    pass
 
 class SlotsRequiredError(BaseException):
     pass

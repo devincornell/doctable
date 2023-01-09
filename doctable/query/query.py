@@ -298,7 +298,7 @@ class Query:
             offset = offset,
             **kwargs
         )
-        return [self.dtab.schema.row_to_object(r) for r in results]
+        return [self.dtab.schema.row_to_object_interface(r) for r in results]
 
     def select_raw(self, 
             cols: typing.List[sqlalchemy.Column] = None,
@@ -370,7 +370,10 @@ class Query:
             **kwargs
         ) -> sqlalchemy.engine.ResultProxy:
         '''Insert multiple rows as objects into the db.'''
-        obj_dicts = [self.dtab.schema.object_to_dict(o) for o in schema_objs]
+        if not is_sequence(schema_objs):
+            raise TypeError('insert_multi and insert_multi_raw accept a list or '
+            f'tuple of schema objects to insert.')
+        obj_dicts = [self.dtab.schema.object_to_dict_interface(o) for o in schema_objs]
         return self.insert_multi_raw(obj_dicts, ifnotunique=ifnotunique, **kwargs)
         
     def insert_multi_raw(self, 
@@ -391,7 +394,10 @@ class Query:
             ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail', 
             **kwargs
         ) -> sqlalchemy.engine.ResultProxy:
-        obj_dict = self.dtab.schema.object_to_dict(obj)
+        if is_sequence(obj):
+            raise TypeError(f'Provided object must not be a sequence. If you '
+                f'intended to insert multiple objects, use .q.insert_multi()')
+        obj_dict = self.dtab.schema.object_to_dict_interface(obj)
         return self.insert_single_raw(obj_dict, ifnotunique=ifnotunique, **kwargs)
 
     def insert_single_raw(self, 
