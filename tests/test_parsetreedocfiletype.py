@@ -8,6 +8,12 @@ import sys
 sys.path.append('..')
 import doctable
 
+import tempfile
+tempdir = tempfile.TemporaryDirectory()
+tmp = tempdir.name
+
+
+
 ex_sents = '''
 This is the best day ever, honestly. 
 I am having a ton of fun with you. 
@@ -18,11 +24,10 @@ Programming is awesome!
 class TestRow:
     __slots__ = []
     id: int = doctable.IDCol()
-    doc: doctable.ParseTreeDoc = doctable.Col(type_kwargs=dict(folder='tmp/parsed_trees'))
+    doc: doctable.ParseTreeDoc = doctable.Col(type_kwargs=dict(folder=f'{tmp}/parsed_trees'))
 
 def test_parsetreedocs():
     nlp = spacy.load('en_core_web_sm', disable=['ner'])
-    tmp = doctable.TempFolder('tmp')
     db = doctable.DocTable(schema=TestRow, target=':memory:')
 
     spacydocs = [nlp(t) for t in ex_sents]

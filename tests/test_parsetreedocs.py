@@ -15,7 +15,9 @@ Programming is awesome!
 
 def test_parsetreedocs():
     nlp = spacy.load('en_core_web_sm', disable=['ner'])
-    tmp = doctable.TempFolder('tmp')
+    import tempfile
+    tempdir = tempfile.TemporaryDirectory()
+    tmp = tempdir.name
 
     spacydoc = nlp(ex_sents)
     doc = doctable.ParseTreeDoc.from_spacy(spacydoc)

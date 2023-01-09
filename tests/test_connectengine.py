@@ -45,22 +45,25 @@ def processfunc(nums, eng):
     print(pdb, cdb)
     
 def test_engine_basics():
-    with doctable.TempFolder('tmp') as tmp:
-        
-        eng = doctable.ConnectEngine(target='tmp/tmp_984237.db', new_db=True)
-        assert(len(eng.list_tables())==0)
-        print(eng)
+    import tempfile
 
-        pdb = ParentTable(engine=eng)
-        cdb = pdb.get_children_table()
-        print(pdb, cdb)
-        assert(len(eng.list_tables())==2)
-
-        pdb.insert(Parent(name='whateva'))
-        cdb.insert(Child(name='whateva child', parent_name='whateva'))
         
-        #with doctable.Distribute(2) as d:
-        #    d.map_chunk(processfunc, [1,2], eng)
+    with tempfile.TemporaryDirectory() as tmp:
+            
+            eng = doctable.ConnectEngine(target=f'{tmp}/tmp_984237.db', new_db=True)
+            assert(len(eng.list_tables())==0)
+            print(eng)
+
+            pdb = ParentTable(engine=eng)
+            cdb = pdb.get_children_table()
+            print(pdb, cdb)
+            assert(len(eng.list_tables())==2)
+
+            pdb.insert(Parent(name='whateva'))
+            cdb.insert(Child(name='whateva child', parent_name='whateva'))
+            
+            #with doctable.Distribute(2) as d:
+            #    d.map_chunk(processfunc, [1,2], eng)
 
 
 if __name__ == '__main__':

@@ -46,4 +46,4 @@ def test_init_errors():
     
 
 if __name__ == '__main__':
-    pass
+    test_init_errors()

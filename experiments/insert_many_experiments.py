@@ -2,12 +2,13 @@ import sys
 sys.path.append('..')
 import doctable
 
+import dataclasses
 import functools
 import sqlalchemy
 import tempfile
 import attr
 import attrs
-
+import typing
 
 
 
@@ -31,11 +32,13 @@ class MySchema2:
 
 
 if __name__ == '__main__':
+    
     with tempfile.TemporaryDirectory() as td1, tempfile.TemporaryDirectory() as td2, tempfile.TemporaryDirectory() as td3:
 
 
 
         tab = doctable.DocTable(target=f'{td1}/tmp.db', tabname='test', schema=MySchema, new_db=True)
+        oldtab = doctable.DocTable(target=f'{td1}/oldtab.db', tabname='old', schema=OldSchema, new_db=True)
         #tab2 = doctable.DocTable(target=f'{td1}/tmp.db', tabname='test', schema=MySchema, new_db=True)
         #print(tab)
     
@@ -45,6 +48,8 @@ if __name__ == '__main__':
 
         n = 100000
         #objs_list_nt = [MySchema2(name=f'name:{i}').as_named_tuple() for i in range(n)]
+        old_objs_list = [OldSchema(name=f'name:{i}') for i in range(n)]
+        real_objs_list = [MySchema(name=f'name:{i}') for i in range(n)]
         objs_list = [MySchema(name=f'name:{i}')._doctable_as_dict() for i in range(n)]
         objs_dict = {i: MySchema(name=f'name:{i}')._doctable_as_dict() for i in range(n)}
         objs_gen = (MySchema(name=f'name:{i}')._doctable_as_dict() for i in range(n))
@@ -52,8 +57,25 @@ if __name__ == '__main__':
         q = sqlalchemy.sql.insert(tab._table)#.values(objs_list)
         
         with tab.connect() as conn:
-
-            tab.q.insert_many_raw(objs_list)
+            
+            oldtab.q.insert_single(old_objs_list[0])
+            print(oldtab.head())
+            obj = oldtab.q.select_first()
+            print(obj)
+            print(dir(obj))
+            print(obj.v)
+            print(obj.v.name)
+            print(obj.v.a)
+            
+            exit()
+            
+            
+            func = functools.partial(tab.q.insert_many, real_objs_list)
+            av_time = stepper.time_call(func, num_calls=100)
+            print(f'insert_many: {av_time}')
+            
+            
+            
             print(tab.q.select_head())
             
             #av_time = stepper.time_call(functools.partial(conn.execute, q))
@@ -64,7 +86,6 @@ if __name__ == '__main__':
             def test_select():
                 objs = [tab.schema.row_to_object(d) for d in tab.q.select_raw()]
             av_time = stepper.time_call(test_select, num_calls=100)
-            
             print(f'test_select: {av_time}')
             
             exit()

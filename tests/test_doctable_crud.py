@@ -3,7 +3,7 @@ from time import time
 
 
 import sys
-sys.path.append('../..')
+sys.path.append('..')
 import doctable
 
 def make_db():
@@ -78,14 +78,14 @@ def test_select_iter_basic():
     
     print('checking single aggregate function')
     sum_age = sum([dr['age'] for dr in dictrows])
-    s = db.select_first(db['age'].sum)
+    s = db.select_first(db['age'].sum())
     assert(s == sum_age)
     
     
     print('checking multiple aggregate functions')
     sum_age = sum([dr['age'] for dr in dictrows])
     sum_id = sum([i+1 for i in range(len(dictrows))])
-    s = db.select_first([db['age'].sum.label('agesum'), db['id'].sum.label('idsum')])
+    s = db.select_first([db['age'].sum().label('agesum'), db['id'].sum().label('idsum')])
     assert(s['agesum'] == sum_age) #NOTE: THE LABEL METHODS HERE ARENT ASSIGNED TO OUTPUT KEYS
     assert(s['idsum'] == sum_id)
     
@@ -96,15 +96,15 @@ def test_select_iter_basic():
     assert(s == ct_titlematch)
     
     print('running conditional queries')
-    minage = db.select_first(db['age'].min)
-    maxid = db.select_first(db['id'].max)
+    minage = db.select_first(db['age'].min())
+    maxid = db.select_first(db['id'].max())
     whr = (db['age'] > minage) & (db['id'] < maxid)
-    s = db.select_first(db['age'].sum, where=whr)
+    s = db.select_first(db['age'].sum(), where=whr)
     sumage = sum([dr['age'] for dr in dictrows[:-1] if dr['age'] > minage])
     assert(s == sumage)
     
     print('selecting right number of elements with negation')
-    maxid = db.select_first(db['id'].max)
+    maxid = db.select_first(db['id'].max())
     s = db.count(where=~(db['id'] < maxid))
     assert(s == 1)
     

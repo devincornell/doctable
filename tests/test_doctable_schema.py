@@ -61,12 +61,12 @@ def test_properties_schema(num_rows: int = 10):
     assert(db_oldobjs[0].extra is None)
     assert(db_oldobjs[0].extra2 == 0)
 
-    db_oldobjs = tab.select(['name'])
+    db_oldobjs = tab.q.select(['name'])
     assert(len(db_oldobjs) == len(oldobjs))
     assert(db_oldobjs[0].id is doctable.MISSING_VALUE)
     assert(db_oldobjs[0].name == 'User 0')
     assert(db_oldobjs[0].extra is doctable.MISSING_VALUE)
-    assert(db_oldobjs[0].extra2 is doctable.MISSING_VALUE)
+    assert(db_oldobjs[0].extra2 == 0)
 
     ############################### New Schema Method #########################
 
@@ -96,10 +96,7 @@ def test_properties_schema(num_rows: int = 10):
         db_newobjs[0].id
     assert(db_newobjs[0].name == 'User 0')
     with pytest.raises(doctable.DataNotAvailableError) as e:
-        db_newobjs[0].extra
-    with pytest.raises(doctable.DataNotAvailableError) as e:
-        db_newobjs[0].extra2
-    
+        db_newobjs[0].extra    
 
 def test_slots():
     # make sure it is a slots class

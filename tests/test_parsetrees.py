@@ -15,7 +15,10 @@ Programming is awesome!
 
 def test_basic():
     nlp = spacy.load('en_core_web_sm', disable=['ner'])
-    tmp = doctable.TempFolder('tmp')
+    import tempfile
+    import pathlib
+    tempdir = tempfile.TemporaryDirectory()
+    tmp = pathlib.Path(tempdir.name)
 
     # verify operation by pickling/dicting and undicting
     trees = list()
@@ -29,10 +32,10 @@ def test_basic():
         assert(len(tree) == len(sent))
 
         fname = 'test_tree.pic'
-        with tmp.path.joinpath(fname).open('wb') as f:
+        with tmp.joinpath(fname).open('wb') as f:
             f.write(tree.as_pickle())
 
-        with tmp.path.joinpath(fname).open('rb') as f:
+        with tmp.joinpath(fname).open('rb') as f:
             othertree = doctable.ParseTree.from_pickle(f.read())
 
         assert(repr(tree) == repr(othertree))
