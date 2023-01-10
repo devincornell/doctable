@@ -124,7 +124,6 @@ def schema_depric(_Cls=None, *, require_slots=True, **dataclass_kwargs):
         for field in dataclasses.fields(Cls):
             Cls.__doctable_property_names__[field.name] = field.name
 
-
         # add slots
         @functools.wraps(Cls, updated=[])
         class NewClass(DocTableSchema, Cls):

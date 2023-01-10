@@ -5,7 +5,7 @@ import dataclasses
 import typing
 import pandas as pd
 
-from ..schemas import python_to_slqlchemy_type, string_to_sqlalchemy_type
+from ..coltype_map import python_to_slqlchemy_type, string_to_sqlalchemy_type
 
 @dataclasses.dataclass
 class ColumnMetadata:

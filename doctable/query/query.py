@@ -12,7 +12,7 @@ import pandas as pd
 
 
 
-from ..schemas import DocTableSchema
+from ..schema import DocTableSchema
 from ..util import is_sequence
 
 from .selectqueryargs import SelectQueryArgs

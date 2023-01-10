@@ -21,11 +21,10 @@ from doctable.util import QueueInserter
 import sqlalchemy
 
 from .util import is_sequence
-from .schemas import FileTypeBase
+from .schema import FileTypeBase, DocTableSchema
 from .models import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
-from .schemas import DocTableSchema
 from .query import Query
 from .schema import StringSchema, DataclassSchema, InferredSchema, RowToObjectConversionFailedError, ObjectToDictCovnersionFailedError
 

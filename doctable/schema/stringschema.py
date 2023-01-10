@@ -7,8 +7,7 @@ import pandas as pd
 import datetime
 
 from .schemabase import SchemaBase
-from .columnmetadata import ColumnMetadata
-from ..schemas import string_to_sqlalchemy_type
+from .coltype_map import string_to_sqlalchemy_type
 from ..util import is_sequence
 
 @dataclasses.dataclass

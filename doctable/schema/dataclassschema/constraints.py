@@ -1,6 +1,6 @@
 
 
-from .coltype_map import constraint_lookup
+from ..coltype_map import constraint_lookup
 
 class ConstraintNotFoundError(Exception):
     pass

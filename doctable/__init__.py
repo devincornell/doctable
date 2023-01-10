@@ -73,7 +73,7 @@ from .legacy import DocParser
 
 
 # modules
-from .schemas import *
+#from .schemas import *
 from .schema import *
 from .parse import *
 from .textmodels import *

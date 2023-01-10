@@ -6,10 +6,15 @@ import typing
 import copy
 import warnings
 
-from .schemabase import SchemaBase
+from ..schemabase import SchemaBase
 from .columnmetadata import ColumnMetadata
-from ..schemas import Constraint, python_to_slqlchemy_type, DocTableSchema, MISSING_VALUE
-from .errors import RowToObjectConversionFailedError
+from .doctableschema import DocTableSchema
+from .constraints import Constraint
+from .missingvalue import MISSING_VALUE
+from ..coltype_map import python_to_slqlchemy_type
+from .doctableschema import DocTableSchema
+
+
 
 @dataclasses.dataclass
 class DataclassSchema(SchemaBase):

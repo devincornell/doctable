@@ -1,4 +1,8 @@
 from __future__ import annotations
+import typing
+if typing.TYPE_CHECKING:
+    from .dataclassschema import DocTableSchema
+
 
 import sqlalchemy
 import dataclasses
@@ -6,7 +10,7 @@ import typing
 import pandas as pd
 
 from .errors import RowToObjectConversionFailedError, ObjectToDictCovnersionFailedError
-from ..schemas import DocTableSchema
+
 
 class SchemaBase:
     schema_class: type[DocTableSchema]

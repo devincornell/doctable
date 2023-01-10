@@ -1,16 +1,13 @@
 
-
-class SlotsRequiredError(BaseException):
-    pass
-
+#class RowDataConversionFailedError(BaseException):
+#    pass
 # DEPRICATED: KEPT FOR BACKWARDS-COMPATIBILITY
 class DataNotAvailableError(BaseException):
     pass
 
+
 class RowDataNotAvailableError(DataNotAvailableError):
     pass
 
-class TypeNotRecognizedError(BaseException):
+class SlotsRequiredError(BaseException):
     pass
-
-

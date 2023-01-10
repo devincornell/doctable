@@ -1,12 +1,12 @@
 
-from doctable.schemas.parse_schema_dataclass import ColumnMetadata
+from .columnmetadata import ColumnMetadata
 from .missingvalue import MISSING_VALUE
 from datetime import datetime
 import dataclasses
 from typing import Any, Union
 import sqlalchemy
 
-from .custom_coltypes import PickleFileType, ParseTreeDocFileType, TextFileType
+from ..custom_coltypes import PickleFileType, ParseTreeDocFileType, TextFileType
             
 
 
