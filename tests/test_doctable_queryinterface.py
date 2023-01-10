@@ -141,73 +141,15 @@ def test_select_iter_basic():
         updated: datetime.datetime = doctable.UpdatedCol()
 
     oldtab = doctable.DocTable(target=':memory:', schema=MyOldObj)
-    old_test_objs = [MyOldObj(name=f'User{i//2}', age=i) for i in range(100000)]
-    new_test_objs = [MyObj(name=f'User{i//2}', age=i) for i in range(100000)]
+    old_test_objs = [MyOldObj(name=f'User{i//2}', age=i) for i in range(100)]
+    new_test_objs = [MyObj(name=f'User{i//2}', age=i) for i in range(100)]
     
     stepper.step(f'running second test with {len(old_test_objs)} objects.')
-    print(stepper.time_call(functools.partial(tab.q.insert_multi, old_test_objs), as_str=True, num_calls=10))
-
-    
+    #print(stepper.time_call(functools.partial(tab.q.insert_multi, old_test_objs), as_str=True, num_calls=2))
 
 
-    exit()
-    print('query title')
-    for dr,title in zip(dictrows,db.select(db['title'],orderby=db['id'].asc())):
-        #print(dr['title'] , title)
-        assert(dr['title'] == title)
-        
-    print('query two')
-    for dr,row in zip(dictrows,db.select([db['title'],db['age']],orderby=db['id'].asc())):
-        #print(dr['title'] , row['title'])
-        assert(dr['title'] == row['title'])
-        assert(dr['age'] == row['age'])
-        
-    print('query all')
-    for dr,row in zip(dictrows,db.select(orderby=db['id'].asc())):
-        #print(dr['title'] , row['title'])
-        assert(dr['title'] == row['title'])
-        assert(dr['age'] == row['age'])
-    
-    print('query one, check num results (be sure to start with empty db)')
-    assert(len(list(db.select())) == len(dictrows))
-    assert(len(list(db.select(limit=1))) == 1)
-    
-    print('checking single aggregate function')
-    sum_age = sum([dr['age'] for dr in dictrows])
-    s = db.select_first(db['age'].sum())
-    assert(s == sum_age)
-    
-    
-    print('checking multiple aggregate functions')
-    sum_age = sum([dr['age'] for dr in dictrows])
-    sum_id = sum([i+1 for i in range(len(dictrows))])
-    s = db.select_first([db['age'].sum().label('agesum'), db['id'].sum().label('idsum')])
-    assert(s['agesum'] == sum_age) #NOTE: THE LABEL METHODS HERE ARENT ASSIGNED TO OUTPUT KEYS
-    assert(s['idsum'] == sum_id)
-    
-    print('checking complicated where')
-    ststr = 'user+_3'
-    ct_titlematch = sum([dr['title'].startswith(ststr) for dr in dictrows])
-    s = db.count(where=db['title'].like(ststr+'%'))
-    assert(s == ct_titlematch)
-    
-    print('running conditional queries')
-    minage = db.select_first(db['age'].min())
-    maxid = db.select_first(db['id'].max())
-    whr = (db['age'] > minage) & (db['id'] < maxid)
-    s = db.select_first(db['age'].sum(), where=whr)
-    sumage = sum([dr['age'] for dr in dictrows[:-1] if dr['age'] > minage])
-    assert(s == sumage)
-    
-    print('selecting right number of elements with negation')
-    maxid = db.select_first(db['id'].max())
-    s = db.count(where=~(db['id'] < maxid))
-    assert(s == 1)
-    
-    print('selecting specific rows')
-    s = db.count(where=db['id'].in_([1,2]))
-    assert(s == 2)
-    
+
+
     
     
 if __name__ == '__main__':
