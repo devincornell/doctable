@@ -13,7 +13,7 @@ import doctable
 
 def test_basic():
 
-    timer = doctable.Timer('starting tests')
+    timer = doctable.Timer()
 
     timer.step('init fsstore')
     fs = doctable.FSStore('tmp', save_every=100)

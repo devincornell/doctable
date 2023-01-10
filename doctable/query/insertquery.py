@@ -15,23 +15,21 @@ import pandas as pd
 from ..schema import DocTableSchema
 from ..util import is_sequence
 
-from .selectqueryargs import SelectQueryArgs
 from .errors import *
 
 typing.Literal['FAIL', 'IGNORE', 'REPLACE']
 
 
-from .querybase import QueryBase, SingleColumn, ColumnList
 
 
-class InsertQuery(QueryBase):
+class InsertQuery:
 
     dtab: DocTable
     ######################################## High-level inserts that infer type. ########################################
 
     ######################################## Insert Multiple ########################################
     def insert_multi(self, 
-            schema_objs: ColumnList, 
+            schema_objs: typing.List[typing.Union[str, sqlalchemy.Column]], 
             ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
             **kwargs
         ) -> sqlalchemy.engine.ResultProxy:
@@ -84,4 +82,7 @@ class InsertQuery(QueryBase):
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         return q
 
+    def _check_readonly(self, funcname: str) -> None:
+        if self.dtab.readonly:
+            raise SetToReadOnlyMode(f'Cannot {funcname} when doctable set to readonly.')
 

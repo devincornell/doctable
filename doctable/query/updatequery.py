@@ -15,13 +15,12 @@ import pandas as pd
 from ..schema import DocTableSchema
 from ..util import is_sequence
 
-from .selectqueryargs import SelectQueryArgs
 from .errors import *
 
 
 from .querybase import QueryBase
 
-class UpdateQuery(QueryBase):
+class UpdateQuery:
     dtab: DocTable
 
     ############################## Update Methods ##############################
@@ -51,16 +50,36 @@ class UpdateQuery(QueryBase):
         '''
         self._check_readonly('update')
         
-        q: sqlalchemy.sql.Update = sqlalchemy.sql.update(
-            self.dtab.table, 
+        q = self.update_query(
+            where = where,
+            wherestr = wherestr,
             preserve_parameter_order = is_sequence(values),
         )
-        
-        if where is not None:
-            q = q.where(where)
-        if wherestr is not None:
-            q = q.where(sqlalchemy.text(wherestr))
         
         q = q.values(values)
          
         return self.dtab.execute(q, **kwargs)
+
+    def update_query(self,
+        where: sqlalchemy.sql.expression.BinaryExpression = None, 
+        wherestr: str = None,
+        **kwargs,
+    ) -> sqlalchemy.sql.Update:
+
+        q: sqlalchemy.sql.Update = sqlalchemy.sql.update(
+            self.dtab.table, 
+            **kwargs,
+        )
+
+        if where is not None:
+            q = q.where(where)
+        if wherestr is not None:
+            q = q.where(sqlalchemy.text(wherestr))
+
+        return q
+
+
+    def _check_readonly(self, funcname: str) -> None:
+        if self.dtab.readonly:
+            raise SetToReadOnlyMode(f'Cannot {funcname} when doctable set to readonly.')
+

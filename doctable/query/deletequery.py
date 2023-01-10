@@ -15,16 +15,12 @@ import pandas as pd
 from ..schema import DocTableSchema
 from ..util import is_sequence
 
-from .selectqueryargs import SelectQueryArgs
 from .errors import *
 from .querybase import QueryBase
 
-SingleColumn = typing.Union[str, sqlalchemy.Column]
-ColumnList = typing.List[SingleColumn]
 
 
-
-class DeleteQuery(QueryBase):
+class DeleteQuery:
     dtab: DocTable
 
     ############################## Delete Methods ##############################
@@ -52,12 +48,10 @@ class DeleteQuery(QueryBase):
             raise ValueError(f'Must set delete_all=True to delete all rows. This is '
                 'a safety precaution.')
         
-        q: sqlalchemy.sql.Delete = sqlalchemy.sql.delete(self.dtab.table)
-
-        if where is not None:
-            q = q.where(where)
-        if wherestr is not None:
-            q = q.where(sqlalchemy.text(wherestr))
+        q = self.delete_query(
+            where = where,
+            wherestr = wherestr,
+        )
         
         r = self.dtab.execute(q, **kwargs)
         
@@ -66,3 +60,25 @@ class DeleteQuery(QueryBase):
         
         # https://kite.com/python/docs/sqlalchemy.engine.ResultProxy
         return r
+    
+    def delete_query(self,
+        where: sqlalchemy.sql.expression.BinaryExpression = None, 
+        wherestr: str = None,
+        **kwargs,
+    ) -> sqlalchemy.sql.Delete:
+
+        q: sqlalchemy.sql.Delete = sqlalchemy.sql.delete(
+            self.dtab.table, 
+            **kwargs,
+        )
+
+        if where is not None:
+            q = q.where(where)
+        if wherestr is not None:
+            q = q.where(sqlalchemy.text(wherestr))
+
+        return q
+
+    def _check_readonly(self, funcname: str) -> None:
+        if self.dtab.readonly:
+            raise SetToReadOnlyMode(f'Cannot {funcname} when doctable set to readonly.')

@@ -13,7 +13,7 @@ import doctable
 
 def test_io():
 
-    timer = doctable.Timer('starting io tests')
+    timer = doctable.Timer()
 
     obj = list(range(10000))
     fname = 'tmpfile.json_or_pic'

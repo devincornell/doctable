@@ -15,7 +15,6 @@ import pandas as pd
 from ..schema import DocTableSchema
 from ..util import is_sequence
 
-from .selectqueryargs import SelectQueryArgs
 from .errors import *
 from .selectquery import SelectQuery
 from .deletequery import DeleteQuery
@@ -25,6 +24,7 @@ from .insertquery import InsertQuery
 
 @dataclasses.dataclass
 class Query(SelectQuery, InsertQuery, UpdateQuery, DeleteQuery):
+    '''Merges methods from all four query classes into a single interface.'''
     dtab: DocTable
     
     ############################## General Purpose ##############################

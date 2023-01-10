@@ -15,15 +15,16 @@ import pandas as pd
 from ..schema import DocTableSchema
 from ..util import is_sequence
 
-from .selectqueryargs import SelectQueryArgs
 from .errors import *
-from .querybase import QueryBase, SingleColumn, ColumnList
+from .querybase import QueryBase
 
 
 
-class SelectQuery(QueryBase):
+class SelectQuery:
     dtab: DocTable
 
+    ######################################## Compound Selects ########################################
+    
     def select_iter(self, cols=None, chunksize=1, limit=None, **kwargs):
         ''' Same as .select except results retrieved from db in chunks.
         Args:
@@ -43,8 +44,7 @@ class SelectQuery(QueryBase):
             for row in chunk:
                 yield row
     
-    ######################################## Compound Selects ########################################
-    def select_chunks(self, cols: ColumnList = None, chunksize: int = 100, limit: int = None, raw_result: bool = False, **kwargs):
+    def select_chunks(self, cols: typing.List[typing.Union[str, sqlalchemy.Column]] = None, chunksize: int = 100, limit: int = None, raw_result: bool = False, **kwargs):
         ''' Performs select while querying only a subset of the results at a time.
         Args:
             cols (col name(s) or sqlalchemy object(s)): columns to query
@@ -73,20 +73,26 @@ class SelectQuery(QueryBase):
             if (limit is not None and offset >= limit) or len(rows) == 0:
                 break
 
-    ######################################## Pandas Select ########################################
+    ######################################## Counting ########################################
     
-    def count(self, where: sqlalchemy.sql.expression.BinaryExpression = None, wherestr: str = None, **kwargs) -> int:
+    def count(self, 
+            where: sqlalchemy.sql.expression.BinaryExpression = None, 
+            wherestr: str = None, 
+            **kwargs
+        ) -> int:
         '''Count the number of rows in a table.'''
         cter = sqlalchemy.func.count(self.dtab.columns[0])
         ct = self.select_col(cter, where=where, wherestr=wherestr, limit=1, **kwargs)
 
         return ct[0]
     
+    ######################################## Select to Pandas Objects ########################################
+
     def select_head(self, n: int = 5, **kwargs) -> pd.DataFrame:
         return self.select_df(limit=n, **kwargs)
         
     def select_series(self,
-            col: SingleColumn,
+            col: typing.Union[str, sqlalchemy.Column],
             where: sqlalchemy.sql.expression.BinaryExpression = None,
             orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
             groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
@@ -116,7 +122,7 @@ class SelectQuery(QueryBase):
         ))
         
     def select_df(self, 
-            cols: ColumnList = None,
+            cols: typing.List[typing.Union[str, sqlalchemy.Column]] = None,
             where: sqlalchemy.sql.expression.BinaryExpression = None,
             orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
             groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
@@ -148,35 +154,11 @@ class SelectQuery(QueryBase):
             **kwargs
         ))
         
-    ######################################## Single-column Select ########################################
-    
-    def select_col(self, 
-            col: SingleColumn,
-            where: sqlalchemy.sql.expression.BinaryExpression = None,
-            orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
-            limit: int = None,
-            wherestr: str = None,
-            offset: int = None,
-            **kwargs
-        ) -> typing.List[typing.Any]:
-        '''Select values of a single column.'''
-        
-        rows = self.select_raw(
-            cols = self.parse_input_col(col),
-            where = where,
-            orderby = orderby,
-            groupby = groupby,
-            limit = limit,
-            wherestr = wherestr,
-            offset = offset,
-            **kwargs
-        )
-        return [r[0] for r in rows]
 
-    ######################################## Base Selection Funcs ########################################
+
+    ######################################## Single row/col Select Functions ########################################
     def select_scalar(self, 
-            col: SingleColumn,
+            col: typing.Union[str, sqlalchemy.Column],
             where: sqlalchemy.sql.expression.BinaryExpression = None,
             orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
             groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
@@ -197,10 +179,9 @@ class SelectQuery(QueryBase):
             **kwargs
         )
         return row[0]
-
-
+        
     def select_col(self, 
-            col: SingleColumn,
+            col: typing.Union[str, sqlalchemy.Column],
             where: sqlalchemy.sql.expression.BinaryExpression = None,
             orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
             groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
@@ -222,10 +203,9 @@ class SelectQuery(QueryBase):
             **kwargs
         )
         return [r[0] for r in rows]
-    
-    
+
     def select_first(self,
-            cols: ColumnList = None,
+            cols: typing.List[typing.Union[str, sqlalchemy.Column]] = None,
             where: sqlalchemy.sql.expression.BinaryExpression = None,
             orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
             groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
@@ -255,6 +235,7 @@ class SelectQuery(QueryBase):
 
         return results[0]
 
+    ################################ Base Select Methods ################################
     def select(self, 
             cols: typing.List[sqlalchemy.Column] = None,
             where: sqlalchemy.sql.expression.BinaryExpression = None,
@@ -323,7 +304,7 @@ class SelectQuery(QueryBase):
             sqlalchemy result object: row data
 
         '''
-        q = SelectQueryArgs(
+        q = self.select_query(
             cols = self.parse_input_cols(cols),
             where = where,
             orderby = orderby,
@@ -331,12 +312,53 @@ class SelectQuery(QueryBase):
             limit = limit,
             wherestr = wherestr,
             offset = offset,
-        ).get_query()
+        )
         
         return self.dtab.execute(q, **kwargs).fetchall()
     
+    @staticmethod
+    def select_query(
+        cols: typing.List[sqlalchemy.Column],
+        where: sqlalchemy.sql.expression.BinaryExpression = None,
+        orderby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+        groupby: typing.Union[sqlalchemy.Column, typing.List[sqlalchemy.Column]] = None,
+        limit: int = None,
+        wherestr: str = None,
+        offset: int = None,
+    ) -> sqlalchemy.sql.Select:
+        '''Build and exectute select query given all the conditionals provided as parameters.'''
+        
+        q: sqlalchemy.sql.Select = sqlalchemy.sql.select(cols)
+        
+        if where is not None:
+            q = q.where(where)
+        
+        if wherestr is not None:
+            q = q.where(sqlalchemy.text(f'({wherestr})'))
+        
+        if orderby is not None:
+            if is_sequence(orderby):
+                q = q.order_by(*orderby)
+            else:
+                q = q.order_by(orderby)
+        
+        if groupby is not None:
+            if is_sequence(groupby):
+                q = q.group_by(*groupby)
+            else:
+                q = q.group_by(groupby)
+            
+        if limit is not None:
+            q = q.limit(limit)
+            
+        if offset is not None:
+            q = q.offset(offset)
+            
+        return q
+    
+
     ############################## Parse User Input ##############################
-    def parse_input_cols(self, cols: ColumnList) -> typing.List[sqlalchemy.Column]:
+    def parse_input_cols(self, cols: typing.List[typing.Union[str, sqlalchemy.Column]]) -> typing.List[sqlalchemy.Column]:
         '''Pass variable passed to cols.'''        
         if cols is None:
             cols = list(self.dtab.columns)
@@ -348,7 +370,7 @@ class SelectQuery(QueryBase):
         
         return cols
     
-    def parse_input_col(self, col: SingleColumn) -> typing.List[sqlalchemy.Column]:
+    def parse_input_col(self, col: typing.Union[str, sqlalchemy.Column]) -> typing.List[sqlalchemy.Column]:
         if is_sequence(col):
             raise TypeError('col argument should be single column.')
         
