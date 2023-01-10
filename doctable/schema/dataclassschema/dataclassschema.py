@@ -38,14 +38,9 @@ class DataclassSchema(SchemaBase):
         )
         return new_schema
     
-    def object_to_dict(self, obj: DocTableSchema) -> typing.Dict:            
-        if hasattr(obj, '_doctable_get_val'):
-            return {f.name:getattr(obj,f.name) for f in dataclasses.fields(self.schema_class) 
-                                        if obj._doctable_get_val(f.name) is not MISSING_VALUE}
-        else:
-            return {f.name:getattr(obj,f.name) for f in dataclasses.fields(self.schema_class) 
-                                        if getattr(obj,f.name) is not MISSING_VALUE}
-
+    def object_to_dict(self, obj: DocTableSchema) -> typing.Dict:   
+        return {cn: getattr(obj, pn) for cn,pn in obj.__doctable_property_names__.items()
+                                                if getattr(obj, pn) is not MISSING_VALUE}
     
     def row_to_object(self, row: sqlalchemy.engine.row.LegacyRow) -> typing.Any:
         return self.schema_class(**dict(row))
