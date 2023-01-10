@@ -20,7 +20,7 @@ from .querybase import QueryBase
 
 
 
-class SelectQuery:
+class SelectQuery(QueryBase):
     dtab: DocTable
 
     ######################################## Compound Selects ########################################

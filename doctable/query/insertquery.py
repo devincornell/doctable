@@ -19,10 +19,10 @@ from .errors import *
 
 typing.Literal['FAIL', 'IGNORE', 'REPLACE']
 
+from .querybase import QueryBase
 
 
-
-class InsertQuery:
+class InsertQuery(QueryBase):
 
     dtab: DocTable
     ######################################## High-level inserts that infer type. ########################################
@@ -81,8 +81,3 @@ class InsertQuery:
         q: sqlalchemy.sql.Select = sqlalchemy.sql.insert(self.dtab.table)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         return q
-
-    def _check_readonly(self, funcname: str) -> None:
-        if self.dtab.readonly:
-            raise SetToReadOnlyMode(f'Cannot {funcname} when doctable set to readonly.')
-

@@ -20,7 +20,7 @@ from .errors import *
 
 from .querybase import QueryBase
 
-class UpdateQuery:
+class UpdateQuery(QueryBase):
     dtab: DocTable
 
     ############################## Update Methods ##############################
@@ -77,9 +77,4 @@ class UpdateQuery:
             q = q.where(sqlalchemy.text(wherestr))
 
         return q
-
-
-    def _check_readonly(self, funcname: str) -> None:
-        if self.dtab.readonly:
-            raise SetToReadOnlyMode(f'Cannot {funcname} when doctable set to readonly.')
 
