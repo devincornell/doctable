@@ -182,12 +182,12 @@ class Stepper:
 
 
     @classmethod
-    def time_call(cls, func: Callable, *args, num_calls=1, as_str = False, **kwargs):
+    def time_call(cls, func: Callable, *args, num_calls: int = 1, as_str: bool = False, **kwargs):
         ''' Time function call with 0.05 ms latency per call.
         '''
         timer = cls(verbose=False)
         timer = cls(verbose=False)
-        for i in range(10):
+        for i in range(num_calls):
             func(*args, **kwargs)
             timer.step()
         
