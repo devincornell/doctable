@@ -20,10 +20,10 @@ def schema(_Cls=None, *, require_slots: bool = True, enable_accessors: bool = Tr
         # creates constructor/other methods using dataclasses
         Cls = dataclasses.dataclass(Cls, **dataclass_kwargs)
         
-        property_names = list()
+        Cls.__doctable_property_names__ = dict()
         for field in dataclasses.fields(Cls):
-            property_name = colname_to_property(field.name)#f'_{field.name}'
-            property_names.append(property_name)
+            property_name = colname_to_property(field.name)#f'_{field.name}'            
+            Cls.__doctable_property_names__[field.name] = property_name
             
             # dataclasses don't actually create the property unless the default
             # value was a constant, so we just want to replicate that behavior
@@ -41,7 +41,7 @@ def schema(_Cls=None, *, require_slots: bool = True, enable_accessors: bool = Tr
         # implement new hash function if needed
         if hasattr(Cls, '__hash__'):
             def hashfunc(self):
-                return hash(tuple(getattr(self, name) for name in property_names))
+                return hash(tuple(getattr(self, name) for name in Cls.__doctable_property_names__.values()))
             Cls.__hash__ = hashfunc
         
         # add slots
@@ -51,7 +51,7 @@ def schema(_Cls=None, *, require_slots: bool = True, enable_accessors: bool = Tr
         
         @functools.wraps(Cls, updated=[])
         class NewClass(DocTableSchema, Cls):
-            __slots__ = tuple(property_names)
+            __slots__ = tuple(Cls.__doctable_property_names__.values())
                     
         return NewClass
     
@@ -63,6 +63,11 @@ def schema(_Cls=None, *, require_slots: bool = True, enable_accessors: bool = Tr
             raise SlotsRequiredError('Slots must be enabled by including "__slots__ = []". '
                 'Otherwise set doctable.schema(require_slots=False).')
 
+        # the attr_name field will be used to access attributes
+        Cls.__doctable_property_names__ = dict()
+        for field in dataclasses.fields(Cls):
+            Cls.__doctable_property_names__[field.name] = field.name
+        
         # add slots
         @functools.wraps(Cls, updated=[])
         class NewClass(DocTableSchema, Cls):
@@ -113,6 +118,12 @@ def schema_depric(_Cls=None, *, require_slots=True, **dataclass_kwargs):
         if require_slots and not hasattr(Cls, '__slots__'):
             raise SlotsRequiredError('Slots must be enabled by including "__slots__ = []". '
                 'Otherwise set doctable.schema(require_slots=False).')
+
+        # the attr_name field will be used to access attributes
+        Cls.__doctable_property_names__ = dict()
+        for field in dataclasses.fields(Cls):
+            Cls.__doctable_property_names__[field.name] = field.name
+
 
         # add slots
         @functools.wraps(Cls, updated=[])

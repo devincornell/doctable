@@ -1,6 +1,7 @@
 import random
 from time import time
 import datetime
+import functools
 
 import sys
 sys.path.append('..')
@@ -125,6 +126,30 @@ def test_select_iter_basic():
     cts_compare = [(k,v) for k,v in collections.Counter([o.name for o in test_objs]).items()]
     cts_compare = list(sorted(cts_compare, reverse=True))
     assert(cts_dict == cts_compare)
+
+    stepper = doctable.Stepper()
+    
+    
+    
+    @doctable.schema_depric
+    class MyOldObj:
+        __slots__ = []
+        id: int = doctable.IDCol()
+        name: str = doctable.Col()
+        age: int = doctable.Col()
+        added: datetime.datetime = doctable.AddedCol()
+        updated: datetime.datetime = doctable.UpdatedCol()
+
+    oldtab = doctable.DocTable(target=':memory:', schema=MyOldObj)
+    old_test_objs = [MyOldObj(name=f'User{i//2}', age=i) for i in range(100000)]
+    new_test_objs = [MyObj(name=f'User{i//2}', age=i) for i in range(100000)]
+    
+    
+    stepper.step(f'running second test with {len(old_test_objs)} objects.')
+    print(stepper.time_call(functools.partial(tab.q.insert_multi, old_test_objs), as_str=True, num_calls=10))
+
+    
+
 
     exit()
     print('query title')

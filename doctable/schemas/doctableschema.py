@@ -35,7 +35,8 @@ class DocTableSchema:
         return self._doctable_get_val(colname)
         
     def _doctable_get_val(self, colname):
-        return getattr(self, colname_to_property(colname))
+        '''Access column data without raising exception when accessing property.'''
+        return getattr(self, self.__doctable_property_names__[colname])
     
     def __repr__(self):
         '''Hides cols with values of type MISSING_VALUE.
