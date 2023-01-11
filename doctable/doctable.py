@@ -30,6 +30,25 @@ from .schema import StringSchema, DataclassSchema, InferredSchema, RowToObjectCo
 
 DEFAULT_TABNAME = '_documents_'
 
+
+def parse_static_arg(obj, arg_value: typing.Any, arg_name: str, static_arg_name: str, default: bool = 1321564):
+    if arg_value is None:
+        try:
+            return getattr(obj, static_arg_name)
+        except AttributeError as e:
+            if default == 1321564:
+                raise ValueError(f'Need to provide either {arg_name} or '
+                    f'set .{static_arg_name}')
+            else:
+                return default
+    else:
+        if hasattr(obj, static_arg_name):
+            raise ValueError(f'Cannot both provide {arg_name} and set '
+                f'{static_arg_name}.')
+        else:
+            return arg_value
+
+
 class DocTable:
     ''' Class for managing a single database table.
     Description: This class manages schema and connection information to provide
@@ -88,29 +107,11 @@ class DocTable:
                 Example: connect_args={'timeout': 15} for sqlite
                 or connect_args={'connect_timeout': 15} for PostgreSQL.
 
-        '''        
-        if hasattr(self, '_tabname_'):
-            if tabname is not None:
-                raise ValueError('Static attribute "_tabname_" exists but a tabname was provided in __init__')
-            tabname = self._tabname_
-        else:
-            tabname = None
-        
-        if hasattr(self, '_schema_'):
-            if schema is not None:
-                raise ValueError('Static attribute "_schema_" exists but a schema was provided in __init__')
-            schema = self._schema_
-            
-        if hasattr(self, '_target_'):
-            if target is not None:
-                raise ValueError('Static attribute "_target_" exists but a target was provided in __init__')
-            target = self._target_
-
-            
+        '''
         # handle defaults
-        tabname = tabname if tabname is not None else DEFAULT_TABNAME
-        indices = indices if indices is not None else dict()
-        constraints = constraints if constraints is not None else list()
+        tabname = parse_static_arg(self, tabname, 'tabname', '_tabname_', DEFAULT_TABNAME)
+        schema = parse_static_arg(self, schema, 'tabname', '_schema_', None)
+        target = parse_static_arg(self, target, 'tabname', '_target_', None)
         
         # dependent args
         if readonly:
@@ -124,42 +125,44 @@ class DocTable:
                              'database file does not exist yet. Need to provide schema '
                              'when creating a new table.')
 
-        # set target from engine if provided
-        if engine is not None:
-            if target is not None:
-                raise ValueError('"target" parameter should not be provided when engine is provided.')
-            target = engine.target
-        
-        # final check in case above issues were handled correctly
+        # set target and engine
         if target is None:
-            raise ValueError('target has not been provided.')
+            try:
+                target = engine.target
+            except AttributeError as e:
+                raise ValueError(f'Either target or engine must be provided.') from e
+        
+            self._engine = engine
+
+        elif engine is None:
+            self._engine = ConnectEngine(
+                target = target, 
+                dialect = dialect, 
+                new_db = new_db, 
+                **engine_kwargs
+            )
+        else:
+            raise ValueError(f'Cannot provide both target and engine.')
         
         # store arguments as-is
         self._tabname = tabname
         self._target = target
         self.dialect = dialect
+        self._new_db = new_db
 
         # flags
         self.verbose = verbose
         self.persistent_conn = persistent_conn
         self.readonly = readonly
-        self._new_db = new_db
         self._new_table = new_table
-        
-        # establish an engine connection
-        if engine is None:
-            self._engine = ConnectEngine(target=self._target, dialect=self.dialect, new_db=self._new_db, 
-                                     **engine_kwargs)
-        else:
-            self._engine = engine
-        
+                
         # connect to existing table or create new one
         if dataclasses.is_dataclass(schema):
             
             self._schema = DataclassSchema.from_schema_definition(
                 schema_class = schema,
-                indices = indices,
-                constraints = constraints,
+                indices = indices if indices is not None else dict(),
+                constraints = constraints if constraints is not None else list(),
             )
         
         elif is_sequence(schema):
