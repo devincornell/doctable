@@ -383,7 +383,7 @@ class DocTable:
         if not is_sequence(rowdata):
             raise TypeError('insert_many needs a list or tuple of schema objects.')
         
-        if isinstance(rowdata[0], dict):
+        if len(rowdata) > 0 and isinstance(rowdata[0], dict):
             return self.q.insert_multi_raw(rowdata, *args, **kwargs)
         else:
             return self.q.insert_multi(rowdata, *args, **kwargs)
