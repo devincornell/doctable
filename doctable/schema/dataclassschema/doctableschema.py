@@ -6,16 +6,18 @@ import functools
 
 from .missingvalue import MISSING_VALUE
 from .errors import RowDataNotAvailableError
+from .operators import attr_map, attr_value, attr_value_tuples, asdict, asdict_ignore_missing
 
 miss_col_message = 'The column "{name}" was not retreived in the select statement.'
 
 
-def colname_to_property(colname: str) -> str:
-    return f'_doctable__{colname}'
 
-def property_to_colname(property: str) -> str:
-    return '__'.join(property.split('__')[1:])
-
+@dataclasses.dataclass
+class PropertyAccessor:
+    '''Access properties of the schema object without raising error for missing data.'''
+    schema_obj: DocTableSchema
+    def __getitem__(self, pname: str):
+        return attr_value(self.schema_obj, pname)
 
 class DocTableSchema:
     ''' Base class for column objects.
@@ -27,46 +29,35 @@ class DocTableSchema:
         ''' Access data, throwing error when accessing element that was not
                 retrieved from the database.
         '''
-        return getattr(self, attr)
+        return getattr(self, attr)        
     
-    def get_val(self, colname):
-        ''' Access data related to the property.
+    @property
+    def v(self) -> PropertyAccessor:
+        '''Access properties of the schema object without raising exception 
+            for missing data.
         '''
-        return self._doctable_get_val(colname)
-        
-    def _doctable_get_val(self, colname):
-        '''Access column data without raising exception when accessing property.'''
-        return getattr(self, self.__doctable_property_names__[colname])
+        return PropertyAccessor(self)
     
+    def get_value(self, property_name: str):
+        ''' Access data at a given value.
+        '''
+        return attr_value(self, property_name)
+            
     def __repr__(self):
         '''Hides cols with values of type MISSING_VALUE.
         '''
-        cn = ", ".join([(f'{k}=\'{v}\'' if isinstance(v,str) else f'{k}={v}') 
-            for k,v in self._doctable_as_dict().items()])
+        cn = ", ".join([(f'{pn}=\'{v}\'' if isinstance(v,str) else f'{pn}={v}') 
+            for pn,an,v in attr_value_tuples(self)])
         return f'{self.__class__.__name__}({cn})'
     
     ########################## Conversions ##########################
     
-    def as_dict(self, *args, **kwargs):
-        '''Public interface for _doctable_as_dict().
+    def asdict(self, *args, **kwargs):
+        '''Convert object to dictionary, including missing value.
         '''
-        return self._doctable_as_dict(*args, **kwargs)
-
-    def _doctable_as_dict(self):
-        '''Convert to dictionary, ignoring MISSING_VALUE objects.
-        '''
-        try:
-            return {f.name:getattr(self,f.name) for f in dataclasses.fields(self) 
-                                        if self.get_val(f.name) is not MISSING_VALUE}
-        except AttributeError:
-            return {f.name:getattr(self,f.name) for f in dataclasses.fields(self) 
-                                        if getattr(self,f.name) is not MISSING_VALUE}
+        return asdict(self, *args, **kwargs)
       
-    @classmethod
-    def _doctable_from_db(cls, row: typing.Dict[str, typing.Any]):
-        '''DocTable uses this as a constructor to fill missing values with MISSING_VALUE objects.
+    def asdict_ignore_missing(self, *args, **kwargs):
+        '''Convert object to dictionary, omitting missing value.
         '''
-        row = dict(row)
-        return cls(**{f.name:row.get(f.name,MISSING_VALUE) for f in dataclasses.fields(cls)})
-    
-    
+        return asdict_ignore_missing(self, *args, **kwargs)

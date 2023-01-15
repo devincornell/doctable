@@ -13,7 +13,7 @@ from .constraints import Constraint
 from .missingvalue import MISSING_VALUE
 from ..coltype_map import python_to_slqlchemy_type
 from .doctableschema import DocTableSchema
-
+from .operators import asdict_ignore_missing
 
 
 @dataclasses.dataclass
@@ -29,7 +29,7 @@ class DataclassSchema(SchemaBase):
         '''
         if not issubclass(schema_class, DocTableSchema):
             raise TypeError('A dataclass schema must inherit from doctable.DocTableSchema.')
-            
+        print(indices)
         new_schema: cls = cls(
             columns = cls.parse_columns(schema_class) + cls.parse_indices(indices) + cls.parse_constraints(constraints),
             schema_class = copy.deepcopy(schema_class),
@@ -39,8 +39,7 @@ class DataclassSchema(SchemaBase):
         return new_schema
     
     def object_to_dict(self, obj: DocTableSchema) -> typing.Dict:   
-        return {cn: getattr(obj, pn) for cn,pn in obj.__doctable_property_names__.items()
-                                                if getattr(obj, pn) is not MISSING_VALUE}
+        return asdict_ignore_missing(obj)
     
     def row_to_object(self, row: sqlalchemy.engine.row.LegacyRow) -> typing.Any:
         return self.schema_class(**dict(row))
