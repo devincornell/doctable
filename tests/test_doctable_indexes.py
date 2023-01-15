@@ -28,7 +28,8 @@ def test_select_iter_basic():
     tab = doctable.DocTable(target=':memory:', schema=MyObj)
     print(tab.schema_table())
     
-    
+    print(tab.engine.inspect().get_indexes(tab.tabname))
+    print(tab.indices())
     
 
 

@@ -69,6 +69,28 @@ class ConnectEngine:
         '''
         return self._engine.execute(query, *args, **kwargs)
         
+    ######################### Inspection ######################
+    def schema(self, tabname: str) -> Sequence[sqlalchemy.Column]:
+        ''' Read schema information for single table using inspect.
+        Args:
+            tabname: name of table to inspect.
+        Returns:
+            dictionary
+        '''
+        inspector = sqlalchemy.inspect(self._engine)
+        return inspector.get_columns(tabname)
+    
+    def schema_df(self, tabname: str) -> pd.DataFrame:
+        ''' Read schema information for table as pandas dataframe.
+        Returns:
+            pandas dataframe
+        '''
+        return pd.DataFrame(self.schema(tabname))
+
+    def inspect(self) -> sqlalchemy.engine.Inspector:
+        '''Get engine for this inspector.'''
+        return sqlalchemy.inspect(self._engine)
+        
     ######################### Convenient Properties ######################
     @property
     def dialect(self) -> str:
@@ -132,29 +154,14 @@ class ConnectEngine:
             self.remove_table(table)
     
     
+
+    
     ######################### Table Management ######################
     def create_all(self):
         ''' Create table metadata from all existing tables.
         '''
         return self._metadata.create_all(self._engine)
-    
-    def schema(self, tabname: str) -> Sequence[sqlalchemy.Column]:
-        ''' Read schema information for single table using inspect.
-        Args:
-            tabname: name of table to inspect.
-        Returns:
-            dictionary
-        '''
-        inspector = sqlalchemy.inspect(self._engine)
-        return inspector.get_columns(tabname)
-    
-    def schema_df(self, tabname: str) -> pd.DataFrame:
-        ''' Read schema information for table as pandas dataframe.
-        Returns:
-            pandas dataframe
-        '''
-        return pd.DataFrame(self.schema(tabname))
-    
+        
     def remove_table(self, table: str):
         ''' Remove the given Table object from sqlalchemy metadata.
         '''

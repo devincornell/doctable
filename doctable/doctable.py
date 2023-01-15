@@ -112,7 +112,7 @@ class DocTable:
         tabname = parse_static_arg(self, tabname, 'tabname', '_tabname_', DEFAULT_TABNAME)
         schema = parse_static_arg(self, schema, 'tabname', '_schema_', None)
         target = parse_static_arg(self, target, 'tabname', '_target_', None)
-        
+
         # dependent args
         if readonly:
             new_db = False
@@ -161,8 +161,8 @@ class DocTable:
             
             self._schema = DataclassSchema.from_schema_definition(
                 schema_class = schema,
-                indices = indices if indices is not None else dict(),
-                constraints = constraints if constraints is not None else list(),
+                indices = parse_static_arg(schema, indices, 'indices', '_indices_', tuple()),
+                constraints = parse_static_arg(schema, constraints, 'constraints', '_constraints_', tuple()),
             )
         
         elif is_sequence(schema):
@@ -309,6 +309,9 @@ class DocTable:
         '''
         return self._engine.schema_df(self._tabname)
     
+    def indices(self) -> typing.List[typing.Dict[str, typing.Any]]:
+        return self._engine.inspect().get_indexes(self._tabname)
+    
     #################### Expose Query Functionality ###################
     
     @property
@@ -348,6 +351,14 @@ class DocTable:
             # execute query using connectengine directly
             r = self._engine.execute(query, *params)
         return r
+
+
+
+
+
+
+
+
 
     
 
