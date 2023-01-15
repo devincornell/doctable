@@ -26,12 +26,12 @@ def test_select_iter_basic():
     
     num_test_objs = 100
     test_objs = [MyObj(name=f'User{i//2}', age=i) for i in range(num_test_objs)]
-    test_dicts = [o.as_dict() for o in test_objs]
+    test_dicts = [o.asdict_ignore_missing() for o in test_objs]
     
     
     
     #with pytest.raises(doctable.ObjectToDictCovnersionFailedError):
-    #    tab.q.insert_single(o.as_dict())
+    #    tab.q.insert_single(o.asdict_ignore_missing())
 
     with pytest.raises(TypeError):
         tab.q.insert_single(test_objs)
@@ -56,9 +56,9 @@ def test_select_iter_basic():
         tab.q.insert_single(o)
 
         with pytest.raises(doctable.ObjectToDictCovnersionFailedError):
-            tab.q.insert_single(o.as_dict())
+            tab.q.insert_single(o.asdict_ignore_missing())
 
-        tab.q.insert_single_raw(o.as_dict())
+        tab.q.insert_single_raw(o.asdict_ignore_missing())
         
         with pytest.raises(doctable.sqlalchemy.exc.ArgumentError):
             tab.q.insert_single_raw(o)
@@ -66,8 +66,8 @@ def test_select_iter_basic():
         with pytest.raises(TypeError):
             tab.q.insert_multi(o)
             tab.q.insert_multi_raw(o)
-            tab.q.insert_multi(o.as_dict())
-            tab.q.insert_multi_raw(o.as_dict())
+            tab.q.insert_multi(o.asdict_ignore_missing())
+            tab.q.insert_multi_raw(o.asdict_ignore_missing())
 
     assert(tab.q.count()>0)
 
@@ -131,7 +131,7 @@ def test_select_iter_basic():
     
     
     
-    @doctable.schema_depric
+    @doctable.schema(enable_properties=False)
     class MyOldObj:
         __slots__ = []
         id: int = doctable.IDCol()

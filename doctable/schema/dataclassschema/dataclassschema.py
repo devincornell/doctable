@@ -29,7 +29,7 @@ class DataclassSchema(SchemaBase):
         '''
         if not issubclass(schema_class, DocTableSchema):
             raise TypeError('A dataclass schema must inherit from doctable.DocTableSchema.')
-        print(indices)
+        #print(indices)
         new_schema: cls = cls(
             columns = cls.parse_columns(schema_class) + cls.parse_indices(indices) + cls.parse_constraints(constraints),
             schema_class = copy.deepcopy(schema_class),

@@ -6,7 +6,7 @@ import typing
 from .errors import RowDataNotAvailableError, SlotsRequiredError
 from .missingvalue import MISSING_VALUE
 from .doctableschema import DocTableSchema
-from .operators import set_attr_map, attr_map, property_to_attr, attr_to_property, attr_value_tuples
+from .operators import set_attr_map, get_attr_map, property_to_attr, attr_to_property, attr_value_tuples, asdict, asdict_ignore_missing
 
 # I used this formula for the decorator: https://realpython.com/primer-on-python-decorators/#both-please-but-never-mind-the-bread
 # outer function used to handle arguments to the decorator
@@ -51,10 +51,10 @@ def schema_decorator_properties_factory(
             raise SlotsRequiredError('Slots must be enabled by including "__slots__ = []". '
                 'Otherwise set doctable.schema(require_slots=False).')
         
-        attr_names = dict()
+        attr_map = dict()
         for field in dataclasses.fields(Cls):
             attr_name = property_to_attr(field.name)#f'_{field.name}'            
-            attr_names[field.name] = attr_name
+            attr_map[field.name] = attr_name
             
             # dataclasses don't actually create the property unless the default
             # value was a constant, so we just want to replicate that behavior
@@ -70,14 +70,13 @@ def schema_decorator_properties_factory(
             setattr(Cls, field.name, get_getter_setter(attr_name))
         
         # set map from properties to attributes
-        set_attr_map(Cls, attr_names)
-            
+        set_attr_map(Cls, attr_map)
+                
         # implement new hash function if needed
         if hasattr(Cls, '__hash__'):
             def hashfunc(self):
                 return hash(tuple(v for pn,an,v in attr_value_tuples(Cls)))
             Cls.__hash__ = hashfunc
-        
         
         @functools.wraps(Cls, updated=[])
         class NewClass(DocTableSchema, Cls):

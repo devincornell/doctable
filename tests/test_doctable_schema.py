@@ -21,7 +21,7 @@ def get_newtab(tempfolder: tempfile.TemporaryDirectory, SchemaObj: type):
 
 
 
-@doctable.schema_depric
+@doctable.schema(enable_properties=False)
 class OldObj:
     __slots__ = []
     id: int = doctable.IDCol()
@@ -105,8 +105,8 @@ def test_slots():
     
     assert(not hasattr(newobj, '__dict__'))
     assert(not hasattr(oldobj, '__dict__'))
-    assert(len(newobj._doctable_as_dict()) == 1) # ignores MISSING_VALUE
-    assert(len(oldobj._doctable_as_dict()) == 1) # ignores MISSING_VALUE
+    assert(len(doctable.asdict_ignore_missing(newobj)) == 1) # ignores MISSING_VALUE
+    assert(len(doctable.asdict_ignore_missing(oldobj)) == 1)
 
     with pytest.raises(doctable.SlotsRequiredError) as e:
         @doctable.schema
