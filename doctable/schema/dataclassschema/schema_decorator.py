@@ -6,7 +6,7 @@ import typing
 from .errors import RowDataNotAvailableError, SlotsRequiredError
 from .missingvalue import MISSING_VALUE
 from .doctableschema import DocTableSchema
-from .operators import set_attr_map, get_attr_map, property_to_attr, attr_to_property, attr_value_tuples, asdict, asdict_ignore_missing
+from .operators import set_attr_map, property_to_attr, attr_to_property, attr_value_tuples, as_value_tuple
 
 # I used this formula for the decorator: https://realpython.com/primer-on-python-decorators/#both-please-but-never-mind-the-bread
 # outer function used to handle arguments to the decorator
@@ -75,8 +75,18 @@ def schema_decorator_properties_factory(
         # implement new hash function if needed
         if hasattr(Cls, '__hash__'):
             def hashfunc(self):
-                return hash(tuple(v for pn,an,v in attr_value_tuples(Cls)))
+                return hash(as_value_tuple(self))
             Cls.__hash__ = hashfunc
+            
+        def binary_compare_factory(attrname: str):
+            def binary_compare(self: Cls, other: Cls):
+                return getattr(as_value_tuple(self), attrname)(as_value_tuple(other))
+        
+        if hasattr(Cls, '__eq__'): Cls.__eq__ = binary_compare_factory('__eq__')
+        if hasattr(Cls, '__lt__'): Cls.__lt__ = binary_compare_factory('__lt__')
+        if hasattr(Cls, '__le__'): Cls.__le__ = binary_compare_factory('__le__')
+        if hasattr(Cls, '__gt__'): Cls.__gt__ = binary_compare_factory('__gt__')
+        if hasattr(Cls, '__ge__'): Cls.__ge__ = binary_compare_factory('__ge__')
         
         @functools.wraps(Cls, updated=[])
         class NewClass(DocTableSchema, Cls):

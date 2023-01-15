@@ -20,11 +20,13 @@ def asdict_ignore_missing(schema_obj: DocTableSchema) -> typing.Dict[str, typing
             for pn,an in get_attr_map(schema_obj).items() if getattr(schema_obj, an) is not MISSING_VALUE}
 
 def astuple(schema_obj: DocTableSchema) -> typing.Tuple[str, typing.Any]:
-    return tuple(get_attr_map(schema_obj).items())
+    return tuple(asdict(schema_obj).items())
 
 def attr_value_tuples(schema_obj: DocTableSchema) -> typing.Tuple[str, str, typing.Any]:
     return [(pn, an, getattr(schema_obj, an)) for pn,an in get_attr_map(schema_obj).items()]
 
+def as_value_tuple(schema_obj: DocTableSchema) -> typing.Tuple[str, str, typing.Any]:
+    return tuple(getattr(schema_obj, an) for pn,an in get_attr_map(schema_obj).items())
 
 ############# get and set property names dict #############
 def get_attr_map(obj: DocTableSchema) -> typing.Dict[str,str]:
