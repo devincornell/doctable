@@ -20,34 +20,15 @@ from doctable.util import QueueInserter
 #import sqlalchemy as sa
 import sqlalchemy
 
-from .util import is_sequence
-from .schema import FileTypeBase, DocTableSchema
+from .util import is_sequence, parse_static_arg
+from .schema import FileTypeBase, DocTableSchema, Constraint, Index
 from .models import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
 from .query import Query
-from .schema import StringSchema, DataclassSchema, InferredSchema, RowToObjectConversionFailedError, ObjectToDictCovnersionFailedError
+from .schema import StringSchema, DataclassSchema, InferredSchema, RowToObjectConversionFailedError, has_attr_map
 
 DEFAULT_TABNAME = '_documents_'
-
-
-def parse_static_arg(obj, arg_value: typing.Any, arg_name: str, static_arg_name: str, default: bool = 1321564):
-    if arg_value is None:
-        try:
-            return getattr(obj, static_arg_name)
-        except AttributeError as e:
-            if default == 1321564:
-                raise ValueError(f'Need to provide either {arg_name} or '
-                    f'set .{static_arg_name}')
-            else:
-                return default
-    else:
-        if hasattr(obj, static_arg_name):
-            raise ValueError(f'Cannot both provide {arg_name} and set '
-                f'{static_arg_name}.')
-        else:
-            return arg_value
-
 
 class DocTable:
     ''' Class for managing a single database table.
@@ -70,11 +51,14 @@ class DocTable:
             be used when instantiating. Overridden by providing arguments
             to the constructor.
     '''
-    def __init__(self, target: str = None, schema: DocTableSchema = None, tabname: str = None, 
-                indices: dict = None, constraints = None,
-                dialect: str = 'sqlite', engine: ConnectEngine = None, 
-                readonly: bool = False, new_db: bool = False, new_table: bool = True, 
-                persistent_conn: bool = False, verbose: bool = False, **engine_kwargs):
+    def __init__(self, 
+            target: str = None, schema: DocTableSchema = None, tabname: str = None, 
+            indices: typing.List[Index] = None, constraints: typing.List[Constraint] = None,
+            dialect: str = 'sqlite', engine: ConnectEngine = None, 
+            readonly: bool = False, new_db: bool = False, new_table: bool = True, 
+            persistent_conn: bool = False, verbose: bool = False, 
+            allow_inconsistent_schema: bool = False, create_indices: bool = True,
+            **engine_kwargs):
         '''Create new database.
         Args:
             target (str): filename for database to connect to. ":memory:" is a 
@@ -157,14 +141,12 @@ class DocTable:
         self._new_table = new_table
                 
         # connect to existing table or create new one
-        if dataclasses.is_dataclass(schema):
-            
+        if has_attr_map(schema):
             self._schema = DataclassSchema.from_schema_definition(
                 schema_class = schema,
-                indices = parse_static_arg(schema, indices, 'indices', '_indices_', tuple()),
-                constraints = parse_static_arg(schema, constraints, 'constraints', '_constraints_', tuple()),
+                indices = indices, # need these if we want to grab from constructor
+                constraints = constraints,
             )
-        
         elif is_sequence(schema):
             self._schema = StringSchema.from_schema_definition(
                 schema_list = schema,
@@ -175,8 +157,15 @@ class DocTable:
             self._schema = InferredSchema.from_schema_definition(schema)
 
         # add this table
-        self._table = self._engine.add_table(self._tabname, columns=self._schema.columns, 
-                                             new_table=self._new_table)
+        self._table = self._engine.add_table(
+            tabname = self._tabname, 
+            columns = self._schema.columns, 
+            indices = self._schema.indices,
+            constraints = self._schema.constraints,
+            new_table=self._new_table,
+            allow_inconsistent_schema = allow_inconsistent_schema,
+            create_indices = create_indices,
+        )
         
         # create persistent connection to database if requested
         self._conn = self._engine.connect() if self.persistent_conn else None
@@ -310,7 +299,7 @@ class DocTable:
         return self._engine.schema_df(self._tabname)
     
     def indices(self) -> typing.List[typing.Dict[str, typing.Any]]:
-        return self._engine.inspect().get_indexes(self._tabname)
+        return self._engine.inspector.get_indexes(self._tabname)
     
     #################### Expose Query Functionality ###################
     

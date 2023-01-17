@@ -17,6 +17,7 @@ class SchemaBase:
 
 
     def object_to_dict_interface(self, obj: typing.Any) -> DocTableSchema:
+        '''Wraps implementation of object_to_dict to raise exception if there is a conversion problem.'''
         try:
             return self.object_to_dict(obj)
         except BaseException as e:
@@ -25,6 +26,7 @@ class SchemaBase:
                 f'match the schema object type, try using .q.select_raw(), or some variant thereof.') from e
 
     def row_to_object_interface(self, data: sqlalchemy.engine.row.LegacyRow) -> DocTableSchema:
+        '''Wraps implementation of row_to_object to raise exception if there is a conversion problem.'''
         try:
             return self.row_to_object(data)
         except BaseException as e:

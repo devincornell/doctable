@@ -13,6 +13,8 @@ from ..util import is_sequence
 @dataclasses.dataclass
 class StringSchema(SchemaBase):
     columns: typing.List[sqlalchemy.Column]
+    indices: typing.Tuple[sqlalchemy.Index]
+    constraints: typing.Tuple[sqlalchemy.Constraint]
     schema_list: typing.List[typing.Tuple]
     
     @classmethod
@@ -20,6 +22,8 @@ class StringSchema(SchemaBase):
         new_schema: cls = cls(
             columns = cls.parse_schema_strings(schema_list, default_fpath=default_fpath),
             schema_list = schema_list,
+            indices = None,
+            constraints = None,
         )
         return new_schema
     

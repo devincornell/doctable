@@ -1,0 +1,3 @@
+
+class ColumnNotFoundError(BaseException):
+    pass

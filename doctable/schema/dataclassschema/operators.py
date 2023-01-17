@@ -29,6 +29,10 @@ def as_value_tuple(schema_obj: DocTableSchema) -> typing.Tuple[str, str, typing.
     return tuple(getattr(schema_obj, an) for pn,an in get_attr_map(schema_obj).items())
 
 ############# get and set property names dict #############
+def has_attr_map(obj: DocTableSchema) -> typing.Dict[str,str]:
+    '''Used to access property map to convert column name to underlying property name.'''
+    return hasattr(obj, PROPERTY_NAMES_ATTR)
+
 def get_attr_map(obj: DocTableSchema) -> typing.Dict[str,str]:
     '''Used to access property map to convert column name to underlying property name.'''
     return getattr(obj, PROPERTY_NAMES_ATTR)
