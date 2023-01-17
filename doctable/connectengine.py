@@ -121,7 +121,7 @@ class ConnectEngine:
     def inspect_indices_all(self) -> typing.Dict[str, typing.List[typing.Dict[str, typing.Any]]]:
         '''Get index info for all tables.'''
         inspector = self.inspector
-        return {tn:inspector.get_columns(tn) for tn in inspector.get_table_names()}
+        return {tn:inspector.get_indexes(tn) for tn in inspector.get_table_names()}
     
     @property
     def inspector(self) -> sqlalchemy.engine.Inspector:
@@ -226,7 +226,6 @@ class ConnectEngine:
             
             # metadata was found, so using that
             if tabname in self._engine.table_names():
-                print(f'metadata was found')
                 exist_cn = set(c.name for c in self.tables[tabname].columns)
                 if not allow_inconsistent_schema:
                     self.check_column_consistency(exist_cn, columns)
@@ -237,7 +236,6 @@ class ConnectEngine:
             
             # we have no metadata but the table does exist
             elif tabname in inspector.get_table_names():
-                print(f'table was found, but no metadata')
                 exist_cn = set(c['name'] for c in inspector.get_columns(tabname))
                 if not allow_inconsistent_schema:
                     self.check_column_consistency(exist_cn, columns)
@@ -246,7 +244,6 @@ class ConnectEngine:
             
             # table does not exist and no metadata is present
             else:
-                print(f'no table was found')
                 if new_table:
                     table = self.new_table(tabname, columns, **table_kwargs)
                     table.create(self._engine)
@@ -361,7 +358,7 @@ class ConnectEngine:
         inspector = self.inspector
         exist_ind = {ind['name']:tn for tn in inspector.get_table_names() 
                         for ind in inspector.get_indexes(tn)}
-        
+                
         # make sure existing indices with the same name are associated with same table
         a = any(exist_ind[ind.name] != tabname for ind in indices if ind.name in exist_ind)
         if not allow_inconsistent_schema and a:

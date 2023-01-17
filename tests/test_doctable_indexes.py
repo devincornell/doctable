@@ -71,7 +71,7 @@ def test_select_iter_basic():
             exit()
         
         print(f'============================== tab =================================')
-        tab = doctable.DocTable(target=fname, schema=MyObj2, tabname='mytab_old', new_db=True)
+        tab = doctable.DocTable(target=fname, schema=MyObj1, tabname='mytab_old', new_db=True)
         #print(tab.schema.columns)
         #print(tab.schema_table())
         print(f'{tab.indices()=}')
@@ -83,7 +83,7 @@ def test_select_iter_basic():
         print(f'{tab1.indices()=}')
         
         print(f'============================== tab2 =================================')
-        tab2 = doctable.DocTable(target=fname, schema=MyObj2, tabname='mytab', allow_inconsistent_schema=False, create_indices=False)
+        tab2 = doctable.DocTable(target=fname, schema=MyObj2, tabname='mytab', allow_inconsistent_schema=False)
         #tab2 = doctable.DocTable(target=fname, schema=MyObj2, tabname='mytab')
         #print(tab2.schema.columns)
         #print(tab2.schema_table())
