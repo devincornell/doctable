@@ -279,17 +279,7 @@ class ConnectEngine:
         # Binds .max(), .min(), .count(), .sum() to each column object.
         # https://docs.sqlalchemy.org/en/13/core/functions.html
         
-        for col in table.c:
-            col.max = functools.partial(sqlalchemy.sql.func.max, col)
-            col.min = functools.partial(sqlalchemy.sql.func.min, col)
-            col.count = functools.partial(sqlalchemy.sql.func.count, col)
-            col.sum = functools.partial(sqlalchemy.sql.func.sum, col)
-
-            def func_custom(attr: str):
-                '''Allows user to specify any sqlalchemy function name.'''
-                return getattr(sqlalchemy.sql.func, attr)(col)
-            col.func = func_custom
-        
+        self.bind_column_methods(table)        
         return table
 
     def new_table(self,
@@ -339,6 +329,21 @@ class ConnectEngine:
             # this will actually create the engine
             sa_ind.create(self._engine)
     
+    def bind_column_methods(self, table: sqlalchemy.Table):
+        '''Binds sqlalchemy methods to column objects.'''
+        
+        for col in table.c:
+            col.max = functools.partial(sqlalchemy.sql.func.max, col)
+            col.min = functools.partial(sqlalchemy.sql.func.min, col)
+            col.count = functools.partial(sqlalchemy.sql.func.count, col)
+            col.sum = functools.partial(sqlalchemy.sql.func.sum, col)
+            col.unique = functools.partial(sqlalchemy.sql.func.unique, col)
+
+            def func_custom(attr: str):
+                '''Allows user to specify any sqlalchemy function name.'''
+                return getattr(sqlalchemy.sql.func, attr)(col)
+            col.func = func_custom
+
     @staticmethod
     def check_column_consistency(
             existing_colnames: typing.Set[str], 
