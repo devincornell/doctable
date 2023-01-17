@@ -25,7 +25,11 @@ class SelectQuery(QueryBase):
 
     ######################################## Compound Selects ########################################
     
-    def select_iter(self, cols=None, chunksize=1, limit=None, **kwargs):
+    def select_iter(self, 
+            cols: typing.List[typing.Union[str, sqlalchemy.Column]] = None, 
+            chunksize: int = 100, 
+            **kwargs
+        ) -> typing.Iterable[DocTableSchema]:
         ''' Same as .select except results retrieved from db in chunks.
         Args:
             cols (col name(s) or sqlalchemy object(s)): columns to query
@@ -39,12 +43,17 @@ class SelectQuery(QueryBase):
         Yields:
             sqlalchemy result: row data - same as .select() method.
         '''
-        for chunk in self.select_chunks(cols=cols, chunksize=chunksize, 
-                                                    limit=limit, **kwargs):
+        for chunk in self.select_chunks(cols=cols, chunksize=chunksize, **kwargs):
             for row in chunk:
                 yield row
     
-    def select_chunks(self, cols: typing.List[typing.Union[str, sqlalchemy.Column]] = None, chunksize: int = 100, limit: int = None, raw_result: bool = False, **kwargs):
+    def select_chunks(self, 
+            cols: typing.List[typing.Union[str, sqlalchemy.Column]] = None, 
+            chunksize: int = 100, 
+            limit: int = None, 
+            raw_result: bool = False, 
+            **kwargs,
+        ) -> typing.Iterable[typing.List[DocTableSchema]]:
         ''' Performs select while querying only a subset of the results at a time.
         Args:
             cols (col name(s) or sqlalchemy object(s)): columns to query
