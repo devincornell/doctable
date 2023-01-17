@@ -27,7 +27,7 @@ class Stepper:
     show_ts: bool = True
     show_delta: bool = True
     show_mem: bool = True
-    used_tqdm: bool = False
+    using_tqdm: bool = False
     init_step: Step = dataclasses.field(default_factory=Step.now)
     steps: typing.List[Step] = dataclasses.field(default_factory=list)
     ctx_stack: typing.List[StepContext] = dataclasses.field(default_factory=list)
@@ -97,9 +97,9 @@ class Stepper:
         prev_step = self.steps[step.i-1] if len(self.steps) else None
         out_str = self.format_step_str(step, prev_step=prev_step, **format_kwargs)
         
-        if self.used_tqdm:
+        if self.using_tqdm:
             out_str = f'\n{out_str}'
-            self.used_tqdm = False
+            self.using_tqdm = False
         
         # write to log if enabled
         if self.log_fpath is not None:
@@ -156,7 +156,7 @@ class Stepper:
 
     ######################## for handling tqdm ########################
     def tqdm(self, *args, **kwargs):
-        self.used_tqdm = True
+        self.using_tqdm = True
         return tqdm.tqdm(*args, **kwargs)
 
     ######################## logging functionality ########################
