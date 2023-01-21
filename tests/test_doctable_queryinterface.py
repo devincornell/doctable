@@ -28,8 +28,22 @@ def test_select_iter_basic():
     test_objs = [MyObj(name=f'User{i//2}', age=i) for i in range(num_test_objs)]
     test_dicts = [o.asdict_ignore_missing() for o in test_objs]
     
+    m = MyObj(name='joe')
+    assert(m.v['id'] is doctable.MISSING_VALUE)
+    assert(m.v['age'] is doctable.MISSING_VALUE)
+    assert(m.v['added'] is doctable.MISSING_VALUE)
+    assert(m.v['updated'] is doctable.MISSING_VALUE)
+    assert(m.v['name'] is not doctable.MISSING_VALUE)
     
-    
+    with pytest.raises(doctable.RowDataNotAvailableError):
+        m.id
+    with pytest.raises(doctable.RowDataNotAvailableError):
+        m.age
+    with pytest.raises(doctable.RowDataNotAvailableError):
+        m.added
+    with pytest.raises(doctable.RowDataNotAvailableError):
+        m.updated
+        
     #with pytest.raises(doctable.ObjectToDictCovnersionFailedError):
     #    tab.q.insert_single(o.asdict_ignore_missing())
 
