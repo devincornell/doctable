@@ -8,32 +8,36 @@ import warnings
 
 from ...util import parse_static_arg
 from ..schemabase import SchemaBase
-from ..columnmetadata import ColumnMetadata
-from .doctableschema import DocTableSchema
-from .constraints import Constraint
+from .schemaobject import SchemaObject
+from .operators import set_rowdict, get_rowdict
+#from .columnmetadata import ColumnMetadata
+#from .doctableschema import DocTableSchema
+
 from ..coltype_map import python_to_slqlchemy_type
-from .doctableschema import DocTableSchema
-from .operators import asdict_ignore_missing
-from .index import Index
+#from .doctableschema import DocTableSchema
+#from .operators import asdict_ignore_missing
+from ..dataclassschema import Index, Constraint
+from ..columnmetadata import ColumnMetadata
 
 @dataclasses.dataclass
-class DataclassSchema(SchemaBase):
+class RowDictSchema(SchemaBase):
     '''Contains info about the db schema and methods to convert to/from schema objects.'''
+    schema_class: type[SchemaObject]
     columns: typing.List[sqlalchemy.Column]
-    schema_class: type[DocTableSchema]
     indices: typing.Tuple[Index]
     constraints: typing.Tuple[Constraint]
     
     @classmethod
     def from_schema_definition(cls, 
-            schema_class: type[DocTableSchema], 
+            schema_class: type[SchemaObject], 
             indices: typing.List[Index] = None, 
             constraints: typing.Tuple[Constraint] = None
         ):
         ''' Convert a dataclass definition to a list of sqlalchemy columns.
         '''
-        if not issubclass(schema_class, DocTableSchema):
-            raise TypeError('A dataclass schema must inherit from doctable.DocTableSchema.')
+        if not issubclass(schema_class, SchemaObject):
+            raise TypeError('A SchemaObject must inherit from doctable. '
+                'SchemaObject. Did you use the schema decorator?.')
         
         # get them as part of schema class potentially
         indices = parse_static_arg(schema_class, indices, 'indices', '_indices_', tuple())
@@ -47,11 +51,11 @@ class DataclassSchema(SchemaBase):
         )
         return new_schema
     
-    def object_to_dict(self, obj: DocTableSchema) -> typing.Dict:   
-        return asdict_ignore_missing(obj)
+    def object_to_dict(self, obj: SchemaObject) -> typing.Dict:   
+        return get_rowdict(obj)
     
     def row_to_object(self, row: sqlalchemy.engine.row.LegacyRow) -> typing.Any:
-        return self.schema_class(**dict(row))
+        return self.schema_class(__doctable_rowdict=row)
 
     def parse_columns(Cls) -> typing.List[sqlalchemy.Column]:
         ''' Convert the dataclass member variables to sqlalchemy columns.

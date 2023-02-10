@@ -5,10 +5,11 @@ import dataclasses
 import typing
 import pandas as pd
 
-from ..coltype_map import python_to_slqlchemy_type, string_to_sqlalchemy_type
+from .coltype_map import python_to_slqlchemy_type, string_to_sqlalchemy_type
 
 @dataclasses.dataclass
 class ColumnMetadata:
+    '''Stores metadata from the user for conversion to an sqlalchemy column.'''
     column_type: typing.Union[str, type, sqlalchemy.sql.type_api.TypeEngine]
     type_kwargs: dict = None
     column_kwargs: dict = None
@@ -20,9 +21,9 @@ class ColumnMetadata:
         if self.column_kwargs is None:
             self.column_kwargs = dict()
 
-    @property
-    def has_type(self):
-        return self.column_type is not None
+    def get_sqlalchemy_col(self, name: str, type_hint: type) -> sqlalchemy.Column:
+        coltype = self.get_sqlalchemy_type(type_hint)
+        return sqlalchemy.Column(name, coltype, **self.column_kwargs)
 
     def get_sqlalchemy_type(self, type_hint: type):
 

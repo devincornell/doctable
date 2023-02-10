@@ -4,7 +4,7 @@ import dataclasses
 import typing
 import functools
 
-from .missingvalue import MISSING_VALUE
+#from ..sentinels import MISSING_VALUE
 from .errors import RowDataNotAvailableError
 from .operators import get_attr_map, attr_value, attr_value_tuples, asdict, asdict_ignore_missing
 

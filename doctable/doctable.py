@@ -26,7 +26,15 @@ from .models import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
 from .query import Query
-from .schema import StringSchema, DataclassSchema, InferredSchema, RowToObjectConversionFailedError, has_attr_map
+from .schema import (
+    StringSchema, 
+    DataclassSchema, 
+    InferredSchema, 
+    RowDictSchema,
+    RowToObjectConversionFailedError, 
+    has_attr_map, 
+    has_rowdict,
+)
 
 DEFAULT_TABNAME = '_documents_'
 
@@ -141,7 +149,14 @@ class DocTable:
         self._new_table = new_table
                 
         # connect to existing table or create new one
-        if has_attr_map(schema):
+        if has_rowdict(schema):
+            self._schema = RowDictSchema.from_schema_definition(
+                schema_class = schema,
+                indices = indices, # need these if we want to grab from constructor
+                constraints = constraints,
+            )
+
+        elif has_attr_map(schema):
             self._schema = DataclassSchema.from_schema_definition(
                 schema_class = schema,
                 indices = indices, # need these if we want to grab from constructor

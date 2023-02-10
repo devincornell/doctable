@@ -1,16 +1,19 @@
 
+
 from ..columnmetadata import ColumnMetadata
-from ..sentinels import MISSING_VALUE
 from datetime import datetime
-import dataclasses
+#import dataclasses
+import attrs
+from ..sentinels import NOTHING
 from typing import Any, Union
 import sqlalchemy
+import typing
 
 from ..custom_coltypes import PickleFileType, ParseTreeDocFileType, TextFileType
-            
 
 
-def Col(column_type: type = None, field_kwargs: dict = None, type_kwargs: dict = None, **column_kwargs) -> dataclasses.Field:
+
+def Col(column_type: type = None, field_kwargs: dict = None, type_kwargs: dict = None, **column_kwargs) -> attrs.Attribute:
     ''' Returns dataclasses.field() after setting convienient params.
     Args:
         field_kwargs: passed directly to dataclasses.field.
@@ -22,8 +25,8 @@ def Col(column_type: type = None, field_kwargs: dict = None, type_kwargs: dict =
     if type_kwargs is None:
         type_kwargs = dict()
 
-    if 'default' not in field_kwargs and 'default_factory' not in field_kwargs:
-        field_kwargs['default'] = MISSING_VALUE
+    if 'default' not in field_kwargs and 'factory' not in field_kwargs:
+        field_kwargs['default'] = NOTHING
 
     column_metadata = ColumnMetadata(
         column_type = column_type,
@@ -31,32 +34,35 @@ def Col(column_type: type = None, field_kwargs: dict = None, type_kwargs: dict =
         column_kwargs = column_kwargs,
     )
 
-    return dataclasses.field(init=True, metadata={'column_metadata': column_metadata}, repr=True, **field_kwargs)
+    return attrs.field(init=True, metadata={'column_metadata': column_metadata}, repr=True, **field_kwargs)
 
-def IDCol() -> dataclasses.Field:
-    return Col(primary_key=True, autoincrement=True)
 
-def UpdatedCol() -> dataclasses.Field:
+
+
+def IDCol(**kwargs) -> attrs.Attribute:
+    return Col(primary_key=True, autoincrement=True, **kwargs)
+
+def UpdatedCol() -> attrs.Attribute:
     ''' Column that will automatically update the date/time when the row is modified.
     '''
     return Col(default=datetime.now)
 
-def AddedCol() -> dataclasses.Field:
+def AddedCol() -> attrs.Attribute:
     ''' Column that will automatically update the date/time when the row is inserted.
     '''
     return Col(default=datetime.now, onupdate=datetime.now)
 
-def PickleFileCol(folder, **kwargs) -> dataclasses.Field:
+def PickleFileCol(folder, **kwargs) -> attrs.Attribute:
     ''' Column that will store arbitrary python data in the filesystem and keep only a reference.
     '''
     return Col(column_type=PickleFileType, type_kwargs=dict(folder=folder), **kwargs)
 
-def TextFileCol(folder, **kwargs) -> dataclasses.Field:
+def TextFileCol(folder, **kwargs) -> attrs.Attribute:
     ''' Column that will store text data in the filesystem and keep only a reference.
     '''
     return Col(column_type=TextFileType, type_kwargs=dict(folder=folder), **kwargs)
 
-def ParseTreeFileCol(folder, **kwargs) -> dataclasses.Field:
+def ParseTreeFileCol(folder, **kwargs) -> attrs.Attribute:
     ''' Column that will store text data in the filesystem and keep only a reference.
     '''
     return Col(column_type=ParseTreeDocFileType, type_kwargs=dict(folder=folder), **kwargs)

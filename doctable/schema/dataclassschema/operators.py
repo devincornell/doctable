@@ -3,7 +3,7 @@ import typing
 if typing.TYPE_CHECKING:
     from .doctableschema import DocTableSchema
 
-from .missingvalue import MISSING_VALUE
+from ..sentinels import MISSING_VALUE
 
 PROPERTY_NAMES_ATTR = '__doctable_property_names__'
 

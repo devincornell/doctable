@@ -4,7 +4,7 @@ import dataclasses
 import typing
 
 from .errors import RowDataNotAvailableError, SlotsRequiredError
-from .missingvalue import MISSING_VALUE
+from ..sentinels import MISSING_VALUE
 from .doctableschema import DocTableSchema
 from .operators import set_attr_map, property_to_attr, attr_to_property, attr_value_tuples, as_value_tuple
 
