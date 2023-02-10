@@ -4,6 +4,7 @@ import sqlalchemy
 import dataclasses
 import typing
 import copy
+import attrs
 import warnings
 
 from ...util import parse_static_arg
@@ -44,33 +45,34 @@ class RowDictSchema(SchemaBase):
         constraints = parse_static_arg(schema_class, constraints, 'constraints', '_constraints_', tuple())
         
         new_schema: cls = cls(
-            columns = cls.parse_columns(schema_class),
             schema_class = copy.deepcopy(schema_class),
+            columns = cls.parse_columns(schema_class),
             indices = cls.parse_indices(copy.deepcopy(indices)),
             constraints = cls.parse_constraints(copy.deepcopy(constraints)),
         )
         return new_schema
     
-    def object_to_dict(self, obj: SchemaObject) -> typing.Dict:   
+    def object_to_dict(self, obj: SchemaObject) -> typing.Dict:
         return get_rowdict(obj)
     
     def row_to_object(self, row: sqlalchemy.engine.row.LegacyRow) -> typing.Any:
-        return self.schema_class(__doctable_rowdict=row)
+        return self.schema_class(_doctable_from_row_obj=row)
 
     def parse_columns(Cls) -> typing.List[sqlalchemy.Column]:
         ''' Convert the dataclass member variables to sqlalchemy columns.
         '''
         columns = list()
-        for f in dataclasses.fields(Cls):
+        for f in attrs.fields(Cls):
             if f.init:
 
                 if 'column_metadata' in f.metadata:
 
                     column_metadata: ColumnMetadata = f.metadata['column_metadata']
-
+                    col = column_metadata.get_sqlalchemy_col(f.name, f.type)
+                    
                     # if column metadata was provided
-                    use_type = column_metadata.get_sqlalchemy_type(f.type)
-                    col = sqlalchemy.Column(f.name, use_type, **column_metadata.column_kwargs)
+                    #use_type = column_metadata.get_sqlalchemy_type(f.type)
+                    #col = sqlalchemy.Column(f.name, use_type, **column_metadata.column_kwargs)
                 
                 # if no ColumnMetadata was passed
                 else:

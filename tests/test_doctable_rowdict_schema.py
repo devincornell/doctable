@@ -48,6 +48,11 @@ def test_properties_schema(num_rows: int = 10):
     print(o.name)
     print(o)
 
+    tab = doctable.DocTable(target=':memory:', schema=ExpObj)
+    tab.q.insert_single(ExpObj(name='Devin'))
+    print(tab.q.select_first())
+
+
     return 
 
     ############################### Old Schema Method #########################

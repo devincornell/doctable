@@ -1,5 +1,5 @@
-
-from .operators import rowdict_has_attr, get_rowdict_attr, get_rowdict, get_rowdict_attr_default, set_rowdict
+from __future__ import annotations
+from .operators import rowdict_has_attr, get_rowdict_attr, get_rowdict, get_rowdict_attr_default, rowdict_obj_from_dict
 from ..sentinels import NOTHING
 import typing
 
@@ -21,6 +21,11 @@ class SchemaObject:
                 retrieved from the database.
         '''
         return get_rowdict_attr(self, attr)
+
+    @classmethod
+    def from_dict(cls, data: typing.Dict):
+        return rowdict_obj_from_dict(cls, data)
+
 
     ################## Access Data in Different Way ##################
     def v(self) -> typing.Dict:

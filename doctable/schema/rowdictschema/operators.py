@@ -6,7 +6,7 @@ if typing.TYPE_CHECKING:
 
 
 # this will be the member variable used underneath the hood
-rowdict_attr_name = '__rowdict'
+rowdict_attr_name = '_doctable_rowdict'
 
 
 ############# Main Getter/Setter Properties #############
@@ -39,5 +39,6 @@ def get_rowdict(obj: SchemaObject) -> typing.Dict:
     '''Get the rowdict associated with this object.'''
     return getattr(obj, rowdict_attr_name)
 
-
+def rowdict_obj_from_dict(ObjType: type, d: typing.Dict) -> SchemaObject:
+    return ObjType(_doctable_from_row_obj=d)
 

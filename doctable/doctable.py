@@ -13,7 +13,7 @@ import typing
 from typing import Union, Mapping, Sequence, Tuple, Set, List
 import dataclasses
 import warnings
-
+#from .schema import SchemaObject, DocTableSchema
 from doctable.util import QueueInserter
 
 # operators like and_, or_, and not_, functions like sum, min, max, etc
@@ -21,7 +21,7 @@ from doctable.util import QueueInserter
 import sqlalchemy
 
 from .util import is_sequence, parse_static_arg
-from .schema import FileTypeBase, DocTableSchema, Constraint, Index
+from .schema import SchemaObject, FileTypeBase, DocTableSchema, Constraint, Index
 from .models import DocBootstrap
 #from .util import list_tables
 from .connectengine import ConnectEngine
@@ -149,13 +149,13 @@ class DocTable:
         self._new_table = new_table
                 
         # connect to existing table or create new one
-        if has_rowdict(schema):
+        # NOTE: this is not a good way to detect the schema type - make something more obvious
+        if hasattr(schema, '_doctable_from_row_obj'):
             self._schema = RowDictSchema.from_schema_definition(
                 schema_class = schema,
                 indices = indices, # need these if we want to grab from constructor
                 constraints = constraints,
             )
-
         elif has_attr_map(schema):
             self._schema = DataclassSchema.from_schema_definition(
                 schema_class = schema,

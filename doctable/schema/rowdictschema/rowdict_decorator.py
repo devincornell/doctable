@@ -9,7 +9,7 @@ import sqlalchemy
 from ..dataclassschema import RowDataNotAvailableError, SlotsRequiredError
 from ..sentinels import NOTHING
 from .schemaobject import SchemaObject
-from .operators import set_rowdict, set_rowdict_attr, get_rowdict_attr, rowdict_attr_name
+from .operators import set_rowdict, set_rowdict_attr, get_rowdict_attr, rowdict_obj_from_dict, has_rowdict, rowdict_attr_name
 
 
 def schema_experimental(
@@ -80,9 +80,9 @@ def rowdict_decorator_factory(
                     #super(Cls, self).__init__(*args, **kwargs) # idk why this didn't work
             
             @classmethod
-            def _doctable_from_row_obj(cls, row_obj: typing.Dict) -> NewClass:
+            def _doctable_from_row_obj(cls, row: typing.Dict) -> NewClass:
                 '''Used to construct this object from result of an sql query.'''
-                return cls(_doctable_from_row_obj=row_obj)
+                return rowdict_obj_from_dict(cls, row)
                 
         return NewClass
     
