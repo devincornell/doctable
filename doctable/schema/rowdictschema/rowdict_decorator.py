@@ -70,20 +70,25 @@ def rowdict_decorator_factory(
         class NewClass(SchemaObject, Cls):
             # NOTE: will this work to add slots? not sure - need to test it
             __slots__ = [rowdict_attr_name]
-            def __init__(self, *args, _doctable_from_row_obj: typing.Dict = None, **kwargs):
+            def __init__(self, *args, _doctable_rowdict: typing.Dict = None, **kwargs):
                 '''Setting __doctable_rowdict allows user to bypass arguments entirely.'''
-                if _doctable_from_row_obj is not None:
-                    _doctable_from_row_obj = dict(_doctable_from_row_obj)
-                    set_rowdict(self, _doctable_from_row_obj)
+                #self._doctable_rowdict = dict()
+                #Cls.__init__(self, *args, **kwargs)
+                if _doctable_rowdict is not None:
+                    # NOTE: THE OPERATORS INCUR A HUGE PERFORMANCE COST
+                    self._doctable_rowdict = dict(_doctable_rowdict)
+                    #set_rowdict(self, _doctable_from_row_obj)
                 else:
-                    set_rowdict(self, dict())
+                    self._doctable_rowdict = dict()
+                    #set_rowdict(self, dict())
                     Cls.__init__(self, *args, **kwargs)
                     #super(Cls, self).__init__(*args, **kwargs) # idk why this didn't work
             
             @classmethod
             def _doctable_from_row_obj(cls, row: typing.Dict) -> NewClass:
                 '''Used to construct this object from result of an sql query.'''
-                return rowdict_obj_from_dict(cls, row)
+                #return rowdict_obj_from_dict(cls, row)
+                return cls(_doctable_rowdict = dict(row))
                 
         return NewClass
     
@@ -95,21 +100,26 @@ def get_getter_setter_rowdict(property_name: str):
     class TmpGetterSetter:
 
         @property
-        def a(self):
+        def dummy_getter_setter(self):
             try:
-                return get_rowdict_attr(self, property_name)
+                # NOTE: GIVEN THAT THE SETTER OPERATOR WAS SO EXPENSIVE, I RECOMMEND NOT USING GETTER
+                #return get_rowdict_attr(self, property_name)
+                return self._doctable_rowdict[property_name]
             except KeyError:
                 raise RowDataNotAvailableError(f'The "{property_name}" property '
                     'is not available. This might happen if you did not retrieve '
                     'the information from a database or if you did not provide '
                     'a value in the class constructor.')            
 
-        @a.setter
-        def a(self, val: typing.Any):
+        @dummy_getter_setter.setter
+        def dummy_getter_setter(self, val: typing.Any):
+            # NOTE: THIS IF STATEMENT DOESN"T SEEM TO AFFECT PERFORMANCE MUCH
             if val is not NOTHING:
-                set_rowdict_attr(self, property_name, val)
+                # NOTE: USING AN OPERATOR HERE IS THE MOST EXPENSIVE THING
+                #set_rowdict_attr(self, property_name, val)
+                self._doctable_rowdict[property_name] = val
     
-    return TmpGetterSetter.a
+    return TmpGetterSetter.dummy_getter_setter
 
 
 

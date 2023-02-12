@@ -53,10 +53,11 @@ class RowDictSchema(SchemaBase):
         return new_schema
     
     def object_to_dict(self, obj: SchemaObject) -> typing.Dict:
-        return get_rowdict(obj)
+        #return get_rowdict(obj)
+        return obj._doctable_rowdict
     
     def row_to_object(self, row: sqlalchemy.engine.row.LegacyRow) -> typing.Any:
-        return self.schema_class(_doctable_from_row_obj=row)
+        return self.schema_class(_doctable_rowdict=row)
 
     def parse_columns(Cls) -> typing.List[sqlalchemy.Column]:
         ''' Convert the dataclass member variables to sqlalchemy columns.

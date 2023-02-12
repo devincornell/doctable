@@ -62,12 +62,20 @@ def runtest_raw(n: int = 100):
 
 def test_create_objects(ObjType: type, payload: typing.List[typing.Tuple[int,str]]):
     for p in payload:
-        ObjType(*p)
+        ObjType(**p)
+
+def test_create_objects_raw(construct_func: typing.Callable, payload: typing.List[typing.Tuple[int,str]]):
+    for p in payload:
+        construct_func(_doctable_rowdict=p)
 
 # these can't be in __main__
-payload = [(i, f'name{i}', i * 1.1, i * 2.1) for i in range(100000)]
-cProfile.run('test_create_objects(MyObjSmall, payload)', filename='bench/schema_obj_create.prof')
-cProfile.run('test_create_objects(ExMyObjSmall, payload)', filename='bench/schema_experimental_obj_create.prof')
+n = 500000
+payload = [(i, f'name{i}', i * 1.1, i * 2.1) for i in range(n)]
+payload_raw = [{'id': i, 'name': f'name{i}', 'other': i * 1.1, 'other2': i * 2.1} for i in range(n)]
+
+cProfile.run('test_create_objects(MyObjSmall, payload_raw)', filename='bench/schema_obj_create.prof')
+cProfile.run('test_create_objects(ExMyObjSmall, payload_raw)', filename='bench/schema_experimental_obj_create.prof')
+cProfile.run('test_create_objects_raw(ExMyObjSmall, payload_raw)', filename='bench/schema_experimental_raw_obj_create.prof')
 
 if __name__ == '__main__':
     
