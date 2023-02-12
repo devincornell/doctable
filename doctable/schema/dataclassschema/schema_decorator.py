@@ -133,7 +133,7 @@ def schema_decorator_basic_factory(
 def get_getter_setter(property_name: str):
     class TmpGetterSetter:
         @property
-        def a(self):
+        def getter_dummy(self):
             if getattr(self, property_name) is MISSING_VALUE:
                 colname = attr_to_property(property_name)
                 raise RowDataNotAvailableError(f'The "{colname}" property '
@@ -143,10 +143,10 @@ def get_getter_setter(property_name: str):
             
             return getattr(self, property_name)
         
-        @a.setter
-        def a(self, val):
+        @getter_dummy.setter
+        def getter_dummy(self, val):
             setattr(self, property_name, val)
-    return TmpGetterSetter.a
+    return TmpGetterSetter.getter_dummy
 
 
 
