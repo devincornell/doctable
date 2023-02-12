@@ -73,7 +73,8 @@ def rowdict_decorator_factory(
             def __init__(self, *args, _doctable_from_row_obj: typing.Dict = None, **kwargs):
                 '''Setting __doctable_rowdict allows user to bypass arguments entirely.'''
                 if _doctable_from_row_obj is not None:
-                    set_rowdict(self, dict(_doctable_from_row_obj))
+                    _doctable_from_row_obj = dict(_doctable_from_row_obj)
+                    set_rowdict(self, _doctable_from_row_obj)
                 else:
                     set_rowdict(self, dict())
                     Cls.__init__(self, *args, **kwargs)
