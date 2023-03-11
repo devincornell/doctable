@@ -17,6 +17,7 @@ python_to_slqlchemy_type = {
     datetime.date: sa.Date,
     ParseTreeDoc: ParseTreeDocFileType,
     bytes: sa.LargeBinary,
+    JSONType: JSONType,
     typing.Any: sa.PickleType,
 }
 # this works for newer versions of python where type hints are strings
