@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from ..sentinels import MISSING_VALUE
 import dataclasses
 import typing
 import functools
@@ -18,6 +19,9 @@ class PropertyAccessor:
     schema_obj: DocTableSchema
     def __getitem__(self, pname: str):
         return attr_value(self.schema_obj, pname)
+
+    def is_missing(self, pname: str):
+        return attr_value(self.schema_obj, pname) is MISSING_VALUE
 
 class DocTableSchema:
     ''' Base class for column objects.
