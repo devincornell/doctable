@@ -29,7 +29,15 @@ class ColumnMetadata:
 
         # has no column type information
         if self.column_type is None:
-            return python_to_slqlchemy_type.get(type_hint, sqlalchemy.PickleType)(**self.type_kwargs)
+            #return python_to_slqlchemy_type.get(type_hint, sqlalchemy.PickleType)(**self.type_kwargs)
+            try:
+                type_obj = python_to_slqlchemy_type[type_hint]
+            except KeyError as e:
+                raise TypeError(f'The type hint "{type_hint}" is not in the set of valid column types. '
+                    f'To use PickleType, provide the type hint "typing.Any". These are other valid types: '
+                    f'{python_to_slqlchemy_type}') from e
+            return type_obj(**self.type_kwargs)
+            
 
         # is a string for a type
         elif isinstance(self.column_type, str):

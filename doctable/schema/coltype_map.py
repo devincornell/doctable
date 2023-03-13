@@ -22,7 +22,10 @@ python_to_slqlchemy_type = {
 }
 # this works for newer versions of python where type hints are strings
 for pytype, satype in list(python_to_slqlchemy_type.items()):
-    python_to_slqlchemy_type[str(pytype)] = satype
+    try:
+        python_to_slqlchemy_type[pytype.__name__] = satype
+    except AttributeError:
+        pass
 
 constraint_lookup = {
     'check': sa.CheckConstraint,
