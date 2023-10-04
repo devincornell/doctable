@@ -8,7 +8,12 @@ if __name__ == '__main__':
     ce = newtable.ConnectEngine.new(target=':memory:', dialect='sqlite')
     print(ce)
     
-    tab = ce.new_sqlalchemy_table(
+    try:
+        tab0 = ce.reflect_existing_table(table_name='test')
+    except newtable.connectengine.TableDoesNotExistError as e:
+        print(e)
+    
+    tab1 = ce.new_sqlalchemy_table(
         table_name='test',
         columns=[
             sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
@@ -17,16 +22,27 @@ if __name__ == '__main__':
             sqlalchemy.Index('age_index', 'age'),
         ],
     )
-    print(tab)
+    print(tab1)
 
-    tab2 = ce.new_sqlalchemy_table(
+    try:
+        tab2 = ce.new_sqlalchemy_table(
+            table_name='test',
+            columns=[
+                sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+                sqlalchemy.Column('name', sqlalchemy.String),
+            ],
+        )
+        print(tab2)
+    except newtable.TableAlreadyExistsError as e:
+        print(e)
+
+    tab3 = ce.reflect_existing_table(
         table_name='test',
-        columns=[
-            sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
-            sqlalchemy.Column('whatever', sqlalchemy.String),
-        ],
     )
+    
+    tab4 = ce.reflect_existing_table(table_name='test')
+    tab5 = ce.reflect_existing_table(table_name='test')
 
-    print(sqlalchemy.inspect(tab).columns)
-    print(sqlalchemy.inspect(tab2).columns)
+    print(sqlalchemy.inspect(tab1).columns)
+    print(sqlalchemy.inspect(tab3).columns)
 

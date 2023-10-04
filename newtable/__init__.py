@@ -1,2 +1,2 @@
-from .connectengine import ConnectEngine
-from .doctable import DocTable
+from .connectengine import *
+from .doctable import *

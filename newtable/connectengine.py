@@ -3,10 +3,14 @@ import typing
 import dataclasses
 import os
 import sqlalchemy
+import sqlalchemy.exc
 import pandas as pd
 from .doctable import DocTable
 
 class TableAlreadyExistsError(Exception):
+    pass
+
+class TableDoesNotExistError(Exception):
     pass
 
 @dataclasses.dataclass
@@ -52,12 +56,13 @@ class ConnectEngine:
 
     ################# Queries #################
     def new_sqlalchemy_table(self, table_name: str, columns: list[sqlalchemy.Column], **kwargs) -> sqlalchemy.Table:
-        '''Create a new table object in the database.'''
+        '''Create a new table in the database.'''
         # ideally the user will not enable extend_existing = True
         try:
             return sqlalchemy.Table(table_name, self.metadata, *columns, **kwargs)
         except sqlalchemy.exc.InvalidRequestError as e:
-            if 'already exists' in str(e): # idk about this if statement, but copilot wrote it.
+            m = str(e)
+            if 'already exists' in m or 'already defined' in m: # idk about this if statement, but copilot wrote it.
                 raise TableAlreadyExistsError(f'The table {table_name} already exists. '
                     'To reflect an existing table, use reflect_existing_table(). '
                     'You may also use the extend_existing=True flag, but it is not '
@@ -67,7 +72,11 @@ class ConnectEngine:
     
     def reflect_existing_table(self, table_name: str, **kwargs) -> sqlalchemy.Table:
         '''Reflect a table that already exists in the database.'''
-        return sqlalchemy.Table(table_name, self.metadata, autoload_with=self.engine, **kwargs)
+        try:
+            return sqlalchemy.Table(table_name, self.metadata, autoload_with=self.engine, **kwargs)
+        except sqlalchemy.exc.NoSuchTableError as e:
+            raise TableDoesNotExistError(f'The table {table_name} does not exist. '
+                'To create a new table, use new_sqlalchemy_table().') from e
     
     def drop_table(self, table_name: str, if_exists: bool = False, **kwargs) -> None:
         '''Drops table, either sqlalchemy object or by executing DROP TABLE.
