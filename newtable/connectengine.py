@@ -14,6 +14,18 @@ class TableDoesNotExistError(Exception):
     pass
 
 @dataclasses.dataclass
+class ConnectEngineCreateTables:
+    ce: ConnectEngine
+    
+    def __enter__(self) -> ConnectEngineCreateTables:
+        return self.ce
+    
+    def __exit__(self, exc_type, exc_value, exc_tb) -> None:
+        '''Create all tables in metadata.'''
+        self.ce.create_all_tables()
+        
+
+@dataclasses.dataclass
 class ConnectEngine:
     '''Manages an sqlalchemy engine and metadata object.'''
     target: str
@@ -23,19 +35,19 @@ class ConnectEngine:
 
     ################# Init #################
     @classmethod
-    def connect_new(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectEngine:
-        '''Connect to a new database.'''
+    def open_new(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectEngine:
+        '''Connect to a new database (relevant only in sqlite, otherwise use open()).'''
         cls.check_target_exists(target, dialect, new_db=True)
-        return cls.connect(target=target, dialect=dialect, echo=echo, **engine_kwargs)
+        return cls.open(target=target, dialect=dialect, echo=echo, **engine_kwargs)
     
     @classmethod
-    def connect_existing(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectEngine:
-        '''Connect to an existing database.'''
+    def open_existing(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectEngine:
+        '''Connect to an existing database (relevant only in sqlite, otherwise use open()).'''
         cls.check_target_exists(target, dialect, new_db=False)
-        return cls.connect(target=target, dialect=dialect, echo=echo, **engine_kwargs)
+        return cls.open(target=target, dialect=dialect, echo=echo, **engine_kwargs)
     
     @classmethod
-    def connect(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectEngine:
+    def open(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectEngine:
         '''Connect to a database, creating it if it doesn't exist.'''
         engine, meta = cls.new_sqlalchemy_engine(target=target, dialect=dialect, echo=echo, **engine_kwargs)
         return cls(
@@ -59,6 +71,11 @@ class ConnectEngine:
         engine = sqlalchemy.create_engine(f'{dialect}:///{target}', echo=echo, **engine_kwargs)
         meta = sqlalchemy.MetaData(bind=engine)
         return engine, meta
+    
+    ################# Context Managers #################
+    def create_tables(self) -> DocTable:
+        '''For creating multiple tables at once.'''
+        return ConnectEngineCreateTables(self)
         
     ################# Tables #################
     def get_doctable(table_name: str) -> DocTable:
@@ -90,21 +107,21 @@ class ConnectEngine:
             raise TableDoesNotExistError(f'The table {table_name} does not exist. '
                 'To create a new table, use new_sqlalchemy_table().') from e
     
-    def drop_table(self, table_name: str, if_exists: bool = False, **kwargs) -> None:
-        '''Drops table, either sqlalchemy object or by executing DROP TABLE.
-        Args:
-            table (sqlalchemy.Table/str): table object or name to drop.
-            if_exists (bool): if true, won't throw exception if table doesn't exist.
-        '''
-        pass
-
     ################# Connections #################
-    def get_connection(self) -> sqlalchemy.engine.Connection:
-        ''' Open new connection in the engine connection pool.
-        '''
-        return self.engine.connect()
 
     ################# Engine interface #################
+    def begin(self) -> sqlalchemy.engine.Transaction:
+        ''' Open new transaction in the engine connection pool.
+        https://docs.sqlalchemy.org/en/20/tutorial/dbapi_transactions.html
+        '''
+        return self.engine.begin()
+    
+    def connect(self) -> sqlalchemy.engine.Connection:
+        ''' Open new connection in the engine connection pool.
+        https://docs.sqlalchemy.org/en/20/tutorial/dbapi_transactions.html
+        '''
+        return self.engine.connect()
+    
     def list_tables(self) -> typing.List[str]:
         ''' List table names in database connection.
         '''
@@ -128,6 +145,11 @@ class ConnectEngine:
         #for tabname in self.list_tables():
         #    self.add_table(tabname, **kwargs)
         return self.metadata.reflect(**kwargs)
+    
+    def create_all_tables(self) -> None:
+        ''' Create all tables in metadata.
+        '''
+        return self.metadata.create_all(self.engine)
 
     ################# Inspection methods #################
     def inspect_columns_all(self) -> typing.Dict[str, typing.List[typing.Dict[str, typing.Any]]]:

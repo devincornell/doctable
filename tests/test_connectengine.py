@@ -1,15 +1,27 @@
-
+import os
 import sys
 sys.path.append('..')
 import newtable
 import sqlalchemy
 
-def test_new_sqlalchemy_table():
-    ce = newtable.ConnectEngine.connect(
-        target='test.db', 
+def test_new_sqlalchemy_table(test_fname: str = 'test.db'):
+    if os.path.exists(test_fname):
+        os.remove(test_fname)
+        
+    try:
+        newtable.ConnectEngine.open_existing(
+            target=test_fname, 
+            dialect='sqlite',
+        )
+        raise Exception('Should have raised FileNotFoundError.')
+    except FileNotFoundError as e:
+        print(e)
+    
+    ce = newtable.ConnectEngine.open_new(
+        target = test_fname, 
         dialect='sqlite',
-        echo=True,
-    )
+    )        
+        
     #print(ce)
     #return ce
     try: # database is actually created here
@@ -38,6 +50,7 @@ def test_new_sqlalchemy_table():
             ],
         )
         print(tab2)
+        raise Exception('Should have raised TableAlreadyExistsError.')
     except newtable.TableAlreadyExistsError as e:
         print(e)
 
@@ -52,6 +65,8 @@ def test_new_sqlalchemy_table():
     # you can see the columns are the same
     print(sqlalchemy.inspect(tab1).columns)
     print(sqlalchemy.inspect(tab3).columns)
+
+    ce.create_all_tables()
 
 def test_query():
     pass
