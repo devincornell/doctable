@@ -14,19 +14,19 @@ class TableDoesNotExistError(Exception):
     pass
 
 @dataclasses.dataclass
-class ConnectEngineCreateTables:
-    ce: ConnectEngine
+class ConnectCoreCreateTables:
+    core: ConnectCore
     
-    def __enter__(self) -> ConnectEngineCreateTables:
-        return self.ce
+    def __enter__(self) -> ConnectCoreCreateTables:
+        return self.core
     
     def __exit__(self, exc_type, exc_value, exc_tb) -> None:
         '''Create all tables in metadata.'''
-        self.ce.create_all_tables()
+        self.core.create_all_tables()
         
 
 @dataclasses.dataclass
-class ConnectEngine:
+class ConnectCore:
     '''Manages an sqlalchemy engine and metadata object.'''
     target: str
     dialect: str
@@ -35,19 +35,19 @@ class ConnectEngine:
 
     ################# Init #################
     @classmethod
-    def open_new(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectEngine:
+    def open_new(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectCore:
         '''Connect to a new database (relevant only in sqlite, otherwise use open()).'''
         cls.check_target_exists(target, dialect, new_db=True)
         return cls.open(target=target, dialect=dialect, echo=echo, **engine_kwargs)
     
     @classmethod
-    def open_existing(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectEngine:
+    def open_existing(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectCore:
         '''Connect to an existing database (relevant only in sqlite, otherwise use open()).'''
         cls.check_target_exists(target, dialect, new_db=False)
         return cls.open(target=target, dialect=dialect, echo=echo, **engine_kwargs)
     
     @classmethod
-    def open(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectEngine:
+    def open(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectCore:
         '''Connect to a database, creating it if it doesn't exist.'''
         engine, meta = cls.new_sqlalchemy_engine(target=target, dialect=dialect, echo=echo, **engine_kwargs)
         return cls(
@@ -75,7 +75,7 @@ class ConnectEngine:
     ################# Context Managers #################
     def create_tables(self) -> DocTable:
         '''For creating multiple tables at once.'''
-        return ConnectEngineCreateTables(self)
+        return ConnectCoreCreateTables(self)
         
     ################# Tables #################
     def get_doctable(table_name: str) -> DocTable:

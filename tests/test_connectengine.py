@@ -9,7 +9,7 @@ def test_new_sqlalchemy_table(test_fname: str = 'test.db'):
         os.remove(test_fname)
         
     try:
-        newtable.ConnectEngine.open_existing(
+        newtable.ConnectCore.open_existing(
             target=test_fname, 
             dialect='sqlite',
         )
@@ -17,11 +17,11 @@ def test_new_sqlalchemy_table(test_fname: str = 'test.db'):
     except FileNotFoundError as e:
         print(e)
     
-    ce = newtable.ConnectEngine.open_new(
+    ce = newtable.ConnectCore.open_new(
         target = test_fname, 
         dialect='sqlite',
     )        
-        
+    
     #print(ce)
     #return ce
     try: # database is actually created here
@@ -70,6 +70,17 @@ def test_new_sqlalchemy_table(test_fname: str = 'test.db'):
 
 def test_query():
     pass
+
+def test_schema():
+    @newtable.schema(
+        table_name = 'users',
+        constraints = [
+            sqlalchemy.ForeignKeyConstraint(),
+        ],
+        indices = [
+            sqlalchemy.Index(),
+        ]
+    )
 
 
 if __name__ == '__main__':
