@@ -6,6 +6,7 @@ import sqlalchemy
 import sqlalchemy.exc
 
 from .querybuilder import QueryBuilder
+from ..doctable import DocTable
 
 @dataclasses.dataclass
 class ConnectQuery:
@@ -24,7 +25,6 @@ class ConnectQuery:
         return self.conn.commit()
 
     #################### Select Queries ####################
-
     def select_chunks(self, 
         cols: typing.List[sqlalchemy.Column],
         chunksize: int = 100, 
@@ -154,6 +154,34 @@ class ConnectQuery:
                 'If not sure about result, use .select() with limit=1.')
         return result
 
+
+    #################### Insert Queries ####################
+    def insert_multi(self, 
+        dtable: DocTable,
+        data: typing.List[typing.Dict[str, typing.Any]], 
+        ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
+        **kwargs
+    ) -> sqlalchemy.engine.CursorResult:
+        if not self.is_sequence(data):
+            raise TypeError('insert_multi accepts a sequence of rows to insert.')
+        q = QueryBuilder.insert_query(dtable.table, ifnotunique=ifnotunique)
+        return self.execute(q, data, **kwargs)
+
+    def insert_single(self, 
+        dtable: DocTable,
+        data: typing.Dict[str, typing.Any], 
+        ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
+        **kwargs
+    ) -> sqlalchemy.engine.CursorResult:
+        ''' Insert a single element into the database.
+            Note: there is a performance cost to this because I enforce 
+            the single using .values instead of binding the data. To avoid 
+            this cost, past a single-element list to insert_multi instead.
+        '''
+        q = QueryBuilder.insert_query(dtable.table, ifnotunique=ifnotunique)
+        return self.execute(q.values(**data), **kwargs)
+
+    #################### Query Execution ####################
     def execute_query(self, 
         query: typing.Union[sqlalchemy.sql.Insert, sqlalchemy.sql.Select, sqlalchemy.sql.Update, sqlalchemy.sql.Delete], 
         **kwargs
@@ -165,4 +193,6 @@ class ConnectQuery:
         '''Execute raw sql query.'''
         return self.conn.execute(sqlalchemy.text(query_str), *args, **kwargs)
 
-
+    @staticmethod
+    def is_sequence(obj: typing.Any) -> bool:
+        return isinstance(obj, list) or isinstance(obj,tuple)

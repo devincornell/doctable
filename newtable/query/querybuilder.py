@@ -62,8 +62,7 @@ class QueryBuilder:
         table: sqlalchemy.Table,
         ifnotunique: typing.Optional[typing.Literal['FAIL', 'IGNORE', 'REPLACE']],
     ) -> sqlalchemy.sql.Insert:
-
-        q: sqlalchemy.sql.Select = sqlalchemy.sql.insert(table)
+        q: sqlalchemy.sql.Insert = sqlalchemy.sql.insert(table)
         q = q.prefix_with('OR {}'.format(ifnotunique.upper()))
         return q
 
