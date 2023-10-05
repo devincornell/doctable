@@ -116,7 +116,6 @@ class ConnectEngine:
         return self.engine.dispose()
 
     ################# Metadata interface #################
-    
     @property
     def metadata_tables(self) -> typing.Dict[str, sqlalchemy.Table]:
         ''' Access metadata.tables

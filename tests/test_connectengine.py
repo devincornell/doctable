@@ -8,10 +8,11 @@ def test_new_sqlalchemy_table():
     ce = newtable.ConnectEngine.connect(
         target='test.db', 
         dialect='sqlite',
+        echo=True,
     )
     #print(ce)
     #return ce
-    try:
+    try: # database is actually created here
         tab0 = ce.reflect_sqlalchemy_table(table_name='test')
     except newtable.connectengine.TableDoesNotExistError as e:
         print(e)
@@ -24,8 +25,9 @@ def test_new_sqlalchemy_table():
             sqlalchemy.Column('age', sqlalchemy.Integer),
             sqlalchemy.Index('age_index', 'age'),
         ],
-    )
+    ) # note that this hasn't created the database table yet
     print(tab1)
+    #return ce
 
     try:
         tab2 = ce.new_sqlalchemy_table(
