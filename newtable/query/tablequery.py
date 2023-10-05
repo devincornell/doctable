@@ -5,7 +5,7 @@ import sqlalchemy
 from .connectquery import ConnectQuery
 
 @dataclasses.dataclass
-class ConnectQuery:
+class TableQuery:
     table: sqlalchemy.Table
     cquery = ConnectQuery
 

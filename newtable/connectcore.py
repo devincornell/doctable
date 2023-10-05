@@ -6,6 +6,7 @@ import sqlalchemy
 import sqlalchemy.exc
 import pandas as pd
 from .doctable import DocTable
+from .query import ConnectQuery
 
 class TableAlreadyExistsError(Exception):
     pass
@@ -14,10 +15,10 @@ class TableDoesNotExistError(Exception):
     pass
 
 @dataclasses.dataclass
-class ConnectCoreCreateTables:
+class CreateTablesCtx:
     core: ConnectCore
     
-    def __enter__(self) -> ConnectCoreCreateTables:
+    def __enter__(self) -> CreateTablesCtx:
         return self.core
     
     def __exit__(self, exc_type, exc_value, exc_tb) -> None:
@@ -69,14 +70,18 @@ class ConnectCore:
     @staticmethod
     def new_sqlalchemy_engine(target: str, dialect: str, echo: bool = False, **engine_kwargs) -> typing.Tuple[sqlalchemy.engine.Engine, sqlalchemy.MetaData]:
         engine = sqlalchemy.create_engine(f'{dialect}:///{target}', echo=echo, **engine_kwargs)
-        meta = sqlalchemy.MetaData(bind=engine)
+        meta = sqlalchemy.MetaData()
         return engine, meta
     
     ################# Context Managers #################
-    def create_tables(self) -> DocTable:
-        '''For creating multiple tables at once.'''
-        return ConnectCoreCreateTables(self)
+    def create_tables(self) -> CreateTablesCtx:
+        '''Context manager that creates tables on exit. Use for multi-table schemas.'''
+        return CreateTablesCtx(self)
         
+    def query(self) -> ConnectQuery:
+        '''Create a connection and interface that can be used to make queries.'''
+        return ConnectQuery(self.engine.connect())
+
     ################# Tables #################
     def get_doctable(table_name: str) -> DocTable:
         pass
