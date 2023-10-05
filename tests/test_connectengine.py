@@ -4,15 +4,18 @@ sys.path.append('..')
 import newtable
 import sqlalchemy
 
-if __name__ == '__main__':
-    ce = newtable.ConnectEngine.new(target=':memory:', dialect='sqlite')
-    print(ce)
-    
+def test_new_sqlalchemy_table():
+    ce = newtable.ConnectEngine.connect(
+        target='test.db', 
+        dialect='sqlite',
+    )
+    #print(ce)
+    #return ce
     try:
-        tab0 = ce.reflect_existing_table(table_name='test')
+        tab0 = ce.reflect_sqlalchemy_table(table_name='test')
     except newtable.connectengine.TableDoesNotExistError as e:
         print(e)
-    
+    #return ce
     tab1 = ce.new_sqlalchemy_table(
         table_name='test',
         columns=[
@@ -36,13 +39,25 @@ if __name__ == '__main__':
     except newtable.TableAlreadyExistsError as e:
         print(e)
 
-    tab3 = ce.reflect_existing_table(
+    tab3 = ce.reflect_sqlalchemy_table(
         table_name='test',
     )
     
-    tab4 = ce.reflect_existing_table(table_name='test')
-    tab5 = ce.reflect_existing_table(table_name='test')
-
+    tab4 = ce.reflect_sqlalchemy_table(table_name='test')
+    tab5 = ce.reflect_sqlalchemy_table(table_name='test')
+    assert(tab4 is tab5) # they return the same reference
+    
+    # you can see the columns are the same
     print(sqlalchemy.inspect(tab1).columns)
     print(sqlalchemy.inspect(tab3).columns)
 
+def test_query():
+    pass
+
+
+if __name__ == '__main__':
+    test_new_sqlalchemy_table()
+        
+        
+        
+        

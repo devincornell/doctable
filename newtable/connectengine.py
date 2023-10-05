@@ -22,18 +22,22 @@ class ConnectEngine:
     metadata: sqlalchemy.MetaData
 
     ################# Init #################
-
     @classmethod
-    def new(cls, target: str, dialect: str = 'sqlite', new_db: bool = False, echo: bool = False, **engine_kwargs) -> ConnectEngine:
-        if dialect.startswith('sqlite'):
-            if target != ':memory:': #not creating in-memory database
-                exists = os.path.exists(target)
-                if not new_db and not exists:
-                    raise FileNotFoundError('new_db is set to False but the database {} does not '
-                                     'exist yet.'.format(target))
-
+    def connect_new(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectEngine:
+        '''Connect to a new database.'''
+        cls.check_target_exists(target, dialect, new_db=True)
+        return cls.connect(target=target, dialect=dialect, echo=echo, **engine_kwargs)
+    
+    @classmethod
+    def connect_existing(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectEngine:
+        '''Connect to an existing database.'''
+        cls.check_target_exists(target, dialect, new_db=False)
+        return cls.connect(target=target, dialect=dialect, echo=echo, **engine_kwargs)
+    
+    @classmethod
+    def connect(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectEngine:
+        '''Connect to a database, creating it if it doesn't exist.'''
         engine, meta = cls.new_sqlalchemy_engine(target=target, dialect=dialect, echo=echo, **engine_kwargs)
-        
         return cls(
             target=target,
             dialect=dialect,
@@ -42,14 +46,20 @@ class ConnectEngine:
         )
         
     @staticmethod
+    def check_target_exists(target: str, dialect: str, new_db: bool) -> bool:
+        '''Raise exception if the target database does not exist.'''
+        if dialect.startswith('sqlite') and target != ':memory:':
+            if new_db and os.path.exists(target):
+                raise FileExistsError(f'Database {target} already exists. Call connect_existing() instead.')
+            elif not new_db and not os.path.exists(target):
+                raise FileNotFoundError(f'Database {target} does not exist yet. Call connect_new() instead.')
+        
+    @staticmethod
     def new_sqlalchemy_engine(target: str, dialect: str, echo: bool = False, **engine_kwargs) -> typing.Tuple[sqlalchemy.engine.Engine, sqlalchemy.MetaData]:
         engine = sqlalchemy.create_engine(f'{dialect}:///{target}', echo=echo, **engine_kwargs)
         meta = sqlalchemy.MetaData(bind=engine)
         return engine, meta
-    
-    def enable_foreign_keys(self) -> sqlalchemy.engine.ResultProxy:
-        return self.execute('pragma foreign_keys=ON')
-    
+        
     ################# Tables #################
     def get_doctable(table_name: str) -> DocTable:
         pass
@@ -64,14 +74,16 @@ class ConnectEngine:
             m = str(e)
             if 'already exists' in m or 'already defined' in m: # idk about this if statement, but copilot wrote it.
                 raise TableAlreadyExistsError(f'The table {table_name} already exists. '
-                    'To reflect an existing table, use reflect_existing_table(). '
+                    'To reflect an existing table, use reflect_sqlalchemy_table(). '
                     'You may also use the extend_existing=True flag, but it is not '
                     'recommended.') from e
             else:
                 raise e
     
-    def reflect_existing_table(self, table_name: str, **kwargs) -> sqlalchemy.Table:
-        '''Reflect a table that already exists in the database.'''
+    def reflect_sqlalchemy_table(self, table_name: str, **kwargs) -> sqlalchemy.Table:
+        '''Reflect a table that already exists in the database.
+            Note: if table already exists as part of the metadata, it will return that table instance.
+        '''
         try:
             return sqlalchemy.Table(table_name, self.metadata, autoload_with=self.engine, **kwargs)
         except sqlalchemy.exc.NoSuchTableError as e:
@@ -87,7 +99,7 @@ class ConnectEngine:
         pass
 
     ################# Connections #################
-    def connect(self) -> sqlalchemy.engine.Connection:
+    def get_connection(self) -> sqlalchemy.engine.Connection:
         ''' Open new connection in the engine connection pool.
         '''
         return self.engine.connect()
@@ -145,6 +157,8 @@ class ConnectEngine:
         return sqlalchemy.inspect(self.engine)
 
     ################# Low-level execution methods #################
+    def enable_foreign_keys(self) -> sqlalchemy.engine.ResultProxy:
+        return self.execute('pragma foreign_keys=ON')
 
     def execute(self, query:str, *args, **kwargs) -> sqlalchemy.engine.ResultProxy:
         '''Execute query using a temporary connection.
