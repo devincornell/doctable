@@ -5,7 +5,7 @@ import typing
 import sqlalchemy
 import sqlalchemy.exc
 
-from .querybuilder import QueryBuilder
+from .statementbuilder import StatementBuilder
 from ..doctable import DocTable
 
 @dataclasses.dataclass
@@ -58,7 +58,7 @@ class ConnectQuery:
         offset: typing.Optional[int] = None,
         **kwargs
     ) -> typing.List[sqlalchemy.engine.result.Row]:
-        '''Most basic select method.        
+        '''Most general select method.
         Args:
             cols: list of sqlalchemy datatypes created from calling .col() method.
             where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
@@ -68,7 +68,7 @@ class ConnectQuery:
             wherestr (str): raw sql "where" conditionals to add to where input
             **kwargs: passed to self.execute()
         '''
-        q = QueryBuilder.select_query(
+        q = StatementBuilder.select_query(
             cols = cols,
             where = where,
             orderby = orderby,
@@ -92,7 +92,7 @@ class ConnectQuery:
     ) -> typing.List[typing.Any]:
         '''Select values of a single column. Raises exception if not exactly one row is found.'''
         
-        q = QueryBuilder.select_query(
+        q = StatementBuilder.select_query(
             cols = [col],
             where = where,
             orderby = orderby,
@@ -115,7 +115,7 @@ class ConnectQuery:
     ) -> typing.List[typing.Any]:
         '''Select values of a single column.'''
         
-        q = QueryBuilder.select_query(
+        q = StatementBuilder.select_query(
             cols = [col],
             where = where,
             orderby = orderby,
@@ -139,7 +139,7 @@ class ConnectQuery:
         **kwargs
     ) -> sqlalchemy.engine.result.Row:
         
-        q = QueryBuilder.select_query(
+        q = StatementBuilder.select_query(
             cols = cols,
             where = where,
             orderby = orderby,
@@ -164,7 +164,7 @@ class ConnectQuery:
     ) -> sqlalchemy.engine.CursorResult:
         if not self.is_sequence(data):
             raise TypeError('insert_multi accepts a sequence of rows to insert.')
-        q = QueryBuilder.insert_query(dtable.table, ifnotunique=ifnotunique)
+        q = StatementBuilder.insert_query(dtable.table, ifnotunique=ifnotunique)
         return self.execute(q, data, **kwargs)
 
     def insert_single(self, 
@@ -178,7 +178,7 @@ class ConnectQuery:
             the single using .values instead of binding the data. To avoid 
             this cost, past a single-element list to insert_multi instead.
         '''
-        q = QueryBuilder.insert_query(
+        q = StatementBuilder.insert_query(
             dtable.table, 
             ifnotunique=ifnotunique
         ).values(**data)
@@ -193,7 +193,7 @@ class ConnectQuery:
         **kwargs
     ) -> sqlalchemy.engine.CursorResult:
         '''Update row(s) assigning the provided values.'''
-        q = QueryBuilder.update_query(
+        q = StatementBuilder.update_query(
             table = dtable.table,
             where = where,
             wherestr = wherestr,
@@ -228,7 +228,7 @@ class ConnectQuery:
             ...         ],
             ...     )
         '''
-        q = QueryBuilder.update_query(
+        q = StatementBuilder.update_query(
             table = dtable.table,
             where = where,
             wherestr = wherestr,
@@ -248,7 +248,7 @@ class ConnectQuery:
         if where is None and wherestr is None and not all:
             raise ValueError('Must provide where or wherestr or set all=True.')
 
-        q = QueryBuilder.delete_query(
+        q = StatementBuilder.delete_query(
             table = dtable.table,
             where = where,
             wherestr = wherestr,

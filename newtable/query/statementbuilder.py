@@ -2,7 +2,7 @@
 import sqlalchemy
 import typing
 
-class QueryBuilder:
+class StatementBuilder:
     '''Methods for creating queries from sqlalchemy expressions.'''
     
     @staticmethod

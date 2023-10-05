@@ -1,4 +1,4 @@
 
 from .connectquery import *
-from .querybuilder import *
+from .statementbuilder import *
 from .tablequery import *
