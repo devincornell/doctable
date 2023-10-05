@@ -24,6 +24,62 @@ class ConnectQuery:
         return self.conn.commit()
 
     #################### Select Queries ####################
+
+    def select_chunks(self, 
+        cols: typing.List[sqlalchemy.Column],
+        chunksize: int = 100, 
+        limit: int = None, 
+        **kwargs,
+    ) -> typing.Generator[typing.List[sqlalchemy.engine.result.Row]]:
+        ''' Performs select while querying only a subset of the results at a time. 
+            Use when results set will take too much memory.
+        '''
+        
+        offset = 0
+        while True:
+            
+            rows = self.select(cols, offset=offset, limit=chunksize, **kwargs)
+            chunk = rows[:limit-offset] if limit is not None else rows
+            
+            yield chunk
+            
+            offset += len(rows)
+            
+            if (limit is not None and offset >= limit) or len(rows) == 0:
+                break
+    
+    def select(self, 
+        cols: typing.List[sqlalchemy.Column],
+        where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
+        orderby: typing.Optional[typing.List[sqlalchemy.Column]] = None,
+        groupby: typing.Optional[typing.List[sqlalchemy.Column]] = None,
+        limit: typing.Optional[int] = None,
+        wherestr: typing.Optional[str] = None,
+        offset: typing.Optional[int] = None,
+        **kwargs
+    ) -> typing.List[sqlalchemy.engine.result.Row]:
+        '''Most basic select method.        
+        Args:
+            cols: list of sqlalchemy datatypes created from calling .col() method.
+            where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
+            orderby: sqlalchemy orderby directive
+            groupby: sqlalchemy gropuby directive
+            limit (int): number of entries to return before stopping
+            wherestr (str): raw sql "where" conditionals to add to where input
+            **kwargs: passed to self.execute()
+        '''
+        q = QueryBuilder.select_query(
+            cols = cols,
+            where = where,
+            orderby = orderby,
+            groupby = groupby,
+            limit = limit,
+            wherestr = wherestr,
+            offset = offset,
+        )
+        return self.execute_query(q, **kwargs).all()
+
+
     def select_scalar_one(self, 
         col: sqlalchemy.Column,
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
@@ -97,37 +153,6 @@ class ConnectQuery:
             raise sqlalchemy.exc.NoResultFound('No results were returned. '
                 'If not sure about result, use .select() with limit=1.')
         return result
-
-    def select(self, 
-        cols: typing.List[sqlalchemy.Column],
-        where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
-        orderby: typing.Optional[typing.List[sqlalchemy.Column]] = None,
-        groupby: typing.Optional[typing.List[sqlalchemy.Column]] = None,
-        limit: typing.Optional[int] = None,
-        wherestr: typing.Optional[str] = None,
-        offset: typing.Optional[int] = None,
-        **kwargs
-    ) -> typing.List[sqlalchemy.engine.result.Row]:
-        '''Most basic select method.        
-        Args:
-            cols: list of sqlalchemy datatypes created from calling .col() method.
-            where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
-            orderby: sqlalchemy orderby directive
-            groupby: sqlalchemy gropuby directive
-            limit (int): number of entries to return before stopping
-            wherestr (str): raw sql "where" conditionals to add to where input
-            **kwargs: passed to self.execute()
-        '''
-        q = QueryBuilder.select_query(
-            cols = cols,
-            where = where,
-            orderby = orderby,
-            groupby = groupby,
-            limit = limit,
-            wherestr = wherestr,
-            offset = offset,
-        )
-        return self.execute_query(q, **kwargs).all()
 
     def execute_query(self, 
         query: typing.Union[sqlalchemy.sql.Insert, sqlalchemy.sql.Select, sqlalchemy.sql.Update, sqlalchemy.sql.Delete], 

@@ -172,9 +172,13 @@ class ConnectCore:
         '''
         return self.inspector().get_columns(table_name)
 
-    def inspect_indices(self, tabname: str) -> typing.List[typing.Dict[str, typing.Any]]:
+    def inspect_indices(self, table_name: str) -> typing.List[typing.Dict[str, typing.Any]]:
         '''Wraps Inspector.get_indexes(tabname).'''
-        return self.inspector().get_indexes(tabname)
+        return self.inspector().get_indexes(table_name)
+    
+    def inspect_table_names(self) -> typing.List[str]:
+        '''Wraps Inspector.get_indexes(tabname).'''
+        return self.inspector().get_table_names()
     
     def inspector(self) -> sqlalchemy.engine.Inspector:
         '''Get engine for this inspector.
@@ -186,7 +190,7 @@ class ConnectCore:
     def enable_foreign_keys(self) -> sqlalchemy.engine.ResultProxy:
         return self.execute('pragma foreign_keys=ON')
 
-    def execute(self, query:str, *args, **kwargs) -> sqlalchemy.engine.ResultProxy:
+    def execute(self, query:str, *args, **kwargs) -> sqlalchemy.engine.CursorResult:
         '''Execute query using a temporary connection.
         '''
         return self.engine.execute(query, *args, **kwargs)

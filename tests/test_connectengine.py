@@ -74,32 +74,27 @@ def test_new_sqlalchemy_table(test_fname: str = 'test.db', test_table: str = 'te
     print(sqlalchemy.inspect(tab1).columns)
     print(sqlalchemy.inspect(tab3).columns)
 
+    # make sure table only created after create_all_tables
+    assert(test_table not in ce.inspect_table_names())
     ce.create_all_tables()
-
-    with ce.engine.connect() as conn:
-        print(conn)
-        assert(hasattr(conn, 'commit'))
+    assert(test_table in ce.inspect_table_names())
 
     # run a raw query on this baby
     with ce.connect() as conn:
-        print(conn)
-        
-        print(newtable.ConnectQuery(conn))
         r = conn.execute(
             sqlalchemy.text(f"INSERT INTO {test_table} (name, age) VALUES (:name, :age)"),
             [{"name": 'a', "age": 1}, {"name": 'b', "age": 4}],
         )
-        print(hasattr(conn, 'commit'))
-        print(r)
 
     # alternatively, do the same thing with query()
-    print((ce.query()))
     with ce.query() as q:
         r = q.execute(
             f"INSERT INTO {test_table} (name, age) VALUES (:name, :age)",
             [{"name": 'a', "age": 1}, {"name": 'b', "age": 4}],
         )
         print(r)
+        r = q.execute(f'select name from {test_table} where age=="1000"')
+        print(r.scalar_one())
 
 
 
