@@ -3,7 +3,7 @@ import sqlalchemy
 import typing
 
 class QueryBuilder:
-    '''Methods for creating queries.'''
+    '''Methods for creating queries from sqlalchemy expressions.'''
     
     @staticmethod
     def select_query(
@@ -67,10 +67,10 @@ class QueryBuilder:
         return q
 
     @staticmethod
-    def delete_query(self,
+    def delete_query(
         table: sqlalchemy.Table,
-        where: sqlalchemy.sql.expression.BinaryExpression = None, 
-        wherestr: str = None,
+        where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None, 
+        wherestr: typing.Optional[str] = None,
         **kwargs,
     ) -> sqlalchemy.sql.Delete:
 

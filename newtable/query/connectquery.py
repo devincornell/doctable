@@ -178,8 +178,83 @@ class ConnectQuery:
             the single using .values instead of binding the data. To avoid 
             this cost, past a single-element list to insert_multi instead.
         '''
-        q = QueryBuilder.insert_query(dtable.table, ifnotunique=ifnotunique)
-        return self.execute(q.values(**data), **kwargs)
+        q = QueryBuilder.insert_query(
+            dtable.table, 
+            ifnotunique=ifnotunique
+        ).values(**data)
+        return self.execute(q, **kwargs)
+
+    #################### Insert Queries ####################
+    def update_single(self, 
+        dtable: DocTable,
+        values: typing.Dict[typing.Union[str,sqlalchemy.Column], typing.Any], 
+        where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None, 
+        wherestr: typing.Optional[str] = None,
+        **kwargs
+    ) -> sqlalchemy.engine.CursorResult:
+        '''Update row(s) assigning the provided values.'''
+        q = QueryBuilder.update_query(
+            table = dtable.table,
+            where = where,
+            wherestr = wherestr,
+            preserve_parameter_order = self.is_sequence(values),
+        ).values(values)         
+        return self.execute_query(q, **kwargs)
+
+    def update_many(self, 
+        dtable: DocTable,
+        values: typing.List[typing.Dict[typing.Union[str,sqlalchemy.Column], typing.Any]], 
+        where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None, 
+        wherestr: typing.Optional[str] = None,
+        **kwargs
+    ) -> sqlalchemy.engine.CursorResult:
+        '''Update multiple rows in executemany parameter binding with bindparam().
+            https://docs.sqlalchemy.org/en/20/tutorial/data_update.html
+            
+            NOTE: you MUST use bindparam for this to work. See sqlalchemy example below.
+            >>> from sqlalchemy import bindparam
+            >>> stmt = (
+            ...     update(user_table)
+            ...     .where(user_table.c.name == bindparam("oldname"))
+            ...     .values(name=bindparam("newname"))
+            ... )
+            >>> with engine.begin() as conn:
+            ...     conn.execute(
+            ...         stmt,
+            ...         [
+            ...             {"oldname": "jack", "newname": "ed"},
+            ...             {"oldname": "wendy", "newname": "mary"},
+            ...             {"oldname": "jim", "newname": "jake"},
+            ...         ],
+            ...     )
+        '''
+        q = QueryBuilder.update_query(
+            table = dtable.table,
+            where = where,
+            wherestr = wherestr,
+            preserve_parameter_order = self.is_sequence(values),
+        )
+        return self.execute_query(q, values, **kwargs)
+
+    #################### Delete Queries ####################
+    def delete(self, 
+        dtable: DocTable,
+        where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None, 
+        wherestr: typing.Optional[str] = None,
+        all: bool = False,
+        **kwargs
+    ) -> sqlalchemy.engine.CursorResult:
+        '''Update row(s) assigning the provided values.'''
+        if where is None and wherestr is None and not all:
+            raise ValueError('Must provide where or wherestr or set all=True.')
+
+        q = QueryBuilder.delete_query(
+            table = dtable.table,
+            where = where,
+            wherestr = wherestr,
+        )
+        return self.execute_query(q, **kwargs)
+
 
     #################### Query Execution ####################
     def execute_query(self, 
