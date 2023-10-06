@@ -22,7 +22,7 @@ def test_new_sqlalchemy_table(test_fname: str = 'test.db', test_table: str = 'te
     ce = newtable.ConnectCore.open_new(
         target = test_fname, 
         dialect='sqlite',
-    )        
+    )
     
     #print(ce)
     #return ce
@@ -79,6 +79,24 @@ def test_new_sqlalchemy_table(test_fname: str = 'test.db', test_table: str = 'te
     ce.create_all_tables()
     assert(test_table in ce.inspect_table_names())
 
+
+
+def test_query():
+    ce = newtable.ConnectCore.open_new(
+        target = ':memory:', 
+        dialect='sqlite',
+    )
+    with ce.create_tables() as ctx:
+        ctx.create_tables(
+            table_name='test',
+            columns=[
+                sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+                sqlalchemy.Column('name', sqlalchemy.String),
+                sqlalchemy.Column('age', sqlalchemy.Integer),
+                sqlalchemy.Index('age_index', 'age'),
+            ],
+        )
+
     # run a raw query on this baby
     with ce.connect() as conn:
         r = conn.execute(
@@ -93,13 +111,6 @@ def test_new_sqlalchemy_table(test_fname: str = 'test.db', test_table: str = 'te
             [{"name": 'a', "age": 1}, {"name": 'b', "age": 4}],
         )
         print(r)
-        r = q.execute(f'select name from {test_table} where age=="1000"')
-        print(r.scalar_one())
-
-
-
-def test_query():
-    pass
 
 def test_schema():
     @newtable.schema(

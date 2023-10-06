@@ -8,17 +8,27 @@ import sqlalchemy
 import pandas as pd
 
 if typing.TYPE_CHECKING:
-    from .connectengine import ConnectEngine
+    from .connectcore import ConnectCore
+    from .schema import Schema
     
 @dataclasses.dataclass
 class DocTable:
     table: sqlalchemy.Table
-    engine: ConnectEngine
+    engine: ConnectCore
     
     @classmethod
-    def from_engine(cls, table_name: str, engine: ConnectEngine) -> DocTable:
+    def connect_existing(cls, table: sqlalchemy.Table, engine: ConnectCore) -> DocTable:
+        '''Create a DocTable object from an existing sqlalchemy table.'''
         return cls(
-            table=engine.get_table_metadata(table_name),
+            table=table,
+            engine=engine,
+        )
+    
+    @classmethod
+    def create_new(cls, schema: Schema, engine: ConnectCore) -> DocTable:
+        '''Create a DocTable object from an existing sqlalchemy table.'''
+        
+        return cls(
             engine=engine,
         )
     

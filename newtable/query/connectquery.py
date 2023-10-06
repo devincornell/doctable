@@ -77,7 +77,7 @@ class ConnectQuery:
             wherestr = wherestr,
             offset = offset,
         )
-        return self.execute_query(q, **kwargs).all()
+        return self.execute_statement(q, **kwargs).all()
 
 
     def select_scalar_one(self, 
@@ -199,7 +199,7 @@ class ConnectQuery:
             wherestr = wherestr,
             preserve_parameter_order = self.is_sequence(values),
         ).values(values)         
-        return self.execute_query(q, **kwargs)
+        return self.execute_statement(q, **kwargs)
 
     def update_many(self, 
         dtable: DocTable,
@@ -234,7 +234,7 @@ class ConnectQuery:
             wherestr = wherestr,
             preserve_parameter_order = self.is_sequence(values),
         )
-        return self.execute_query(q, values, **kwargs)
+        return self.execute_statement(q, values, **kwargs)
 
     #################### Delete Queries ####################
     def delete(self, 
@@ -253,11 +253,11 @@ class ConnectQuery:
             where = where,
             wherestr = wherestr,
         )
-        return self.execute_query(q, **kwargs)
+        return self.execute_statement(q, **kwargs)
 
 
     #################### Query Execution ####################
-    def execute_query(self, 
+    def execute_statement(self, 
         query: typing.Union[sqlalchemy.sql.Insert, sqlalchemy.sql.Select, sqlalchemy.sql.Update, sqlalchemy.sql.Delete], 
         **kwargs
     ) -> sqlalchemy.engine.CursorResult:
