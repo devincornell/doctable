@@ -35,7 +35,7 @@ class TableMaker:
     def new_table(self, schema: Schema, **kwargs) -> DocTable:
         '''Create a new table from a Schema class.'''
         return DocTable(
-            table = self.cc.new_sqlalchemy_table(
+            table = self.cc.sqlalchemy_table(
                 table_name=schema.table_name, 
                 columns=schema.table_args(), 
                 **schema.table_kwargs,
@@ -116,11 +116,11 @@ class ConnectCore:
         pass
 
     ################# Queries #################
-    def new_sqlalchemy_table(self, table_name: str, columns: list[sqlalchemy.Column], **kwargs) -> sqlalchemy.Table:
-        '''Create a new table in the database. Use extend_existing = True'''
+    def sqlalchemy_table(self, table_name: str, columns: list[sqlalchemy.Column], extend_existing: bool = False, **kwargs) -> sqlalchemy.Table:
+        '''Create a new table in the database. Use extend_existing = True to use an existing table.'''
         # ideally the user will not enable extend_existing = True
         try:
-            return sqlalchemy.Table(table_name, self.metadata, *columns, **kwargs)
+            return sqlalchemy.Table(table_name, self.metadata, *columns, extend_existing=extend_existing, **kwargs)
         except sqlalchemy.exc.InvalidRequestError as e:
             m = str(e)
             if 'already exists' in m or 'already defined' in m: # idk about this if statement, but copilot wrote it.
@@ -139,7 +139,7 @@ class ConnectCore:
             return sqlalchemy.Table(table_name, self.metadata, autoload_with=self.engine, **kwargs)
         except sqlalchemy.exc.NoSuchTableError as e:
             raise TableDoesNotExistError(f'The table {table_name} does not exist. '
-                'To create a new table, use new_sqlalchemy_table().') from e
+                'To create a new table, use sqlalchemy_table().') from e
     
     ################# Connections #################
 

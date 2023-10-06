@@ -4,7 +4,7 @@ sys.path.append('..')
 import newtable
 import sqlalchemy
 
-def test_new_sqlalchemy_table(test_fname: str = 'test.db', test_table: str = 'test'):
+def test_new_connectengine(test_fname: str = 'test.db'):
     if os.path.exists(test_fname):
         os.remove(test_fname) # clean for test
         
@@ -24,6 +24,13 @@ def test_new_sqlalchemy_table(test_fname: str = 'test.db', test_table: str = 'te
         dialect='sqlite',
     )
     
+
+def test_sqlalchemy_table(test_table: str = 'test'):
+    ce = newtable.ConnectCore.open_new(
+        target = ':memory:', 
+        dialect='sqlite',
+    )
+    
     #print(ce)
     #return ce
     # can't reflect from a non-existent table
@@ -34,7 +41,7 @@ def test_new_sqlalchemy_table(test_fname: str = 'test.db', test_table: str = 'te
     #return ce
 
     # here it is added to metadata 
-    tab1 = ce.new_sqlalchemy_table(
+    tab1 = ce.sqlalchemy_table(
         table_name=test_table,
         columns=[
             sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
@@ -48,7 +55,7 @@ def test_new_sqlalchemy_table(test_fname: str = 'test.db', test_table: str = 'te
 
     # can't create a table that already exists
     try:
-        tab2 = ce.new_sqlalchemy_table(
+        tab2 = ce.sqlalchemy_table(
             table_name=test_table,
             columns=[
                 sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
@@ -60,20 +67,27 @@ def test_new_sqlalchemy_table(test_fname: str = 'test.db', test_table: str = 'te
     except newtable.TableAlreadyExistsError as e:
         print(e)
 
+    tab3 = ce.sqlalchemy_table(
+        table_name=test_table,
+        columns=[
+            sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+            sqlalchemy.Column('name', sqlalchemy.String),
+        ],
+        extend_existing=True,
+    )
+    assert(tab1 is tab3)
+
+
     # essentially just gets the same table object
-    tab3 = ce.reflect_sqlalchemy_table(
+    tab4 = ce.reflect_sqlalchemy_table(
         table_name=test_table,
     )
-    
-    # these are going to be the same references
-    tab4 = ce.reflect_sqlalchemy_table(table_name=test_table)
-    tab5 = ce.reflect_sqlalchemy_table(table_name=test_table)
-    assert(tab4 is tab5) # they return the same reference
-    
-    # you can see the columns are the same
-    print(sqlalchemy.inspect(tab1).columns)
-    print(sqlalchemy.inspect(tab3).columns)
+    assert(tab1 is tab4)
 
+    # should also be the same if we're just reflecting
+    tab5 = ce.reflect_sqlalchemy_table(table_name=test_table)
+    assert(tab1 is tab5) # they return the same reference
+    
     # make sure table only created after create_all_tables
     assert(test_table not in ce.inspect_table_names())
     ce.create_all_tables()
@@ -140,8 +154,9 @@ def test_schema():
 
 
 if __name__ == '__main__':
-    test_new_sqlalchemy_table()
-    test_query()
+    test_sqlalchemy_table()
+    test_sqlalchemy_table()
+    #test_query()
         
         
         
