@@ -20,7 +20,7 @@ class ColumnInfo:
         column_type = self.dtype(*self.dtype_args, **self.dtype_kwargs)
         return sqlalchemy.Column(name, column_type, **self.column_kwargs)
 
-@dataclasses
+@dataclasses.dataclass
 class IndexInfo:
     column_names: typing.List[str]
 
@@ -31,9 +31,11 @@ class IndexInfo:
 class Schema:
     '''Contains all information needed to construct a db table.'''
     table_name: str
+    data_container: type
     columns: typing.Dict[str, ColumnInfo]
     indices: typing.Dict[str, IndexInfo]
     constraints: typing.List[sqlalchemy.Constraint]
+    table_kwargs: typing.Dict[str, typing.Any]
 
     @classmethod
     def from_schema_decorator(cls, schema_class: type) -> Schema:

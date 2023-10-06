@@ -13,8 +13,23 @@ if typing.TYPE_CHECKING:
     
 @dataclasses.dataclass
 class DocTable:
+    schema: Schema
     table: sqlalchemy.Table
-    engine: ConnectCore
+    core: ConnectCore
+
+    @classmethod
+    def from_schema(cls, schema: Schema, core: ConnectCore, **kwargs) -> DocTable:
+        '''Create a DocTable object from a Schema object.'''
+        return cls(
+            schema = schema,
+            table = core.new_sqlalchemy_table(
+                table_name=schema.table_name, 
+                columns=schema.table_args(), 
+                **schema.table_kwargs,
+                **kwargs
+            ),
+            cc=core,
+        )
     
     @classmethod
     def connect_existing(cls, table: sqlalchemy.Table, engine: ConnectCore) -> DocTable:

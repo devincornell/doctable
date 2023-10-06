@@ -80,6 +80,19 @@ def test_new_sqlalchemy_table(test_fname: str = 'test.db', test_table: str = 'te
     assert(test_table in ce.inspect_table_names())
 
 
+def dummy_schema() -> newtable.Schema:
+    return newtable.Schema(
+        table_name='test',
+        columns = {
+            'id': newtable.ColumnInfo(sqlalchemy.Integer, primary_key=True),
+            'name': newtable.ColumnInfo(sqlalchemy.String),
+            'age': newtable.ColumnInfo(sqlalchemy.Integer),
+        },
+        indices = {
+            'age_index': newtable.IndexInfo('age'),
+        },
+        constraints = [],
+    )
 
 def test_query():
     ce = newtable.ConnectCore.open_new(

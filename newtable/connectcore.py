@@ -5,8 +5,10 @@ import os
 import sqlalchemy
 import sqlalchemy.exc
 import pandas as pd
+
 from .doctable import DocTable
 from .query import ConnectQuery
+from .schema import Schema
 
 class TableAlreadyExistsError(Exception):
     pass
@@ -25,6 +27,33 @@ class CreateTablesCtx:
         '''Create all tables in metadata.'''
         self.core.create_all_tables()
         
+@dataclasses.dataclass
+class TableMaker:
+    '''Interface for creating tables.'''
+    cc: ConnectCore
+
+    def new_table(self, schema: Schema, **kwargs) -> DocTable:
+        '''Create a new table from a Schema class.'''
+        return DocTable(
+            table = self.cc.new_sqlalchemy_table(
+                table_name=schema.table_name, 
+                columns=schema.table_args(), 
+                **schema.table_kwargs,
+                **kwargs
+                ),
+            cc=self.cc,
+        )
+    
+    def reflect_table(self, table_name: str, **kwargs) -> DocTable:
+        '''Create a new table from a Schema class.'''
+        return DocTable(
+            table = self.cc.reflect_sqlalchemy_table(
+                table_name=table_name, 
+                **kwargs
+                ),
+            cc=self.cc,
+        )
+
 
 @dataclasses.dataclass
 class ConnectCore:
@@ -88,7 +117,7 @@ class ConnectCore:
 
     ################# Queries #################
     def new_sqlalchemy_table(self, table_name: str, columns: list[sqlalchemy.Column], **kwargs) -> sqlalchemy.Table:
-        '''Create a new table in the database.'''
+        '''Create a new table in the database. Use extend_existing = True'''
         # ideally the user will not enable extend_existing = True
         try:
             return sqlalchemy.Table(table_name, self.metadata, *columns, **kwargs)
@@ -97,8 +126,8 @@ class ConnectCore:
             if 'already exists' in m or 'already defined' in m: # idk about this if statement, but copilot wrote it.
                 raise TableAlreadyExistsError(f'The table {table_name} already exists. '
                     'To reflect an existing table, use reflect_sqlalchemy_table(). '
-                    'You may also use the extend_existing=True flag, but it is not '
-                    'recommended.') from e
+                    'You may also use the extend_existing=True flag to optionally  '
+                    'extend an exesting table.') from e
             else:
                 raise e
     
