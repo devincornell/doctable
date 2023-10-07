@@ -3,8 +3,8 @@ import typing
 import dataclasses
 from typing import Any
 
-if typing.TYPE_CHECKING:
-    import sqlalchemy
+#if typing.TYPE_CHECKING:
+import sqlalchemy
 
 
 class DocTableBase:
@@ -18,6 +18,9 @@ class DocTableBase:
     def cols(self, *columns) -> typing.List[sqlalchemy.Column]:
         '''Return a query with only the specified columns.'''
         return [self.table.c[col] if isinstance(col, str) else col for col in columns]
+    
+    def all_cols(self) -> typing.List[sqlalchemy.Column]:
+        return [c for c in self.table.columns]
     
     def __getitem__(self, key: Any) -> sqlalchemy.Column:
         '''Get a column by name.'''

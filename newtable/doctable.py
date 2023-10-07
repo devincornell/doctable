@@ -7,12 +7,14 @@ import os
 import sqlalchemy
 import pandas as pd
 
+from .doctablebase import DocTableBase
+
 if typing.TYPE_CHECKING:
     from .connectcore import ConnectCore
     from .schema import Schema
     
 @dataclasses.dataclass
-class DocTable:
+class DocTable(DocTableBase):
     schema: Schema
     table: sqlalchemy.Table
     core: ConnectCore

@@ -126,6 +126,8 @@ def test_new_doctable(test_table: str = 'test'):
         target = ':memory:', 
         dialect='sqlite',
     )
+
+    # now use the awesome context manager
     with ce.tables() as tables:
         t1 = tables.new_table(dummy_schema('t1'))
         t2 = tables.new_table(dummy_schema('t2'))
@@ -133,32 +135,47 @@ def test_new_doctable(test_table: str = 'test'):
     print(ce.inspect_table_names())
     assert(len(ce.inspect_table_names()) == 2)
 
-
-
-def test_query():
+def test_query(test_table: str = 'test1'):
     ce = newtable.ConnectCore.open_new(
         target = ':memory:', 
         dialect='sqlite',
     )
-    with ce.create_tables() as ctx:
-        ctx.create_tables(
-            table_name='test',
-            columns=[
-                sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
-                sqlalchemy.Column('name', sqlalchemy.String),
-                sqlalchemy.Column('age', sqlalchemy.Integer),
-                sqlalchemy.Index('age_index', 'age'),
-            ],
-        )
 
+    with ce.tables() as tables: 
+        t = tables.new_table(dummy_schema(test_table))
 
     # alternatively, do the same thing with query()
     with ce.query() as q:
-        r = q.execute(
+        r = q.execute_string(
             f"INSERT INTO {test_table} (name, age) VALUES (:name, :age)",
             [{"name": 'a', "age": 1}, {"name": 'b', "age": 4}],
         )
         print(r)
+        r = q.select(t.all_cols())
+        print(r)
+        assert(len(r) == 2)
+
+        r = q.select(t.all_cols(), where=t['age'] > 2)
+        assert(len(r) == 1)
+
+        q.insert_multi(t, data=[
+            {'name': 'a', 'age': 1},
+            {'name': 'a', 'age': 10},
+        ])
+        r = q.select(t.all_cols(), where=t['age'] > 2)
+        assert(len(r) == 2)
+        r = q.select(t.cols('name'), where=t['age'] > 2, limit=10)
+        assert(len(r) == 2)
+
+        q.insert_single(t, data={'name': 'a', 'age': 100})
+        r = q.select(t.cols('name'), where=t['age'] > 2, limit=10)
+        assert(len(r) == 3)
+
+        q.update_single(t, where=t['age'] > 50, values={'name': 'oldy'})
+        r = q.select(t.all_cols(), where=t['name'] == 'oldy')
+        assert(len(r) == 1)
+
+
 
 
 def dummy_schema(table_name: str = 'test') -> newtable.Schema:
@@ -182,7 +199,7 @@ if __name__ == '__main__':
     test_new_connectengine()
     test_sqlalchemy_table()
     test_new_doctable()
-    #test_query()
+    test_query()
         
         
         

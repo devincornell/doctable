@@ -17,7 +17,7 @@ class StatementBuilder:
     ) -> sqlalchemy.sql.Select:
         '''Build and exectute select query given all the conditionals provided as parameters.'''
         
-        q: sqlalchemy.sql.Select = sqlalchemy.sql.select(cols)
+        q: sqlalchemy.sql.Select = sqlalchemy.sql.select(*cols)
         
         if where is not None:
             q = q.where(where)

@@ -51,8 +51,8 @@ class ConnectQuery:
     def select(self, 
         cols: typing.List[sqlalchemy.Column],
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
-        orderby: typing.Optional[typing.List[sqlalchemy.Column]] = None,
-        groupby: typing.Optional[typing.List[sqlalchemy.Column]] = None,
+        order_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
+        group_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
         limit: typing.Optional[int] = None,
         wherestr: typing.Optional[str] = None,
         offset: typing.Optional[int] = None,
@@ -62,8 +62,8 @@ class ConnectQuery:
         Args:
             cols: list of sqlalchemy datatypes created from calling .col() method.
             where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
-            orderby: sqlalchemy orderby directive
-            groupby: sqlalchemy gropuby directive
+            order_by: sqlalchemy order_by directive
+            group_by: sqlalchemy gropuby directive
             limit (int): number of entries to return before stopping
             wherestr (str): raw sql "where" conditionals to add to where input
             **kwargs: passed to self.execute()
@@ -71,8 +71,8 @@ class ConnectQuery:
         q = StatementBuilder.select_query(
             cols = cols,
             where = where,
-            orderby = orderby,
-            groupby = groupby,
+            order_by = order_by,
+            group_by = group_by,
             limit = limit,
             wherestr = wherestr,
             offset = offset,
@@ -83,8 +83,8 @@ class ConnectQuery:
     def select_scalar_one(self, 
         col: sqlalchemy.Column,
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
-        orderby: typing.Optional[typing.List[sqlalchemy.Column]] = None,
-        groupby: typing.Optional[typing.List[sqlalchemy.Column]] = None,
+        order_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
+        group_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
         limit: typing.Optional[int] = None,
         wherestr: typing.Optional[str] = None,
         offset: typing.Optional[int] = None,
@@ -95,19 +95,19 @@ class ConnectQuery:
         q = StatementBuilder.select_query(
             cols = [col],
             where = where,
-            orderby = orderby,
-            groupby = groupby,
+            order_by = order_by,
+            group_by = group_by,
             limit = limit,
             wherestr = wherestr,
             offset = offset,
         )
-        return self.execute(q, **kwargs).scalar_one()
+        return self.execute_statement(q, **kwargs).scalar_one()
 
     def select_column(self, 
         col: sqlalchemy.Column,
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
-        orderby: typing.Optional[typing.List[sqlalchemy.Column]] = None,
-        groupby: typing.Optional[typing.List[sqlalchemy.Column]] = None,
+        order_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
+        group_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
         limit: typing.Optional[int] = None,
         wherestr: typing.Optional[str] = None,
         offset: typing.Optional[int] = None,
@@ -118,8 +118,8 @@ class ConnectQuery:
         q = StatementBuilder.select_query(
             cols = [col],
             where = where,
-            orderby = orderby,
-            groupby = groupby,
+            order_by = order_by,
+            group_by = group_by,
             limit = limit,
             wherestr = wherestr,
             offset = offset,
@@ -127,13 +127,13 @@ class ConnectQuery:
         # note: if the user had selected multiple columns, only the last one 
         # would be returned by scalar
         # https://docs.sqlalchemy.org/en/20/core/connections.html#sqlalchemy.engine.Result.scalars
-        return self.execute(q, **kwargs).scalars().all()
+        return self.execute_statement(q, **kwargs).scalars().all()
 
     def select_first(self,
         cols: typing.List[sqlalchemy.Column],
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
-        orderby: typing.Optional[typing.List[sqlalchemy.Column]] = None,
-        groupby: typing.Optional[typing.List[sqlalchemy.Column]] = None,
+        order_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
+        group_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
         wherestr: typing.Optional[str] = None,
         offset: typing.Optional[int] = None,
         **kwargs
@@ -142,13 +142,13 @@ class ConnectQuery:
         q = StatementBuilder.select_query(
             cols = cols,
             where = where,
-            orderby = orderby,
-            groupby = groupby,
+            order_by = order_by,
+            group_by = group_by,
             limit = 1,
             wherestr = wherestr,
             offset = offset,
         )
-        result = self.execute(q, **kwargs).first()
+        result = self.execute_statement(q, **kwargs).first()
         if result is None:
             raise sqlalchemy.exc.NoResultFound('No results were returned. '
                 'If not sure about result, use .select() with limit=1.')
@@ -165,7 +165,7 @@ class ConnectQuery:
         if not self.is_sequence(data):
             raise TypeError('insert_multi accepts a sequence of rows to insert.')
         q = StatementBuilder.insert_query(dtable.table, ifnotunique=ifnotunique)
-        return self.execute(q, data, **kwargs)
+        return self.execute_statement(q, data, **kwargs)
 
     def insert_single(self, 
         dtable: DocTable,
@@ -182,7 +182,7 @@ class ConnectQuery:
             dtable.table, 
             ifnotunique=ifnotunique
         ).values(**data)
-        return self.execute(q, **kwargs)
+        return self.execute_statement(q, **kwargs)
 
     #################### Insert Queries ####################
     def update_single(self, 
@@ -197,7 +197,6 @@ class ConnectQuery:
             table = dtable.table,
             where = where,
             wherestr = wherestr,
-            preserve_parameter_order = self.is_sequence(values),
         ).values(values)         
         return self.execute_statement(q, **kwargs)
 
@@ -259,12 +258,13 @@ class ConnectQuery:
     #################### Query Execution ####################
     def execute_statement(self, 
         query: typing.Union[sqlalchemy.sql.Insert, sqlalchemy.sql.Select, sqlalchemy.sql.Update, sqlalchemy.sql.Delete], 
+        *args, 
         **kwargs
     ) -> sqlalchemy.engine.CursorResult:
         '''Execute a query using a query builder object.'''
-        return self.conn.execute(query, **kwargs)
+        return self.conn.execute(query, *args, **kwargs)
     
-    def execute(self, query_str: str, *args, **kwargs) -> sqlalchemy.engine.CursorResult:
+    def execute_string(self, query_str: str, *args, **kwargs) -> sqlalchemy.engine.CursorResult:
         '''Execute raw sql query.'''
         return self.conn.execute(sqlalchemy.text(query_str), *args, **kwargs)
 
