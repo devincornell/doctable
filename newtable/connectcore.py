@@ -16,32 +16,30 @@ class TableAlreadyExistsError(Exception):
 class TableDoesNotExistError(Exception):
     pass
 
+            
 @dataclasses.dataclass
-class CreateTablesCtx:
+class TableMaker:
+    '''Interface for creating tables.'''
     core: ConnectCore
     
-    def __enter__(self) -> CreateTablesCtx:
-        return self.core
+    def __enter__(self) -> TableMaker:
+        return self
     
     def __exit__(self, exc_type, exc_value, exc_tb) -> None:
         '''Create all tables in metadata.'''
         self.core.create_all_tables()
-        
-@dataclasses.dataclass
-class TableMaker:
-    '''Interface for creating tables.'''
-    cc: ConnectCore
 
     def new_table(self, schema: Schema, **kwargs) -> DocTable:
         '''Create a new table from a Schema class.'''
         return DocTable(
-            table = self.cc.sqlalchemy_table(
+            schema = schema,
+            table = self.core.sqlalchemy_table(
                 table_name=schema.table_name, 
                 columns=schema.table_args(), 
                 **schema.table_kwargs,
                 **kwargs
                 ),
-            cc=self.cc,
+            core=self.core,
         )
     
     def reflect_table(self, table_name: str, **kwargs) -> DocTable:
@@ -53,7 +51,6 @@ class TableMaker:
                 ),
             cc=self.cc,
         )
-
 
 @dataclasses.dataclass
 class ConnectCore:
@@ -103,9 +100,9 @@ class ConnectCore:
         return engine, meta
     
     ################# Context Managers #################
-    def create_tables(self) -> CreateTablesCtx:
+    def tables(self) -> TableMaker:
         '''Context manager that creates tables on exit. Use for multi-table schemas.'''
-        return CreateTablesCtx(self)
+        return TableMaker(self)
         
     def query(self) -> ConnectQuery:
         '''Create a connection and interface that can be used to make queries.'''

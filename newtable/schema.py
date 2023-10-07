@@ -12,6 +12,16 @@ class ColumnInfo:
     column_kwargs: typing.Dict[str, typing.Any]
 
     @classmethod
+    def from_type(cls, dtype: sqlalchemy.TypeClause, **column_kwargs) -> ColumnInfo:
+        '''Get column info from only a sqlalchemy type.'''
+        return cls(
+            dtype=dtype,
+            dtype_args=(),
+            dtype_kwargs={},
+            column_kwargs=column_kwargs,
+        )
+
+    @classmethod
     def from_field(cls, field: dataclasses.Field) -> ColumnInfo:
         '''Get column info from a dataclass field.'''
         pass
@@ -23,6 +33,16 @@ class ColumnInfo:
 @dataclasses.dataclass
 class IndexInfo:
     column_names: typing.List[str]
+
+    @classmethod
+    def new(cls, *column_names) -> IndexInfo:
+        '''Get index info from only a sqlalchemy type.'''
+        return cls(column_names=list(column_names))
+
+    @classmethod
+    def from_field(cls, field: dataclasses.Field) -> IndexInfo:
+        '''Get index info from a dataclass field.'''
+        pass
 
     def sqlalchemy_index(self, name: str) -> sqlalchemy.Index:
         return sqlalchemy.Index(name, *self.column_names)

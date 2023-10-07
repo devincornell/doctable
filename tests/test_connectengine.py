@@ -22,6 +22,7 @@ def test_new_connectengine(test_fname: str = 'test.db'):
     ce = newtable.ConnectCore.open_new(
         target = test_fname, 
         dialect='sqlite',
+        echo = True,
     )
     
 
@@ -67,6 +68,7 @@ def test_sqlalchemy_table(test_table: str = 'test'):
     except newtable.TableAlreadyExistsError as e:
         print(e)
 
+    # doesn't raise exception because extend_existing=True
     tab3 = ce.sqlalchemy_table(
         table_name=test_table,
         columns=[
@@ -76,7 +78,6 @@ def test_sqlalchemy_table(test_table: str = 'test'):
         extend_existing=True,
     )
     assert(tab1 is tab3)
-
 
     # essentially just gets the same table object
     tab4 = ce.reflect_sqlalchemy_table(
@@ -94,19 +95,45 @@ def test_sqlalchemy_table(test_table: str = 'test'):
     assert(test_table in ce.inspect_table_names())
 
 
-def dummy_schema() -> newtable.Schema:
-    return newtable.Schema(
-        table_name='test',
-        columns = {
-            'id': newtable.ColumnInfo(sqlalchemy.Integer, primary_key=True),
-            'name': newtable.ColumnInfo(sqlalchemy.String),
-            'age': newtable.ColumnInfo(sqlalchemy.Integer),
-        },
-        indices = {
-            'age_index': newtable.IndexInfo('age'),
-        },
-        constraints = [],
+def test_new_doctable(test_table: str = 'test'):
+    ce = newtable.ConnectCore.open_new(
+        target = ':memory:', 
+        dialect='sqlite',
     )
+
+    try:
+        newtable.ReflectedDocTable.from_existing_table(test_table, core=ce)
+        raise Exception('Should have raised TableDoesNotExistError.')
+    except newtable.TableDoesNotExistError as e:
+        print(e)
+
+    t = newtable.DocTable.from_schema(dummy_schema(), core=ce)
+    print(t)
+
+    # make sure table hasn't been created yet
+    try:
+        ce.inspect_columns(test_table)
+        raise Exception('Should have raised NoSuchTableError.')
+    except sqlalchemy.exc.NoSuchTableError as e:
+        print(e)
+
+    # create the table
+    ce.create_all_tables()
+    print(ce.inspect_columns(test_table))
+    print(ce.inspect_indices(test_table))
+
+    ce = newtable.ConnectCore.open_new(
+        target = ':memory:', 
+        dialect='sqlite',
+    )
+    with ce.tables() as tables:
+        t1 = tables.new_table(dummy_schema('t1'))
+        t2 = tables.new_table(dummy_schema('t2'))
+    print(t1, t2)
+    print(ce.inspect_table_names())
+    assert(len(ce.inspect_table_names()) == 2)
+
+
 
 def test_query():
     ce = newtable.ConnectCore.open_new(
@@ -124,12 +151,6 @@ def test_query():
             ],
         )
 
-    # run a raw query on this baby
-    with ce.connect() as conn:
-        r = conn.execute(
-            sqlalchemy.text(f"INSERT INTO {test_table} (name, age) VALUES (:name, :age)"),
-            [{"name": 'a', "age": 1}, {"name": 'b', "age": 4}],
-        )
 
     # alternatively, do the same thing with query()
     with ce.query() as q:
@@ -139,23 +160,28 @@ def test_query():
         )
         print(r)
 
-def test_schema():
-    @newtable.schema(
-        table_name = 'users',
-        constraints = [
-            sqlalchemy.ForeignKeyConstraint(),
-        ],
-        indices = [
-            sqlalchemy.Index(),
-        ]
+
+def dummy_schema(table_name: str = 'test') -> newtable.Schema:
+    return newtable.Schema(
+        table_name=table_name,
+        data_container = None,
+        columns = {
+            'id': newtable.ColumnInfo.from_type(sqlalchemy.Integer,primary_key=True),
+            'name': newtable.ColumnInfo.from_type(sqlalchemy.String),
+            'age': newtable.ColumnInfo.from_type(sqlalchemy.Integer),
+        },
+        indices = {
+            f'{table_name}_age_index': newtable.IndexInfo.new('age'),
+        },
+        constraints = [],
+        table_kwargs = {},
     )
-    def test():
-        pass
 
 
 if __name__ == '__main__':
+    test_new_connectengine()
     test_sqlalchemy_table()
-    test_sqlalchemy_table()
+    test_new_doctable()
     #test_query()
         
         
