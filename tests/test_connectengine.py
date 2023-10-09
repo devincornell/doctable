@@ -175,10 +175,10 @@ def test_query(test_table: str = 'test1'):
         r = q.select(t.all_cols(), where=t['name'] == 'oldy').all()
         assert(len(r) == 1)
 
-        with t.query() as tq:
-            assert(len(tq.select()) == 5)
-            r = tq.insert_single(TestContainer(name='a', age=110))
-            assert(len(tq.select()) == 6)
+    with t.query() as tq:
+        assert(len(tq.select()) == 5)
+        r = tq.insert_single(TestContainer(name='a', age=110))
+        assert(len(tq.select()) == 6)
 
 
 import dataclasses

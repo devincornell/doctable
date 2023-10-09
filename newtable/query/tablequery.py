@@ -34,6 +34,7 @@ class TableQuery(typing.Generic[T]):
         '''Create all tables that exist in metadata.'''
         self.cquery.commit()
 
+    #################### Select Queries ####################
     def select(self, 
         cols: typing.Optional[typing.List[sqlalchemy.Column]] = None,
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
@@ -57,8 +58,10 @@ class TableQuery(typing.Generic[T]):
         )
         return [self.dtable.schema.container_from_row(row) for row in result.all()]
     
+    #################### Insert Queries ####################
+
     def insert_multi(self, 
-        data: typing.List[typing.Dict[str, typing.Any]], 
+        data: typing.List[T], 
         ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
         **kwargs
     ) -> sqlalchemy.engine.CursorResult:
@@ -85,7 +88,7 @@ class TableQuery(typing.Generic[T]):
             ifnotunique=ifnotunique,
             **kwargs
         )
-    #################### Insert Queries ####################
+    #################### Update Queries ####################
     def update_single(self, 
         values: typing.Dict[typing.Union[str,sqlalchemy.Column], typing.Any], 
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None, 
