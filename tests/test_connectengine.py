@@ -151,37 +151,49 @@ def test_query(test_table: str = 'test1'):
             [{"name": 'a', "age": 1}, {"name": 'b', "age": 4}],
         )
         print(r)
-        r = q.select(t.all_cols())
+        r = q.select(t.all_cols()).all()
         print(r)
         assert(len(r) == 2)
 
-        r = q.select(t.all_cols(), where=t['age'] > 2)
+        r = q.select(t.all_cols(), where=t['age'] > 2).all()
         assert(len(r) == 1)
 
         q.insert_multi(t, data=[
             {'name': 'a', 'age': 1},
             {'name': 'a', 'age': 10},
         ])
-        r = q.select(t.all_cols(), where=t['age'] > 2)
+        r = q.select(t.all_cols(), where=t['age'] > 2).all()
         assert(len(r) == 2)
-        r = q.select(t.cols('name'), where=t['age'] > 2, limit=10)
+        r = q.select(t.cols('name'), where=t['age'] > 2, limit=10).all()
         assert(len(r) == 2)
 
         q.insert_single(t, data={'name': 'a', 'age': 100})
-        r = q.select(t.cols('name'), where=t['age'] > 2, limit=10)
+        r = q.select(t.cols('name'), where=t['age'] > 2, limit=10).all()
         assert(len(r) == 3)
 
         q.update_single(t, where=t['age'] > 50, values={'name': 'oldy'})
-        r = q.select(t.all_cols(), where=t['name'] == 'oldy')
+        r = q.select(t.all_cols(), where=t['name'] == 'oldy').all()
         assert(len(r) == 1)
 
+        with t.query() as tq:
+            assert(len(tq.select()) == 5)
+            r = tq.insert_single(TestContainer(name='a', age=110))
+            assert(len(tq.select()) == 6)
 
 
+import dataclasses
+@dataclasses.dataclass
+class TestContainer:
+    id: int = None
+    name: str = None
+    age: int = None
 
+    
 def dummy_schema(table_name: str = 'test') -> newtable.Schema:
+
     return newtable.Schema(
         table_name=table_name,
-        data_container = None,
+        data_container = TestContainer,
         columns = {
             'id': newtable.ColumnInfo.from_type(sqlalchemy.Integer,primary_key=True),
             'name': newtable.ColumnInfo.from_type(sqlalchemy.String),

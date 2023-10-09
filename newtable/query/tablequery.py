@@ -1,26 +1,39 @@
+from __future__ import annotations
+
 import dataclasses
 import typing
 import sqlalchemy
 
 from .connectquery import ConnectQuery
-from ..doctable import DocTable
+
+if typing.TYPE_CHECKING:
+    from ..doctable import DocTable
+
+T = typing.TypeVar('T')
 
 @dataclasses.dataclass
-class TableQuery:
-    dtable: DocTable
+class TableQuery(typing.Generic[T]):
+    dtable: 'DocTable[T]'
     cquery: ConnectQuery
 
     @classmethod
-    def from_sqlalchemy(cls, table: sqlalchemy.Table, cquery: ConnectQuery) -> ConnectQuery:
+    def from_doctable(cls, dtable: DocTable[T], cquery: ConnectQuery) -> ConnectQuery:
         '''Interface for quering tables.
         Args:
             table (sqlalchemy.Table): table to query from
         '''
         return cls(
-            table=table,
+            dtable=dtable,
             cquery=cquery,
         )
     
+    def __enter__(self) -> TableQuery:
+        return self
+    
+    def __exit__(self, exc_type, exc_value, exc_tb) -> None:
+        '''Create all tables that exist in metadata.'''
+        self.cquery.commit()
+
     def select(self, 
         cols: typing.Optional[typing.List[sqlalchemy.Column]] = None,
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
@@ -30,7 +43,7 @@ class TableQuery:
         wherestr: typing.Optional[str] = None,
         offset: typing.Optional[int] = None,
         **kwargs
-    ) -> ConnectQuery:
+    ) -> typing.List[T]:
         '''Select from table.'''
         result = self.cquery.select(
             cols=cols if cols is not None else self.dtable.all_cols(),
@@ -42,7 +55,7 @@ class TableQuery:
             offset=offset,
             **kwargs
         )
-        return [self.dtable.schema._from_row(**row) for row in result.all()]
+        return [self.dtable.schema.container_from_row(row) for row in result.all()]
     
     def insert_multi(self, 
         data: typing.List[typing.Dict[str, typing.Any]], 
@@ -57,7 +70,7 @@ class TableQuery:
         )
 
     def insert_single(self, 
-        data: typing.Dict[str, typing.Any], 
+        container_object: T, 
         ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
         **kwargs
     ) -> sqlalchemy.engine.CursorResult:
@@ -68,7 +81,7 @@ class TableQuery:
         '''
         return self.cquery.insert_single(
             dtable=self.dtable,
-            data=data,
+            data=self.dtable.schema.dict_from_container(container_object),
             ifnotunique=ifnotunique,
             **kwargs
         )

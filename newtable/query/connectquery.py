@@ -6,7 +6,9 @@ import sqlalchemy
 import sqlalchemy.exc
 
 from .statementbuilder import StatementBuilder
-from ..doctable import DocTable
+
+if typing.TYPE_CHECKING:
+    from ..doctable import DocTable
 
 @dataclasses.dataclass
 class ConnectQuery:
