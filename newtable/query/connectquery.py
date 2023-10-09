@@ -18,7 +18,7 @@ class ConnectQuery:
         return self
     
     def __exit__(self, exc_type, exc_value, exc_tb) -> None:
-        '''Create all tables in metadata.'''
+        '''Create all tables that exist in metadata.'''
         self.commit()
 
     def commit(self) -> None:

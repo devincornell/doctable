@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 @dataclasses.dataclass
 class ReflectedDocTable:
     table: sqlalchemy.Table
-    engine: ConnectCore
+    core: ConnectCore
 
     @classmethod
     def from_existing_table(cls, table_name: str, core: ConnectCore, **kwargs) -> ReflectedDocTable:

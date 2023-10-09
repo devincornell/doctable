@@ -7,6 +7,7 @@ import sqlalchemy.exc
 import pandas as pd
 
 from .doctable import DocTable
+from .reflecteddoctable import ReflectedDocTable
 from .query import ConnectQuery
 from .schema import Schema
 
@@ -30,26 +31,20 @@ class TableMaker:
         self.core.create_all_tables()
 
     def new_table(self, schema: Schema, **kwargs) -> DocTable:
-        '''Create a new table from a Schema class.'''
-        return DocTable(
+        '''Create a new table from a Schema class.
+            Use extend_existing=True to connect to an existing table.
+        '''
+        return DocTable.from_schema(
             schema = schema,
-            table = self.core.sqlalchemy_table(
-                table_name=schema.table_name, 
-                columns=schema.table_args(), 
-                **schema.table_kwargs,
-                **kwargs
-                ),
             core=self.core,
         )
     
     def reflect_table(self, table_name: str, **kwargs) -> DocTable:
         '''Create a new table from a Schema class.'''
-        return DocTable(
-            table = self.cc.reflect_sqlalchemy_table(
-                table_name=table_name, 
-                **kwargs
-                ),
-            cc=self.cc,
+        return ReflectedDocTable.from_existing_table(
+            table_name=table_name,
+            cc=self.core,
+            **kwargs
         )
 
 @dataclasses.dataclass
