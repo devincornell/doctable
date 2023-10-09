@@ -38,7 +38,7 @@ class ConnectQuery:
         offset = 0
         while True:
             
-            rows = self.select(cols, offset=offset, limit=chunksize, **kwargs)
+            rows = self.select(cols, offset=offset, limit=chunksize, **kwargs).all()
             chunk = rows[:limit-offset] if limit is not None else rows
             
             yield chunk
@@ -48,82 +48,6 @@ class ConnectQuery:
             if (limit is not None and offset >= limit) or len(rows) == 0:
                 break
     
-
-
-    def select_scalar_one(self, 
-        col: sqlalchemy.Column,
-        where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
-        order_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
-        group_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
-        limit: typing.Optional[int] = None,
-        wherestr: typing.Optional[str] = None,
-        offset: typing.Optional[int] = None,
-        **kwargs
-    ) -> typing.List[typing.Any]:
-        '''Select values of a single column. Raises exception if not exactly one row is found.'''
-        
-        q = StatementBuilder.select_query(
-            cols = [col],
-            where = where,
-            order_by = order_by,
-            group_by = group_by,
-            limit = limit,
-            wherestr = wherestr,
-            offset = offset,
-        )
-        return self.execute_statement(q, **kwargs).scalar_one()
-
-    def select_column(self, 
-        col: sqlalchemy.Column,
-        where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
-        order_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
-        group_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
-        limit: typing.Optional[int] = None,
-        wherestr: typing.Optional[str] = None,
-        offset: typing.Optional[int] = None,
-        **kwargs
-    ) -> typing.List[sqlalchemy.Row]:
-        '''Select values of a single column.'''
-        
-        q = StatementBuilder.select_query(
-            cols = [col],
-            where = where,
-            order_by = order_by,
-            group_by = group_by,
-            limit = limit,
-            wherestr = wherestr,
-            offset = offset,
-        )
-        # note: if the user had selected multiple columns, only the last one 
-        # would be returned by scalar
-        # https://docs.sqlalchemy.org/en/20/core/connections.html#sqlalchemy.engine.Result.scalars
-        return self.execute_statement(q, **kwargs).scalars().all()
-
-    def select_first(self,
-        cols: typing.List[sqlalchemy.Column],
-        where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
-        order_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
-        group_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
-        wherestr: typing.Optional[str] = None,
-        offset: typing.Optional[int] = None,
-        **kwargs
-    ) -> sqlalchemy.Row:
-        
-        q = StatementBuilder.select_query(
-            cols = cols,
-            where = where,
-            order_by = order_by,
-            group_by = group_by,
-            limit = 1,
-            wherestr = wherestr,
-            offset = offset,
-        )
-        result = self.execute_statement(q, **kwargs).first()
-        if result is None:
-            raise sqlalchemy.exc.NoResultFound('No results were returned. '
-                'If not sure about result, use .select() with limit=1.')
-        return result
-
     def select(self, 
         cols: typing.List[sqlalchemy.Column],
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
@@ -133,13 +57,18 @@ class ConnectQuery:
         wherestr: typing.Optional[str] = None,
         offset: typing.Optional[int] = None,
         **kwargs
-    ) -> typing.List[sqlalchemy.engine.result.Row]:
-        '''Most general select method.
+    ) -> sqlalchemy.CursorResult:
+        '''Most general select method - returns raw sqlalchemy result.
+            https://docs.sqlalchemy.org/en/20/core/connections.html#sqlalchemy.engine.CursorResult
+            select multiple: result.all()
+            select single row: result.first() use limit=1 NOTE: returns None if no results
+            select single column: result.scalars().all()
+            select single value: result.scalar_one() NOTE: raises exception if not exactly one result
         Args:
-            cols: list of sqlalchemy datatypes created from calling .col() method.
-            where (sqlachemy BinaryExpression): sqlalchemy "where" object to parse
+            cols: list of sqlalchemy column types created from calling .cols() or other methods.
+            where (sqlachemy BinaryExpression): sqlalchemy "where" expression to parse
             order_by: sqlalchemy order_by directive
-            group_by: sqlalchemy gropuby directive
+            group_by: sqlalchemy group_by directive
             limit (int): number of entries to return before stopping
             wherestr (str): raw sql "where" conditionals to add to where input
             **kwargs: passed to self.execute()
@@ -153,10 +82,7 @@ class ConnectQuery:
             wherestr = wherestr,
             offset = offset,
         )
-        return self.execute_statement(q, **kwargs).all()
-
-
-
+        return self.execute_statement(q, **kwargs)
 
     #################### Insert Queries ####################
     def insert_multi(self, 
