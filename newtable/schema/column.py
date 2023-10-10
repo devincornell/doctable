@@ -20,35 +20,16 @@ type_hint_to_column_type = {
     typing.Any: sqlalchemy.PickleType,
 }
 
-@dataclasses.dataclass
-class ColumnParams:
-    column_name: str
-    sqlalchemy_type: sqlalchemy.TypeClause
-    foreign_key: str
-    type_kwargs: typing.Dict[str, typing.Any]
-    dataclass_field: typing.Dict[str, typing.Any]
-    column_kwargs: typing.Dict[str, typing.Any]
-
-    @classmethod
-    def empty(cls) -> ColumnParams:
-        return cls(
-            column_name=None,
-            sqlalchemy_type=None,
-            foreign_key=None,
-            type_kwargs=None,
-            dataclass_field=None,
-            column_kwargs=None,
-        )
 
 def column(
-    column_name: str = None, # name of the column in the database
-    sqlalchemy_type: sqlalchemy.TypeClause = None, # type of column in database using sqlachemy types
+    column_name: typing.Optional[str] = None, # name of the column in the database
+    sqlalchemy_type: typing.Optional[sqlalchemy.TypeClause] = None, # type of column in database using sqlachemy types
     foreign_key: str = None, # name of the column (tabname.colname) that this column references
-    type_kwargs: typing.Dict[str, typing.Any] = None, # keyword arguments to pass to sqlalchemy type
-    dataclass_field: typing.Dict[str, typing.Any] = None, # keyword arguments to pass to dataclass.field
+    type_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, # keyword arguments to pass to sqlalchemy type. ignored if sqlalchemy_type is specified
+    dataclass_field: typing.Optional[typing.Dict[str, typing.Any]] = None, # keyword arguments to pass to dataclass.field
     **column_kwargs # pass to sqlalchemy.Column. ex: primary_key=True, nullable=True, etc.
 ) -> dataclasses.field:
-    '''Get column info from only a sqlalchemy type.'''
+    '''Record column information in the metadata of a dataclass field.'''
     return dataclasses.field(
         metadata={
             **dataclass_field.get('metadata', {}), 
@@ -57,44 +38,92 @@ def column(
                 sqlalchemy_type=sqlalchemy_type,
                 foreign_key=foreign_key,
                 type_kwargs=type_kwargs,
-                dataclass_field=dataclass_field,
                 column_kwargs=column_kwargs,
+                dataclass_field=dataclass_field,
             ),
         },
         **dataclass_field
     )
 
+
+@dataclasses.dataclass
+class ColumnParams:
+    '''Contains user-specified parameters for a column.'''
+    column_name: typing.Optional[str]
+    sqlalchemy_type: typing.Optional[sqlalchemy.TypeClause]
+    foreign_key: typing.Optional[str]
+    type_kwargs: typing.Dict[str, typing.Any]
+    column_kwargs: typing.Dict[str, typing.Any]
+    dataclass_field: typing.Optional[typing.Dict[str, typing.Any]]
+
+    @classmethod
+    def default(cls) -> ColumnParams:
+        return cls(
+            column_name=None,
+            sqlalchemy_type=None,
+            foreign_key=None,
+            type_kwargs={},
+            column_kwargs={},
+            dataclass_field=None,
+        )
+
+    def new_sqlalchemy_column(self, 
+        type_hint: typing.Union[str, type], 
+        attr_name: str
+    ) -> sqlalchemy.Column:
+        '''Get a sqlalchemy column from this column info.
+            Raises KeyError if there is no match.
+        '''
+        if self.column_name is not None:
+            if self.column_name != attr_name:
+                raise ValueError(f'Specified column name "{self.column_name}" does not match attribute name "{attr_name}".')
+            name = self.column_name
+        else:
+            name = attr_name
+
+        fk = (sqlalchemy.ForeignKey(self.foreign_key),) if self.foreign_key is not None else ()
+        
+        if self.sqlalchemy_type is not None:
+            args = (self.sqlalchemy_type,) + fk
+        elif self.foreign_key is not None:
+            args = fk
+        else:
+            try:
+                args = (type_hint_to_column_type[type_hint](**self.type_kwargs),) + fk
+            except KeyError as e:
+                raise KeyError(f'"{attr_name}" type hint "{type_hint}" was not found '
+                    f'in the list of valid mappings: {type_hint_to_column_type}.') from e
+
+        return sqlalchemy.Column(
+            name=name,
+            *args,
+            **self.column_kwargs,
+        )
+
+
 @dataclasses.dataclass
 class ColumnInfo:
+    '''Contains all information needed to create a column in a database.'''
     attr_name: str # name of attribute in data container
     type_hint: type
     params: ColumnParams
-
+    
     @classmethod
-    def empty(cls, name: str, type_hint: type) -> ColumnInfo:
-        return cls(
-            attr_name=name,
-            type_hint=type_hint,
-            params=ColumnParams.empty(),
-        )
-
-    @classmethod
-    def from_sqlalchemy(cls, dtype: sqlalchemy.TypeClause, **column_kwargs) -> ColumnInfo:
+    def default(cls, attr_name: str, type_hint: type) -> ColumnInfo:
         '''Get column info from only a sqlalchemy type.'''
         return cls(
-            dtype=dtype,
-            dtype_args=(),
-            dtype_kwargs={},
-            column_kwargs=column_kwargs,
+            attr_name=attr_name,
+            type_hint=type_hint,
+            params=ColumnParams.default(),
         )
 
     @classmethod
     def from_field(cls, field: dataclasses.Field) -> ColumnInfo:
         '''Get column info from a dataclass field.'''
-        try:
+        if METADATA_ATTRIBUTE_NAME in field.metadata:
             params = field.metadata[METADATA_ATTRIBUTE_NAME]
-        except KeyError as e:
-            raise ValueError(f'"{field.name}" metadata is missing the column parameter information.') from e
+        else:
+            params = ColumnParams.default()
         
         return cls(
             attr_name=field.name,
@@ -102,20 +131,14 @@ class ColumnInfo:
             params=params,
         )
     
-    def sqlalchemy_column(self) -> sqlalchemy.Column:
+    def name_pair(self) -> typing.Tuple[str, typing.Optional[str]]:
+        '''Get the attribute name and column name.'''
+        return self.attr_name, self.params.column_name
+    
+    def new_sqlalchemy_column(self) -> sqlalchemy.Column:
         '''Get a sqlalchemy column from this column info.'''
-        args = [self.params]
+        return self.params.new_sqlalchemy_column(
+            type_hint=self.type_hint,
+            attr_name=self.attr_name,
+        )
 
-        if self.params.foreign_key is not None:
-            args.append(sqlalchemy.ForeignKey(self.params.foreign_key))
-        
-        column_type = self.dtype(*self.dtype_args, **self.dtype_kwargs)
-        return sqlalchemy.Column(name, column_type, **self.column_kwargs)
-
-    def column_type(self) -> sqlalchemy.TypeClause:
-        '''Get a sqlalchemy column from this column info.'''
-        if self.params.sqlalchemy_type is not None:
-            return self.params.sqlalchemy_type
-        else:
-            return type_hint_to_column_type[self.type_hint](**self.params.type_kwargs)
-        
