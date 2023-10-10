@@ -190,7 +190,6 @@ class TestContainer:
 
     
 def dummy_schema(table_name: str = 'test') -> newtable.Schema:
-
     return newtable.Schema(
         table_name=table_name,
         data_container = TestContainer,
@@ -206,12 +205,29 @@ def dummy_schema(table_name: str = 'test') -> newtable.Schema:
         table_kwargs = {},
     )
 
+def test_schema_definitions():
+        
+    #column('id', sqlalchemy.Integer, primary_key=True)
+    @newtable.schema(
+        table_name='test',
+        indices = {
+            'age_index': newtable.IndexInfo.new('age'),
+        },
+        constraints = [],
+    )
+    class TestContainer:
+        id: int = None
+        name: str = None
+        age: int = None
+
 
 if __name__ == '__main__':
-    test_new_connectengine()
-    test_sqlalchemy_table()
-    test_new_doctable()
-    test_query()
-        
+    #test_new_connectengine()
+    #test_sqlalchemy_table()
+    #test_new_doctable()
+    #test_query()
+    
+    for field in dataclasses.fields(TestContainer):
+        print(field)
         
         

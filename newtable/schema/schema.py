@@ -4,33 +4,6 @@ import typing
 import dataclasses
 import sqlalchemy
 
-
-@dataclasses.dataclass
-class ColumnInfo:
-    dtype: sqlalchemy.TypeClause
-    dtype_args: typing.Tuple[typing.Any, ...]
-    dtype_kwargs: typing.Dict[str, typing.Any]
-    column_kwargs: typing.Dict[str, typing.Any]
-
-    @classmethod
-    def from_type(cls, dtype: sqlalchemy.TypeClause, **column_kwargs) -> ColumnInfo:
-        '''Get column info from only a sqlalchemy type.'''
-        return cls(
-            dtype=dtype,
-            dtype_args=(),
-            dtype_kwargs={},
-            column_kwargs=column_kwargs,
-        )
-
-    @classmethod
-    def from_field(cls, field: dataclasses.Field) -> ColumnInfo:
-        '''Get column info from a dataclass field.'''
-        pass
-    
-    def sqlalchemy_column(self, name: str) -> sqlalchemy.Column:
-        column_type = self.dtype(*self.dtype_args, **self.dtype_kwargs)
-        return sqlalchemy.Column(name, column_type, **self.column_kwargs)
-
 @dataclasses.dataclass
 class IndexInfo:
     column_names: typing.List[str]
