@@ -20,6 +20,21 @@ type_hint_to_column_type = {
     typing.Any: sqlalchemy.PickleType,
 }
 
+def id_column(
+    column_name: typing.Optional[str] = None, # name of the column in the database
+    type_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, # keyword arguments to pass to sqlalchemy type. ignored if sqlalchemy_type is specified
+    dataclass_field: typing.Optional[typing.Dict[str, typing.Any]] = None, # keyword arguments to pass to dataclass.field
+    **column_kwargs # pass to sqlalchemy.Column. ex: primary_key=True, nullable=True, etc.
+) -> dataclasses.field:
+    return column(
+        column_name=column_name,
+        sqlalchemy_type=sqlalchemy.Integer,
+        type_kwargs=type_kwargs,
+        dataclass_field=dataclass_field,
+        primary_key=True,
+        autoincrement=True,
+        **column_kwargs,
+    )
 
 def column(
     column_name: typing.Optional[str] = None, # name of the column in the database

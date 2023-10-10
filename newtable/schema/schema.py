@@ -4,6 +4,8 @@ import typing
 import dataclasses
 import sqlalchemy
 
+from .column import ColumnInfo
+
 @dataclasses.dataclass
 class IndexInfo:
     column_names: typing.List[str]
@@ -28,19 +30,25 @@ T = typing.TypeVar('T')
 class Schema(typing.Generic[T]):
     '''Contains all information needed to construct a db table.'''
     table_name: str
-    data_container: typing.Type[T]
-    columns: typing.Dict[str, ColumnInfo]
+    container_type: typing.Type[T]
     indices: typing.Dict[str, IndexInfo]
     constraints: typing.List[sqlalchemy.Constraint]
     table_kwargs: typing.Dict[str, typing.Any]
 
-    @classmethod
-    def from_schema_decorator(cls, data_container: typing.Type[T]) -> None:
-        pass
+    def sqlalchemy_indices(self) -> typing.List[sqlalchemy.Index]:
+        '''Get list of index info.'''
+        return list(self.indices.values())
+
+    def sqlalchemy_columns(self) -> typing.List[sqlalchemy.Column]:
+        '''Get column objects from .'''
+        columns = list()
+        for field in dataclasses.fields(self.container_type):
+            columns.append(ColumnInfo.from_field(field))
+        return columns
 
     def container_from_row(self, row: sqlalchemy.Row) -> T:
         '''Get a data container from a row.'''
-        return self.data_container(**row._mapping)
+        return self.container_type(**row._mapping)
     
     def dict_from_container(self, container: T) -> typing.Dict[str, typing.Any]:
         '''Get a dictionary representation of this schema.'''
