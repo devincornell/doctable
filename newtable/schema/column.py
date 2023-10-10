@@ -82,7 +82,7 @@ class ColumnParams:
             dataclass_field=None,
         )
 
-    def new_sqlalchemy_column(self, 
+    def sqlalchemy_column(self, 
         type_hint: typing.Union[str, type], 
         attr_name: str
     ) -> sqlalchemy.Column:
@@ -150,9 +150,9 @@ class ColumnInfo:
         '''Get the attribute name and column name.'''
         return self.attr_name, self.params.column_name
     
-    def new_sqlalchemy_column(self) -> sqlalchemy.Column:
+    def sqlalchemy_column(self) -> sqlalchemy.Column:
         '''Get a sqlalchemy column from this column info.'''
-        return self.params.new_sqlalchemy_column(
+        return self.params.sqlalchemy_column(
             type_hint=self.type_hint,
             attr_name=self.attr_name,
         )
