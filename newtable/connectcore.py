@@ -97,7 +97,7 @@ class ConnectCore:
         return engine, meta
     
     ################# Context Managers #################
-    def tables(self) -> TableMaker:
+    def tablemaker(self) -> TableMaker:
         '''Context manager that creates tables on exit. Use for multi-table schemas.'''
         return TableMaker(self)
         

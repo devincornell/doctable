@@ -128,9 +128,9 @@ def test_new_doctable(test_table: str = 'test'):
     )
 
     # now use the awesome context manager
-    with ce.tables() as tables:
-        t1 = tables.new_table(dummy_schema('t1'))
-        t2 = tables.new_table(dummy_schema('t2'))
+    with ce.tablemaker() as tmaker:
+        t1 = tmaker.new_table(dummy_schema('t1'))
+        t2 = tmaker.new_table(dummy_schema('t2'))
     print(t1, t2)
     print(ce.inspect_table_names())
     assert(len(ce.inspect_table_names()) == 2)
