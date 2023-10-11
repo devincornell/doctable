@@ -117,7 +117,8 @@ class ConnectCore:
             return sqlalchemy.Table(table_name, self.metadata, *columns, extend_existing=extend_existing, **kwargs)
         except sqlalchemy.exc.InvalidRequestError as e:
             m = str(e)
-            if 'already exists' in m or 'already defined' in m: # idk about this if statement, but copilot wrote it.
+            # idk about this if statement, but copilot wrote it.
+            if 'already exists' in m or 'already defined' in m:
                 raise TableAlreadyExistsError(f'The table {table_name} already exists. '
                     'To reflect an existing table, use reflect_sqlalchemy_table(). '
                     'You may also use the extend_existing=True flag to optionally  '

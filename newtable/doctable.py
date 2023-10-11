@@ -12,28 +12,23 @@ from .query import TableQuery
 
 if typing.TYPE_CHECKING:
     from .connectcore import ConnectCore
-    from .schema import Schema
+    from .schema import TableSchema
     
 
 T = typing.TypeVar('T')
 
 @dataclasses.dataclass
 class DocTable(DocTableBase, typing.Generic[T]):
-    schema: Schema[T]
+    schema: TableSchema[T]
     table: sqlalchemy.Table
     core: ConnectCore
 
     @classmethod
-    def from_schema(cls, schema: Schema[T], core: ConnectCore, **kwargs) -> DocTable:
+    def from_schema(cls, schema: TableSchema[T], core: ConnectCore, **kwargs) -> DocTable:
         '''Create a DocTable object from a Schema object.'''
         return cls(
             schema = schema,
-            table = core.sqlalchemy_table(
-                table_name=schema.table_name, 
-                columns=schema.table_args(), 
-                **schema.table_kwargs,
-                **kwargs
-            ),
+            table = schema.sqlalchemy_table(core.metadata),
             core=core,
         )
         

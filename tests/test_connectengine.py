@@ -257,7 +257,6 @@ def test_schema_definitions():
     assert(newtable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer2))
     schema = getattr(TestContainer2, newtable.SCHEMA_ATTRIBUTE_NAME)
     assert(schema.table_name == 'TestContainer2')
-    print(TestDataClass(id=1, name='a', age=10))
     
     @newtable.table_schema(
         table_name='mytable',
@@ -270,9 +269,13 @@ def test_schema_definitions():
     schema = getattr(TestContainer3, newtable.SCHEMA_ATTRIBUTE_NAME)
     assert(schema.table_name == 'mytable')
 
+    tc = TestContainer3(id=1, name='a', age=10)
+    print(tc._table_schema.table_name == 'mytable')
+    print(tc.age)
 
     print(f'finished testing schema definitions')
-
+    tc = TestContainer3(1, name='a', age=10)
+    print(tc)
 
 if __name__ == '__main__':
     #test_new_connectengine()

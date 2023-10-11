@@ -40,13 +40,6 @@ def table_schema(
 
     # in case the user needs to access the old version
     def table_schema_decorator(Cls: typing.Type[T]):
-        # NOTE: not sure this is a good idea, but table name takes name of class by default
-        #table_name = table_name if table_name is not None else Cls.__name__
-        
-        #print(f'{unsafe_hash=}, {table_name=}')
-        #if table_name is None:
-        #    table_name = Cls.__name__
-
         # creates constructor/other methods using dataclasses
         try:
             dataclass_decorator = dataclasses.dataclass(
@@ -87,7 +80,8 @@ def table_schema(
         # NOTE: don't need this since we re-used the original class
         #wrap_decorator = functools.wraps(Cls)
         #NewCls = wrap_decorator(NewCls)
-
+        
+        # NOTE: not sure this is a good idea, but table name takes name of class by default
         setattr(NewCls, SCHEMA_ATTRIBUTE_NAME, TableSchema.from_container(
             table_name  = table_name if table_name is not None else NewCls.__name__,
             container_type = NewCls,
