@@ -37,6 +37,9 @@ def table_schema(
 
     # in case the user needs to access the old version
     def table_schema_decorator(Cls: typing.Type[T]):
+        # NOTE: not sure this is a good idea, but table name takes name of class by default
+        table_name = table_name if table_name is not None else Cls.__name__
+        
         # creates constructor/other methods using dataclasses
         Cls: typing.Type[T] = dataclasses.dataclass(
             _Cls = Cls,
@@ -84,7 +87,7 @@ class TableSchema(typing.Generic[T]):
         constraints: typing.List[sqlalchemy.Constraint],
         table_kwargs: typing.Dict[str, typing.Any],
     ) -> TableSchema[T]:
-        '''Get a dictionary representation of this schema.'''
+        '''Create from basic args - called directly from decorator.'''
         return cls(
             table_name=table_name,
             container_type=container_type,
@@ -103,16 +106,22 @@ class TableSchema(typing.Generic[T]):
         '''Get a dictionary representation of this schema.'''
         return dataclasses.asdict(container)
 
-    #################### Table Arguments ####################
-    def table_args(self) -> typing.List[typing.Union[sqlalchemy.Column, sqlalchemy.Index, sqlalchemy.Constraint]]:
-        '''Get a list of all table args.'''
-        return [*self.sqlalchemy_columns(), *self.sqlalchemy_indices(), *self.constraints]
+    #################### Creating Tables ####################
+    def sqlalchemy_table(self, metadata: sqlalchemy.MetaData) -> sqlalchemy.Table:
+        '''Get a sqlalchemy table object.'''
+        return sqlalchemy.Table(
+            self.table_name,
+            metadata = metadata,
+            *(self.sqlalchemy_columns() + self.sqlalchemy_indices() + self.constraints),
+            **self.table_kwargs,
+        )
+
+    def sqlalchemy_columns(self) -> typing.List[sqlalchemy.Column]:
+        return [ci.sqlalchemy_column() for ci in self.columns]
 
     def sqlalchemy_indices(self) -> typing.List[sqlalchemy.Index]:
         '''Get list of sqlalchemy indices.'''
         return [ii.sqlalchemy_index() for ii in self.indices]
 
-    def sqlalchemy_columns(self) -> typing.List[sqlalchemy.Column]:
-        return [ci.sqlalchemy_column() for ci in self.columns]
 
 
