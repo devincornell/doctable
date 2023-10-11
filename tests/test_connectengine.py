@@ -206,8 +206,15 @@ def dummy_schema(table_name: str = 'test') -> newtable.TableSchema:
     )
 
 def test_schema_definitions():
-        
-    #column('id', sqlalchemy.Integer, primary_key=True)
+
+    @newtable.table_schema        
+    class TestContainer0:
+        id: int = None
+        name: str = None
+        age: int = None
+    assert(newtable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer0))
+
+    # test the most basic usage
     @newtable.table_schema(
         indices = {
             'age_index': newtable.Index('age'),
@@ -219,6 +226,16 @@ def test_schema_definitions():
         age: int = None
 
     assert(newtable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer))
+
+    # make sure the arguments work with it
+    if sys.version_info.minor >= 10:
+        newtable.table_schema(TestContainer, slots=True)
+    else:
+        try:
+            newtable.table_schema(TestContainer, slots=True)
+            raise Exception('Should have raised TypeError.')
+        except TypeError as e:
+            print(e)
 
 
 if __name__ == '__main__':
