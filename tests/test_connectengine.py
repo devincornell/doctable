@@ -189,6 +189,14 @@ class TestDataClass:
     age: int = None
 
 
+def dummy_container(table_name: str = 'test') -> newtable.Container:
+    @newtable.table_schema()
+    class TestContainer:
+        id: int = newtable.IDColumn()
+        name: str
+        age: int
+
+    return TestContainer
 
 
 
@@ -278,9 +286,9 @@ def test_schema_definitions():
     print(tc)
 
 if __name__ == '__main__':
-    #test_new_connectengine()
-    #test_sqlalchemy_table()
-    #test_new_doctable()
-    #test_query()
+    test_new_connectengine()
+    test_sqlalchemy_table()
+    test_new_doctable()
+    test_query()
     test_schema_definitions()
         

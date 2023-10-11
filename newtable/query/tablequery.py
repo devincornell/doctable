@@ -17,14 +17,14 @@ class TableQuery(typing.Generic[T]):
     cquery: ConnectQuery
 
     @classmethod
-    def from_doctable(cls, dtable: DocTable[T], cquery: ConnectQuery) -> ConnectQuery:
+    def from_doctable(cls, dtable: DocTable[T]) -> ConnectQuery:
         '''Interface for quering tables.
         Args:
             table (sqlalchemy.Table): table to query from
         '''
         return cls(
             dtable=dtable,
-            cquery=cquery,
+            cquery=dtable.core.query(),
         )
     
     def __enter__(self) -> TableQuery:

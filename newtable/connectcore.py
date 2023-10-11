@@ -32,7 +32,7 @@ class TableMaker:
         '''Create all tables in metadata.'''
         self.core.create_all_tables()
 
-    def new_table(self, schema: Schema, **kwargs) -> DocTable:
+    def new_table(self, schema: TableSchema, **kwargs) -> DocTable:
         '''Create a new table from a Schema class.
             Use extend_existing=True to connect to an existing table.
         '''
