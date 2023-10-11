@@ -20,13 +20,13 @@ type_hint_to_column_type = {
     typing.Any: sqlalchemy.PickleType,
 }
 
-def id_column(
+def IDColumn(
     column_name: typing.Optional[str] = None, # name of the column in the database
     type_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, # keyword arguments to pass to sqlalchemy type. ignored if sqlalchemy_type is specified
     dataclass_field: typing.Optional[typing.Dict[str, typing.Any]] = None, # keyword arguments to pass to dataclass.field
     **column_kwargs # pass to sqlalchemy.Column. ex: primary_key=True, nullable=True, etc.
 ) -> dataclasses.field:
-    return column(
+    return Column(
         column_name=column_name,
         sqlalchemy_type=sqlalchemy.Integer,
         type_kwargs=type_kwargs,
@@ -36,28 +36,35 @@ def id_column(
         **column_kwargs,
     )
 
-def column(
+def Column(
     column_name: typing.Optional[str] = None, # name of the column in the database
     sqlalchemy_type: typing.Optional[sqlalchemy.TypeClause] = None, # type of column in database using sqlachemy types
     foreign_key: str = None, # name of the column (tabname.colname) that this column references
     type_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, # keyword arguments to pass to sqlalchemy type. ignored if sqlalchemy_type is specified
-    dataclass_field: typing.Optional[typing.Dict[str, typing.Any]] = None, # keyword arguments to pass to dataclass.field
+    field_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, # keyword arguments to pass to dataclass.field
     **column_kwargs # pass to sqlalchemy.Column. ex: primary_key=True, nullable=True, etc.
 ) -> dataclasses.field:
     '''Record column information in the metadata of a dataclass field.'''
+    
+    field_kwargs = field_kwargs if field_kwargs is not None else dict()
+    
+    metadata = field_kwargs.get('metadata', {})
+    if 'metadata' in field_kwargs:
+        del field_kwargs['metadata']
+
     return dataclasses.field(
         metadata={
-            **dataclass_field.get('metadata', {}), 
+            **metadata, 
             COLUMN_METADATA_ATTRIBUTE_NAME: ColumnParams(
                 column_name=column_name,
                 sqlalchemy_type=sqlalchemy_type,
                 foreign_key=foreign_key,
                 type_kwargs=type_kwargs,
                 column_kwargs=column_kwargs,
-                dataclass_field=dataclass_field,
+                field_kwargs=field_kwargs,
             ),
         },
-        **dataclass_field
+        **field_kwargs
     )
 
 
@@ -69,7 +76,7 @@ class ColumnParams:
     foreign_key: typing.Optional[str]
     type_kwargs: typing.Dict[str, typing.Any]
     column_kwargs: typing.Dict[str, typing.Any]
-    dataclass_field: typing.Optional[typing.Dict[str, typing.Any]]
+    field_kwargs: typing.Optional[typing.Dict[str, typing.Any]]
 
     @classmethod
     def default(cls) -> ColumnParams:
@@ -79,7 +86,7 @@ class ColumnParams:
             foreign_key=None,
             type_kwargs={},
             column_kwargs={},
-            dataclass_field=None,
+            field_kwargs=None,
         )
 
     def sqlalchemy_column(self, 
@@ -91,7 +98,8 @@ class ColumnParams:
         '''
         if self.column_name is not None:
             if self.column_name != attr_name:
-                raise ValueError(f'Specified column name "{self.column_name}" does not match attribute name "{attr_name}".')
+                raise ValueError(f'Specified column name "{self.column_name}" does '
+                    f'not match attribute name "{attr_name}".')
             name = self.column_name
         else:
             name = attr_name

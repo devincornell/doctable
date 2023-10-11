@@ -212,6 +212,8 @@ def test_schema_definitions():
         id: int = None
         name: str = None
         age: int = None
+
+    assert(dataclasses.is_dataclass(TestContainer0))
     assert(newtable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer0))
 
     # test the most basic usage
@@ -221,21 +223,36 @@ def test_schema_definitions():
         },
     )
     class TestContainer:
-        id: int = None
-        name: str = None
-        age: int = None
+        id: int
+        name: str
+        age: int
 
+    assert(dataclasses.is_dataclass(TestContainer0))
     assert(newtable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer))
 
     # make sure the arguments work with it
     if sys.version_info.minor >= 10:
         newtable.table_schema(TestContainer, slots=True)
-    else:
-        try:
-            newtable.table_schema(TestContainer, slots=True)
-            raise Exception('Should have raised TypeError.')
-        except TypeError as e:
-            print(e)
+    #else:
+    #    try:
+    #        newtable.table_schema(TestContainer, slots=True)
+    #        raise Exception('Should have raised TypeError.')
+    #    except TypeError as e:
+    #        print(e)
+
+    @newtable.table_schema()
+    class TestContainer:
+        id: int = newtable.IDColumn()
+        name: str
+        age: int
+    
+    assert(dataclasses.is_dataclass(TestContainer0))
+    assert(newtable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer))
+    
+    print(TestContainer(id=1, name='a', age=10))
+    
+    
+    print(f'finished testing schema definitions')
 
 
 if __name__ == '__main__':

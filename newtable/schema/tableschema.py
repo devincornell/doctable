@@ -45,8 +45,7 @@ def table_schema(
         
         # creates constructor/other methods using dataclasses
         try:
-            Cls: typing.Type[T] = dataclasses.dataclass(
-                Cls,
+            dataclass_decorator = dataclasses.dataclass(
                 init = init,
                 repr = repr,
                 eq = eq,
@@ -68,8 +67,7 @@ def table_schema(
                 ]):
                     raise TypeError('match_args, kw_only, slots, and weakref_slot are only supported in Python 3.10+')
                 
-                Cls: typing.Type[T] = dataclasses.dataclass(
-                    Cls,
+                dataclass_decorator = dataclasses.dataclass(
                     init = init,
                     repr = repr,
                     eq = eq,
@@ -79,17 +77,20 @@ def table_schema(
                 )
             else:
                 raise e
+        
+        wrap_decorator = functools.wraps(Cls)
+        NewCls = dataclass_decorator(Cls)
+        NewCls = wrap_decorator(NewCls)
 
-
-        setattr(Cls, SCHEMA_ATTRIBUTE_NAME, TableSchema.from_container(
+        setattr(NewCls, SCHEMA_ATTRIBUTE_NAME, TableSchema.from_container(
             table_name  = table_name,
-            container_type = Cls,
+            container_type = NewCls,
             indices = indices,
             constraints = constraints,
             table_kwargs = table_kwargs,
         ))
 
-        return Cls
+        return NewCls
                     
     if _Cls is None:
         return table_schema_decorator
