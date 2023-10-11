@@ -31,8 +31,7 @@ class IndexInfo:
     def from_params(cls, name: str, params: IndexParams) -> IndexInfo:
         return cls(
             name=name,
-            column_names=params.column_names,
-            kwargs=params.kwargs,
+            params=params,
         )
 
     def sqlalchemy_index(self) -> sqlalchemy.Index:

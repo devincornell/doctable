@@ -5,7 +5,7 @@ import dataclasses
 import sqlalchemy
 import datetime
 
-METADATA_ATTRIBUTE_NAME = '_column_args'
+COLUMN_METADATA_ATTRIBUTE_NAME = '_column_args'
 
 # https://docs.sqlalchemy.org/en/20/core/type_basics.html#sqlalchemy.types.Text
 type_hint_to_column_type = {
@@ -48,7 +48,7 @@ def column(
     return dataclasses.field(
         metadata={
             **dataclass_field.get('metadata', {}), 
-            METADATA_ATTRIBUTE_NAME: ColumnParams(
+            COLUMN_METADATA_ATTRIBUTE_NAME: ColumnParams(
                 column_name=column_name,
                 sqlalchemy_type=sqlalchemy_type,
                 foreign_key=foreign_key,
@@ -135,8 +135,8 @@ class ColumnInfo:
     @classmethod
     def from_field(cls, field: dataclasses.Field) -> ColumnInfo:
         '''Get column info from a dataclass field.'''
-        if METADATA_ATTRIBUTE_NAME in field.metadata:
-            params = field.metadata[METADATA_ATTRIBUTE_NAME]
+        if COLUMN_METADATA_ATTRIBUTE_NAME in field.metadata:
+            params = field.metadata[COLUMN_METADATA_ATTRIBUTE_NAME]
         else:
             params = ColumnParams.default()
         

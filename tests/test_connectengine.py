@@ -189,8 +189,8 @@ class TestContainer:
     age: int = None
 
     
-def dummy_schema(table_name: str = 'test') -> newtable.Schema:
-    return newtable.Schema(
+def dummy_schema(table_name: str = 'test') -> newtable.TableSchema:
+    return newtable.TableSchema(
         table_name=table_name,
         data_container = TestContainer,
         columns = {
@@ -208,17 +208,17 @@ def dummy_schema(table_name: str = 'test') -> newtable.Schema:
 def test_schema_definitions():
         
     #column('id', sqlalchemy.Integer, primary_key=True)
-    @newtable.schema(
-        table_name='test',
+    @newtable.table_schema(
         indices = {
-            'age_index': newtable.IndexInfo.new('age'),
+            'age_index': newtable.Index('age'),
         },
-        constraints = [],
     )
     class TestContainer:
         id: int = None
         name: str = None
         age: int = None
+
+    assert(newtable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer))
 
 
 if __name__ == '__main__':
@@ -226,8 +226,5 @@ if __name__ == '__main__':
     #test_sqlalchemy_table()
     #test_new_doctable()
     #test_query()
-    
-    for field in dataclasses.fields(TestContainer):
-        print(field)
-        
+    test_schema_definitions()
         

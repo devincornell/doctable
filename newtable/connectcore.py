@@ -9,7 +9,9 @@ import pandas as pd
 from .doctable import DocTable
 from .reflecteddoctable import ReflectedDocTable
 from .query import ConnectQuery
-from .schema import Schema
+
+if typing.TYPE_CHECKING:
+    from .schema import TableSchema
 
 class TableAlreadyExistsError(Exception):
     pass
