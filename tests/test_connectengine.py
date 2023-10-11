@@ -177,22 +177,25 @@ def test_query(test_table: str = 'test1'):
 
     with t.query() as tq:
         assert(len(tq.select()) == 5)
-        r = tq.insert_single(TestContainer(name='a', age=110))
+        r = tq.insert_single(TestDataClass(name='a', age=110))
         assert(len(tq.select()) == 6)
 
 
 import dataclasses
 @dataclasses.dataclass
-class TestContainer:
+class TestDataClass:
     id: int = None
     name: str = None
     age: int = None
 
-    
+
+
+
+
 def dummy_schema(table_name: str = 'test') -> newtable.TableSchema:
     return newtable.TableSchema(
         table_name=table_name,
-        data_container = TestContainer,
+        data_container = TestDataClass,
         columns = {
             'id': newtable.ColumnInfo.from_type(sqlalchemy.Integer,primary_key=True),
             'name': newtable.ColumnInfo.from_type(sqlalchemy.String),
@@ -215,43 +218,59 @@ def test_schema_definitions():
 
     assert(dataclasses.is_dataclass(TestContainer0))
     assert(newtable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer0))
+    schema = getattr(TestContainer0, newtable.SCHEMA_ATTRIBUTE_NAME)
+    assert(schema.table_name == 'TestContainer0')
 
     # test the most basic usage
+    @newtable.table_schema()
+    class TestContainer1:
+        id: int
+        name: str
+        age: int
+
+    assert(dataclasses.is_dataclass(TestContainer1))
+    assert(newtable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer1))
+    schema = getattr(TestContainer1, newtable.SCHEMA_ATTRIBUTE_NAME)
+    assert(schema.table_name == 'TestContainer1')
+
+    # make sure the arguments work with it
+    if sys.version_info.minor >= 10:
+        newtable.table_schema(TestDataClass, slots=True)
+    else:
+        try:
+            newtable.table_schema(TestDataClass, slots=True)
+            raise Exception('Should have raised TypeError.')
+        except TypeError as e:
+            print(e)
+
     @newtable.table_schema(
         indices = {
             'age_index': newtable.Index('age'),
         },
     )
-    class TestContainer:
-        id: int
-        name: str
-        age: int
-
-    assert(dataclasses.is_dataclass(TestContainer0))
-    assert(newtable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer))
-
-    # make sure the arguments work with it
-    if sys.version_info.minor >= 10:
-        newtable.table_schema(TestContainer, slots=True)
-    #else:
-    #    try:
-    #        newtable.table_schema(TestContainer, slots=True)
-    #        raise Exception('Should have raised TypeError.')
-    #    except TypeError as e:
-    #        print(e)
-
-    @newtable.table_schema()
-    class TestContainer:
+    class TestContainer2:
         id: int = newtable.IDColumn()
         name: str
         age: int
     
-    assert(dataclasses.is_dataclass(TestContainer0))
-    assert(newtable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer))
+    assert(dataclasses.is_dataclass(TestContainer2))
+    assert(newtable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer2))
+    schema = getattr(TestContainer2, newtable.SCHEMA_ATTRIBUTE_NAME)
+    assert(schema.table_name == 'TestContainer2')
+    print(TestDataClass(id=1, name='a', age=10))
     
-    print(TestContainer(id=1, name='a', age=10))
+    @newtable.table_schema(
+        table_name='mytable',
+    )
+    class TestContainer3:
+        id: int = newtable.IDColumn()
+        name: str
+        age: int
     
-    
+    schema = getattr(TestContainer3, newtable.SCHEMA_ATTRIBUTE_NAME)
+    assert(schema.table_name == 'mytable')
+
+
     print(f'finished testing schema definitions')
 
 

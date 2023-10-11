@@ -23,10 +23,10 @@ def table_schema(
     order: bool = False, # passed to dataclasses.dataclass()
     unsafe_hash: bool = False, # passed to dataclasses.dataclass()
     frozen: bool = False, # passed to dataclasses.dataclass()
-    match_args: bool = None, # passed to dataclasses.dataclass()
-    kw_only: bool = None, # passed to dataclasses.dataclass()
-    slots: bool = None, # passed to dataclasses.dataclass()
-    weakref_slot: bool = None, # passed to dataclasses.dataclass()
+    match_args: typing.Optional[bool] = None, # passed to dataclasses.dataclass()
+    kw_only: typing.Optional[bool] = None, # passed to dataclasses.dataclass()
+    slots: typing.Optional[bool] = None, # passed to dataclasses.dataclass()
+    weakref_slot: typing.Optional[bool] = None, # passed to dataclasses.dataclass()
     **table_kwargs: typing.Dict[str, typing.Any],
 ) -> typing.Type[T]:
     '''A decorator to change a regular class into a schema object class.
@@ -35,14 +35,18 @@ def table_schema(
     indices = indices if indices is not None else dict()
     constraints = constraints if constraints is not None else list()
     
-    if table_name is None and _Cls is not None:
-        table_name = _Cls.__name__
+    #if table_name is None and _Cls is not None:
+    #    table_name = _Cls.__name__
 
     # in case the user needs to access the old version
     def table_schema_decorator(Cls: typing.Type[T]):
         # NOTE: not sure this is a good idea, but table name takes name of class by default
         #table_name = table_name if table_name is not None else Cls.__name__
         
+        #print(f'{unsafe_hash=}, {table_name=}')
+        #if table_name is None:
+        #    table_name = Cls.__name__
+
         # creates constructor/other methods using dataclasses
         try:
             dataclass_decorator = dataclasses.dataclass(
@@ -78,12 +82,14 @@ def table_schema(
             else:
                 raise e
         
-        wrap_decorator = functools.wraps(Cls)
         NewCls = dataclass_decorator(Cls)
-        NewCls = wrap_decorator(NewCls)
+        
+        # NOTE: don't need this since we re-used the original class
+        #wrap_decorator = functools.wraps(Cls)
+        #NewCls = wrap_decorator(NewCls)
 
         setattr(NewCls, SCHEMA_ATTRIBUTE_NAME, TableSchema.from_container(
-            table_name  = table_name,
+            table_name  = table_name if table_name is not None else NewCls.__name__,
             container_type = NewCls,
             indices = indices,
             constraints = constraints,
