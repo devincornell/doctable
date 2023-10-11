@@ -51,7 +51,7 @@ class TableSchema(typing.Generic[Container]):
     def sqlalchemy_table(self, metadata: sqlalchemy.MetaData) -> sqlalchemy.Table:
         '''Get a sqlalchemy table object.'''
         return sqlalchemy.Table(
-            self.table_name,
+            name = self.table_name,
             metadata = metadata,
             *(self.sqlalchemy_columns() + self.sqlalchemy_indices() + self.constraints),
             **self.table_kwargs,

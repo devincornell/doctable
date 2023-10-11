@@ -203,22 +203,22 @@ def dummy_container(table_name: str = 'test') -> newtable.Container:
 def dummy_schema(table_name: str = 'test') -> newtable.TableSchema:
     return newtable.TableSchema(
         table_name=table_name,
-        data_container = TestDataClass,
-        columns = {
-            'id': newtable.ColumnInfo.from_type(sqlalchemy.Integer,primary_key=True),
-            'name': newtable.ColumnInfo.from_type(sqlalchemy.String),
-            'age': newtable.ColumnInfo.from_type(sqlalchemy.Integer),
-        },
-        indices = {
-            f'{table_name}_age_index': newtable.IndexInfo.new('age'),
-        },
+        container_type = TestDataClass,
+        columns = [
+            newtable.ColumnInfo.default('id', int),
+            newtable.ColumnInfo.default('name', str),
+            newtable.ColumnInfo.default('age', int),
+        ],
+        indices = [
+            newtable.IndexInfo.default('age_index', 'age'),
+        ],
         constraints = [],
         table_kwargs = {},
     )
 
 def test_schema_definitions():
 
-    @newtable.table_schema        
+    @newtable.table_schema
     class TestContainer0:
         id: int = None
         name: str = None
