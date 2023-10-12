@@ -74,6 +74,7 @@ class ColumnParams:
     column_name: typing.Optional[str]
     sqlalchemy_type: typing.Optional[sqlalchemy.TypeClause]
     foreign_key: typing.Optional[str]
+    auto_populate: bool = False
     type_kwargs: typing.Dict[str, typing.Any]
     column_kwargs: typing.Dict[str, typing.Any]
     field_kwargs: typing.Optional[typing.Dict[str, typing.Any]]
@@ -84,6 +85,7 @@ class ColumnParams:
             column_name=None,
             sqlalchemy_type=None,
             foreign_key=None,
+            auto_populate=False,
             type_kwargs={},
             column_kwargs={},
             field_kwargs=None,
@@ -142,7 +144,7 @@ class ColumnInfo:
 
     @classmethod
     def from_field(cls, field: dataclasses.Field) -> ColumnInfo:
-        '''Get column info from a dataclass field.'''
+        '''Get column info from a dataclass field after dataclass is created.'''
         if COLUMN_METADATA_ATTRIBUTE_NAME in field.metadata:
             params = field.metadata[COLUMN_METADATA_ATTRIBUTE_NAME]
         else:

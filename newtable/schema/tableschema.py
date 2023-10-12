@@ -45,7 +45,11 @@ class TableSchema(typing.Generic[Container]):
     
     def dict_from_container(self, container: Container) -> typing.Dict[str, typing.Any]:
         '''Get a dictionary representation of this schema.'''
-        return dataclasses.asdict(container)
+        try:
+            return dataclasses.asdict(container)
+        except TypeError as e:
+            raise TypeError(f'"{container}" is not a recognized container. '
+                'Use ConnectCore.insert if inserting raw dictionaries.') from e
 
     #################### Creating Tables ####################
     def sqlalchemy_table(self, metadata: sqlalchemy.MetaData, **kwargs) -> sqlalchemy.Table:
