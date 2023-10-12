@@ -141,8 +141,8 @@ def test_query(test_table: str = 'test1'):
         dialect='sqlite',
     )
 
-    with ce.tables() as tables: 
-        t = tables.new_table(dummy_schema(test_table))
+    with ce.tablemaker() as tmaker: 
+        t = tmaker.new_table(dummy_schema(test_table))
 
     # alternatively, do the same thing with query()
     with ce.query() as q:
@@ -210,7 +210,7 @@ def dummy_schema(table_name: str = 'test') -> newtable.TableSchema:
             newtable.ColumnInfo.default('age', int),
         ],
         indices = [
-            newtable.IndexInfo.default('age_index', 'age'),
+            newtable.IndexInfo.default(f'{table_name}_age_index', 'age'),
         ],
         constraints = [],
         table_kwargs = {},

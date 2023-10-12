@@ -50,12 +50,17 @@ class TableSchema(typing.Generic[Container]):
     #################### Creating Tables ####################
     def sqlalchemy_table(self, metadata: sqlalchemy.MetaData) -> sqlalchemy.Table:
         '''Get a sqlalchemy table object.'''
+        print(self.table_name, self.table_args(), self.table_kwargs)
         return sqlalchemy.Table(
-            name = self.table_name,
-            metadata = metadata,
-            *(self.sqlalchemy_columns() + self.sqlalchemy_indices() + self.constraints),
+            self.table_name,
+            metadata,
+            *self.table_args(),
             **self.table_kwargs,
         )
+    
+    def table_args(self) -> typing.List[typing.Union[sqlalchemy.Column, sqlalchemy.Index, sqlalchemy.Constraint]]:
+        '''Get a list of table args.'''
+        return self.sqlalchemy_columns() + self.sqlalchemy_indices() + list(self.constraints)
 
     def sqlalchemy_columns(self) -> typing.List[sqlalchemy.Column]:
         return [ci.sqlalchemy_column() for ci in self.columns]
