@@ -41,16 +41,33 @@ def Column(
     sqlalchemy_type: typing.Optional[sqlalchemy.TypeClause] = None, # type of column in database using sqlachemy types
     foreign_key: str = None, # name of the column (tabname.colname) that this column references
     type_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, # keyword arguments to pass to sqlalchemy type. ignored if sqlalchemy_type is specified
-    field_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, # keyword arguments to pass to dataclass.field
+    
+    default: typing.Any = dataclasses.MISSING, # dataclass.field: default value for column
+    default_factory: typing.Optional[typing.Callable[[], typing.Any]] = dataclasses.MISSING, # default factory for column
+    repr: bool = True, # dataclass.field: whether to include in repr
+    hash: bool = None, # dataclass.field: whether to include in hash
+    init: bool = True, # dataclass.field: whether to include in init
+    compare: bool = True, # dataclass.field: whether to include in comparison
+    kw_only: bool = dataclasses.MISSING, # dataclass.field: whether to include in kw_only
+    metadata: typing.Optional[typing.Dict[str, typing.Any]] = None, # dataclass.field: metadata to include in field
+    
     **column_kwargs # pass to sqlalchemy.Column. ex: primary_key=True, nullable=True, etc.
 ) -> dataclasses.field:
     '''Record column information in the metadata of a dataclass field.'''
-    
+    metadata = metadata if metadata is not None else dict()
+
     field_kwargs = field_kwargs if field_kwargs is not None else dict()
-    
-    metadata = field_kwargs.get('metadata', {})
-    if 'metadata' in field_kwargs:
-        del field_kwargs['metadata']
+    field_kwargs = {
+        **field_kwargs,
+        'default': default,
+        'default_factory': default_factory,
+        'repr': repr,
+        'hash': hash,
+        'init': init,
+        'compare': compare,
+    }
+    if kw_only is not dataclasses.MISSING:
+        field_kwargs['kw_only'] = kw_only
 
     return dataclasses.field(
         metadata={
@@ -100,9 +117,6 @@ class ColumnParams:
             Raises KeyError if there is no match.
         '''
         if self.column_name is not None:
-            if self.column_name != attr_name:
-                raise ValueError(f'Specified column name "{self.column_name}" does '
-                    f'not match attribute name "{attr_name}".')
             name = self.column_name
         else:
             name = attr_name
@@ -157,9 +171,12 @@ class ColumnInfo:
             params=params,
         )
     
-    def name_pair(self) -> typing.Tuple[str, typing.Optional[str]]:
-        '''Get the attribute name and column name.'''
-        return self.attr_name, self.params.column_name
+    def name_translation(self) -> typing.Tuple[str, typing.Optional[str]]:
+        '''Get (attribute, column) name pairs.'''
+        if self.params.column_name is None:
+            return self.attr_name, self.attr_name
+        else:
+            return self.attr_name, self.params.column_name
     
     def sqlalchemy_column(self) -> sqlalchemy.Column:
         '''Get a sqlalchemy column from this column info.'''
