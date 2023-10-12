@@ -59,6 +59,7 @@ def Column(
                 column_name=column_name,
                 sqlalchemy_type=sqlalchemy_type,
                 foreign_key=foreign_key,
+                auto_populate='autoincrement' in column_kwargs,
                 type_kwargs=type_kwargs,
                 column_kwargs=column_kwargs,
                 field_kwargs=field_kwargs,
@@ -74,7 +75,7 @@ class ColumnParams:
     column_name: typing.Optional[str]
     sqlalchemy_type: typing.Optional[sqlalchemy.TypeClause]
     foreign_key: typing.Optional[str]
-    auto_populate: bool = False
+    auto_populate: bool # indicate this column will be auto populated
     type_kwargs: typing.Dict[str, typing.Any]
     column_kwargs: typing.Dict[str, typing.Any]
     field_kwargs: typing.Optional[typing.Dict[str, typing.Any]]
