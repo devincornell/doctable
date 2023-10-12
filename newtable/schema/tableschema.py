@@ -48,14 +48,14 @@ class TableSchema(typing.Generic[Container]):
         return dataclasses.asdict(container)
 
     #################### Creating Tables ####################
-    def sqlalchemy_table(self, metadata: sqlalchemy.MetaData) -> sqlalchemy.Table:
+    def sqlalchemy_table(self, metadata: sqlalchemy.MetaData, **kwargs) -> sqlalchemy.Table:
         '''Get a sqlalchemy table object.'''
-        print(self.table_name, self.table_args(), self.table_kwargs)
         return sqlalchemy.Table(
             self.table_name,
             metadata,
             *self.table_args(),
             **self.table_kwargs,
+            **kwargs,
         )
     
     def table_args(self) -> typing.List[typing.Union[sqlalchemy.Column, sqlalchemy.Index, sqlalchemy.Constraint]]:

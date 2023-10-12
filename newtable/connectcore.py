@@ -11,7 +11,7 @@ from .reflecteddoctable import ReflectedDocTable
 from .query import ConnectQuery
 
 if typing.TYPE_CHECKING:
-    from .schema import TableSchema
+    from .schema import TableSchema, Container
 
 class TableAlreadyExistsError(Exception):
     pass
@@ -32,13 +32,15 @@ class TableMaker:
         '''Create all tables in metadata.'''
         self.core.create_all_tables()
 
-    def new_table(self, schema: TableSchema, **kwargs) -> DocTable:
+    def new_table(self, *, container_type: typing.Type[Container], extend_existing: bool = False, **kwargs) -> DocTable:
         '''Create a new table from a Schema class.
             Use extend_existing=True to connect to an existing table.
         '''
-        return DocTable.from_schema(
-            schema = schema,
+        return DocTable.from_container(
+            container_type=container_type,
             core=self.core,
+            extend_existing=extend_existing,
+            **kwargs,
         )
     
     def reflect_table(self, table_name: str, **kwargs) -> DocTable:

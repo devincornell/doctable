@@ -23,19 +23,21 @@ class DocTable(DocTableBase, typing.Generic[Container]):
     core: ConnectCore
 
     @classmethod
-    def from_container(cls, container_type: typing.Type[Container], core: ConnectCore) -> DocTable[Container]:
+    def from_container(cls, container_type: typing.Type[Container], core: ConnectCore, extend_existing: bool = False, **kwargs) -> DocTable[Container]:
         '''Create a DocTable object from a data container class.'''
         return cls.from_schema(
             schema = get_schema(container_type),
             core=core,
+            extend_existing=extend_existing,
+            **kwargs,
         )
 
     @classmethod
-    def from_schema(cls, schema: TableSchema[Container], core: ConnectCore) -> DocTable[Container]:
+    def from_schema(cls, schema: TableSchema[Container], core: ConnectCore, **kwargs) -> DocTable[Container]:
         '''Create a DocTable object from a Schema object.'''
         return cls(
             schema = schema,
-            table = schema.sqlalchemy_table(core.metadata),
+            table = schema.sqlalchemy_table(core.metadata, **kwargs),
             core=core,
         )
         

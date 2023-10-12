@@ -5,13 +5,14 @@ import dataclasses
 import os
 import sqlalchemy
 import pandas as pd
+from .doctablebase import DocTableBase
 
 if typing.TYPE_CHECKING:
     from .connectcore import ConnectCore
     from .schema import Schema
     
 @dataclasses.dataclass
-class ReflectedDocTable:
+class ReflectedDocTable(DocTableBase):
     table: sqlalchemy.Table
     core: ConnectCore
 
