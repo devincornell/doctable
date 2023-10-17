@@ -86,13 +86,10 @@ class TableSchema(typing.Generic[Container]):
         '''Get (column to attribute) and (attribute to column) name mappings, and auto-populated columns.'''
         col_to_attr = dict()
         attr_to_col = dict()
-        auto_populate_cols = set()
         for ci in column_infos:
             attr, col = ci.name_translation()
             col_to_attr[col] = attr
             attr_to_col[attr] = col
-            if ci.params.auto_populate:
-                auto_populate_cols.add(col)
-        return col_to_attr, attr_to_col, auto_populate_cols
+        return col_to_attr, attr_to_col
 
 
