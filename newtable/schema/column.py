@@ -42,13 +42,16 @@ def Column(
     field_args = field_args if field_args is not None else FieldArgs()
     column_args = column_args if column_args is not None else ColumnArgs()
 
-    return dataclasses.field(
-        metadata={
-            **field_args.metadata, 
-            COLUMN_METADATA_ATTRIBUTE_NAME: column_args,
-        },
-        **field_args.dict_without_metadata()
-    )
+    metadata = {
+        **field_args.metadata, 
+        COLUMN_METADATA_ATTRIBUTE_NAME: column_args,
+    }
+    fields_without_metadata = field_args.dict_without_metadata()
+    try:
+        return dataclasses.field(metadata=metadata, **fields_without_metadata)
+    except TypeError as e:
+        del fields_without_metadata['kw_only']
+        return dataclasses.field(metadata=metadata, **fields_without_metadata)
 
 @dataclasses.dataclass
 class FieldArgs:
@@ -62,11 +65,17 @@ class FieldArgs:
     init: bool = True # dataclass.field: whether to include in init
     compare: bool = True # dataclass.field: whether to include in comparison
     kw_only: bool = MISSING # dataclass.field: whether to include in kw_only
-    metadata: typing.Optional[typing.Dict[str, typing.Any]] = None # dataclass.field: metadata to include in field
+    metadata: typing.Optional[typing.Dict[str, typing.Any]] = dataclasses.field(default_factory=dict) # dataclass.field: metadata to include in field
 
     def dict_without_metadata(self) -> typing.Dict[str, typing.Any]:
         v = dataclasses.asdict(self)
         del v['metadata']
+
+        # this is a hack to get around the fact that this dataclass uses the same
+        # default value that the dataclasses.field argument does (dataclasses.MISSING)
+        # this is the best way I could think of
+        if self.default_factory is MISSING:
+            v['default_factory'] = dataclasses.MISSING
         return v
 
 @dataclasses.dataclass
@@ -122,13 +131,13 @@ class ColumnArgs:
             name = attr_name
 
         return sqlalchemy.Column(
-            name=name,
+            name,
             *self.column_type_args(type_hint),
             **self.sqlalchemy_column_kwargs(),
         )
 
     def column_type_args(self, type_hint: typing.Union[type, str]) -> typing.Tuple[sqlalchemy.TypeClause]:
-        if sum([self.sqlalchemy_type is not None, self.type_kwargs]) > 1:
+        if sum([self.sqlalchemy_type is not None, len(self.type_kwargs) > 0]) > 1:
             raise ValueError('Only one of sqlalchemy_type and type_hint can be provided.')
         
         fk = (sqlalchemy.ForeignKey(self.foreign_key),) if self.foreign_key is not None else ()
@@ -140,9 +149,9 @@ class ColumnArgs:
         else:
             for mth, mct in type_hint_to_column_type.items():
                 if issubclass(type_hint, mth): # type hints are types
-                    return mct(**self.type_kwargs)
+                    return (mct(**self.type_kwargs),)
                 elif type_hint == mth: # type hints are strings
-                    return mct(**self.type_kwargs)
+                    return (mct(**self.type_kwargs),)
             raise TypeError(f'"{type_hint}" does not map to a valid column '
                 f'type. Choose one of {type_hint_to_column_type.keys()}')
 

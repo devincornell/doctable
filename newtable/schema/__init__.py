@@ -3,3 +3,5 @@ from .tableschema_decorator import *
 from .general import *
 from .column import *
 from .index import *
+from .missing import *
+

@@ -16,8 +16,8 @@ class AttrColNameMappings:
     '''Contains all information needed to construct a db table.'''
     attr_to_col: typing.Dict[str, str]
     col_to_attr: typing.Dict[str, str]
-    empty_attr_kwargs: typing.Dict[str, typing.Any]
     empty_col_kwargs: typing.Dict[str, typing.Any]
+    empty_attr_kwargs: typing.Dict[str, typing.Any]
 
     @classmethod
     def from_column_infos(cls, column_infos: typing.List[ColumnInfo]) -> AttrColNameMappings:
@@ -27,8 +27,8 @@ class AttrColNameMappings:
         return cls(
             attr_to_col = attr_to_col,
             col_to_attr = col_to_attr, 
-            empty_col_values = {k: MISSING for k in col_to_attr.keys()},
-            empty_attr_values = {k: MISSING for k in attr_to_col.keys()},
+            empty_col_kwargs = {k: MISSING for k in col_to_attr.keys()},
+            empty_attr_kwargs = {k: MISSING for k in attr_to_col.keys()},
         )
 
 @dataclasses.dataclass
@@ -76,7 +76,7 @@ class TableSchema(typing.Generic[Container]):
         col_to_attr = self.name_mappings.col_to_attr
         kwargs = {
             **self.name_mappings.empty_attr_kwargs, 
-            **{col_to_attr[k]:v for k,v in row._mapping}
+            **{col_to_attr[k]:v for k,v in row._mapping.items()}
         }
         return self.container_type(**kwargs)
     
