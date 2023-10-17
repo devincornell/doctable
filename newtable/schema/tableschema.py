@@ -5,7 +5,7 @@ import dataclasses
 import sqlalchemy
 import functools
 
-from .column import ColumnInfo, ColumnParams
+from .column import ColumnInfo, ColumnArgs
 from .index import IndexInfo, IndexParams
 
 from .general import set_schema, get_schema, Container
