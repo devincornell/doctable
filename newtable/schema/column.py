@@ -5,6 +5,8 @@ import dataclasses
 import sqlalchemy
 import datetime
 
+from .missing import MISSING
+
 COLUMN_METADATA_ATTRIBUTE_NAME = '_column_args'
 
 def get_column_args(field: dataclasses.Field) -> ColumnArgs:
@@ -53,13 +55,13 @@ class FieldArgs:
     '''Creates kwargs dict to be passed to dataclasses.field. Read about args here:
         https://docs.python.org/3/library/dataclasses.html
     '''
-    default: typing.Any = dataclasses.MISSING # dataclass.field: default value for column
-    default_factory: typing.Optional[typing.Callable[[], typing.Any]] = dataclasses.MISSING # default factory for column
+    default: typing.Any = MISSING # dataclass.field: default value for column
+    default_factory: typing.Optional[typing.Callable[[], typing.Any]] = MISSING # default factory for column
     repr: bool = True # dataclass.field: whether to include in repr
     hash: bool = None # dataclass.field: whether to include in hash
     init: bool = True # dataclass.field: whether to include in init
     compare: bool = True # dataclass.field: whether to include in comparison
-    kw_only: bool = dataclasses.MISSING # dataclass.field: whether to include in kw_only
+    kw_only: bool = MISSING # dataclass.field: whether to include in kw_only
     metadata: typing.Optional[typing.Dict[str, typing.Any]] = None # dataclass.field: metadata to include in field
 
     def dict_without_metadata(self) -> typing.Dict[str, typing.Any]:
@@ -69,9 +71,10 @@ class FieldArgs:
 
 @dataclasses.dataclass
 class ColumnArgs:
-    '''Creates kwargs dict to be passed to sqlalchemy.Column. Read about args here:
+    '''Args to be passed to sqlalchemy.Column. Used by client directly through constructor.
+        Read more about sqlalchemy.Column here:
         https://docs.sqlalchemy.org/en/20/core/metadata.html#sqlalchemy.schema.Column.__init__
-    Other args:
+    Args:
         order: order of column in table (non-numbered appear after numbered)
         column_name: use when column is different from object attribute
         type_kwargs: keyword arguments to pass to sqlalchemy type. only used when type inferred from python type hint
@@ -89,7 +92,7 @@ class ColumnArgs:
         comment: comment to add to column in database
         other_kwargs: see Column.__init__ link above for any other kwargs not listed here
     '''
-    order: int = None
+    order: int = float('inf')
     column_name: str = None
     type_kwargs: typing.Dict[str, typing.Any] = dataclasses.field(default_factory=dict)
     sqlalchemy_type: typing.Optional[sqlalchemy.TypeClause] = None# provide an sqlalchemy type
@@ -183,17 +186,25 @@ class ColumnInfo:
             column_args=get_column_args(field) if has_column_args(field) else ColumnArgs(),
         )
     
-    def name_translation(self) -> typing.Tuple[str, typing.Optional[str]]:
-        '''Get (attribute, column) name pairs.'''
-        if self.column_args.column_name is None:
-            return self.attr_name, self.attr_name
-        else:
-            return self.attr_name, self.column_args.column_name
-    
     def sqlalchemy_column(self) -> sqlalchemy.Column:
         '''Get a sqlalchemy column from this column info.'''
         return self.column_args.sqlalchemy_column(
             type_hint=self.type_hint,
             attr_name=self.attr_name,
         )
+
+    def compare_key(self) -> typing.Tuple[float, str]:
+        return (self.column_args.order, self.final_name())
+    
+    def name_translation(self) -> typing.Tuple[str, typing.Optional[str]]:
+        '''Get (attribute, column) name pairs.'''
+        return self.attr_name, self.final_name()
+    
+    def final_name(self) -> str:
+        if self.column_args.column_name is None:
+            return self.attr_name
+        else:
+            return self.column_args.column_name
+
+
 

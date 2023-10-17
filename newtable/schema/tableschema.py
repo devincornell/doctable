@@ -7,21 +7,41 @@ import functools
 
 from .column import ColumnInfo, ColumnArgs
 from .index import IndexInfo, IndexParams
+from .missing import MISSING
 
 from .general import set_schema, get_schema, Container
 
 @dataclasses.dataclass
-class TableSchema(typing.Generic[Container]):
+class AttrColNameMappings:
     '''Contains all information needed to construct a db table.'''
+    attr_to_col: typing.Dict[str, str]
+    col_to_attr: typing.Dict[str, str]
+    empty_attr_kwargs: typing.Dict[str, typing.Any]
+    empty_col_kwargs: typing.Dict[str, typing.Any]
+
+    @classmethod
+    def from_column_infos(cls, column_infos: typing.List[ColumnInfo]) -> AttrColNameMappings:
+        pairs = [ci.name_translation() for ci in column_infos]
+        attr_to_col = {attr: col for attr, col in pairs}
+        col_to_attr = {col: attr for attr, col in pairs}
+        return cls(
+            attr_to_col = attr_to_col,
+            col_to_attr = col_to_attr, 
+            empty_col_values = {k: MISSING for k in col_to_attr.keys()},
+            empty_attr_values = {k: MISSING for k in attr_to_col.keys()},
+        )
+
+@dataclasses.dataclass
+class TableSchema(typing.Generic[Container]):
+    '''Contains all information needed to construct and work with a db table.
+    '''
     table_name: str
     container_type: typing.Type[Container]
     columns: typing.List[ColumnInfo]
     indices: typing.List[IndexInfo]
     constraints: typing.List[sqlalchemy.Constraint]
     table_kwargs: typing.Dict[str, typing.Any] # extra args meant to be passed when creating table
-    attr_to_col: typing.Dict[str, str] # attribute name to column mapping
-    col_to_attr: typing.Dict[str, str] # column name to attribute mapping
-    auto_populate_cols: typing.Set[str] # columns that should be auto-populated
+    name_mappings:AttrColNameMappings # attribute name to column mapping
 
     @classmethod
     def from_container(cls, 
@@ -32,7 +52,7 @@ class TableSchema(typing.Generic[Container]):
         table_kwargs: typing.Dict[str, typing.Any],
     ) -> TableSchema[Container]:
         '''Create from basic args - called directly from decorator.'''
-        column_infos = [ColumnInfo.from_field(field) for field in dataclasses.fields(container_type)]
+        column_infos = cls.parse_column_infos(container_type)
         col_to_attr, attr_to_col = cls.get_column_mappings(column_infos)
         return cls(
             table_name=table_name,
@@ -41,19 +61,31 @@ class TableSchema(typing.Generic[Container]):
             indices=[IndexInfo.from_params(name, params) for name, params in indices.items()],
             constraints=constraints,
             table_kwargs=table_kwargs,
-            attr_to_col=attr_to_col,
-            col_to_attr=col_to_attr,
+            name_mappings = AttrColNameMappings.from_column_infos(column_infos),
         )
+    
+    @staticmethod
+    def parse_column_infos(container_type: typing.Type[Container]) -> typing.List[ColumnInfo]:
+        '''Get column infos from a container type.'''
+        infos = [ColumnInfo.from_field(field) for field in dataclasses.fields(container_type)]
+        return list(sorted(infos, key=lambda ci: ci.compare_key()))
 
     #################### Converting to/from Container Types ####################
     def container_from_row(self, row: sqlalchemy.Row) -> Container:
         '''Get a data container from a row.'''
-        return self.container_type(**row._mapping)
+        col_to_attr = self.name_mappings.col_to_attr
+        kwargs = {
+            **self.name_mappings.empty_attr_kwargs, 
+            **{col_to_attr[k]:v for k,v in row._mapping}
+        }
+        return self.container_type(**kwargs)
     
     def dict_from_container(self, container: Container) -> typing.Dict[str, typing.Any]:
-        '''Get a dictionary representation of this schema.'''
+        '''Get a dictionary representation of this schema for insertion, ignoring MISSING values.'''
+        attr_to_col = self.name_mappings.attr_to_col
         try:
-            return dataclasses.asdict(container)
+            values = dataclasses.asdict(container).items()
+            return {attr_to_col[k]:v for k,v in values if v is not MISSING}
         except TypeError as e:
             raise TypeError(f'"{container}" is not a recognized container. '
                 'Use ConnectCore.insert if inserting raw dictionaries.') from e
