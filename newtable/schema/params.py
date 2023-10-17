@@ -3,8 +3,21 @@ from __future__ import annotations
 import typing
 import dataclasses
 import sqlalchemy
+import datetime
 
 COLUMN_METADATA_ATTRIBUTE_NAME = '_column_args'
+
+type_hint_to_column_type = {
+    int: sqlalchemy.Integer,
+    str: sqlalchemy.String,
+    float: sqlalchemy.Float,
+    bool: sqlalchemy.Boolean,
+    datetime.datetime: sqlalchemy.DateTime, # NOTE: datetime.datetime is subclass of datetime.date
+    datetime.time: sqlalchemy.Time,
+    datetime.date: sqlalchemy.Date,
+    bytes: sqlalchemy.LargeBinary,
+    typing.Any: sqlalchemy.PickleType,
+}
 
 
 def Column(
@@ -22,7 +35,6 @@ def Column(
         },
         **field_args.dict_without_metadata()
     )
-
 
 @dataclasses.dataclass
 class FieldArgs:
@@ -44,9 +56,6 @@ class FieldArgs:
         return v
 
 
-
-
-
 @dataclasses.dataclass
 class ColumnArgs:
     '''Creates kwargs dict to be passed to sqlalchemy.Column. Read about args here:
@@ -56,7 +65,6 @@ class ColumnArgs:
         column_name: use when column is different from object attribute
         type_kwargs: keyword arguments to pass to sqlalchemy type. only used when type inferred from python type hint
         sqlalchemy_type: type of column in database using sqlachemy types (any kwargs should be passed directly here)
-        sql_type: manually type the sql type as a string
         autoincrement: whether to autoincrement the column
         nullable: whether the column can be null
         unique: whether the column is unique
@@ -74,7 +82,6 @@ class ColumnArgs:
     column_name: str = None
     type_kwargs: typing.Dict[str, typing.Any] = dataclasses.field(default_factory=dict)
     sqlalchemy_type: typing.Optional[sqlalchemy.TypeClause] = None# provide an sqlalchemy type
-    sql_type: str = None # manually type the sql type
     autoincrement: bool = False
     nullable: bool = True
     unique: bool = None
@@ -88,6 +95,7 @@ class ColumnArgs:
     comment: str = None
     other_kwargs: typing.Dict[str, typing.Any] = dataclasses.field(default_factory=dict)
 
+
     def sqlalchemy_column(self, 
         type_hint: typing.Union[str, type], 
         attr_name: str
@@ -100,25 +108,44 @@ class ColumnArgs:
         else:
             name = attr_name
 
-        fk = (sqlalchemy.ForeignKey(self.foreign_key),) if self.foreign_key is not None else ()
-        
-        if self.sqlalchemy_type is not None:
-            args = (self.sqlalchemy_type,) + fk
-        elif self.foreign_key is not None:
-            args = fk
-        else:
-            try:
-                args = (type_hint_to_column_type[type_hint](**self.type_kwargs),) + fk
-            except KeyError as e:
-                raise KeyError(f'"{attr_name}" type hint "{type_hint}" was not found '
-                    f'in the list of valid mappings: {type_hint_to_column_type}.') from e
-
         return sqlalchemy.Column(
             name=name,
-            *args,
-            **self.column_kwargs,
+            *self.column_type_args(type_hint),
+            **self.sqlalchemy_column_kwargs(),
         )
 
+    def column_type_args(self, type_hint: typing.Union[type, str]) -> typing.Tuple[sqlalchemy.TypeClause]:
+        if sum([self.sqlalchemy_type is not None, self.type_kwargs]) > 1:
+            raise ValueError('Only one of sqlalchemy_type and type_hint can be provided.')
+        
+        fk = (sqlalchemy.ForeignKey(self.foreign_key),) if self.foreign_key is not None else ()
 
+        if self.sqlalchemy_type is not None:
+            return self.sqlalchemy_type + fk
+        elif self.foreign_key is not None:
+            return fk
+        else:
+            for mth, mct in type_hint_to_column_type.items():
+                if issubclass(type_hint, mth): # type hints are types
+                    return mct(**self.type_kwargs)
+                elif type_hint == mth: # type hints are strings
+                    return mct(**self.type_kwargs)
+            raise TypeError(f'"{type_hint}" does not map to a valid column '
+                f'type. Choose one of {type_hint_to_column_type.keys()}')
+
+    def sqlalchemy_column_kwargs(self) -> typing.Dict[str, typing.Any]:
+        return dict(
+            autoincrement=self.autoincrement,
+            nullable=self.nullable,
+            unique=self.unique,
+            primary_key=self.primary_key,
+            index=self.index,
+            default=self.default,
+            onupdate=self.onupdate,
+            server_default=self.server_default,
+            server_onupdate=self.server_onupdate,
+            comment=self.comment,
+            **self.other_kwargs,
+        )
 
 
