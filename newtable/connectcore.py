@@ -21,25 +21,35 @@ class TableDoesNotExistError(Exception):
 
             
 @dataclasses.dataclass
-class TableMaker:
+class DDLEmitter:
     '''Interface for creating tables.'''
     core: ConnectCore
     
-    def __enter__(self) -> TableMaker:
+    def __enter__(self) -> DDLEmitter:
         return self
     
     def __exit__(self, exc_type, exc_value, exc_tb) -> None:
         '''Create all tables in metadata.'''
         self.core.create_all_tables()
+        
+    def create_table(self, container_type: typing.Type[Container], **kwargs) -> DocTable:
+        '''Create a new table from a Schema class.
+        '''
+        return DocTable.from_container(
+            container_type=container_type,
+            core=self.core,
+            extend_existing=False,
+            **kwargs,
+        )
 
-    def new_table(self, *, container_type: typing.Type[Container], extend_existing: bool = False, **kwargs) -> DocTable:
+    def create_table_if_not_exists(self, *, container_type: typing.Type[Container], **kwargs) -> DocTable:
         '''Create a new table from a Schema class.
             Use extend_existing=True to connect to an existing table.
         '''
         return DocTable.from_container(
             container_type=container_type,
             core=self.core,
-            extend_existing=extend_existing,
+            extend_existing=True,
             **kwargs,
         )
     
@@ -99,9 +109,9 @@ class ConnectCore:
         return engine, meta
     
     ################# Context Managers #################
-    def tablemaker(self) -> TableMaker:
+    def emit_ddl(self) -> DDLEmitter:
         '''Context manager that creates tables on exit. Use for multi-table schemas.'''
-        return TableMaker(self)
+        return DDLEmitter(self)
         
     def query(self) -> ConnectQuery:
         '''Create a connection and interface that can be used to make queries.'''
