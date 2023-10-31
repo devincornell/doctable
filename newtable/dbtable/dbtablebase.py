@@ -7,7 +7,7 @@ from typing import Any
 import sqlalchemy
 
 
-class DocTableBase:
+class DBTableBase:
     '''Contains interface for working with table wrappers.'''
     table: sqlalchemy.Table
 

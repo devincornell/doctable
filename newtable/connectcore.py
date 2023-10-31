@@ -6,8 +6,7 @@ import sqlalchemy
 import sqlalchemy.exc
 import pandas as pd
 
-from .doctable import DocTable
-from .reflecteddoctable import ReflectedDocTable
+from .dbtable import DBTable, ReflectedDBTable
 from .query import ConnectQuery
 
 if typing.TYPE_CHECKING:
@@ -32,30 +31,30 @@ class DDLEmitter:
         '''Create all tables in metadata.'''
         self.core.create_all_tables()
         
-    def create_table(self, container_type: typing.Type[Container], **kwargs) -> DocTable:
+    def create_table(self, container_type: typing.Type[Container], **kwargs) -> DBTable:
         '''Create a new table from a Schema class.
         '''
-        return DocTable.from_container(
+        return DBTable.from_container(
             container_type=container_type,
             core=self.core,
             extend_existing=False,
             **kwargs,
         )
 
-    def create_table_if_not_exists(self, *, container_type: typing.Type[Container], **kwargs) -> DocTable:
+    def create_table_if_not_exists(self, *, container_type: typing.Type[Container], **kwargs) -> DBTable:
         '''Create a new table from a Schema class.
             Use extend_existing=True to connect to an existing table.
         '''
-        return DocTable.from_container(
+        return DBTable.from_container(
             container_type=container_type,
             core=self.core,
             extend_existing=True,
             **kwargs,
         )
     
-    def reflect_table(self, table_name: str, **kwargs) -> DocTable:
+    def reflect_table(self, table_name: str, **kwargs) -> DBTable:
         '''Create a new table from a Schema class.'''
-        return ReflectedDocTable.from_existing_table(
+        return ReflectedDBTable.from_existing_table(
             table_name=table_name,
             cc=self.core,
             **kwargs
@@ -118,7 +117,7 @@ class ConnectCore:
         return ConnectQuery(self.engine.connect())
 
     ################# Tables #################
-    def get_doctable(table_name: str) -> DocTable:
+    def get_dbtable(table_name: str) -> DBTable:
         pass
 
     ################# Queries #################

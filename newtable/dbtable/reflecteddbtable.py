@@ -5,20 +5,20 @@ import dataclasses
 import os
 import sqlalchemy
 import pandas as pd
-from .doctablebase import DocTableBase
+from .dbtablebase import DBTableBase
 
 if typing.TYPE_CHECKING:
     from .connectcore import ConnectCore
     from .schema import Schema
     
 @dataclasses.dataclass
-class ReflectedDocTable(DocTableBase):
+class ReflectedDBTable(DBTableBase):
     table: sqlalchemy.Table
     core: ConnectCore
 
     @classmethod
-    def from_existing_table(cls, table_name: str, core: ConnectCore, **kwargs) -> ReflectedDocTable:
-        '''Create a DocTable object from a Schema object.'''
+    def from_existing_table(cls, table_name: str, core: ConnectCore, **kwargs) -> ReflectedDBTable:
+        '''Create a DBTable object from a Schema object.'''
         return cls(
             table = core.reflect_sqlalchemy_table(table_name=table_name, **kwargs),
             engine=core,

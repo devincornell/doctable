@@ -7,17 +7,17 @@ import sqlalchemy
 from .connectquery import ConnectQuery
 
 if typing.TYPE_CHECKING:
-    from ..doctable import DocTable
+    from ..dbtable import DBTable
 
 T = typing.TypeVar('T')
 
 @dataclasses.dataclass
 class TableQuery(typing.Generic[T]):
-    dtable: 'DocTable[T]'
+    dtable: 'DBTable[T]'
     cquery: ConnectQuery
 
     @classmethod
-    def from_doctable(cls, dtable: DocTable[T]) -> ConnectQuery:
+    def from_dbtable(cls, dtable: DBTable[T]) -> ConnectQuery:
         '''Interface for quering tables.
         Args:
             table (sqlalchemy.Table): table to query from

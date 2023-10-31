@@ -8,7 +8,7 @@ import sqlalchemy.exc
 from .statementbuilder import StatementBuilder
 
 if typing.TYPE_CHECKING:
-    from ..doctable import DocTable
+    from ..dbtable import DBTable
 
 @dataclasses.dataclass
 class ConnectQuery:
@@ -88,7 +88,7 @@ class ConnectQuery:
 
     #################### Insert Queries ####################
     def insert_multi(self, 
-        dtable: DocTable,
+        dtable: DBTable,
         data: typing.List[typing.Dict[str, typing.Any]], 
         ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
         **kwargs
@@ -99,7 +99,7 @@ class ConnectQuery:
         return self.execute_statement(q, data, **kwargs)
 
     def insert_single(self, 
-        dtable: DocTable,
+        dtable: DBTable,
         data: typing.Dict[str, typing.Any], 
         ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
         **kwargs
@@ -117,7 +117,7 @@ class ConnectQuery:
 
     #################### Insert Queries ####################
     def update_single(self, 
-        dtable: DocTable,
+        dtable: DBTable,
         values: typing.Dict[typing.Union[str,sqlalchemy.Column], typing.Any], 
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None, 
         wherestr: typing.Optional[str] = None,
@@ -132,7 +132,7 @@ class ConnectQuery:
         return self.execute_statement(q, **kwargs)
 
     def update_many(self, 
-        dtable: DocTable,
+        dtable: DBTable,
         values: typing.List[typing.Dict[typing.Union[str,sqlalchemy.Column], typing.Any]], 
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None, 
         wherestr: typing.Optional[str] = None,
@@ -168,7 +168,7 @@ class ConnectQuery:
 
     #################### Delete Queries ####################
     def delete(self, 
-        dtable: DocTable,
+        dtable: DBTable,
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None, 
         wherestr: typing.Optional[str] = None,
         all: bool = False,

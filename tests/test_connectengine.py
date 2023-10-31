@@ -160,7 +160,7 @@ def test_new_doctable(test_table: str = 'test'):
     )
 
     try:
-        newtable.ReflectedDocTable.from_existing_table(test_table, core=ce)
+        newtable.ReflectedDBTable.from_existing_table(test_table, core=ce)
         raise Exception('Should have raised TableDoesNotExistError.')
     except newtable.TableDoesNotExistError as e:
         print(e)
