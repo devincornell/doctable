@@ -93,8 +93,79 @@ def test_newtable_and_insepct(test_fname: str = 'test3.db', table_name: str = 'm
     )
     assert(len(ce.inspect_columns(table_name)) == 2)
 
+
+def test_new_table2(test_table: str = 'test'):
+    ce = doctable.ConnectCore.open_new(
+        target = ':memory:', 
+        dialect='sqlite',
+    )
+    
+    #print(ce)
+    #return ce
+    # can't reflect from a non-existent table
+    try: # NOTE: database is actually created here
+        tab0 = ce.reflect_sqlalchemy_table(table_name=test_table)
+    except doctable.TableDoesNotExistError as e:
+        print(e)
+    #return ce
+
+    # here it is added to metadata 
+    tab1 = ce.create_sqlalchemy_table(
+        table_name=test_table,
+        columns=[
+            sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+            sqlalchemy.Column('name', sqlalchemy.String),
+            sqlalchemy.Column('age', sqlalchemy.Integer),
+            sqlalchemy.Index('age_index', 'age'),
+        ],
+    ) # note that this hasn't created the database table yet
+    #print(tab1)
+    #return ce
+
+    # can't create a table that already exists
+    try:
+        tab2 = ce.create_sqlalchemy_table(
+            table_name=test_table,
+            columns=[
+                sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+                sqlalchemy.Column('name', sqlalchemy.String),
+            ],
+        )
+        #print(tab2)
+        raise Exception('Should have raised TableAlreadyExistsError.')
+    except doctable.TableAlreadyExistsError as e:
+        #print(e)
+        pass
+
+    # doesn't raise exception because extend_existing=True
+    tab3 = ce.extend_sqlalchemy_table(
+        table_name=test_table,
+        columns=[
+            sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+            sqlalchemy.Column('name', sqlalchemy.String),
+        ],
+    )
+    assert(tab1 is tab3)
+
+    # essentially just gets the same table object
+    tab4 = ce.reflect_sqlalchemy_table(
+        table_name=test_table,
+    )
+    assert(tab1 is tab4)
+
+    # should also be the same if we're just reflecting
+    tab5 = ce.reflect_sqlalchemy_table(table_name=test_table)
+    assert(tab1 is tab5) # they return the same reference
+    
+    # make sure table only created after create_all_tables
+    assert(test_table not in ce.inspect_table_names())
+    ce.create_all_tables()
+    assert(test_table in ce.inspect_table_names())
+
+
+
 if __name__ == '__main__':
     test_new_connectcore()
     test_execute()
     test_newtable_and_insepct()
-        
+    test_new_table2()
