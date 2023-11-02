@@ -121,11 +121,11 @@ class ConnectCore:
     #    pass
 
     ################# Queries #################
-    def sqlalchemy_table(self, table_name: str, columns: list[sqlalchemy.Column], extend_existing: bool = False, **kwargs) -> sqlalchemy.Table:
-        '''Create a new table in the database. Use extend_existing = True to use an existing table.'''
+    def create_sqlalchemy_table(self, table_name: str, columns: list[sqlalchemy.Column], **kwargs) -> sqlalchemy.Table:
+        '''Create a new table in the database. Raises exception if the table already exists..'''
         # ideally the user will not enable extend_existing = True
         try:
-            return sqlalchemy.Table(table_name, self.metadata, *columns, extend_existing=extend_existing, **kwargs)
+            return sqlalchemy.Table(table_name, self.metadata, *columns, extend_existing=False, **kwargs)
         except sqlalchemy.exc.InvalidRequestError as e:
             m = str(e)
             # idk about this if statement, but copilot wrote it.
@@ -136,6 +136,10 @@ class ConnectCore:
                     'extend an exesting table.') from e
             else:
                 raise e
+
+    def extend_sqlalchemy_table(self, table_name: str, columns: list[sqlalchemy.Column], **kwargs) -> sqlalchemy.Table:
+        '''Create a table with extend_existing=True, adding any indices, constraints, or tables that did not exist previously.'''
+        return sqlalchemy.Table(table_name, self.metadata, *columns, extend_existing=True, **kwargs)
     
     def reflect_sqlalchemy_table(self, table_name: str, **kwargs) -> sqlalchemy.Table:
         '''Reflect a table that already exists in the database.
@@ -226,7 +230,7 @@ class ConnectCore:
     def enable_foreign_keys(self) -> sqlalchemy.engine.ResultProxy:
         return self.execute('pragma foreign_keys=ON')
 
-    def execute(self, query:str, *args, **kwargs) -> sqlalchemy.engine.CursorResult:
+    def execute(self, query: str, *args, **kwargs) -> sqlalchemy.engine.CursorResult:
         '''Execute query using a temporary connection.
         '''
         return self.engine.connect().execute(sqlalchemy.text(query), *args, **kwargs)
