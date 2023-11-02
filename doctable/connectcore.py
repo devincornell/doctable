@@ -80,33 +80,59 @@ class ConnectCore:
     ################# Queries #################
     def create_sqlalchemy_table(self, table_name: str, columns: list[sqlalchemy.Column], **kwargs) -> sqlalchemy.Table:
         '''Create a new table in the database. Raises exception if the table already exists..'''
-        # ideally the user will not enable extend_existing = True
-        try:
-            return sqlalchemy.Table(table_name, self.metadata, *columns, extend_existing=False, **kwargs)
-        except sqlalchemy.exc.InvalidRequestError as e:
-            m = str(e)
-            # idk about this if statement, but copilot wrote it.
-            if 'already exists' in m or 'already defined' in m:
-                raise TableAlreadyExistsError(f'The table {table_name} already exists. '
-                    'To reflect an existing table, use reflect_sqlalchemy_table(). '
-                    'You may also use the extend_existing=True flag to optionally  '
-                    'extend an exesting table.') from e
-            else:
-                raise e
+        return self._sqlalchemy_table(table_name, columns, extend_existing=False, **kwargs)
+        #try:
+        #    return sqlalchemy.Table(table_name, self.metadata, *columns, extend_existing=False, **kwargs)
+        #except sqlalchemy.exc.InvalidRequestError as e:
+        #    m = str(e)
+        #    # idk about this if statement, but copilot wrote it.
+        #    if 'already exists' in m or 'already defined' in m:
+        #        raise TableAlreadyExistsError(f'The table {table_name} already exists. '
+        #            'To reflect an existing table, use reflect_sqlalchemy_table(). '
+        #            'You may also use the extend_existing=True flag to optionally  '
+        #            'extend an exesting table.') from e
+        #    else:
+        #        raise e
 
     def extend_sqlalchemy_table(self, table_name: str, columns: list[sqlalchemy.Column], **kwargs) -> sqlalchemy.Table:
-        '''Create a table with extend_existing=True, adding any indices, constraints, or tables that did not exist previously.'''
-        return sqlalchemy.Table(table_name, self.metadata, *columns, extend_existing=True, **kwargs)
+        '''Create a new table if one does not exist, otherwise will add any indices, 
+            constraints, or tables that did not exist previously.
+            NOTE: should I revise this to raise an error if the table does not exist already?
+        '''
+        #return sqlalchemy.Table(table_name, self.metadata, *columns, extend_existing=True, **kwargs)
+        return self._sqlalchemy_table(table_name, columns, extend_existing=True, **kwargs)
     
     def reflect_sqlalchemy_table(self, table_name: str, **kwargs) -> sqlalchemy.Table:
         '''Reflect a table that already exists in the database.
             Note: if table already exists as part of the metadata, it will return that table instance.
         '''
+        return self._sqlalchemy_table(table_name, [], autoload_with=self.engine, **kwargs)
+        #try:
+        #    return sqlalchemy.Table(table_name, self.metadata, autoload_with=self.engine, **kwargs)
+        #except sqlalchemy.exc.NoSuchTableError as e:
+        #    raise TableDoesNotExistError(f'The table {table_name} does not exist. '
+        #        'To create a new table, use sqlalchemy_table().') from e
+            
+    def _sqlalchemy_table(self, table_name: str, table_args: list[sqlalchemy.Column], **kwargs) -> sqlalchemy.Table:
+        '''Base method for creating a new sqlalchemy table and handling exceptions that may be raised.'''
+        # ideally the user will not enable extend_existing = True
         try:
-            return sqlalchemy.Table(table_name, self.metadata, autoload_with=self.engine, **kwargs)
-        except sqlalchemy.exc.NoSuchTableError as e:
+            return sqlalchemy.Table(table_name, self.metadata, *table_args, **kwargs)
+        
+        except sqlalchemy.exc.NoSuchTableError as nste:
             raise TableDoesNotExistError(f'The table {table_name} does not exist. '
-                'To create a new table, use sqlalchemy_table().') from e
+                'To create a new table, use create_sqlalchemy_table().') from nste
+        
+        except sqlalchemy.exc.InvalidRequestError as ire:
+            m = str(ire)
+            # idk about this if statement, but copilot wrote it.
+            if 'already exists' in m or 'already defined' in m:
+                raise TableAlreadyExistsError(f'The table {table_name} already exists. '
+                    'To reflect or extend an existing table, use reflect_sqlalchemy_table() '
+                    'or extend_sqlalchemy_table().'
+                ) from ire
+            else:
+                raise ire
     
     ################# Connections #################
 
@@ -190,5 +216,6 @@ class ConnectCore:
     def execute(self, query: str, *args, **kwargs) -> sqlalchemy.engine.CursorResult:
         '''Execute query using a temporary connection.
         '''
-        return self.engine.connect().execute(sqlalchemy.text(query), *args, **kwargs)
+        with self.engine.begin() as conn:
+            return conn.execute(sqlalchemy.text(query), *args, **kwargs)
 
