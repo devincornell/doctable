@@ -1,6 +1,6 @@
 
 
-# DocTable Python Package
+# DocTable Python Package for SQAlchemy <= 1.4
 
 Document database interface for text analysis.
 
@@ -10,6 +10,13 @@ Created by [Devin J. Cornell](https://devinjcornell.com).
 
 # Major Version Changes
 
+
+### Version 1.0
+
++ Set to use string-based type hints to support Python version 3.9 and above.
++ Set sqlalchemy version requirement to <=1.4. Sqlalchemy v2.0+ will be supported in the next version.
++ This is the last release that supports sqlalchemy <= v1.4.
+
 ### Version 0.9.5
 
 + Revamped schema decorator to default unretrieved column data to an empty value so that an exception can be raised when the user attempts to access it. When specifying columns in select queries, previously the user had to manually detect an EmptyValue object.
@@ -18,11 +25,6 @@ Created by [Devin J. Cornell](https://devinjcornell.com).
 
 Previously, when selecting specific columns
 + Switched from using EmptyValue() instances to a MISSING_VALUE object instance.
-
-### Version 0.9.4
-
-+ 
-
 
 ### Thanks
 
