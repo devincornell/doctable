@@ -53,7 +53,7 @@ class TableSchema(typing.Generic[Container]):
     ) -> TableSchema[Container]:
         '''Create from basic args - called directly from decorator.'''
         column_infos = cls.parse_column_infos(container_type)
-        col_to_attr, attr_to_col = cls.get_column_mappings(column_infos)
+        #col_to_attr, attr_to_col = cls.get_column_mappings(column_infos)
         return cls(
             table_name=table_name,
             container_type=container_type,
@@ -92,14 +92,13 @@ class TableSchema(typing.Generic[Container]):
 
     #################### Creating Tables ####################
     def sqlalchemy_table(self, metadata: sqlalchemy.MetaData, **kwargs) -> sqlalchemy.Table:
-        '''Get a sqlalchemy table object.'''
-        return sqlalchemy.Table(
-            self.table_name,
-            metadata,
-            *self.table_args(),
-            **self.table_kwargs,
-            **kwargs,
-        )
+        '''Depricated. Creates and returns new sqlalchemy table..'''
+        name, args, kwargs = self.sqlalchemy_table_args(**kwargs)
+        return sqlalchemy.Table(name, metadata, *args, **kwargs)
+    
+    def sqlalchemy_table_args(self,**kwargs) -> typing.Tuple[str, typing.List, typing.Dict]:
+        '''Get name, args, kwargs tuple for creating an sqlalchemy table.'''
+        return (self.table_name, self.table_args(), {**self.table_kwargs, **kwargs})
     
     def table_args(self) -> typing.List[typing.Union[sqlalchemy.Column, sqlalchemy.Index, sqlalchemy.Constraint]]:
         '''Get a list of table args.'''

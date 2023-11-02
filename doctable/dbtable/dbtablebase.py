@@ -6,10 +6,16 @@ from typing import Any
 #if typing.TYPE_CHECKING:
 import sqlalchemy
 
+from ..query import TableQuery
 
+if typing.TYPE_CHECKING:
+    from ..connectcore import ConnectCore
+
+@dataclasses.dataclass
 class DBTableBase:
     '''Contains interface for working with table wrappers.'''
     table: sqlalchemy.Table
+    core: ConnectCore
 
     @property
     def table_name(self) -> str:
@@ -36,5 +42,12 @@ class DBTableBase:
         '''
         return sqlalchemy.inspect(self.table)
     
+    @property
+    def name(self) -> str:
+        return self.table.name
+    
+    def query(self) -> TableQuery:
+        '''Return a TableQuery object for querying this table.'''
+        return TableQuery.from_dbtable(self)
 
 

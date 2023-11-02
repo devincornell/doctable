@@ -205,7 +205,7 @@ class ColumnInfo:
     def compare_key(self) -> typing.Tuple[float, str]:
         return (self.column_args.order, self.final_name())
     
-    def name_translation(self) -> typing.Tuple[str, typing.Optional[str]]:
+    def name_translation(self) -> typing.Tuple[str, str]:
         '''Get (attribute, column) name pairs.'''
         return self.attr_name, self.final_name()
     
