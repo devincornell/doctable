@@ -66,7 +66,8 @@ clean_docs:
 
 ######################################## RUN TESTS ########################################
 
-TESTS_FOLDER = tests/
+#TESTS_FOLDER = tests/
+TESTS_FOLDER = tests_legacy/
 pytest: uninstall
 	# tests from tests folder
 	pytest $(TESTS_FOLDER)/test_*.py
