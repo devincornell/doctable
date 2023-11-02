@@ -14595,7 +14595,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -14611,12 +14611,40 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="c1"># automatically clean up temp folder after python ends</span>
-<span class="n">tmpfolder</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">TempFolder</span><span class="p">(</span><span class="s1">&#39;tmp&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+<span class="n">tmpfolder</span> <span class="o">=</span> <span class="n">tempdir</span><span class="o">.</span><span class="n">name</span>
+<span class="n">tmpfolder</span>
 </pre></div>
 
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[1]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>&#39;/tmp/tmp1isfmada&#39;</pre>
+</div>
+
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -14720,7 +14748,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     <span class="n">party</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
     <span class="n">president</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
     <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">()</span>
-    <span class="n">doc</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParseTreeDoc</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParseTreeFileCol</span><span class="p">(</span><span class="s1">&#39;tmp/parsetree_pickle_files&#39;</span><span class="p">)</span>
+    <span class="n">doc</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParseTreeDoc</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">ParseTreeFileCol</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tmpfolder</span><span class="si">}</span><span class="s1">/parsetree_pickle_files&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14752,7 +14780,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     <span class="n">_tabname_</span> <span class="o">=</span> <span class="s1">&#39;nss_documents&#39;</span>
     <span class="n">_schema_</span> <span class="o">=</span> <span class="n">NSSDoc</span>
     
-<span class="n">nss_table</span> <span class="o">=</span> <span class="n">NSSDocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;tmp/nss_3.db&#39;</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">nss_table</span> <span class="o">=</span> <span class="n">NSSDocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tmpfolder</span><span class="si">}</span><span class="s1">/nss_3.db&#39;</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">nss_table</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
 <span class="n">nss_table</span><span class="o">.</span><span class="n">schema_table</span><span class="p">()</span>
 </pre></div>
@@ -14777,6 +14805,19 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>0
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:402: UserWarning: Method .count() is depricated. Please use .q.count() instead.
+  warnings.warn(&#39;Method .count() is depricated. Please use .q.count() instead.&#39;)
 </pre>
 </div>
 </div>
@@ -14912,11 +14953,15 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>PROCESSING MF PARAMSSSSSSS
-PROCESSING MF PARAMSSSSSSS
-PROCESSING MF PARAMSSSSSSS
-PROCESSING MF PARAMSSSSSSS
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:364: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn(&#39;Method .insert() is depricated. Please use .q.insert_single(), &#39;
+/DataDrive/code/doctable/examples/../doctable/doctable.py:390: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f&#39;.insert_single() is depricated: please use .q.insert_single() or &#39;
+/DataDrive/code/doctable/examples/../doctable/doctable.py:407: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn(&#39;Method .head() is depricated. Please use .q.select_head() instead.&#39;)
+/DataDrive/code/doctable/examples/../doctable/connectengine.py:69: SAWarning: TypeDecorator ParseTreeDocFileType() will not produce a cache key because the ``cache_ok`` attribute is not set to True.  This can have significant performance implications including some performance degradations in comparison to prior SQLAlchemy versions.  Set this attribute to True if this type object&#39;s state is safe to use in a cache key, or False to disable this warning. (Background on this error at: https://sqlalche.me/e/14/cprf)
+  return self._engine.execute(query, *args, **kwargs)
 </pre>
 </div>
 </div>
@@ -15068,9 +15113,9 @@ PROCESSING MF PARAMSSSSSSS
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&lt;spacy.lang.en.English at 0x7f441fd7a160&gt;,
- functools.partial(&lt;function merge_tok_spans at 0x7f44ccb105e0&gt;, merge_ents=True),
- functools.partial(&lt;function get_parsetrees at 0x7f44ccb10790&gt;, text_parse_func=functools.partial(&lt;function parse_tok at 0x7f44ccb104c0&gt;, format_ents=True, num_replacement=&#39;NUM&#39;))]</pre>
+<pre>[&lt;spacy.lang.en.English at 0x7fedee1c2cd0&gt;,
+ functools.partial(&lt;function merge_tok_spans at 0x7fedf2d8f040&gt;, merge_ents=True),
+ functools.partial(&lt;function get_parsetrees at 0x7fedf2d8f1f0&gt;, text_parse_func=functools.partial(&lt;function parse_tok at 0x7fedf2d82ee0&gt;, format_ents=True, num_replacement=&#39;NUM&#39;))]</pre>
 </div>
 
 </div>
@@ -15127,7 +15172,11 @@ PROCESSING MF PARAMSSSSSSS
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre> 25%|██▌       | 1/4 [00:00&lt;00:00,  3.64it/s]</pre>
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:443: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn(&#39;Method .select() is depricated. Please use .q.select() instead.&#39;)
+  0%|                                                                                                                                                      | 0/4 [00:00&lt;?, ?it/s]/DataDrive/code/doctable/examples/../doctable/doctable.py:489: UserWarning: Method .update() is depricated. Please use .q.update() instead.
+  warnings.warn(&#39;Method .update() is depricated. Please use .q.update() instead.&#39;)
+ 25%|███████████████████████████████████▌                                                                                                          | 1/4 [00:00&lt;00:00,  3.83it/s]</pre>
 </div>
 </div>
 
@@ -15140,10 +15189,8 @@ PROCESSING MF PARAMSSSSSSS
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>nss_documents.doc
 DocTable: UPDATE nss_documents SET doc=? WHERE nss_documents.id = ?
-BINDING MF PARAMSSSSSSS
 nss_documents.doc
 DocTable: UPDATE nss_documents SET doc=? WHERE nss_documents.id = ?
-BINDING MF PARAMSSSSSSS
 </pre>
 </div>
 </div>
@@ -15155,7 +15202,7 @@ BINDING MF PARAMSSSSSSS
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>100%|██████████| 4/4 [00:00&lt;00:00,  4.73it/s]</pre>
+<pre>100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:00&lt;00:00,  4.89it/s]</pre>
 </div>
 </div>
 
@@ -15168,10 +15215,8 @@ BINDING MF PARAMSSSSSSS
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>nss_documents.doc
 DocTable: UPDATE nss_documents SET doc=? WHERE nss_documents.id = ?
-BINDING MF PARAMSSSSSSS
 nss_documents.doc
 DocTable: UPDATE nss_documents SET doc=? WHERE nss_documents.id = ?
-BINDING MF PARAMSSSSSSS
 </pre>
 </div>
 </div>
@@ -15238,14 +15283,23 @@ BINDING MF PARAMSSSSSSS
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>PROCESSING MF PARAMSSSSSSS
-PROCESSING MF PARAMSSSSSSS
-PROCESSING MF PARAMSSSSSSS
-PROCESSING MF PARAMSSSSSSS
-Clinton (2000): [(&#39;world&#39;, 9), (&#39;security&#39;, 9), (&#39;prosperity&#39;, 7), (&#39;threats&#39;, 5), (&#39;efforts&#39;, 5)]
+<pre>Clinton (2000): [(&#39;world&#39;, 9), (&#39;security&#39;, 9), (&#39;prosperity&#39;, 7), (&#39;threats&#39;, 5), (&#39;efforts&#39;, 5)]
 W. Bush (2006): [(&#39;people&#39;, 4), (&#39;world&#39;, 3), (&#39;war&#39;, 2), (&#39;security&#39;, 2), (&#39;strategy&#39;, 2)]
 Obama (2015): [(&#39;security&#39;, 15), (&#39;world&#39;, 9), (&#39;opportunities&#39;, 7), (&#39;strength&#39;, 7), (&#39;challenges&#39;, 7)]
 Trump (2017): [(&#39;government&#39;, 5), (&#39;principles&#39;, 4), (&#39;peace&#39;, 3), (&#39;people&#39;, 3), (&#39;world&#39;, 3)]
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/connectengine.py:69: SAWarning: TypeDecorator ParseTreeDocFileType() will not produce a cache key because the ``cache_ok`` attribute is not set to True.  This can have significant performance implications including some performance degradations in comparison to prior SQLAlchemy versions.  Set this attribute to True if this type object&#39;s state is safe to use in a cache key, or False to disable this warning. (Background on this error at: https://sqlalche.me/e/14/cprf)
+  return self._engine.execute(query, *args, **kwargs)
 </pre>
 </div>
 </div>

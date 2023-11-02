@@ -14594,7 +14594,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -14613,12 +14613,41 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <span class="kn">import</span> <span class="nn">urllib.request</span> <span class="c1"># used for downloading nss docs</span>
 
 <span class="c1"># automatically clean up temp folder after python ends</span>
-<span class="n">tmpfolder</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">TempFolder</span><span class="p">(</span><span class="s1">&#39;tmp&#39;</span><span class="p">)</span>
+<span class="c1">#tmpfolder = doctable.TempFolder(&#39;tmp&#39;)</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+<span class="n">tmpfolder</span> <span class="o">=</span> <span class="n">tempdir</span><span class="o">.</span><span class="n">name</span>
+<span class="n">tmpfolder</span>
 </pre></div>
 
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[1]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>&#39;/tmp/tmplxxguo16&#39;</pre>
+</div>
+
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -14795,7 +14824,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>And then we create an instance of the <code>NSSDocTable</code> table using <code>DocTable</code>\'s default constructor. We set <code>target='tmp/nss_1.db'</code> to indicate we want to access an sqlite database at that path. We also use the <code>new_db=True</code> to indicate that the database does not exist, so we should create a new one.</p>
+<p>And then we create an instance of the <code>NSSDocTable</code> table using <code>DocTable</code>\'s default constructor. We set <code>target=f'{tmp}/nss_1.db'</code> to indicate we want to access an sqlite database at that path. We also use the <code>new_db=True</code> to indicate that the database does not exist, so we should create a new one.</p>
 
 </div>
 </div>
@@ -14808,7 +14837,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;tmp/nss_1.db&#39;</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fname</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tmpfolder</span><span class="si">}</span><span class="s1">/nss_1.db&#39;</span>
 
 <span class="c1"># clean up any old databases</span>
 <span class="k">try</span><span class="p">:</span>
@@ -14841,7 +14870,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;__main__.NSSDocTable at 0x7fb285763ee0&gt;</pre>
+<pre>&lt;__main__.NSSDocTable at 0x7f2a55b9b400&gt;</pre>
 </div>
 
 </div>
@@ -15026,6 +15055,25 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-OutputArea-child">
 
     
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:494: UserWarning: Method .delete() is depricated. Please use .q.delete() instead.
+  warnings.warn(&#39;Method .delete() is depricated. Please use .q.delete() instead.&#39;)
+/DataDrive/code/doctable/examples/../doctable/doctable.py:364: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn(&#39;Method .insert() is depricated. Please use .q.insert_single(), &#39;
+/DataDrive/code/doctable/examples/../doctable/doctable.py:390: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f&#39;.insert_single() is depricated: please use .q.insert_single() or &#39;
+/DataDrive/code/doctable/examples/../doctable/doctable.py:407: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn(&#39;Method .head() is depricated. Please use .q.select_head() instead.&#39;)
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
 
 
@@ -15147,11 +15195,11 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>(sqlite3.IntegrityError) CHECK constraint failed: nss_documents
-[SQL: INSERT OR FAIL INTO nss_documents (party) VALUES (?)]
-[parameters: (&#39;whateva&#39;,)]
-(Background on this error at: http://sqlalche.me/e/13/gkpj)
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:364: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn(&#39;Method .insert() is depricated. Please use .q.insert_single(), &#39;
+/DataDrive/code/doctable/examples/../doctable/doctable.py:390: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f&#39;.insert_single() is depricated: please use .q.insert_single() or &#39;
 </pre>
 </div>
 </div>
@@ -15199,6 +15247,19 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-OutputArea-child">
 
     
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:443: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn(&#39;Method .select() is depricated. Please use .q.select() instead.&#39;)
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
 
 
@@ -15239,6 +15300,19 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:426: UserWarning: Method .select_first() is depricated. Please use .q.select_first() instead.
+  warnings.warn(&#39;Method .select_first() is depricated. Please use .q.select_first() instead.&#39;)
+</pre>
+</div>
+</div>
 
 <div class="jp-OutputArea-child">
 
@@ -15433,7 +15507,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;__main__.PartyTable at 0x7fb206e77310&gt;</pre>
+<pre>&lt;__main__.PartyTable at 0x7f2a55afa310&gt;</pre>
 </div>
 
 </div>
@@ -15478,6 +15552,21 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>{&#39;code&#39;: &#39;R&#39;, &#39;name&#39;: &#39;Republican&#39;}
 {&#39;code&#39;: &#39;D&#39;, &#39;name&#39;: &#39;Democrat&#39;}
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:494: UserWarning: Method .delete() is depricated. Please use .q.delete() instead.
+  warnings.warn(&#39;Method .delete() is depricated. Please use .q.delete() instead.&#39;)
+/DataDrive/code/doctable/examples/../doctable/doctable.py:407: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn(&#39;Method .head() is depricated. Please use .q.select_head() instead.&#39;)
 </pre>
 </div>
 </div>
@@ -15575,6 +15664,25 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-OutputArea-child">
 
     
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:443: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn(&#39;Method .select() is depricated. Please use .q.select() instead.&#39;)
+/DataDrive/code/doctable/examples/../doctable/doctable.py:445: UserWarning: The &#34;as_dataclass&#34; parameter has been depricated: please set get_raw=True or select_raw to specify that you would like to retrieve a raw RowProxy pobject.
+  warnings.warn(f&#39;The &#34;as_dataclass&#34; parameter has been depricated: please set get_raw=True or &#39;
+/DataDrive/code/doctable/examples/../doctable/connectengine.py:69: SAWarning: SELECT statement has a cartesian product between FROM element(s) &#34;nss_documents&#34; and FROM element &#34;political_parties&#34;.  Apply join condition(s) between each element to resolve.
+  return self._engine.execute(query, *args, **kwargs)
+/DataDrive/code/doctable/examples/../doctable/doctable.py:453: UserWarning: Conversion from row to object failed according to the following error. Please use .q.select_raw() next time in the future to avoid this issue. e=RowDataConversionFailed(&#34;Conversion from &lt;class &#39;sqlalchemy.engine.row.LegacyRow&#39;&gt; to &lt;class &#39;__main__.Party&#39;&gt; failed.&#34;)
+  warnings.warn(f&#39;Conversion from row to object failed according to the following &#39;
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
 
 
@@ -15587,12 +15695,14 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
  (&#39;Republican&#39;, &#39;Obama&#39;),
  (&#39;Republican&#39;, &#39;Obama&#39;),
  (&#39;Republican&#39;, &#39;Trump&#39;),
+ (&#39;Republican&#39;, None),
  (&#39;Democrat&#39;, &#39;Clinton&#39;),
  (&#39;Democrat&#39;, &#39;W. Bush&#39;),
  (&#39;Democrat&#39;, &#39;W. Bush&#39;),
  (&#39;Democrat&#39;, &#39;Obama&#39;),
  (&#39;Democrat&#39;, &#39;Obama&#39;),
- (&#39;Democrat&#39;, &#39;Trump&#39;)]</pre>
+ (&#39;Democrat&#39;, &#39;Trump&#39;),
+ (&#39;Democrat&#39;, None)]</pre>
 </div>
 
 </div>
@@ -15635,6 +15745,19 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:453: UserWarning: Conversion from row to object failed according to the following error. Please use .q.select_raw() next time in the future to avoid this issue. e=RowDataConversionFailed(&#34;Conversion from &lt;class &#39;sqlalchemy.engine.row.LegacyRow&#39;&gt; to &lt;class &#39;__main__.NSSDoc&#39;&gt; failed.&#34;)
+  warnings.warn(f&#39;Conversion from row to object failed according to the following &#39;
+</pre>
+</div>
+</div>
 
 <div class="jp-OutputArea-child">
 
@@ -15703,9 +15826,9 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[(&#39;R&#39;, &#39;Republican&#39;, &#39;W. Bush&#39;),
+<pre>[(&#39;R&#39;, &#39;Republican&#39;, &#39;Trump&#39;),
  (&#39;R&#39;, &#39;Republican&#39;, &#39;W. Bush&#39;),
- (&#39;R&#39;, &#39;Republican&#39;, &#39;Trump&#39;),
+ (&#39;R&#39;, &#39;Republican&#39;, &#39;W. Bush&#39;),
  (&#39;D&#39;, &#39;Democrat&#39;, &#39;Clinton&#39;),
  (&#39;D&#39;, &#39;Democrat&#39;, &#39;Obama&#39;),
  (&#39;D&#39;, &#39;Democrat&#39;, &#39;Obama&#39;)]</pre>

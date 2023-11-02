@@ -14586,7 +14586,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -14602,12 +14602,41 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <span class="kn">import</span> <span class="nn">doctable</span>
 
 <span class="c1"># automatically clean up temp folder after python ends</span>
-<span class="n">tmpfolder</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">TempFolder</span><span class="p">(</span><span class="s1">&#39;tmp&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+<span class="n">tmpfolder</span> <span class="o">=</span> <span class="n">tempdir</span><span class="o">.</span><span class="n">name</span>
+<span class="n">tmpfolder</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpfolder</span><span class="p">)</span>
+<span class="n">tmpfolder</span>
 </pre></div>
 
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[1]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>PosixPath(&#39;/tmp/tmpkoe57pma&#39;)</pre>
+</div>
+
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -14634,9 +14663,9 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">require_slots</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MatrixRow</span><span class="p">:</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
-    <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">PickleFileCol</span><span class="p">(</span><span class="s1">&#39;tmp/matrix_pickle_files&#39;</span><span class="p">)</span> <span class="c1"># will store files in the tmp directory</span>
+    <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">PickleFileCol</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tmpfolder</span><span class="si">}</span><span class="s1">/matrix_pickle_files&#39;</span><span class="p">)</span> <span class="c1"># will store files in the tmp directory</span>
     
-<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;tmp/test.db&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">MatrixRow</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tmpfolder</span><span class="si">}</span><span class="s1">/test.db&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">MatrixRow</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">db</span><span class="o">.</span><span class="n">schema_info</span><span class="p">()</span>
 </pre></div>
 
@@ -14734,6 +14763,27 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-OutputArea-child">
 
     
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:365: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn(&#39;Method .insert() is depricated. Please use .q.insert_single(), &#39;
+/DataDrive/code/doctable/examples/../doctable/doctable.py:391: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f&#39;.insert_single() is depricated: please use .q.insert_single() or &#39;
+/DataDrive/code/doctable/examples/../doctable/doctable.py:403: UserWarning: Method .count() is depricated. Please use .q.count() instead.
+  warnings.warn(&#39;Method .count() is depricated. Please use .q.count() instead.&#39;)
+/DataDrive/code/doctable/examples/../doctable/doctable.py:420: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn(&#39;Method .select_df() is depricated. Please use .q.select_df() instead.&#39;)
+/DataDrive/code/doctable/examples/../doctable/connectengine.py:69: SAWarning: TypeDecorator PickleFileType() will not produce a cache key because the ``cache_ok`` attribute is not set to True.  This can have significant performance implications including some performance degradations in comparison to prior SQLAlchemy versions.  Set this attribute to True if this type object&#39;s state is safe to use in a cache key, or False to disable this warning. (Background on this error at: https://sqlalche.me/e/14/cprf)
+  return self._engine.execute(query, *args, **kwargs)
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
 
 
@@ -14765,12 +14815,12 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>[[0.17243729073480263, 0.9328600637591714, 0.2...</td>
+      <td>[[0.5329174823769329, 0.45399901667272, 0.4110...</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>[[0.9262359087519387, 0.5122821384931073, 0.93...</td>
+      <td>[[0.6837499182333924, 0.40540705856582326, 0.6...</td>
     </tr>
   </tbody>
 </table>
@@ -14803,7 +14853,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
 </pre></div>
 
@@ -14826,12 +14876,8 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tmp/matrix_pickle_files/55036591266.pic
-tmp/matrix_pickle_files/625552621250.pic
-tmp/parsetree_pickle_files/706636783901_parsetreedoc.pic
-tmp/parsetree_pickle_files/261326643135_parsetreedoc.pic
-tmp/parsetree_pickle_files/602591559794_parsetreedoc.pic
-tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
+<pre>/tmp/tmpkoe57pma/matrix_pickle_files/838448859815.pic
+/tmp/tmpkoe57pma/matrix_pickle_files/241946168596.pic
 </pre>
 </div>
 </div>
@@ -14860,7 +14906,7 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">vdb</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="s1">&#39;tmp/test.db&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">vdb</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tmpfolder</span><span class="si">}</span><span class="s1">/test.db&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">vdb</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
 <span class="n">vdb</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
@@ -14885,6 +14931,21 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>2
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:403: UserWarning: Method .count() is depricated. Please use .q.count() instead.
+  warnings.warn(&#39;Method .count() is depricated. Please use .q.count() instead.&#39;)
+/DataDrive/code/doctable/examples/../doctable/doctable.py:408: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn(&#39;Method .head() is depricated. Please use .q.select_head() instead.&#39;)
 </pre>
 </div>
 </div>
@@ -14923,12 +14984,12 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>55036591266.pic</td>
+      <td>838448859815.pic</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>625552621250.pic</td>
+      <td>241946168596.pic</td>
     </tr>
   </tbody>
 </table>
@@ -14993,6 +15054,25 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 <div class="jp-OutputArea-child">
 
     
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:495: UserWarning: Method .delete() is depricated. Please use .q.delete() instead.
+  warnings.warn(&#39;Method .delete() is depricated. Please use .q.delete() instead.&#39;)
+/DataDrive/code/doctable/examples/../doctable/doctable.py:403: UserWarning: Method .count() is depricated. Please use .q.count() instead.
+  warnings.warn(&#39;Method .count() is depricated. Please use .q.count() instead.&#39;)
+/DataDrive/code/doctable/examples/../doctable/doctable.py:408: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn(&#39;Method .head() is depricated. Please use .q.select_head() instead.&#39;)
+/DataDrive/code/doctable/examples/../doctable/connectengine.py:69: SAWarning: TypeDecorator PickleFileType() will not produce a cache key because the ``cache_ok`` attribute is not set to True.  This can have significant performance implications including some performance degradations in comparison to prior SQLAlchemy versions.  Set this attribute to True if this type object&#39;s state is safe to use in a cache key, or False to disable this warning. (Background on this error at: https://sqlalche.me/e/14/cprf)
+  return self._engine.execute(query, *args, **kwargs)
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
 
 
@@ -15024,7 +15104,7 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
     <tr>
       <th>0</th>
       <td>2</td>
-      <td>[[0.9262359087519387, 0.5122821384931073, 0.93...</td>
+      <td>[[0.6837499182333924, 0.40540705856582326, 0.6...</td>
     </tr>
   </tbody>
 </table>
@@ -15057,7 +15137,7 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
 </pre></div>
 
@@ -15080,12 +15160,8 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tmp/matrix_pickle_files/55036591266.pic
-tmp/matrix_pickle_files/625552621250.pic
-tmp/parsetree_pickle_files/706636783901_parsetreedoc.pic
-tmp/parsetree_pickle_files/261326643135_parsetreedoc.pic
-tmp/parsetree_pickle_files/602591559794_parsetreedoc.pic
-tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
+<pre>/tmp/tmpkoe57pma/matrix_pickle_files/838448859815.pic
+/tmp/tmpkoe57pma/matrix_pickle_files/241946168596.pic
 </pre>
 </div>
 </div>
@@ -15115,7 +15191,7 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">clean_col_files</span><span class="p">(</span><span class="s1">&#39;array&#39;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
+<span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
 </pre></div>
 
@@ -15138,11 +15214,22 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tmp/matrix_pickle_files/625552621250.pic
-tmp/parsetree_pickle_files/706636783901_parsetreedoc.pic
-tmp/parsetree_pickle_files/261326643135_parsetreedoc.pic
-tmp/parsetree_pickle_files/602591559794_parsetreedoc.pic
-tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
+<pre>/tmp/tmpkoe57pma/matrix_pickle_files/241946168596.pic
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:444: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn(&#39;Method .select() is depricated. Please use .q.select() instead.&#39;)
+/DataDrive/code/doctable/examples/../doctable/connectengine.py:69: SAWarning: TypeDecorator PickleFileType() will not produce a cache key because the ``cache_ok`` attribute is not set to True.  This can have significant performance implications including some performance degradations in comparison to prior SQLAlchemy versions.  Set this attribute to True if this type object&#39;s state is safe to use in a cache key, or False to disable this warning. (Background on this error at: https://sqlalche.me/e/14/cprf)
+  return self._engine.execute(query, *args, **kwargs)
 </pre>
 </div>
 </div>
@@ -15171,8 +15258,8 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="p">[</span><span class="n">fp</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span> <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">)]</span>
-<span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="p">[</span><span class="n">fp</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span> <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">)]</span>
+<span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.pic&#39;</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
 </pre></div>
 
@@ -15215,7 +15302,7 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>These files were not found while cleaning: {&#39;tmp/matrix_pickle_files/625552621250.pic&#39;}
+<pre>These files were not found while cleaning: {&#39;/tmp/tmpkoe57pma/matrix_pickle_files/241946168596.pic&#39;}
 </pre>
 </div>
 </div>
@@ -15247,9 +15334,9 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 <div class=" highlight hl-ipython3"><pre><span></span><span class="nd">@doctable</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">require_slots</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TextFileRow</span><span class="p">:</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">IDCol</span><span class="p">()</span>
-    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">TextFileCol</span><span class="p">(</span><span class="s1">&#39;tmp/my_text_files&#39;</span><span class="p">)</span> <span class="c1"># will store files in the tmp directory</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">TextFileCol</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tmpfolder</span><span class="si">}</span><span class="s1">/my_text_files&#39;</span><span class="p">)</span> <span class="c1"># will store files in the tmp directory</span>
     
-<span class="n">tdb</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;tmp/test_textfiles.db&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">TextFileRow</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">tdb</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tmpfolder</span><span class="si">}</span><span class="s1">/test_textfiles.db&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">TextFileRow</span><span class="p">,</span> <span class="n">new_db</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">tdb</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Hello world. DocTable is the most useful python package of all time.&#39;</span><span class="p">})</span>
 <span class="n">tdb</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Star Wars is my favorite movie.&#39;</span><span class="p">})</span>
 <span class="n">tdb</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
@@ -15266,6 +15353,25 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:365: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn(&#39;Method .insert() is depricated. Please use .q.insert_single(), &#39;
+/DataDrive/code/doctable/examples/../doctable/doctable.py:391: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f&#39;.insert_single() is depricated: please use .q.insert_single() or &#39;
+/DataDrive/code/doctable/examples/../doctable/doctable.py:408: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn(&#39;Method .head() is depricated. Please use .q.select_head() instead.&#39;)
+/DataDrive/code/doctable/examples/../doctable/connectengine.py:69: SAWarning: TypeDecorator TextFileType() will not produce a cache key because the ``cache_ok`` attribute is not set to True.  This can have significant performance implications including some performance degradations in comparison to prior SQLAlchemy versions.  Set this attribute to True if this type object&#39;s state is safe to use in a cache key, or False to disable this warning. (Background on this error at: https://sqlalche.me/e/14/cprf)
+  return self._engine.execute(query, *args, **kwargs)
+</pre>
+</div>
+</div>
 
 <div class="jp-OutputArea-child">
 
@@ -15328,7 +15434,7 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># and they look like text files</span>
-<span class="n">vdb</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="s1">&#39;tmp/test_textfiles.db&#39;</span><span class="p">)</span>
+<span class="n">vdb</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tmpfolder</span><span class="si">}</span><span class="s1">/test_textfiles.db&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">vdb</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
 <span class="n">vdb</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
@@ -15353,6 +15459,21 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>2
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/DataDrive/code/doctable/examples/../doctable/doctable.py:403: UserWarning: Method .count() is depricated. Please use .q.count() instead.
+  warnings.warn(&#39;Method .count() is depricated. Please use .q.count() instead.&#39;)
+/DataDrive/code/doctable/examples/../doctable/doctable.py:408: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn(&#39;Method .head() is depricated. Please use .q.select_head() instead.&#39;)
 </pre>
 </div>
 </div>
@@ -15391,12 +15512,12 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>982894628360.txt</td>
+      <td>509620359442.txt</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2</td>
-      <td>306719718175.txt</td>
+      <td>409663648614.txt</td>
     </tr>
   </tbody>
 </table>
@@ -15429,7 +15550,7 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.txt&#39;</span><span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">tmpfolder</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.txt&#39;</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fpath</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">fpath</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 
@@ -15452,8 +15573,8 @@ tmp/parsetree_pickle_files/90618059420_parsetreedoc.pic
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tmp/my_text_files/982894628360.txt: Hello world. DocTable is the most useful python package of all time.
-tmp/my_text_files/306719718175.txt: Star Wars is my favorite movie.
+<pre>/tmp/tmpkoe57pma/my_text_files/409663648614.txt: Star Wars is my favorite movie.
+/tmp/tmpkoe57pma/my_text_files/509620359442.txt: Hello world. DocTable is the most useful python package of all time.
 </pre>
 </div>
 </div>

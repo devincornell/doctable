@@ -41,11 +41,55 @@
                 <li><a href="doctable/legacy.html">legacy</a></li>
                 <li><a href="doctable/models.html">models</a></li>
                 <li><a href="doctable/parse.html">parse</a></li>
-                <li><a href="doctable/schemas.html">schemas</a></li>
+                <li><a href="doctable/query.html">query</a></li>
+                <li><a href="doctable/schema.html">schema</a></li>
                 <li><a href="doctable/stepper.html">stepper</a></li>
                 <li><a href="doctable/textmodels.html">textmodels</a></li>
                 <li><a href="doctable/util.html">util</a></li>
         </ul>
+
+        <h2>API Documentation</h2>
+            <ul class="memberlist">
+            <li>
+                    <a class="class" href="#f">f</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#f.__init__">f</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#f.distinct">distinct</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#f.between">between</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#f.all_">all_</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#f.and_">and_</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#f.or_">or_</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#f.not_">not_</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#f.desc">desc</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#f.asc">asc</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#f.any_">any_</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#f.alias">alias</a>
+                        </li>
+                </ul>
+
+            </li>
+    </ul>
 
 
 
@@ -128,42 +172,692 @@ doctable    </h1>
 </span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;doctable&quot;</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
 </span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="c1"># expose some features of sqlalchemy</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="kn">from</span> <span class="nn">sqlalchemy.sql</span> <span class="kn">import</span> <span class="n">and_</span><span class="p">,</span> <span class="n">or_</span><span class="p">,</span> <span class="n">not_</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="kn">import</span> <span class="nn">sqlalchemy</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="c1"># main doctable interface</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="kn">from</span> <span class="nn">.doctable</span> <span class="kn">import</span> <span class="n">DocTable</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="kn">from</span> <span class="nn">.doctablemongo</span> <span class="kn">import</span> <span class="n">DocTableMongo</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="kn">from</span> <span class="nn">.connectengine</span> <span class="kn">import</span> <span class="n">ConnectEngine</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="c1"># legacy interfaces</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="kn">from</span> <span class="nn">.legacy</span> <span class="kn">import</span> <span class="n">DocTableLegacy</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="kn">from</span> <span class="nn">.legacy</span> <span class="kn">import</span> <span class="n">DocParser</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="c1"># modules</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="kn">from</span> <span class="nn">.schemas</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="kn">from</span> <span class="nn">.parse</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a><span class="kn">from</span> <span class="nn">.textmodels</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a><span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="c1">#from .parallel import *</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="kn">from</span> <span class="nn">.stepper</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="kn">from</span> <span class="nn">.dbutils</span> <span class="kn">import</span> <span class="n">list_tables</span><span class="p">,</span> <span class="n">migrate_db</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="k">class</span> <span class="nc">f</span><span class="p">:</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="nb">max</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">max</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>    <span class="nb">min</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">min</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>    <span class="n">count</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">count</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>    <span class="nb">sum</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">sum</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>    <span class="n">distinct</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">distinct</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="n">between</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">between</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>    
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>    <span class="n">all_</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">all_</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>    <span class="n">and_</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">and_</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>    <span class="n">or_</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">or_</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>    <span class="n">not_</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">not_</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>    <span class="n">desc</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">desc</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="n">asc</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">asc</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="n">any_</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">any_</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="n">alias</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">alias</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>    <span class="n">between</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">between</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a><span class="c1"># submodules (future?)</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a><span class="c1">#from .parse import *</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a><span class="c1">#from .doctable import *</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a><span class="c1"># convenience classes and functions</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a><span class="c1"># main doctable interface</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a><span class="kn">from</span> <span class="nn">.doctable</span> <span class="kn">import</span> <span class="n">DocTable</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a><span class="kn">from</span> <span class="nn">.doctablemongo</span> <span class="kn">import</span> <span class="n">DocTableMongo</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a><span class="kn">from</span> <span class="nn">.connectengine</span> <span class="kn">import</span> <span class="n">ConnectEngine</span>
 </span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a><span class="c1">#__all__ = [&#39;parse&#39;, &#39;schemas&#39;, &#39;util&#39;, &#39;model&#39;]</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a><span class="c1"># legacy interfaces</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a><span class="kn">from</span> <span class="nn">.legacy</span> <span class="kn">import</span> <span class="n">DocTableLegacy</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a><span class="kn">from</span> <span class="nn">.legacy</span> <span class="kn">import</span> <span class="n">DocParser</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>
+</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>
+</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a><span class="c1"># modules</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a><span class="c1">#from .schemas import *</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a><span class="kn">from</span> <span class="nn">.schema</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a><span class="kn">from</span> <span class="nn">.parse</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a><span class="kn">from</span> <span class="nn">.textmodels</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a><span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a><span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a><span class="c1">#from .parallel import *</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a><span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a><span class="kn">from</span> <span class="nn">.stepper</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a><span class="kn">from</span> <span class="nn">.dbutils</span> <span class="kn">import</span> <span class="n">list_tables</span><span class="p">,</span> <span class="n">migrate_db</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a>
+</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a><span class="c1"># submodules (future?)</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a><span class="c1">#from .parse import *</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a><span class="c1">#from .doctable import *</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a>
+</span><span id="L-91"><a href="#L-91"><span class="linenos">91</span></a><span class="c1"># convenience classes and functions</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a>
+</span><span id="L-93"><a href="#L-93"><span class="linenos">93</span></a>
+</span><span id="L-94"><a href="#L-94"><span class="linenos">94</span></a>
+</span><span id="L-95"><a href="#L-95"><span class="linenos">95</span></a><span class="c1">#__all__ = [&#39;parse&#39;, &#39;schemas&#39;, &#39;util&#39;, &#39;model&#39;]</span>
 </span></pre></div>
 
 
             </section>
+                <section id="f">
+                            <input id="f-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">f</span>:
+
+                <label class="view-source-button" for="f-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#f"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="f-42"><a href="#f-42"><span class="linenos">42</span></a><span class="k">class</span> <span class="nc">f</span><span class="p">:</span>
+</span><span id="f-43"><a href="#f-43"><span class="linenos">43</span></a>    <span class="nb">max</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">max</span>
+</span><span id="f-44"><a href="#f-44"><span class="linenos">44</span></a>    <span class="nb">min</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">min</span>
+</span><span id="f-45"><a href="#f-45"><span class="linenos">45</span></a>    <span class="n">count</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">count</span>
+</span><span id="f-46"><a href="#f-46"><span class="linenos">46</span></a>    <span class="nb">sum</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">sum</span>
+</span><span id="f-47"><a href="#f-47"><span class="linenos">47</span></a>
+</span><span id="f-48"><a href="#f-48"><span class="linenos">48</span></a>    <span class="n">distinct</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">distinct</span>
+</span><span id="f-49"><a href="#f-49"><span class="linenos">49</span></a>    <span class="n">between</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">between</span>
+</span><span id="f-50"><a href="#f-50"><span class="linenos">50</span></a>    
+</span><span id="f-51"><a href="#f-51"><span class="linenos">51</span></a>    <span class="n">all_</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">all_</span>
+</span><span id="f-52"><a href="#f-52"><span class="linenos">52</span></a>    <span class="n">and_</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">and_</span>
+</span><span id="f-53"><a href="#f-53"><span class="linenos">53</span></a>    <span class="n">or_</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">or_</span>
+</span><span id="f-54"><a href="#f-54"><span class="linenos">54</span></a>    <span class="n">not_</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">not_</span>
+</span><span id="f-55"><a href="#f-55"><span class="linenos">55</span></a>
+</span><span id="f-56"><a href="#f-56"><span class="linenos">56</span></a>    <span class="n">desc</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">desc</span>
+</span><span id="f-57"><a href="#f-57"><span class="linenos">57</span></a>    <span class="n">asc</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">asc</span>
+</span><span id="f-58"><a href="#f-58"><span class="linenos">58</span></a>    
+</span><span id="f-59"><a href="#f-59"><span class="linenos">59</span></a>    <span class="n">any_</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">any_</span>
+</span><span id="f-60"><a href="#f-60"><span class="linenos">60</span></a>    <span class="n">alias</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">alias</span>
+</span><span id="f-61"><a href="#f-61"><span class="linenos">61</span></a>    <span class="n">between</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expression</span><span class="o">.</span><span class="n">between</span>
+</span></pre></div>
+
+
+    
+
+                            <div id="f.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">f</span><span class="signature pdoc-code condensed">()</span>
+
+        
+    </div>
+    <a class="headerlink" href="#f.__init__"></a>
+    
+    
+
+                            </div>
+                            <div id="f.distinct" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">distinct</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">expr</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#f.distinct"></a>
+    
+            <div class="docstring"><p>Produce an column-expression-level unary <code>DISTINCT</code> clause.</p>
+
+<p>This applies the <code>DISTINCT</code> keyword to an individual column
+expression, and is typically contained within an aggregate function,
+as in::</p>
+
+<pre><code>from sqlalchemy import distinct, func
+stmt = select(func.count(distinct(users_table.c.name)))
+</code></pre>
+
+<p>The above would produce an expression resembling::</p>
+
+<pre><code>SELECT COUNT(DISTINCT name) FROM user
+</code></pre>
+
+<p>The <code>.distinct</code> function is also available as a column-level
+method, e.g. <code>_expression.ColumnElement.distinct</code>, as in::</p>
+
+<pre><code>stmt = select(func.count(users_table.c.name.distinct()))
+</code></pre>
+
+<p>The <code>.distinct</code> operator is different from the
+<code>_expression.Select.distinct</code> method of
+<code>_expression.Select</code>,
+which produces a <code>SELECT</code> statement
+with <code>DISTINCT</code> applied to the result set as a whole,
+e.g. a <code>SELECT DISTINCT</code> expression.  See that method for further
+information.</p>
+
+<p><em>seealso:</em>
+<code>_expression.ColumnElement.distinct</code></p>
+
+<p><code>_expression.Select.distinct</code></p>
+
+<p><code>.func</code></p>
+</div>
+
+
+                            </div>
+                            <div id="f.between" class="classattr">
+                                        <input id="f.between-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">between</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">expr</span>, </span><span class="param"><span class="n">lower_bound</span>, </span><span class="param"><span class="n">upper_bound</span>, </span><span class="param"><span class="n">symmetric</span><span class="o">=</span><span class="kc">False</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="f.between-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#f.between"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="f.between-79"><a href="#f.between-79"><span class="linenos"> 79</span></a><span class="k">def</span> <span class="nf">between</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">,</span> <span class="n">symmetric</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</span><span id="f.between-80"><a href="#f.between-80"><span class="linenos"> 80</span></a>    <span class="sd">&quot;&quot;&quot;Produce a ``BETWEEN`` predicate clause.</span>
+</span><span id="f.between-81"><a href="#f.between-81"><span class="linenos"> 81</span></a>
+</span><span id="f.between-82"><a href="#f.between-82"><span class="linenos"> 82</span></a><span class="sd">    E.g.::</span>
+</span><span id="f.between-83"><a href="#f.between-83"><span class="linenos"> 83</span></a>
+</span><span id="f.between-84"><a href="#f.between-84"><span class="linenos"> 84</span></a><span class="sd">        from sqlalchemy import between</span>
+</span><span id="f.between-85"><a href="#f.between-85"><span class="linenos"> 85</span></a><span class="sd">        stmt = select(users_table).where(between(users_table.c.id, 5, 7))</span>
+</span><span id="f.between-86"><a href="#f.between-86"><span class="linenos"> 86</span></a>
+</span><span id="f.between-87"><a href="#f.between-87"><span class="linenos"> 87</span></a><span class="sd">    Would produce SQL resembling::</span>
+</span><span id="f.between-88"><a href="#f.between-88"><span class="linenos"> 88</span></a>
+</span><span id="f.between-89"><a href="#f.between-89"><span class="linenos"> 89</span></a><span class="sd">        SELECT id, name FROM user WHERE id BETWEEN :id_1 AND :id_2</span>
+</span><span id="f.between-90"><a href="#f.between-90"><span class="linenos"> 90</span></a>
+</span><span id="f.between-91"><a href="#f.between-91"><span class="linenos"> 91</span></a><span class="sd">    The :func:`.between` function is a standalone version of the</span>
+</span><span id="f.between-92"><a href="#f.between-92"><span class="linenos"> 92</span></a><span class="sd">    :meth:`_expression.ColumnElement.between` method available on all</span>
+</span><span id="f.between-93"><a href="#f.between-93"><span class="linenos"> 93</span></a><span class="sd">    SQL expressions, as in::</span>
+</span><span id="f.between-94"><a href="#f.between-94"><span class="linenos"> 94</span></a>
+</span><span id="f.between-95"><a href="#f.between-95"><span class="linenos"> 95</span></a><span class="sd">        stmt = select(users_table).where(users_table.c.id.between(5, 7))</span>
+</span><span id="f.between-96"><a href="#f.between-96"><span class="linenos"> 96</span></a>
+</span><span id="f.between-97"><a href="#f.between-97"><span class="linenos"> 97</span></a><span class="sd">    All arguments passed to :func:`.between`, including the left side</span>
+</span><span id="f.between-98"><a href="#f.between-98"><span class="linenos"> 98</span></a><span class="sd">    column expression, are coerced from Python scalar values if a</span>
+</span><span id="f.between-99"><a href="#f.between-99"><span class="linenos"> 99</span></a><span class="sd">    the value is not a :class:`_expression.ColumnElement` subclass.</span>
+</span><span id="f.between-100"><a href="#f.between-100"><span class="linenos">100</span></a><span class="sd">    For example,</span>
+</span><span id="f.between-101"><a href="#f.between-101"><span class="linenos">101</span></a><span class="sd">    three fixed values can be compared as in::</span>
+</span><span id="f.between-102"><a href="#f.between-102"><span class="linenos">102</span></a>
+</span><span id="f.between-103"><a href="#f.between-103"><span class="linenos">103</span></a><span class="sd">        print(between(5, 3, 7))</span>
+</span><span id="f.between-104"><a href="#f.between-104"><span class="linenos">104</span></a>
+</span><span id="f.between-105"><a href="#f.between-105"><span class="linenos">105</span></a><span class="sd">    Which would produce::</span>
+</span><span id="f.between-106"><a href="#f.between-106"><span class="linenos">106</span></a>
+</span><span id="f.between-107"><a href="#f.between-107"><span class="linenos">107</span></a><span class="sd">        :param_1 BETWEEN :param_2 AND :param_3</span>
+</span><span id="f.between-108"><a href="#f.between-108"><span class="linenos">108</span></a>
+</span><span id="f.between-109"><a href="#f.between-109"><span class="linenos">109</span></a><span class="sd">    :param expr: a column expression, typically a</span>
+</span><span id="f.between-110"><a href="#f.between-110"><span class="linenos">110</span></a><span class="sd">     :class:`_expression.ColumnElement`</span>
+</span><span id="f.between-111"><a href="#f.between-111"><span class="linenos">111</span></a><span class="sd">     instance or alternatively a Python scalar expression to be coerced</span>
+</span><span id="f.between-112"><a href="#f.between-112"><span class="linenos">112</span></a><span class="sd">     into a column expression, serving as the left side of the ``BETWEEN``</span>
+</span><span id="f.between-113"><a href="#f.between-113"><span class="linenos">113</span></a><span class="sd">     expression.</span>
+</span><span id="f.between-114"><a href="#f.between-114"><span class="linenos">114</span></a>
+</span><span id="f.between-115"><a href="#f.between-115"><span class="linenos">115</span></a><span class="sd">    :param lower_bound: a column or Python scalar expression serving as the</span>
+</span><span id="f.between-116"><a href="#f.between-116"><span class="linenos">116</span></a><span class="sd">     lower bound of the right side of the ``BETWEEN`` expression.</span>
+</span><span id="f.between-117"><a href="#f.between-117"><span class="linenos">117</span></a>
+</span><span id="f.between-118"><a href="#f.between-118"><span class="linenos">118</span></a><span class="sd">    :param upper_bound: a column or Python scalar expression serving as the</span>
+</span><span id="f.between-119"><a href="#f.between-119"><span class="linenos">119</span></a><span class="sd">     upper bound of the right side of the ``BETWEEN`` expression.</span>
+</span><span id="f.between-120"><a href="#f.between-120"><span class="linenos">120</span></a>
+</span><span id="f.between-121"><a href="#f.between-121"><span class="linenos">121</span></a><span class="sd">    :param symmetric: if True, will render &quot; BETWEEN SYMMETRIC &quot;. Note</span>
+</span><span id="f.between-122"><a href="#f.between-122"><span class="linenos">122</span></a><span class="sd">     that not all databases support this syntax.</span>
+</span><span id="f.between-123"><a href="#f.between-123"><span class="linenos">123</span></a>
+</span><span id="f.between-124"><a href="#f.between-124"><span class="linenos">124</span></a><span class="sd">     .. versionadded:: 0.9.5</span>
+</span><span id="f.between-125"><a href="#f.between-125"><span class="linenos">125</span></a>
+</span><span id="f.between-126"><a href="#f.between-126"><span class="linenos">126</span></a><span class="sd">    .. seealso::</span>
+</span><span id="f.between-127"><a href="#f.between-127"><span class="linenos">127</span></a>
+</span><span id="f.between-128"><a href="#f.between-128"><span class="linenos">128</span></a><span class="sd">        :meth:`_expression.ColumnElement.between`</span>
+</span><span id="f.between-129"><a href="#f.between-129"><span class="linenos">129</span></a>
+</span><span id="f.between-130"><a href="#f.between-130"><span class="linenos">130</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="f.between-131"><a href="#f.between-131"><span class="linenos">131</span></a>    <span class="n">expr</span> <span class="o">=</span> <span class="n">coercions</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">roles</span><span class="o">.</span><span class="n">ExpressionElementRole</span><span class="p">,</span> <span class="n">expr</span><span class="p">)</span>
+</span><span id="f.between-132"><a href="#f.between-132"><span class="linenos">132</span></a>    <span class="k">return</span> <span class="n">expr</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">,</span> <span class="n">symmetric</span><span class="o">=</span><span class="n">symmetric</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Produce a <code>BETWEEN</code> predicate clause.</p>
+
+<p>E.g.::</p>
+
+<pre><code>from sqlalchemy import between
+stmt = select(users_table).where(between(users_table.c.id, 5, 7))
+</code></pre>
+
+<p>Would produce SQL resembling::</p>
+
+<pre><code>SELECT id, name FROM user WHERE id BETWEEN :id_1 AND :id_2
+</code></pre>
+
+<p>The <code>.between</code> function is a standalone version of the
+<code>_expression.ColumnElement.between</code> method available on all
+SQL expressions, as in::</p>
+
+<pre><code>stmt = select(users_table).where(users_table.c.id.between(5, 7))
+</code></pre>
+
+<p>All arguments passed to <code>.between</code>, including the left side
+column expression, are coerced from Python scalar values if a
+the value is not a <code>_expression.ColumnElement</code> subclass.
+For example,
+three fixed values can be compared as in::</p>
+
+<pre><code>print(between(5, 3, 7))
+</code></pre>
+
+<p>Which would produce::</p>
+
+<pre><code>:param_1 BETWEEN :param_2 AND :param_3
+</code></pre>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>expr</strong>:  a column expression, typically a
+<code>_expression.ColumnElement</code>
+instance or alternatively a Python scalar expression to be coerced
+into a column expression, serving as the left side of the <code>BETWEEN</code>
+expression.</p></li>
+<li><p><strong>lower_bound</strong>:  a column or Python scalar expression serving as the
+lower bound of the right side of the <code>BETWEEN</code> expression.</p></li>
+<li><p><strong>upper_bound</strong>:  a column or Python scalar expression serving as the
+upper bound of the right side of the <code>BETWEEN</code> expression.</p></li>
+<li><p><strong>symmetric</strong>:  if True, will render " BETWEEN SYMMETRIC ". Note
+that not all databases support this syntax.</p>
+
+<p><em>New in version 0.9.5.</em></p></li>
+</ul>
+
+<p><em>seealso:</em>
+<code>_expression.ColumnElement.between</code></p>
+</div>
+
+
+                            </div>
+                            <div id="f.all_" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">all_</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">expr</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#f.all_"></a>
+    
+            <div class="docstring"><p>Produce an ALL expression.</p>
+
+<p>This may apply to an array type for some dialects (e.g. postgresql),
+or to a subquery for others (e.g. mysql).  e.g.::</p>
+
+<pre><code># postgresql '5 = ALL (somearray)'
+expr = 5 == all_(mytable.c.somearray)
+
+# mysql '5 = ALL (SELECT value FROM table)'
+expr = 5 == all_(select(table.c.value))
+</code></pre>
+
+<p>The operator is more conveniently available from any
+<code>_sql.ColumnElement</code> object that makes use of the
+<code>_types.ARRAY</code> datatype::</p>
+
+<pre><code>expr = mytable.c.somearray.all(5)
+</code></pre>
+
+<p><em>seealso:</em>
+<code>_expression.any_</code></p>
+
+<p><code>_types.ARRAY.Comparator.all</code></p>
+</div>
+
+
+                            </div>
+                            <div id="f.and_" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">and_</span><span class="signature pdoc-code condensed">(<span class="param"><span class="o">*</span><span class="n">clauses</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#f.and_"></a>
+    
+            <div class="docstring"><p>Produce a conjunction of expressions joined by <code>AND</code>.</p>
+
+<p>E.g.::</p>
+
+<pre><code>from sqlalchemy import and_
+
+stmt = select(users_table).where(
+                and_(
+                    users_table.c.name == 'wendy',
+                    users_table.c.enrolled == True
+                )
+            )
+</code></pre>
+
+<p>The <code>.and_</code> conjunction is also available using the
+Python <code>&amp;</code> operator (though note that compound expressions
+need to be parenthesized in order to function with Python
+operator precedence behavior)::</p>
+
+<pre><code>stmt = select(users_table).where(
+                (users_table.c.name == 'wendy') &amp;
+                (users_table.c.enrolled == True)
+            )
+</code></pre>
+
+<p>The <code>.and_</code> operation is also implicit in some cases;
+the <code>_expression.Select.where</code>
+method for example can be invoked multiple
+times against a statement, which will have the effect of each
+clause being combined using <code>.and_</code>::</p>
+
+<pre><code>stmt = select(users_table).\
+        where(users_table.c.name == 'wendy').\
+        where(users_table.c.enrolled == True)
+</code></pre>
+
+<p>The <code>.and_</code> construct must be given at least one positional
+argument in order to be valid; a <code>.and_</code> construct with no
+arguments is ambiguous.   To produce an "empty" or dynamically
+generated <code>.and_</code>  expression, from a given list of expressions,
+a "default" element of <code>True</code> should be specified::</p>
+
+<pre><code>criteria = and_(True, *expressions)
+</code></pre>
+
+<p>The above expression will compile to SQL as the expression <code>true</code>
+or <code>1 = 1</code>, depending on backend, if no other expressions are
+present.  If expressions are present, then the <code>True</code> value is
+ignored as it does not affect the outcome of an AND expression that
+has other elements.</p>
+
+<p><em>Deprecated since version 1.4  The <code>.and_</code> element now requires that at:</em>
+least one argument is passed; creating the <code>.and_</code> construct
+with no arguments is deprecated, and will emit a deprecation warning
+while continuing to produce a blank SQL string.</p>
+
+<p><em>seealso:</em>
+<code>.or_</code></p>
+</div>
+
+
+                            </div>
+                            <div id="f.or_" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">or_</span><span class="signature pdoc-code condensed">(<span class="param"><span class="o">*</span><span class="n">clauses</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#f.or_"></a>
+    
+            <div class="docstring"><p>Produce a conjunction of expressions joined by <code>OR</code>.</p>
+
+<p>E.g.::</p>
+
+<pre><code>from sqlalchemy import or_
+
+stmt = select(users_table).where(
+                or_(
+                    users_table.c.name == 'wendy',
+                    users_table.c.name == 'jack'
+                )
+            )
+</code></pre>
+
+<p>The <code>.or_</code> conjunction is also available using the
+Python <code>|</code> operator (though note that compound expressions
+need to be parenthesized in order to function with Python
+operator precedence behavior)::</p>
+
+<pre><code>stmt = select(users_table).where(
+                (users_table.c.name == 'wendy') |
+                (users_table.c.name == 'jack')
+            )
+</code></pre>
+
+<p>The <code>.or_</code> construct must be given at least one positional
+argument in order to be valid; a <code>.or_</code> construct with no
+arguments is ambiguous.   To produce an "empty" or dynamically
+generated <code>.or_</code>  expression, from a given list of expressions,
+a "default" element of <code>False</code> should be specified::</p>
+
+<pre><code>or_criteria = or_(False, *expressions)
+</code></pre>
+
+<p>The above expression will compile to SQL as the expression <code>false</code>
+or <code>0 = 1</code>, depending on backend, if no other expressions are
+present.  If expressions are present, then the <code>False</code> value is
+ignored as it does not affect the outcome of an OR expression which
+has other elements.</p>
+
+<p><em>Deprecated since version 1.4  The <code>.or_</code> element now requires that at:</em>
+least one argument is passed; creating the <code>.or_</code> construct
+with no arguments is deprecated, and will emit a deprecation warning
+while continuing to produce a blank SQL string.</p>
+
+<p><em>seealso:</em>
+<code>.and_</code></p>
+</div>
+
+
+                            </div>
+                            <div id="f.not_" class="classattr">
+                                        <input id="f.not_-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">not_</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">clause</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="f.not_-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#f.not_"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="f.not_-170"><a href="#f.not_-170"><span class="linenos">170</span></a><span class="k">def</span> <span class="nf">not_</span><span class="p">(</span><span class="n">clause</span><span class="p">):</span>
+</span><span id="f.not_-171"><a href="#f.not_-171"><span class="linenos">171</span></a>    <span class="sd">&quot;&quot;&quot;Return a negation of the given clause, i.e. ``NOT(clause)``.</span>
+</span><span id="f.not_-172"><a href="#f.not_-172"><span class="linenos">172</span></a>
+</span><span id="f.not_-173"><a href="#f.not_-173"><span class="linenos">173</span></a><span class="sd">    The ``~`` operator is also overloaded on all</span>
+</span><span id="f.not_-174"><a href="#f.not_-174"><span class="linenos">174</span></a><span class="sd">    :class:`_expression.ColumnElement` subclasses to produce the</span>
+</span><span id="f.not_-175"><a href="#f.not_-175"><span class="linenos">175</span></a><span class="sd">    same result.</span>
+</span><span id="f.not_-176"><a href="#f.not_-176"><span class="linenos">176</span></a>
+</span><span id="f.not_-177"><a href="#f.not_-177"><span class="linenos">177</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="f.not_-178"><a href="#f.not_-178"><span class="linenos">178</span></a>    <span class="k">return</span> <span class="n">operators</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">coercions</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">roles</span><span class="o">.</span><span class="n">ExpressionElementRole</span><span class="p">,</span> <span class="n">clause</span><span class="p">))</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Return a negation of the given clause, i.e. <code>NOT(clause)</code>.</p>
+
+<p>The <code>~</code> operator is also overloaded on all
+<code>_expression.ColumnElement</code> subclasses to produce the
+same result.</p>
+</div>
+
+
+                            </div>
+                            <div id="f.desc" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">desc</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">column</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#f.desc"></a>
+    
+            <div class="docstring"><p>Produce a descending <code>ORDER BY</code> clause element.</p>
+
+<p>e.g.::</p>
+
+<pre><code>from sqlalchemy import desc
+
+stmt = select(users_table).order_by(desc(users_table.c.name))
+</code></pre>
+
+<p>will produce SQL as::</p>
+
+<pre><code>SELECT id, name FROM user ORDER BY name DESC
+</code></pre>
+
+<p>The <code>.desc</code> function is a standalone version of the
+<code>_expression.ColumnElement.desc</code>
+method available on all SQL expressions,
+e.g.::</p>
+
+<pre><code>stmt = select(users_table).order_by(users_table.c.name.desc())
+</code></pre>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>column</strong>:  A <code>_expression.ColumnElement</code> (e.g.
+scalar SQL expression)
+with which to apply the <code>.desc</code> operation.</li>
+</ul>
+
+<p><em>seealso:</em>
+<code>.asc</code></p>
+
+<p><code>.nulls_first</code></p>
+
+<p><code>.nulls_last</code></p>
+
+<p><code>_expression.Select.order_by</code></p>
+</div>
+
+
+                            </div>
+                            <div id="f.asc" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">asc</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">column</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#f.asc"></a>
+    
+            <div class="docstring"><p>Produce an ascending <code>ORDER BY</code> clause element.</p>
+
+<p>e.g.::</p>
+
+<pre><code>from sqlalchemy import asc
+stmt = select(users_table).order_by(asc(users_table.c.name))
+</code></pre>
+
+<p>will produce SQL as::</p>
+
+<pre><code>SELECT id, name FROM user ORDER BY name ASC
+</code></pre>
+
+<p>The <code>.asc</code> function is a standalone version of the
+<code>_expression.ColumnElement.asc</code>
+method available on all SQL expressions,
+e.g.::</p>
+
+<pre><code>stmt = select(users_table).order_by(users_table.c.name.asc())
+</code></pre>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>column</strong>:  A <code>_expression.ColumnElement</code> (e.g.
+scalar SQL expression)
+with which to apply the <code>.asc</code> operation.</li>
+</ul>
+
+<p><em>seealso:</em>
+<code>.desc</code></p>
+
+<p><code>.nulls_first</code></p>
+
+<p><code>.nulls_last</code></p>
+
+<p><code>_expression.Select.order_by</code></p>
+</div>
+
+
+                            </div>
+                            <div id="f.any_" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">any_</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">expr</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#f.any_"></a>
+    
+            <div class="docstring"><p>Produce an ANY expression.</p>
+
+<p>This may apply to an array type for some dialects (e.g. postgresql),
+or to a subquery for others (e.g. mysql).  e.g.::</p>
+
+<pre><code># postgresql '5 = ANY (somearray)'
+expr = 5 == any_(mytable.c.somearray)
+
+# mysql '5 = ANY (SELECT value FROM table)'
+expr = 5 == any_(select(table.c.value))
+</code></pre>
+
+<p>The operator is more conveniently available from any
+<code>_sql.ColumnElement</code> object that makes use of the
+<code>_types.ARRAY</code> datatype::</p>
+
+<pre><code>expr = mytable.c.somearray.any(5)
+</code></pre>
+
+<p><em>seealso:</em>
+<code>_expression.all_</code></p>
+
+<p><code>_types.ARRAY.any</code></p>
+</div>
+
+
+                            </div>
+                            <div id="f.alias" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">alias</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">selectable</span>, </span><span class="param"><span class="n">name</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">flat</span><span class="o">=</span><span class="kc">False</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#f.alias"></a>
+    
+            <div class="docstring"><p>Return an <code>_expression.Alias</code> object.</p>
+
+<p>An <code>_expression.Alias</code> represents any
+<code>_expression.FromClause</code>
+with an alternate name assigned within SQL, typically using the <code>AS</code>
+clause when generated, e.g. <code>SELECT * FROM table AS aliasname</code>.</p>
+
+<p>Similar functionality is available via the
+<code>_expression.FromClause.alias</code>
+method available on all <code>_expression.FromClause</code> subclasses.
+In terms of
+a SELECT object as generated from the <code>_expression.select</code>
+function, the <code>_expression.SelectBase.alias</code> method returns an
+<code>_expression.Alias</code> or similar object which represents a named,
+parenthesized subquery.</p>
+
+<p>When an <code>_expression.Alias</code> is created from a
+<code>_schema.Table</code> object,
+this has the effect of the table being rendered
+as <code>tablename AS aliasname</code> in a SELECT statement.</p>
+
+<p>For <code>_expression.select</code> objects, the effect is that of
+creating a named subquery, i.e. <code>(select ...) AS aliasname</code>.</p>
+
+<p>The <code>name</code> parameter is optional, and provides the name
+to use in the rendered SQL.  If blank, an "anonymous" name
+will be deterministically generated at compile time.
+Deterministic means the name is guaranteed to be unique against
+other constructs used in the same statement, and will also be the
+same name for each successive compilation of the same statement
+object.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>selectable</strong>:  any <code>_expression.FromClause</code> subclass,
+such as a table, select statement, etc.</p></li>
+<li><p><strong>name</strong>:  string name to be assigned as the alias.
+If <code>None</code>, a name will be deterministically generated
+at compile time.</p></li>
+<li><p><strong>flat</strong>:  Will be passed through to if the given selectable
+is an instance of <code>_expression.Join</code> - see
+<code>_expression.Join.alias</code>
+for details.</p></li>
+</ul>
+</div>
+
+
+                            </div>
+                </section>
     </main>
 <script>
     function escapeHTML(html) {

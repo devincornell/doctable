@@ -14637,7 +14637,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
     <span class="c1"># use Col to use factory to construct emtpy list</span>
     <span class="c1"># will be stored as binary/pickle type, since no other available</span>
-    <span class="n">elements</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="n">field_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">))</span>
+    <span class="n">elements</span><span class="p">:</span> <span class="n">doctable</span><span class="o">.</span><span class="n">JSONType</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Col</span><span class="p">(</span><span class="n">field_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">))</span>
     
 <span class="k">class</span> <span class="nc">MyTable</span><span class="p">(</span><span class="n">doctable</span><span class="o">.</span><span class="n">DocTable</span><span class="p">):</span>
     <span class="n">_schema_</span> <span class="o">=</span> <span class="n">MyClass</span>
@@ -14761,7 +14761,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     <tr>
       <th>6</th>
       <td>elements</td>
-      <td>BLOB</td>
+      <td>VARCHAR</td>
       <td>True</td>
       <td>None</td>
       <td>auto</td>

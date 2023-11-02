@@ -15,7 +15,7 @@ setup(name='doctable',
     author_email='devinj.cornell@gmail.com',
     license='MIT',
     packages=find_packages(include=['doctable', 'doctable.*']),
-    install_requires=['sqlalchemy=<=1.4', 'pandas', 'numpy', 'pymongo'],
+    install_requires=['setuptools', 'sqlalchemy < 2.0', 'pandas', 'numpy', 'pymongo'],
     zip_safe=False,
     download_url='https://github.com/devincornell/doctable/archive/v{}.tar.gz'.format(version)
 )
