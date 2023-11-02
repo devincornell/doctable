@@ -175,7 +175,7 @@ class ConnectCore:
         return self.metadata.reflect(**kwargs)
     
     def create_all_tables(self) -> None:
-        ''' Create all tables in metadata.
+        ''' Create all tables in metadata. Must be used when creating new tables!!
         '''
         return self.metadata.create_all(self.engine)
 
