@@ -21,7 +21,7 @@ class ReflectedDBTable(DBTableBase):
         '''Create a DBTable object from a Schema object.'''
         return cls(
             table = core.reflect_sqlalchemy_table(table_name=table_name, **kwargs),
-            engine=core,
+            core=core,
         )
 
 
