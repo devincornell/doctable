@@ -1,6 +1,0 @@
-==== DataClass ====
-		Dataclass Insert: 974.633 ms
-		Dataclass Select: 6.77 sec
-==== Dict ====
-		Dict Insert: 866.057 ms
-		Dict Select: 1.24 sec
