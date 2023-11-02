@@ -4,13 +4,12 @@ import dataclasses
 import os
 import sqlalchemy
 import sqlalchemy.exc
-import pandas as pd
 
 from .dbtable import DBTable, ReflectedDBTable
 from .query import ConnectQuery
 
 if typing.TYPE_CHECKING:
-    from .schema import TableSchema, Container
+    from .schema import Container
 
 class TableAlreadyExistsError(Exception):
     pass
@@ -52,7 +51,7 @@ class DDLEmitter:
             **kwargs,
         )
     
-    def reflect_table(self, table_name: str, **kwargs) -> DBTable:
+    def reflect_table(self, table_name: str, **kwargs) -> ReflectedDBTable:
         '''Create a new table from a Schema class.'''
         return ReflectedDBTable.from_existing_table(
             table_name=table_name,
@@ -83,7 +82,7 @@ class ConnectCore:
     
     @classmethod
     def open(cls, target: str, dialect: str, echo: bool = False, **engine_kwargs) -> ConnectCore:
-        '''Connect to a database, creating it if it doesn't exist.'''
+        '''Connect to a database, creating it if it doesn't exist (in the case of sqlite).'''
         engine, meta = cls.new_sqlalchemy_engine(target=target, dialect=dialect, echo=echo, **engine_kwargs)
         return cls(
             target=target,
@@ -93,7 +92,7 @@ class ConnectCore:
         )
         
     @staticmethod
-    def check_target_exists(target: str, dialect: str, new_db: bool) -> bool:
+    def check_target_exists(target: str, dialect: str, new_db: bool) -> None:
         '''Raise exception if the target database does not exist.'''
         if dialect.startswith('sqlite') and target != ':memory:':
             if new_db and os.path.exists(target):
@@ -117,8 +116,9 @@ class ConnectCore:
         return ConnectQuery(self.engine.connect())
 
     ################# Tables #################
-    def get_dbtable(table_name: str) -> DBTable:
-        pass
+    # NOTE: TODO
+    #def get_dbtable(table_name: str) -> DBTable:
+    #    pass
 
     ################# Queries #################
     def sqlalchemy_table(self, table_name: str, columns: list[sqlalchemy.Column], extend_existing: bool = False, **kwargs) -> sqlalchemy.Table:
@@ -150,7 +150,7 @@ class ConnectCore:
     ################# Connections #################
 
     ################# Engine interface #################
-    def begin(self) -> sqlalchemy.engine.Transaction:
+    def begin(self):
         ''' Open new transaction in the engine connection pool.
         https://docs.sqlalchemy.org/en/20/tutorial/dbapi_transactions.html
         '''
@@ -165,9 +165,10 @@ class ConnectCore:
     def list_tables(self) -> typing.List[str]:
         ''' List table names in database connection.
         '''
-        return self.engine.table_names()
+        # TODO: is this wrong? mypy says it is wrong.
+        return list(self.metadata.tables.keys())
     
-    def dispose_engine(self) -> sqlalchemy.engine.ResultProxy:
+    def dispose_engine(self):
         ''' Closes all existing connections attached to engine.
         '''
         return self.engine.dispose()
@@ -192,22 +193,22 @@ class ConnectCore:
         return self.metadata.create_all(self.engine)
 
     ################# Inspection methods #################
-    def inspect_columns_all(self) -> typing.Dict[str, typing.List[typing.Dict[str, typing.Any]]]:
+    def inspect_columns_all(self) -> typing.Dict[str, typing.List[sqlalchemy.engine.interfaces.ReflectedColumn]]:
         '''Get column info for all tables.'''
         inspector = self.inspector()
         return {tn:inspector.get_columns(tn) for tn in inspector.get_table_names()}
     
-    def inspect_indices_all(self) -> typing.Dict[str, typing.List[typing.Dict[str, typing.Any]]]:
+    def inspect_indices_all(self) -> typing.Dict[str, typing.List[sqlalchemy.engine.interfaces.ReflectedIndex]]:
         '''Get index info for all tables.'''
         inspector = self.inspector()
         return {tn:inspector.get_indexes(tn) for tn in inspector.get_table_names()}
 
-    def inspect_columns(self, table_name: str) -> typing.List[sqlalchemy.Column]:
+    def inspect_columns(self, table_name: str) -> typing.List[sqlalchemy.engine.interfaces.ReflectedColumn]:
         '''Get list of columns for a table.
         '''
         return self.inspector().get_columns(table_name)
 
-    def inspect_indices(self, table_name: str) -> typing.List[typing.Dict[str, typing.Any]]:
+    def inspect_indices(self, table_name: str) -> typing.List[sqlalchemy.engine.interfaces.ReflectedIndex]:
         '''Wraps Inspector.get_indexes(tabname).'''
         return self.inspector().get_indexes(table_name)
     
@@ -228,5 +229,5 @@ class ConnectCore:
     def execute(self, query:str, *args, **kwargs) -> sqlalchemy.engine.CursorResult:
         '''Execute query using a temporary connection.
         '''
-        return self.engine.execute(query, *args, **kwargs)
+        return self.engine.connect().execute(sqlalchemy.text(query), *args, **kwargs)
 
