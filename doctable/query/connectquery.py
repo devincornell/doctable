@@ -93,6 +93,9 @@ class ConnectQuery:
         ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
         **kwargs
     ) -> sqlalchemy.engine.CursorResult:
+        '''Insert multiple rows into the database using executemany-style 
+            parameter binding.
+        '''
         if not self.is_sequence(data):
             raise TypeError('insert_multi accepts a sequence of rows to insert.')
         q = StatementBuilder.insert_query(dtable.table, ifnotunique=ifnotunique)

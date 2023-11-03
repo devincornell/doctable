@@ -34,9 +34,9 @@ class DBTableBase:
     
     def inspect_indices(self) -> typing.List[typing.Dict[str, typing.Any]]:
         '''Wraps Inspector.get_indexes(tabname).'''
-        return self.inspector().get_indexes()
+        return self.inspect().get_indexes()
 
-    def inspector(self) -> sqlalchemy.engine.Inspector:
+    def inspect(self) -> sqlalchemy.engine.Inspector:
         '''Get engine for this inspector.
         https://docs.sqlalchemy.org/en/14/core/reflection.html#sqlalchemy.engine.reflection.Inspector
         '''

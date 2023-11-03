@@ -30,7 +30,7 @@ class DDLEmitter:
             **kwargs,
         )
 
-    def create_table_if_not_exists(self, *, container_type: typing.Type[Container], **kwargs) -> DBTable:
+    def create_table_if_not_exists(self, container_type: typing.Type[Container], **kwargs) -> DBTable:
         '''Create a new table from a Schema class.
             Use extend_existing=True to connect to an existing table.
         '''

@@ -36,7 +36,7 @@ class TableQuery(typing.Generic[T]):
 
     #################### Select Queries ####################
     def select(self, 
-        cols: typing.Optional[typing.List[sqlalchemy.Column]] = None,
+        cols: typing.Optional[typing.List[str]] = None,
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
         order_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
         group_by: typing.Optional[typing.List[sqlalchemy.Column]] = None,
@@ -46,8 +46,13 @@ class TableQuery(typing.Generic[T]):
         **kwargs
     ) -> typing.List[T]:
         '''Select from table.'''
+        if cols is None:
+            cols = self.dtable.all_cols()
+        else:
+            cols = [self.dtable[col] if isinstance(col, str) else col for col in cols]
+            
         result = self.cquery.select(
-            cols=cols if cols is not None else self.dtable.all_cols(),
+            cols=cols,
             where=where,
             order_by=order_by,
             group_by=group_by,
@@ -67,7 +72,7 @@ class TableQuery(typing.Generic[T]):
     ) -> sqlalchemy.engine.CursorResult:
         return self.cquery.insert_multi(
             dtable=self.dtable,
-            data=data,
+            data=[self.dtable.schema.dict_from_container(d) for d in data],
             ifnotunique=ifnotunique,
             **kwargs
         )

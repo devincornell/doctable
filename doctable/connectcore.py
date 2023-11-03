@@ -5,6 +5,8 @@ import os
 import sqlalchemy
 import sqlalchemy.exc
 
+import functools
+
 from .dbtable import DDLEmitter
 from .query import ConnectQuery
 
@@ -117,7 +119,9 @@ class ConnectCore:
         '''Base method for creating a new sqlalchemy table and handling exceptions that may be raised.'''
         # ideally the user will not enable extend_existing = True
         try:
-            return sqlalchemy.Table(table_name, self.metadata, *table_args, **kwargs)
+            table = sqlalchemy.Table(table_name, self.metadata, *table_args, **kwargs)
+            self._bind_column_methods(table)
+            return table
         
         except sqlalchemy.exc.NoSuchTableError as nste:
             raise TableDoesNotExistError(f'The table {table_name} does not exist. '
@@ -133,6 +137,22 @@ class ConnectCore:
                 ) from ire
             else:
                 raise ire
+            
+    @staticmethod
+    def _bind_column_methods(table: sqlalchemy.Table):
+        '''Binds sqlalchemy methods to column objects.'''
+        for col in table.c:
+            col.max = functools.partial(sqlalchemy.sql.func.max, col)
+            col.min = functools.partial(sqlalchemy.sql.func.min, col)
+            col.count = functools.partial(sqlalchemy.sql.func.count, col)
+            col.sum = functools.partial(sqlalchemy.sql.func.sum, col)
+            col.unique = functools.partial(sqlalchemy.sql.func.unique, col)
+            col.distinct = functools.partial(sqlalchemy.sql.func.distinct, col)
+
+            def func_custom(attr: str):
+                '''Allows user to specify any sqlalchemy function name.'''
+                return getattr(sqlalchemy.sql.func, attr)(col)
+            col.func = func_custom
     
     ################# Connections #################
 
