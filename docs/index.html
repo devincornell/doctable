@@ -109,24 +109,29 @@
       <div class="col-md-8 mb-5">
         <!--<br/>-->
         <!--<h2>Here's the thing.</h2>-->
-
-        <p>This package allows you to define and manipulate databases as regular Python objects. See the <a href="examples/example_nss_1_intro.html">vignette examples</a>.</p>
         
+        <h4>Doctable is getting a new interface!</h4>
+        <p>I recently updated doctable with an entirely new API to improve on some of the limitations of the previous interface and better match the new [Sqlalchemy 2.0](https://www.sqlalchemy.org/) interface. Inspired by the [attrs project](https://www.attrs.org/en/stable/names.html), I used different names for functions and classes to make it clear that the interface has changed and open the possibility for backwards compatibility with upgraded internals in the future. I decided to create the new API from scratch as it would have been more difficult to start from the old interface and improve incrementally, and I think the new interface works significantly better for the kinds of applications I have been using doctable for anyways. For now, stick to installing from the legacy repository when using sqlalchemy <= 1.4, and the master repository for sqlalchemy >= 2.0.</p>
+
+        <p>For an introduction to the new interface, see the <a href="examples/iris_example.html">iris dataset example</a>.</p>
+        
+        Features:
         <ol>
-          <li>Create a database schema definition using the <code>@doctable.schema</code> decorator. In addition to providing the schema definition for the table, this class operates much like a dataclass to encapsulate your retrieved or inserted data. See the <a href="examples/doctable_schema.html">schema guide</a> for more details.</li>
-          <li>Define the interface to your data model by creating a class that inherits from <a href="#DocTable"><code>DocTable</code></a>. The base class provides methods for inserting, retrieving, and changing database rows.</li>
-          <li>Merge your parsed text with relevant document metadata and use your <code>DocTable</code> interface to store and retrieve data from the database.</li>
-          <li>Develop a text parsing pipeline using <a href="#ParsePipeline"><code>ParsePipeline</code></a>. This class can distribute your text parsing across multiple processes, and can be used to create <code>ParseTree</code> objects to be stored in your database.</li>
+          <li>Define database schemas from object definitions that encapsulte inserted and retrieved data.</li>
         </ol>
 
         <hr/>
-        <h5>Install</h5>
-        <pre><code>pip install doctable</code></pre>
+        <h5>Installation</h5>
+        From [Python Package Index](https://pypi.org/project/doctable/): <pre><code>pip install doctable</code></pre>
         For sqlalchemy >= 2.0: <pre><code>pip install --upgrade git+https://github.com/devincornell/doctable.git@master</code></pre>
         For sqlalchemy <= 1.4: <pre><code>pip install --upgrade git+https://github.com/devincornell/doctable.git@legacy</code></pre>
 
+        <h3>Modern API</h3>
+        TODO
+
+        <h3>Legacy API</h3>
         <hr/>
-        <h3 id='DocTable'><pre>DocTable</pre> 
+        <h4 id='DocTable'><pre>DocTable</pre></h4>
           <a class="btn btn-outline-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> 
           <a class="btn btn-outline-primary btn-sm" href="ref/doctable/doctable.html">API &raquo;</a> 
           <a class="btn btn-outline-primary btn-sm" href="examples/example_nss_1_intro.html">Vignette &raquo;</a></h3>
