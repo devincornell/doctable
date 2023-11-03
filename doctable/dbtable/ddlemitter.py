@@ -6,7 +6,6 @@ if typing.TYPE_CHECKING:
     from ..connectcore import ConnectCore
     from ..schema import Container
 
-
 from .dbtable import DBTable
 from .reflecteddbtable import ReflectedDBTable
             
@@ -25,7 +24,7 @@ class DDLEmitter:
     def create_table(self, container_type: typing.Type[Container], **kwargs) -> DBTable:
         '''Create a new table from a Schema class.
         '''
-        return DBTable.from_container(
+        return DBTable.create(
             container_type=container_type,
             core=self.core,
             extend_existing=False,
@@ -36,7 +35,7 @@ class DDLEmitter:
         '''Create a new table from a Schema class.
             Use extend_existing=True to connect to an existing table.
         '''
-        return DBTable.from_container(
+        return DBTable.extend(
             container_type=container_type,
             core=self.core,
             extend_existing=True,

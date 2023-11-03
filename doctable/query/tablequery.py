@@ -17,7 +17,7 @@ class TableQuery(typing.Generic[T]):
     cquery: ConnectQuery
 
     @classmethod
-    def from_dbtable(cls, dtable: DBTable[T]) -> ConnectQuery:
+    def from_dbtable(cls, dtable: DBTable[T]) -> TableQuery[T]:
         '''Interface for quering tables.
         Args:
             table (sqlalchemy.Table): table to query from

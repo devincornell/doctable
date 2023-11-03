@@ -84,6 +84,7 @@ class TableSchema(typing.Generic[Container]):
         '''Get a dictionary representation of this schema for insertion, ignoring MISSING values.'''
         attr_to_col = self.name_mappings.attr_to_col
         try:
+            # add type hint?  (Container is dataclasses.DataclassInstance)
             values = dataclasses.asdict(container).items()
             return {attr_to_col[k]:v for k,v in values if v is not MISSING}
         except TypeError as e:

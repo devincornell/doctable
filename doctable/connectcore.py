@@ -5,7 +5,7 @@ import os
 import sqlalchemy
 import sqlalchemy.exc
 
-from .dbtable import DBTable, ReflectedDBTable, DDLEmitter
+from .dbtable import DDLEmitter
 from .query import ConnectQuery
 
 class TableAlreadyExistsError(Exception):

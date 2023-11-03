@@ -15,7 +15,7 @@ if typing.TYPE_CHECKING:
 class DBTableBase:
     '''Contains interface for working with table wrappers.'''
     table: sqlalchemy.Table
-    core: ConnectCore
+    core: 'ConnectCore' # make as string? yes, apparently that was the solution
 
     @property
     def table_name(self) -> str:
