@@ -67,13 +67,10 @@ clean_docs:
 ######################################## RUN TESTS ########################################
 
 #TESTS_FOLDER = tests/
-TESTS_FOLDER = tests_legacy/
+TESTS_FOLDER = tests/
 pytest: uninstall
 	# tests from tests folder
-	pytest $(TESTS_FOLDER)/test_*.py
-	#pytest $(TESTS_FOLDER)/test_docparser_*.py
-	#pytest $(TESTS_FOLDER)/test_distribute*.py
-	#pytest $(TESTS_FOLDER)/test_legacy_*.py
+	cd $(TESTS_FOLDER); pytest test_*.py
 
 TMP_TEST_FOLDER = tmp_test_deleteme
 test_examples: uninstall
@@ -81,7 +78,7 @@ test_examples: uninstall
 	-rm -r $(TMP_TEST_FOLDER)
 	mkdir $(TMP_TEST_FOLDER)
 	cp $(EXAMPLES_FOLDER)/*.ipynb $(TMP_TEST_FOLDER)
-	cp $(EXAMPLES_FOLDER)/*.py $(TMP_TEST_FOLDER)
+	-cp $(EXAMPLES_FOLDER)/*.py $(TMP_TEST_FOLDER)
 	
 	# convert notebooks to .py scripts
 	jupyter nbconvert --to script $(TMP_TEST_FOLDER)/*.ipynb
@@ -89,31 +86,8 @@ test_examples: uninstall
 	# execute example files to make sure they work
 
 	# main tutorials
-	cd $(TMP_TEST_FOLDER); python doctable_basics.py
-	cd $(TMP_TEST_FOLDER); python doctable_schema.py
-	cd $(TMP_TEST_FOLDER); python doctable_insert_delete.py
-	cd $(TMP_TEST_FOLDER); python doctable_select.py
-	cd $(TMP_TEST_FOLDER); python doctable_update.py
-
-	# examples
-	cd $(TMP_TEST_FOLDER); python example_nss_1_intro.py
-	cd $(TMP_TEST_FOLDER); python example_nss_2_parsing.py
-	cd $(TMP_TEST_FOLDER); python example_nss_3_parsetrees.py
-	
-	# doctable aux tutorials
-	cd $(TMP_TEST_FOLDER); python doctable_bootstrap.py
-	cd $(TMP_TEST_FOLDER); python doctable_connectengine.py
-	cd $(TMP_TEST_FOLDER); python doctable_file_column_types.py
-	cd $(TMP_TEST_FOLDER); python doctable_multitable.py
-	cd $(TMP_TEST_FOLDER); python doctable_parsetreedoc_column.py
-	cd $(TMP_TEST_FOLDER); python doctable_concurrency.py
-	
-	
-	#??
-	cd $(TMP_TEST_FOLDER); python doctable_picklefile.py
-	cd $(TMP_TEST_FOLDER); python doctable_schema_dataclass.py
-	cd $(TMP_TEST_FOLDER); python doctable_schema_legacy.py
-
+	cd $(TMP_TEST_FOLDER); python ex_basics.py
+	#cd $(TMP_TEST_FOLDER); python doctable_schema.py
 
 	# cleanup temp folder
 	-rm -r $(TMP_TEST_FOLDER)

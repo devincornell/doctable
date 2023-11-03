@@ -8,7 +8,7 @@ import doctable
 
 
 
-def dummy_container1(table_name: str = 'test') -> doctable.Container:
+def dummy_container1(table_name: str = 'test'):
     @doctable.table_schema(table_name=table_name)
     class DummyContainer:
         name: str

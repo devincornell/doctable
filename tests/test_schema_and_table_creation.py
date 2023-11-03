@@ -12,7 +12,7 @@ class TestDataClass:
     name: str = None
     age: int = None
 
-def dummy_container(table_name: str = 'test') -> doctable.Container:
+def dummy_container(table_name: str = 'test'):
     @doctable.table_schema(table_name=table_name)
     class TestContainer:
         name: str

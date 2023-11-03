@@ -8,8 +8,8 @@ import sqlalchemy
 import dataclasses
 
 
-
 def test_new_connectcore(test_fname: str = 'test.db'):
+    
     if os.path.exists(test_fname):
         os.remove(test_fname) # clean for test
         
