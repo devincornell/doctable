@@ -1,3 +1,20 @@
+# `doctable` Python Package
+
+### Doctable is getting a new interface!
+
+I recently updated doctable with an entirely new API to improve on some of the limitations of the previous interface and better match the new [Sqlalchemy 2.0](https://www.sqlalchemy.org/) interface. Inspired by the [attrs project](https://www.attrs.org/en/stable/names.html), I used different names for functions and classes to make it clear that the interface has changed and open the possibility for backwards compatibility with upgraded internals in the future. I decided to create the new API from scratch as it would have been more difficult to start from the old interface and improve incrementally, and I think the new interface works significantly better for the kinds of applications I have been using doctable for anyways. For now, stick to installing from the legacy repository when using sqlalchemy <= 1.4, and the master repository for sqlalchemy >= 2.0.
+
+---
+
+### Installation
+
+From [Python Package Index](https://pypi.org/project/doctable/): `pip install doctable`
+
+For sqlalchemy >= 2.0: `pip install --upgrade git+https://github.com/devincornell/doctable.git@master`
+
+For sqlalchemy <= 1.4: `pip install --upgrade git+https://github.com/devincornell/doctable.git@legacy`
+
+
 
 
 # DocTable Python Package for SQAlchemy <= 1.4
