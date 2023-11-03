@@ -53,7 +53,7 @@ class DBTable(DBTableBase, typing.Generic[Container]):
         name, args, table_kwargs = schema.sqlalchemy_table_args(**kwargs)
         return cls(
             schema = schema,
-            table = make_table_func(name, *args, **table_kwargs),
+            table = make_table_func(name, args, **table_kwargs),
             core=core,
         )
         

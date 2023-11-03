@@ -64,7 +64,7 @@ class ConnectCore:
         return engine, meta
     
     ################# Context Managers #################
-    def emit_ddl(self) -> DDLEmitter:
+    def begin_ddl(self) -> DDLEmitter:
         '''Context manager that creates tables on exit. Use for multi-table schemas.'''
         return DDLEmitter(self)
         

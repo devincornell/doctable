@@ -27,7 +27,6 @@ class DDLEmitter:
         return DBTable.create(
             container_type=container_type,
             core=self.core,
-            extend_existing=False,
             **kwargs,
         )
 
@@ -38,7 +37,6 @@ class DDLEmitter:
         return DBTable.extend(
             container_type=container_type,
             core=self.core,
-            extend_existing=True,
             **kwargs,
         )
     
