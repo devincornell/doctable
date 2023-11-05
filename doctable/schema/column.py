@@ -21,16 +21,23 @@ def has_column_args(field: dataclasses.Field) -> bool:
     '''Check if a dataclass field has column args.'''
     return COLUMN_METADATA_ATTRIBUTE_NAME in field.metadata
 
+
+from datetime import date, time, datetime
+from typing import Any
 type_hint_to_column_type = {
     int: sqlalchemy.Integer,
-    str: sqlalchemy.String,
     float: sqlalchemy.Float,
     bool: sqlalchemy.Boolean,
-    datetime.datetime: sqlalchemy.DateTime, # NOTE: datetime.datetime is subclass of datetime.date
-    datetime.time: sqlalchemy.Time,
-    datetime.date: sqlalchemy.Date,
+    str: sqlalchemy.String,
     bytes: sqlalchemy.LargeBinary,
-    typing.Any: sqlalchemy.PickleType,
+    datetime: sqlalchemy.DateTime, # NOTE: datetime.datetime is subclass of datetime.date, so put it first
+    time: sqlalchemy.Time,
+    date: sqlalchemy.Date,
+    Any: sqlalchemy.PickleType,
+    'datetime.datetime': sqlalchemy.DateTime, # NOTE: datetime.datetime is subclass of datetime.date
+    'datetime.time': sqlalchemy.Time, # NOTE: datetime.datetime is subclass of datetime.date
+    'datetime.date': sqlalchemy.Date, # NOTE: datetime.datetime is subclass of datetime.date
+    'typing.Any': sqlalchemy.PickleType,
 }
 
 
@@ -148,12 +155,32 @@ class ColumnArgs:
             return fk
         else:
             for mth, mct in type_hint_to_column_type.items():
-                if issubclass(type_hint, mth): # type hints are types
-                    return (mct(**self.type_kwargs),)
-                elif type_hint == mth: # type hints are strings
+                if self.type_hint_matches(type_hint, mth):
                     return (mct(**self.type_kwargs),)
             raise TypeError(f'"{type_hint}" does not map to a valid column '
                 f'type. Choose one of {type_hint_to_column_type.keys()}')
+            
+    @staticmethod
+    def type_hint_matches(type_hint: typing.Type, match_type_hint: typing.Type) -> bool:
+        '''Match type hint to sqlalchemy column type.'''
+        
+        if type_hint == str(match_type_hint):
+            return True
+        
+        try:
+            if type_hint == match_type_hint.__name__:
+                return True
+        except AttributeError as e:
+            pass
+        
+        try:
+            if issubclass(type_hint, match_type_hint):
+                return True
+        except TypeError as e:
+            return False
+
+        return False
+        
 
     def sqlalchemy_column_kwargs(self) -> typing.Dict[str, typing.Any]:
         return dict(
