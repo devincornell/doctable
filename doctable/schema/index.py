@@ -4,8 +4,6 @@ import typing
 import dataclasses
 import sqlalchemy
 
-from .column import ColumnInfo
-
 def Index(*column_names: typing.List[str], **kwargs: typing.Dict[str, typing.Any]) -> IndexParams:
     return IndexParams(
         column_names=column_names,

@@ -42,8 +42,8 @@ type_hint_to_column_type = {
 
 
 def Column(
-    field_args: FieldArgs = None,
     column_args: ColumnArgs = None,
+    field_args: FieldArgs = None,
 ) -> dataclasses.field:
     '''Record column information in the metadata of a dataclass field.'''
     field_args = field_args if field_args is not None else FieldArgs()
