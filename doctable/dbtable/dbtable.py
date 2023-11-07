@@ -44,7 +44,7 @@ class DBTable(DBTableBase, typing.Generic[Container]):
     def from_schema(cls, 
         schema: TableSchema[Container],
         core: ConnectCore, 
-        make_table_func: typing.Callable[[...], sqlalchemy.Table] = None,
+        make_table_func: typing.Callable[[], sqlalchemy.Table] = None,
         **kwargs
     ) -> DBTable[Container]:
         '''Create a new table from just a schema.
