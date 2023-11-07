@@ -45,11 +45,14 @@ class TableQuery(typing.Generic[T]):
         offset: typing.Optional[int] = None,
         **kwargs
     ) -> typing.List[T]:
-        '''Select from table.'''
+        '''Select elements from table, wrap result in container objects.'''
         if cols is None:
             cols = self.dtable.all_cols()
         else:
-            cols = [self.dtable[col] if isinstance(col, str) else col for col in cols]
+            try:
+                cols = [self.dtable[col] if isinstance(col, str) else col for col in cols]
+            except NotImplementedError as e:
+                raise NotImplementedError(f'Did you mean to pass a list to select?') from e
             
         result = self.cquery.select(
             cols=cols,
