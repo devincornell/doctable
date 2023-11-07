@@ -24,6 +24,9 @@ class DBTableBase:
     def __getitem__(self, key: Any) -> sqlalchemy.Column:
         '''Get a column by name.'''
         return self.table.c[key]
+    
+    def __call__(self, *columns) -> typing.List[sqlalchemy.Column]:
+        return self.cols(*columns)
 
     def cols(self, *columns) -> typing.List[sqlalchemy.Column]:
         '''Return a query with only the specified columns.'''
