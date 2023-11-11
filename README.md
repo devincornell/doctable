@@ -1,12 +1,18 @@
-# `doctable` Python Package
+## `doctable` Python Package
 
-### Doctable is getting a new interface!
+See the [doctable website](https://devinjcornell.com/doctable/) for documentation and examples.
 
-I recently updated doctable with an entirely new API to improve on some of the limitations of the previous interface and better match the new [Sqlalchemy 2.0](https://www.sqlalchemy.org/) interface. Inspired by the [attrs project](https://www.attrs.org/en/stable/names.html), I used different names for functions and classes to make it clear that the interface has changed and open the possibility for backwards compatibility with upgraded internals in the future. I decided to create the new API from scratch as it would have been more difficult to start from the old interface and improve incrementally, and I think the new interface works significantly better for the kinds of applications I have been using doctable for anyways. For now, stick to installing from the legacy repository when using sqlalchemy <= 1.4, and the master repository for sqlalchemy >= 2.0.
+Created by [Devin J. Cornell](https://devinjcornell.com).
+
+## Doctable has a new interface!
+
+The package has been updated with an entirely new API to improve on previous limitations and better match the [Sqlalchemy 2.0](https://www.sqlalchemy.org/) interface. Inspired by the [attrs project](https://www.attrs.org/en/stable/names.html), I used different names for functions and classes to make it clear that the interface has changed and open the possibility for backwards compatibility with upgraded internals in the future. 
+
+For now, stick to installing from the `legacy` branch when using sqlalchemy <= 1.4, and the `master` branch for sqlalchemy >= 2.0.
 
 ---
 
-### Installation
+## Installation
 
 From [Python Package Index](https://pypi.org/project/doctable/): `pip install doctable`
 
@@ -15,34 +21,58 @@ For sqlalchemy >= 2.0: `pip install --upgrade git+https://github.com/devincornel
 For sqlalchemy <= 1.4: `pip install --upgrade git+https://github.com/devincornell/doctable.git@legacy`
 
 
+## Changes in Version 2.0
+
++ Create database connections using `ConnectCore` objects instead of `ConnectEngine` or `DocTable` objects.
+
++ Database tables represented by `DBTable` objects instead of `DocTable` objects. All `DBTable` instances originate from a `ConnectCore` object.
+
++ Create schemas using the `doctable.table_schema` decorator instead of the `doctable.schema` decorator. This new decorator includes constraint and index parameters as well as those for the `dataclass` objects.
+
++ The `Column` function replaces `Col` as generic default parameter values with more fine-grained control over column properties. This function provides a clearer separation between parameters that affect the behavior of the object as a dataclass (supplied as a `FieldArgs` object) and those that affect the database column schema (supplied via a `ColumnArgs` object).
 
 
-# DocTable Python Package for SQAlchemy <= 1.4
+## Examples
 
-Document database interface for text analysis.
+These are the basic steps for using `doctable` to create a database connection, define a schema, and execute queries. For more examples, see the [doctable website](https://doctable.org).
 
-See the [doctable website](https://devinjcornell.com/doctable/) for documentation and examples.
+**1. Create a database connection.**
 
-Created by [Devin J. Cornell](https://devinjcornell.com).
+```python
+core = doctable.ConnectCore.open(
+    target=':memory:', # use a filename for a sqlite to write to disk
+    dialect='sqlite',
+)
+```
 
-# Major Version Changes
+**2. Define a database schema from a dataclass.**
 
+```python
+@doctable.table_schema
+class MyContainer:
+    name: str
+    age: int
+    id: int = doctable.Column(
+        column_args=doctable.ColumnArgs(order=0, primary_key=True, autoincrement=True),
+    )
 
-### Version 1.0
+```
 
-+ Set to use string-based type hints to support Python version 3.9 and above.
-+ Set sqlalchemy version requirement to <=1.4. Sqlalchemy v2.0+ will be supported in the next version.
-+ This is the last release that supports sqlalchemy <= v1.4.
+**3. Emit DDL to create a table from the schema.**
 
-### Version 0.9.5
+```python
+with core.begin_ddl() as emitter:
+    tab0 = emitter.create_table(container_type=MyContainer)
+pprint.pprint(core.inspect_columns('MyContainer'))
+```
 
-+ Revamped schema decorator to default unretrieved column data to an empty value so that an exception can be raised when the user attempts to access it. When specifying columns in select queries, previously the user had to manually detect an EmptyValue object.
+**4. Execute queries on the table.**
 
-+ removed ability to use `_doctable_args_` and `_engine_kwargs_` static properties. Instead, user should just overload `__init__`. I don't think many projects used that anyways, and this fits better with the [Zen of Python](https://peps.python.org/pep-0020/): "There should be one-- and preferably only one --obvious way to do it."
+```python
+with tab1.query() as q:
+    q.insert_single(MyContainer(name='devin', age=40))
+    print(q.select())
 
-Previously, when selecting specific columns
-+ Switched from using EmptyValue() instances to a MISSING_VALUE object instance.
+>> MyContainer(name='devin', age=40, id=1)
+```
 
-### Thanks
-
-The setup of this package was created following [this guide](https://packaging.python.org/tutorials/packaging-projects/).
