@@ -6,6 +6,7 @@ import dataclasses
 import os
 import sqlalchemy
 import pandas as pd
+import copy
 
 from .dbtablebase import DBTableBase
 
@@ -27,7 +28,7 @@ class DBTable(DBTableBase, typing.Generic[Container]):
         **kwargs
     ) -> DBTable[Container]:
         '''Create new table.'''
-        schema = get_schema(container_type)
+        schema = get_schema(copy.deepcopy(container_type))
         return cls.from_schema(schema, core, core.extend_sqlalchemy_table, **kwargs)
         
     @classmethod
@@ -37,7 +38,7 @@ class DBTable(DBTableBase, typing.Generic[Container]):
         **kwargs
     ) -> DBTable[Container]:
         '''Create new table.'''
-        schema = get_schema(container_type)
+        schema = get_schema(copy.deepcopy(container_type))
         return cls.from_schema(schema, core, core.create_sqlalchemy_table, **kwargs)
         
     @classmethod
