@@ -5,6 +5,8 @@ import dataclasses
 import sqlalchemy
 import functools
 
+import copy
+
 from .column import ColumnInfo
 from .index import IndexInfo, IndexParams
 
@@ -12,7 +14,7 @@ from .tableschema import TableSchema
 from .general import set_schema, get_schema, Container
 
 def table_schema(
-    _Cls: typing.Type[Container] = None, 
+    _Cls: typing.Optional[typing.Type[Container]] = None, 
     table_name: typing.Optional[str] = None,
     indices: typing.Optional[typing.Dict[str, IndexParams]] = None,
     constraints: typing.Optional[typing.List[sqlalchemy.Constraint]] = None,
@@ -27,12 +29,12 @@ def table_schema(
     slots: typing.Optional[bool] = None, # passed to dataclasses.dataclass()
     weakref_slot: typing.Optional[bool] = None, # passed to dataclasses.dataclass()
     **table_kwargs: typing.Dict[str, typing.Any],
-) -> typing.Type[Container]:
+) -> typing.Callable[[typing.Type[Container]], typing.Type[Container]]:
     '''A decorator to change a regular class into a schema object class.
     '''
     # handle case with no indices or constraints
-    indices = indices if indices is not None else dict()
-    constraints = constraints if constraints is not None else list()
+    indices = copy.deepcopy(indices) if indices is not None else dict()
+    constraints = copy.deepcopy(constraints) if constraints is not None else list()
     
     #if table_name is None and _Cls is not None:
     #    table_name = _Cls.__name__
@@ -48,10 +50,10 @@ def table_schema(
                 order = order,
                 unsafe_hash = unsafe_hash,
                 frozen = frozen,
-                match_args = match_args,
-                kw_only = kw_only,
-                slots = slots,
-                weakref_slot = weakref_slot,
+                match_args = match_args, # type: ignore
+                kw_only = kw_only, # type: ignore
+                slots = slots, # type: ignore
+                weakref_slot = weakref_slot, # type: ignore
             )
         except TypeError as e:
             if 'unexpected keyword argument' in str(e):
