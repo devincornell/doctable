@@ -4,6 +4,8 @@ See the [doctable website](https://devinjcornell.com/doctable/) for documentatio
 
 Created by [Devin J. Cornell](https://devinjcornell.com).
 
+---
+
 ## Doctable has a new interface!
 
 The package has been updated with an entirely new API to improve on previous limitations and better match the [Sqlalchemy 2.0](https://www.sqlalchemy.org/) interface. Inspired by the [attrs project](https://www.attrs.org/en/stable/names.html), I used different names for functions and classes to make it clear that the interface has changed and open the possibility for backwards compatibility with upgraded internals in the future. 
@@ -20,6 +22,7 @@ For sqlalchemy >= 2.0: `pip install --upgrade git+https://github.com/devincornel
 
 For sqlalchemy <= 1.4: `pip install --upgrade git+https://github.com/devincornell/doctable.git@legacy`
 
+---
 
 ## Changes in Version 2.0
 
@@ -31,8 +34,13 @@ For sqlalchemy <= 1.4: `pip install --upgrade git+https://github.com/devincornel
 
 + The `Column` function replaces `Col` as generic default parameter values with more fine-grained control over column properties. This function provides a clearer separation between parameters that affect the behavior of the object as a dataclass (supplied as a `FieldArgs` object) and those that affect the database column schema (supplied via a `ColumnArgs` object).
 
+---
 
 ## Examples
+
+See the `examples/` directory for more detailed examples.
+
+### Basic steps
 
 These are the basic steps for using `doctable` to create a database connection, define a schema, and execute queries. For more examples, see the [doctable website](https://doctable.org).
 
