@@ -26,10 +26,16 @@ class StatementBuilder:
             q = q.where(sqlalchemy.text(f'({wherestr})'))
         
         if order_by is not None:
-            q = q.order_by(*order_by)
+            try:
+                q = q.order_by(*order_by)
+            except NotImplementedError:
+                q = q.order_by(order_by)
             
         if group_by is not None:
-            q = q.group_by(*group_by)
+            try:
+                q = q.group_by(*group_by)
+            except NotImplementedError:
+                q = q.group_by(group_by)
             
         if limit is not None:
             q = q.limit(limit)
