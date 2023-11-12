@@ -21,9 +21,28 @@ class DBTableBase:
     def table_name(self) -> str:
         return self.table.name
 
-    def __getitem__(self, key: Any) -> sqlalchemy.Column:
+    def __getitem__(self, key: typing.Union[slice, str, tuple, list]) -> sqlalchemy.Column:
         '''Get a column by name.'''
-        return self.table.c[key]
+        if isinstance(key, str):
+            # handles table['col1']
+            return self.table.c[key]
+        elif isinstance(key, (tuple,list)):
+            # handles table['col1','col2'], table[('col1','col2')], and table[['col1','col2']]
+            return [self.table.c[k] for k in key]
+        elif isinstance(key, slice):
+            # handles table['col1':'col2']
+            all_colnames = [c.name for c in self.table.columns]
+            try:
+                start = all_colnames.index(key.start)
+                end = all_colnames.index(key.stop)
+            except ValueError as e:
+                raise KeyError(f'Column slice is not valid. Choose from these columns: {all_colnames}') from e
+            if end < start:
+                raise KeyError(f'Start column appears after end column. Reverse start/end of slice to fix.')
+            
+            return [self.table.c[k] for k in all_colnames[start:end+1]]
+        else:
+            raise TypeError(f'Invalid key type {type(key)}.')
     
     def __call__(self, *columns) -> typing.List[sqlalchemy.Column]:
         return self.cols(*columns)
