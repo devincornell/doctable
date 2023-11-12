@@ -4,6 +4,7 @@ import dataclasses
 import typing
 import sqlalchemy
 import sqlalchemy.exc
+import pandas as pd
 
 from .statementbuilder import StatementBuilder
 
@@ -63,7 +64,9 @@ class ConnectQuery:
         '''Most general select method - returns raw sqlalchemy result.
             https://docs.sqlalchemy.org/en/20/core/connections.html#sqlalchemy.engine.CursorResult
             select multiple: result.all()
-            select single row: result.first() use limit=1 NOTE: returns None if no results
+            select multiple as dataframe: result.df()
+            select first row: result.first() use limit=1 NOTE: returns None if no results
+            select single row: result.one() NOTE: raises exception if not exactly one result
             select single column: result.scalars().all()
             select single value: result.scalar_one() NOTE: raises exception if not exactly one result
         Args:
@@ -84,7 +87,19 @@ class ConnectQuery:
             wherestr = wherestr,
             offset = offset,
         )
-        return self.execute_statement(q, **kwargs)
+        
+        result = self.execute_statement(q, **kwargs)
+        result = self.bind_as_dataframe(result)
+        return result
+    
+    @staticmethod
+    def bind_as_dataframe(result: sqlalchemy.CursorResult) -> sqlalchemy.CursorResult:
+        '''Bind a new method to the result that converts it to a dataframe.'''
+        def as_dataframe() -> pd.DataFrame:
+            return pd.DataFrame(result.all())
+        result.df = as_dataframe
+        return result
+        
 
     #################### Insert Queries ####################
     def insert_multi(self, 
