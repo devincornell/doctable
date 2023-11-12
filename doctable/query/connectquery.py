@@ -43,7 +43,8 @@ class ConnectQuery:
             
             rows = self.select(cols, offset=offset, limit=chunksize, **kwargs).all()
             chunk = rows[:limit-offset] if limit is not None else rows
-            
+            if len(chunk) == 0:
+                break
             yield chunk
             
             offset += len(rows)
