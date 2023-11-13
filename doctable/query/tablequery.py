@@ -35,6 +35,32 @@ class TableQuery(typing.Generic[T]):
         self.cquery.commit()
 
     #################### Select Queries ####################
+    def select_chunks(self, 
+        cols: typing.List[sqlalchemy.Column] = None,
+        chunksize: int = 100, 
+        limit: int = None, 
+        **select_kwargs,
+    ) -> typing.Generator[typing.List[T]]:
+        ''' Performs select while querying only a subset of the results at a time. 
+            Use when results set will take too much memory.
+        '''
+        if cols is None:
+            cols = self.dtable.all_cols()
+        else:
+            try:
+                cols = [self.dtable[col] if isinstance(col, str) else col for col in cols]
+            except NotImplementedError as e:
+                raise NotImplementedError(f'Did you mean to pass a list to select?') from e
+            
+        result_gen = self.cquery.select_chunks(
+            cols=cols,
+            chunksize=chunksize,
+            limit=limit,
+            **select_kwargs,
+        )
+        for results in result_gen:
+            yield [self.dtable.schema.container_from_row(row) for row in results]
+
     def select(self, 
         cols: typing.Optional[typing.List[str]] = None,
         where: typing.Optional[sqlalchemy.sql.expression.BinaryExpression] = None,
