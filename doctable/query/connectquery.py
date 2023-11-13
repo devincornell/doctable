@@ -49,7 +49,7 @@ class ConnectQuery:
             
             offset += len(rows)
             
-            if len(rows) <= chunksize or (limit is not None and offset >= limit):
+            if len(rows) < chunksize or (limit is not None and offset >= limit):
                 break
     
     def select(self, 
