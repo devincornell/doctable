@@ -34,6 +34,14 @@ class TableSchemaInspector:
         '''Get the name of the table.'''
         return self.schema.table_name
     
+    def index_info_df(self) -> pd.DataFrame:
+        '''Get a dataframe of index information.'''
+        return pd.DataFrame(self.index_info())
+    
+    def index_info(self) -> typing.List[typing.Dict[str, typing.Any]]:
+        '''Get a dataframe of column information.'''
+        return [ii.info_dict() for ii in self.schema.indices]
+    
     def column_info_df(self) -> pd.DataFrame:
         '''Get a dataframe of column information.'''
         return pd.DataFrame(self.column_info())

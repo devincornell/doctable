@@ -48,3 +48,10 @@ class IndexInfo:
 
     def sqlalchemy_index(self) -> sqlalchemy.Index:
         return self.params.sqlalchemy_index(self.name)
+
+    def info_dict(self) -> typing.Dict[str, typing.Any]:
+        return {
+            'name': self.name,
+            'columns': ', '.join(self.params.column_names),
+            'kwargs': ', '.join([f'{k}: {v}' for k,v in self.params.kwargs.items()]),
+        }
