@@ -13,6 +13,14 @@ from typing import Any
 def type_mappings() -> typing.Dict[typing.Union[typing.Type,str], typing.Type[sqlalchemy.TypeClause]]:
     return ColumnTypeMatcher.type_hint_to_column_type_mapping
 
+class JSON(sqlalchemy.JSON):
+    '''Uses sqlalchemy's json mapping implementation.'''
+    pass
+
+class PickleType(sqlalchemy.PickleType):
+    '''Uses sqlalchemy's pickle mapping implementation.'''
+    pass
+
 class ColumnTypeMatcher:
     type_hint_to_column_type_mapping = {
         int: sqlalchemy.Integer,
@@ -23,11 +31,13 @@ class ColumnTypeMatcher:
         datetime: sqlalchemy.DateTime, # NOTE: datetime.datetime is subclass of datetime.date, so put it first
         time: sqlalchemy.Time,
         date: sqlalchemy.Date,
-        Any: sqlalchemy.PickleType,
+        PickleType: sqlalchemy.PickleType,
+        #Any: sqlalchemy.PickleType,
         'datetime.datetime': sqlalchemy.DateTime, # NOTE: datetime.datetime is subclass of datetime.date
         'datetime.time': sqlalchemy.Time, # NOTE: datetime.datetime is subclass of datetime.date
         'datetime.date': sqlalchemy.Date, # NOTE: datetime.datetime is subclass of datetime.date
-        'Any': sqlalchemy.PickleType,
+        #'Any': sqlalchemy.PickleType,
+        JSON: sqlalchemy.types.JSON,
     }
 
     @classmethod
