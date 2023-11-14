@@ -97,14 +97,16 @@ class ColumnInfo:
             col_type = self.estimate_sqlalchemy_type().__name__
         except AttributeError as e:
             col_type = self.estimate_sqlalchemy_type().__class__.__name__
+            
+        default = self.column_args.default
         return {
             'Col Name': self.final_name(),
             'Col Type': col_type,
             'Attr Name': self.attr_name,
-            'Hint': self.type_hint,
+            'Hint': self.type_hint.__name__,
             'Order': self.order_key(),
             'Primary Key': self.column_args.primary_key,
             'Foreign Key': self.column_args.foreign_key is not None,
             'Index': self.column_args.index,
-            'Default': self.column_args.default,
+            'Default': default.__name__ if default is not None else None,
         }
