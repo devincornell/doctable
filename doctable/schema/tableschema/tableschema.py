@@ -84,9 +84,14 @@ class TableSchema(typing.Generic[Container]):
         '''Get a dictionary representation of this schema for insertion, ignoring MISSING values.'''
         attr_to_col = self.name_mappings.attr_to_col
         try:
+            # NOTE: this old implementation does recursive serialization
+            #values = dataclasses.asdict(container).items()
+            #return {attr_to_col[k]:v for k,v in values if v is not MISSING}
+            
             # add type hint?  (Container is dataclasses.DataclassInstance)
-            values = dataclasses.asdict(container).items()
-            return {attr_to_col[k]:v for k,v in values if v is not MISSING}
+            fields = dataclasses.fields(container)
+            return {attr_to_col[f.name]:v for f in fields if (v := getattr(container, f.name)) is not MISSING}
+            
         except TypeError as e:
             raise TypeError(f'"{container}" is not a recognized container. '
                 'Use ConnectCore.insert if inserting raw dictionaries.') from e
