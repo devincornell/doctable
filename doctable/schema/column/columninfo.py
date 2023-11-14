@@ -71,6 +71,8 @@ class ColumnInfo:
         '''Guess sqlclehmy type here - use column_type_args for correct version.'''
         if self.column_args.sqlalchemy_type is not None:
             return self.column_args.sqlalchemy_type
+        elif self.column_args.use_type is not None:
+            return ColumnTypeMatcher.type_hint_to_column_type(self.column_args.use_type)
         else:
             return ColumnTypeMatcher.type_hint_to_column_type(self.type_hint)
     
