@@ -7,7 +7,7 @@ import sqlalchemy
 import functools
 import pandas as pd
 
-from .column import ColumnInfo, ColumnArgs
+from .column import ColumnInfo
 from .index import IndexInfo, IndexParams
 from .missing import MISSING
 
