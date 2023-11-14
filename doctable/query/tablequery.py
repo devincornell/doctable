@@ -96,7 +96,7 @@ class TableQuery(typing.Generic[T]):
 
     def insert_multi(self, 
         data: typing.List[T], 
-        ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
+        ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'FAIL',
         **kwargs
     ) -> sqlalchemy.engine.CursorResult:
         return self.cquery.insert_multi(
@@ -108,7 +108,7 @@ class TableQuery(typing.Generic[T]):
 
     def insert_single(self, 
         container_object: T, 
-        ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'fail',
+        ifnotunique: typing.Literal['FAIL', 'IGNORE', 'REPLACE'] = 'FAIL',
         **kwargs
     ) -> sqlalchemy.engine.CursorResult:
         ''' Insert a single element into the database using the .values() clause.
