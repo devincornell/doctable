@@ -42,8 +42,8 @@ type_hint_to_column_type = {
 
 
 def Column(
-    column_args: ColumnArgs = None,
-    field_args: FieldArgs = None,
+    column_args: typing.Optional[ColumnArgs] = None,
+    field_args: typing.Optional[FieldArgs] = None,
 ) -> dataclasses.field:
     '''Record column information in the metadata of a dataclass field.'''
     field_args = field_args if field_args is not None else FieldArgs()
@@ -143,26 +143,40 @@ class ColumnArgs:
             **self.sqlalchemy_column_kwargs(),
         )
 
-    def column_type_args(self, type_hint: typing.Union[type, str]) -> typing.Tuple[sqlalchemy.TypeClause]:
-        if sum([self.sqlalchemy_type is not None, len(self.type_kwargs) > 0]) > 1:
-            raise ValueError('Only one of sqlalchemy_type and type_hint can be provided.')
+    def column_type_args(self, type_hint: typing.Union[type, str]) -> typing.Union[typing.Tuple[sqlalchemy.ForeignKey], typing.Tuple[sqlalchemy.TypeClause, sqlalchemy.ForeignKey]]:
+        if self.sqlalchemy_type is not None and len(self.type_kwargs) > 0:
+            raise ValueError('Only one of sqlalchemy_type and type_kwargs can '
+                f'be provided. Add the kwargs to the type directly instead.')
         
-        fk = (sqlalchemy.ForeignKey(self.foreign_key),) if self.foreign_key is not None else ()
-
+        #fk = (sqlalchemy.ForeignKey(self.foreign_key),) if self.foreign_key is not None else ()
+        fk = sqlalchemy.ForeignKey(self.foreign_key) if self.foreign_key is not None else None
+        
         if self.sqlalchemy_type is not None:
-            return self.sqlalchemy_type + fk
+            return (self.sqlalchemy_type, fk)
         elif self.foreign_key is not None:
-            return fk
+            return (fk,)
         else:
-            for mth, mct in type_hint_to_column_type.items():
-                if self.type_hint_matches(type_hint, mth):
-                    return (mct(**self.type_kwargs),)
-            raise TypeError(f'"{type_hint}" does not map to a valid column '
-                f'type. Choose one of {type_hint_to_column_type.keys()}')
+            coltype = self.match_column_type(type_hint)
+            return (coltype(**self.type_kwargs),)
+            #for mth, mct in type_hint_to_column_type.items():
+            #    if self.type_hint_matches(type_hint, mth):
+            #        return (mct(**self.type_kwargs),)
+            #raise TypeError(f'"{type_hint}" does not map to a valid column '
+            #    f'type. Choose one of {type_hint_to_column_type.keys()}')
+            
+    @classmethod
+    def match_column_type(cls, type_hint: typing.Union[typing.Type, str]) -> typing.Type[sqlalchemy.TypeClause]:
+        '''Match type hint to sqlalchemy column type.'''
+        for mth, mct in type_hint_to_column_type.items():
+            if cls.type_hint_matches(type_hint, mth):
+                #return (mct(**self.type_kwargs),)
+                return mct
+        raise TypeError(f'"{type_hint}" does not map to a valid column '
+            f'type. Choose one of {type_hint_to_column_type.keys()}')
             
     @staticmethod
-    def type_hint_matches(type_hint: typing.Type, match_type_hint: typing.Type) -> bool:
-        '''Match type hint to sqlalchemy column type.'''
+    def type_hint_matches(type_hint: typing.Union[typing.Type, str], match_type_hint: typing.Type) -> bool:
+        '''Check if supplied type hint matches the given candidate.'''
         
         if type_hint == str(match_type_hint):
             return True
@@ -174,7 +188,7 @@ class ColumnArgs:
             pass
         
         try:
-            if issubclass(type_hint, match_type_hint):
+            if issubclass(type_hint, match_type_hint): # type: ignore
                 return True
         except TypeError as e:
             return False
@@ -242,5 +256,16 @@ class ColumnInfo:
         else:
             return self.column_args.column_name
 
-
+    def info_dict(self) -> typing.Dict[str, typing.Any]:
+        '''Get a dictionary of information about this column.'''
+        return {
+            'Column Name': self.final_name(),
+            'Attribute Name': self.attr_name,
+            'Type Hint': self.type_hint,
+            'SQLAlchemy Type': self.column_args.sqlalchemy_type,
+            'Order': self.column_args.order,
+            'Primary Key': self.column_args.primary_key,
+            'Index': self.column_args.index,
+            'Default': self.column_args.default,
+        }
 

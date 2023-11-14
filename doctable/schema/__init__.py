@@ -6,3 +6,4 @@ from .column import *
 from .index import *
 from .constraints import *
 
+from .tableschemainspector import TableSchemaInspector, inspect_schema
