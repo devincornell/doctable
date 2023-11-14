@@ -13,7 +13,7 @@ from .dbtablebase import DBTableBase
 if typing.TYPE_CHECKING:
     from ..connectcore import ConnectCore
 
-from ..schema import TableSchema, get_schema, Container
+from ..schema import TableSchema, Container, get_schema
     
 
 @dataclasses.dataclass

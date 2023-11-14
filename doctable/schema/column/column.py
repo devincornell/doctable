@@ -5,7 +5,6 @@ import dataclasses
 import sqlalchemy
 import datetime
 
-from ..missing import MISSING
 from .fieldargs import FieldArgs
 from .columnargs import ColumnArgs, set_column_args
 

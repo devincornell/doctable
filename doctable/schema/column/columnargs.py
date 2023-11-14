@@ -28,7 +28,8 @@ def get_column_args(field: dataclasses.Field) -> ColumnArgs:
 
 def set_column_args(metadata: typing.Dict[str,typing.Any], column_args: ColumnArgs):
     '''Check if a dataclass field has column args.'''
-    setattr(metadata, COLUMN_METADATA_ATTRIBUTE_NAME, column_args)
+    #setattr(metadata, COLUMN_METADATA_ATTRIBUTE_NAME, column_args)
+    metadata[COLUMN_METADATA_ATTRIBUTE_NAME] = column_args
 
 
 

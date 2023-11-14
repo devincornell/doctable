@@ -158,8 +158,9 @@ def test_schema_definitions():
         age: int = None
 
     assert(dataclasses.is_dataclass(TestContainer0))
-    assert(doctable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer0))
-    schema = getattr(TestContainer0, doctable.SCHEMA_ATTRIBUTE_NAME)
+    #assert(doctable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer0))
+    #schema = getattr(TestContainer0, doctable.SCHEMA_ATTRIBUTE_NAME)
+    schema = doctable.get_schema(TestContainer0)
     assert(schema.table_name == 'TestContainer0')
 
     # test the most basic usage
@@ -170,7 +171,7 @@ def test_schema_definitions():
         age: int
 
     assert(dataclasses.is_dataclass(TestContainer1))
-    assert(doctable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer1))
+    #assert(doctable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer1))
     schema = doctable.get_schema(TestContainer1)
     assert(schema.table_name == 'TestContainer1')
 
@@ -199,8 +200,9 @@ def test_schema_definitions():
         
     
     assert(dataclasses.is_dataclass(TestContainer2))
-    assert(doctable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer2))
-    schema = getattr(TestContainer2, doctable.SCHEMA_ATTRIBUTE_NAME)
+    #assert(doctable.SCHEMA_ATTRIBUTE_NAME in dir(TestContainer2))
+    #schema = getattr(TestContainer2, doctable.SCHEMA_ATTRIBUTE_NAME)
+    schema = doctable.get_schema(TestContainer2)
     assert(schema.table_name == 'TestContainer2')
     
     @doctable.table_schema(
@@ -211,7 +213,8 @@ def test_schema_definitions():
         age: int
         id: int = doctable.Column(column_args=doctable.ColumnArgs(order=0, primary_key=True, autoincrement=True))
     
-    schema = getattr(TestContainer3, doctable.SCHEMA_ATTRIBUTE_NAME)
+    #schema = getattr(TestContainer3, doctable.SCHEMA_ATTRIBUTE_NAME)
+    schema = doctable.get_schema(TestContainer3)
     assert(schema.table_name == 'mytable')
 
     tc = TestContainer3(id=1, name='a', age=10)

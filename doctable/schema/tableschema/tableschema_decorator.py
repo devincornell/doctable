@@ -7,7 +7,6 @@ import functools
 
 import copy
 
-from .column import ColumnInfo
 from .index import IndexInfo, IndexParams
 
 from .tableschema import TableSchema

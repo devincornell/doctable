@@ -5,9 +5,9 @@ import dataclasses
 import sqlalchemy
 import functools
 
-from .column import ColumnInfo
+from ..column import ColumnInfo
 from .index import IndexInfo, IndexParams
-from .missing import MISSING
+from ..missing import MISSING
 
 from .general import set_schema, get_schema, Container
 

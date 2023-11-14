@@ -7,10 +7,6 @@ import sqlalchemy
 import functools
 import pandas as pd
 
-from .column import ColumnInfo
-from .index import IndexInfo, IndexParams
-from .missing import MISSING
-
 from .general import set_schema, get_schema, Container
 
 from .tableschema import TableSchema
