@@ -63,11 +63,13 @@ class ColumnInfo:
             # sqlachemy type not provided and not a foreign key
             coltype = ColumnTypeMatcher.type_hint_to_column_type(self.type_hint)
             return (coltype(**self.column_args.type_kwargs),)
-        
-
-    def order_key(self) -> typing.Tuple[float, str]:
-        '''Key used to generate column ordering.'''
-        return (self.column_args.order, self.defined_order)
+    
+    def estimate_sqlalchemy_type(self) -> sqlalchemy.TypeClause:
+        '''Guess sqlclehmy type here - use column_type_args for correct version.'''
+        if self.column_args.sqlalchemy_type is not None:
+            return self.column_args.sqlalchemy_type
+        else:
+            return ColumnTypeMatcher.type_hint_to_column_type(self.type_hint)
     
     
     ############# Names #############
@@ -80,17 +82,26 @@ class ColumnInfo:
             return self.attr_name
         else:
             return self.column_args.column_name
+        
+    def order_key(self) -> typing.Tuple[float, str]:
+        '''Key used to generate column ordering.'''
+        return (self.column_args.order, self.defined_order)
 
     ############# For inspection #############
     def info_dict(self) -> typing.Dict[str, typing.Any]:
         '''Get a human-readable dictionary of information about this column.'''
+        try:
+            col_type = self.estimate_sqlalchemy_type().__name__
+        except AttributeError as e:
+            col_type = self.estimate_sqlalchemy_type().__class__.__name__
         return {
-            'Column Name': self.final_name(),
-            'Attribute Name': self.attr_name,
-            'Type Hint': self.type_hint,
-            'SQLAlchemy Type': self.column_args.sqlalchemy_type,
-            'Order': self.column_args.order,
+            'Col Name': self.final_name(),
+            'Col Type': col_type,
+            'Attr Name': self.attr_name,
+            'Hint': self.type_hint,
+            'Order': self.order_key(),
             'Primary Key': self.column_args.primary_key,
+            'Foreign Key': self.column_args.foreign_key is not None,
             'Index': self.column_args.index,
             'Default': self.column_args.default,
         }

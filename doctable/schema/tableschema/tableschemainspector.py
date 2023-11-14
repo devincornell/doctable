@@ -30,6 +30,10 @@ class TableSchemaInspector:
             raise ValueError(f'The provided container '
                 f'{type(container)} is not a proper schema.')
     
+    def table_name(self) -> str:
+        '''Get the name of the table.'''
+        return self.schema.table_name
+    
     def column_info_df(self) -> pd.DataFrame:
         '''Get a dataframe of column information.'''
         return pd.DataFrame(self.column_info())
