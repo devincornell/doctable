@@ -67,8 +67,8 @@ class TableSchema(typing.Generic[Container]):
     @staticmethod
     def parse_column_infos(container_type: typing.Type[Container]) -> typing.List[ColumnInfo]:
         '''Get column infos from a container type.'''
-        infos = [ColumnInfo.from_field(field) for field in dataclasses.fields(container_type)]
-        return list(sorted(infos, key=lambda ci: ci.compare_key()))
+        infos = [ColumnInfo.from_field(field, i) for i, field in enumerate(dataclasses.fields(container_type))]
+        return list(sorted(infos, key=lambda ci: ci.order_key()))
 
     #################### Converting to/from Container Types ####################
     def container_from_row(self, row: sqlalchemy.Row) -> Container:

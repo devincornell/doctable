@@ -6,7 +6,6 @@ import sqlalchemy
 import datetime
 
 from ..missing import MISSING
-from .column_types import ColumnTypeMatcher
 
 
 
@@ -73,47 +72,19 @@ class ColumnArgs:
     comment: str = None
     other_kwargs: typing.Dict[str, typing.Any] = dataclasses.field(default_factory=dict)
 
-    def sqlalchemy_column(self, 
-        type_hint: typing.Union[str, type], 
-        attr_name: str
-    ) -> sqlalchemy.Column:
-        '''Get a sqlalchemy column from this column info.
-            Raises KeyError if there is no match.
-        '''
-        if self.column_name is not None:
-            name = self.column_name
-        else:
-            name = attr_name
+    def __post_init__(self):
+        self.check_valid()
 
-        return sqlalchemy.Column(
-            name,
-            *self.column_type_args(type_hint),
-            **self.sqlalchemy_column_kwargs(),
-        )
-
-    def column_type_args(self, type_hint: typing.Union[type, str]) -> typing.Union[typing.Tuple[sqlalchemy.ForeignKey], typing.Tuple[sqlalchemy.TypeClause, sqlalchemy.ForeignKey]]:
+    def check_valid(self):
+        '''Used to check whether the result is valid after creation.'''
         if self.sqlalchemy_type is not None and len(self.type_kwargs) > 0:
             raise ValueError('Only one of sqlalchemy_type and type_kwargs can '
-                f'be provided. Add the kwargs to the type directly instead.')
-        
-        #fk = (sqlalchemy.ForeignKey(self.foreign_key),) if self.foreign_key is not None else ()
-        fk = sqlalchemy.ForeignKey(self.foreign_key) if self.foreign_key is not None else None
-        
-        if self.sqlalchemy_type is not None:
-            return (self.sqlalchemy_type, fk)
-        elif self.foreign_key is not None:
-            return (fk,)
-        else:
-            coltype = ColumnTypeMatcher.type_hint_to_column_type(type_hint)
-            return (coltype(**self.type_kwargs),)
-            #for mth, mct in type_hint_to_column_type.items():
-            #    if self.type_hint_matches(type_hint, mth):
-            #        return (mct(**self.type_kwargs),)
-            #raise TypeError(f'"{type_hint}" does not map to a valid column '
-            #    f'type. Choose one of {type_hint_to_column_type.keys()}')
-            
-        
-
+                f'be provided. Add the kwargs to the type directly instead.')    
+    
+    def sqlalchemy_foreign_key(self) -> typing.Union[sqlalchemy.ForeignKey, None]:
+        '''Get a foreign key object or None.'''
+        return sqlalchemy.ForeignKey(self.foreign_key) if self.foreign_key is not None else None
+    
     def sqlalchemy_column_kwargs(self) -> typing.Dict[str, typing.Any]:
         return dict(
             autoincrement=self.autoincrement,
