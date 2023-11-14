@@ -37,13 +37,6 @@ class ColumnInfo:
         )
     
     ############# Column Creation #############
-    
-    #def sqlalchemy_column(self) -> sqlalchemy.Column:
-    #    '''Get a sqlalchemy column from this column info.'''
-    #    return self.column_args.sqlalchemy_column(
-    #        type_hint=self.type_hint,
-    #        attr_name=self.attr_name,
-    #    )
     def sqlalchemy_column(self, 
     ) -> sqlalchemy.Column:
         '''Get a sqlalchemy column from this column info.
