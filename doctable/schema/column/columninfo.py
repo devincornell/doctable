@@ -59,6 +59,9 @@ class ColumnInfo:
             return (self.column_args.sqlalchemy_type,) + fk
         elif len(fk):
             return fk # infer column type from foreign key
+        elif self.column_args.use_type is not None:
+            coltype = ColumnTypeMatcher.type_hint_to_column_type(self.column_args.use_type)
+            return (coltype(**self.column_args.type_kwargs),)
         else:
             # sqlachemy type not provided and not a foreign key
             coltype = ColumnTypeMatcher.type_hint_to_column_type(self.type_hint)

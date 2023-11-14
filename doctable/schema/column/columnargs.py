@@ -41,6 +41,7 @@ class ColumnArgs:
         order: order of column in table (non-numbered appear after numbered)
         column_name: use when column is different from object attribute
         type_kwargs: keyword arguments to pass to sqlalchemy type. only used when type inferred from python type hint
+        use_type: use this type instead of inferring from python type hint
         sqlalchemy_type: type of column in database using sqlachemy types (any kwargs should be passed directly here)
         autoincrement: whether to autoincrement the column
         nullable: whether the column can be null
@@ -58,6 +59,7 @@ class ColumnArgs:
     order: int = float('inf')
     column_name: str = None
     type_kwargs: typing.Dict[str, typing.Any] = dataclasses.field(default_factory=dict)
+    use_type: typing.Optional[typing.Type] = None
     sqlalchemy_type: typing.Optional[sqlalchemy.TypeClause] = None# provide an sqlalchemy type
     autoincrement: bool = False
     nullable: bool = True
@@ -80,6 +82,9 @@ class ColumnArgs:
         if self.sqlalchemy_type is not None and len(self.type_kwargs) > 0:
             raise ValueError('Only one of sqlalchemy_type and type_kwargs can '
                 f'be provided. Add the kwargs to the type directly instead.')    
+        if self.use_type is not None and self.sqlalchemy_type is not None:
+            raise ValueError('Only one of use_type and sqlalchemy_type can '
+                f'be provided. Use sqlalchemy_type to pass kwargs to type.')
     
     def sqlalchemy_foreign_key(self) -> typing.Union[sqlalchemy.ForeignKey, None]:
         '''Get a foreign key object or None.'''
