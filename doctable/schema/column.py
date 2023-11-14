@@ -9,6 +9,10 @@ from .missing import MISSING
 
 COLUMN_METADATA_ATTRIBUTE_NAME = '_column_args'
 
+def has_column_args(field: dataclasses.Field) -> bool:
+    '''Check if a dataclass field has column args.'''
+    return COLUMN_METADATA_ATTRIBUTE_NAME in field.metadata
+
 def get_column_args(field: dataclasses.Field) -> ColumnArgs:
     '''Get the column args from a dataclass field.'''
     try:
@@ -17,10 +21,12 @@ def get_column_args(field: dataclasses.Field) -> ColumnArgs:
         raise KeyError(f'"{field.name}" does not have column args attached. '
             'Use table_schema decorator to add column args.') from e
 
-def has_column_args(field: dataclasses.Field) -> bool:
+def set_column_args(metadata: typing.Dict[str,typing.Any], column_args: ColumnArgs):
     '''Check if a dataclass field has column args.'''
-    return COLUMN_METADATA_ATTRIBUTE_NAME in field.metadata
-
+    setattr(metadata, COLUMN_METADATA_ATTRIBUTE_NAME, column_args)
+    
+    
+    
 
 from datetime import date, time, datetime
 from typing import Any
@@ -41,6 +47,66 @@ type_hint_to_column_type = {
 }
 
 
+@dataclasses.dataclass
+class ColumnInfo:
+    '''Contains all information needed to create a column in a database.'''
+    attr_name: str # name of attribute in data container
+    type_hint: type
+    column_args: ColumnArgs
+    
+    @classmethod
+    def default(cls, attr_name: str, type_hint: type) -> ColumnInfo:
+        '''Get column info from only a sqlalchemy type.'''
+        return cls(
+            attr_name=attr_name,
+            type_hint=type_hint,
+            column_args=ColumnArgs(),
+        )
+
+    @classmethod
+    def from_field(cls, field: dataclasses.Field) -> ColumnInfo:
+        '''Get column info from a dataclass field after dataclass is created.'''
+        return cls(
+            attr_name=field.name,
+            type_hint=field.type,
+            column_args=get_column_args(field) if has_column_args(field) else ColumnArgs(),
+        )
+    
+    def sqlalchemy_column(self) -> sqlalchemy.Column:
+        '''Get a sqlalchemy column from this column info.'''
+        return self.column_args.sqlalchemy_column(
+            type_hint=self.type_hint,
+            attr_name=self.attr_name,
+        )
+
+    def compare_key(self) -> typing.Tuple[float, str]:
+        return (self.column_args.order, self.final_name())
+    
+    def name_translation(self) -> typing.Tuple[str, str]:
+        '''Get (attribute, column) name pairs.'''
+        return self.attr_name, self.final_name()
+    
+    def final_name(self) -> str:
+        if self.column_args.column_name is None:
+            return self.attr_name
+        else:
+            return self.column_args.column_name
+
+    def info_dict(self) -> typing.Dict[str, typing.Any]:
+        '''Get a dictionary of information about this column.'''
+        return {
+            'Column Name': self.final_name(),
+            'Attribute Name': self.attr_name,
+            'Type Hint': self.type_hint,
+            'SQLAlchemy Type': self.column_args.sqlalchemy_type,
+            'Order': self.column_args.order,
+            'Primary Key': self.column_args.primary_key,
+            'Index': self.column_args.index,
+            'Default': self.column_args.default,
+        }
+
+
+
 def Column(
     column_args: typing.Optional[ColumnArgs] = None,
     field_args: typing.Optional[FieldArgs] = None,
@@ -49,10 +115,15 @@ def Column(
     field_args = field_args if field_args is not None else FieldArgs()
     column_args = column_args if column_args is not None else ColumnArgs()
 
-    metadata = {
-        **field_args.metadata, 
-        COLUMN_METADATA_ATTRIBUTE_NAME: column_args,
-    }
+    # bind column args to metadata
+    #metadata = {
+    #    **field_args.metadata, 
+    #    COLUMN_METADATA_ATTRIBUTE_NAME: column_args,
+    #}
+    # replaces above (consistent with the getter/setter pattern)
+    metadata = dict(field_args.metadata) if field_args.metadata is not None else dict()
+    set_column_args(metadata, column_args)
+    
     fields_without_metadata = field_args.dict_without_metadata()
     try:
         return dataclasses.field(metadata=metadata, **fields_without_metadata)
@@ -60,30 +131,6 @@ def Column(
         del fields_without_metadata['kw_only']
         return dataclasses.field(metadata=metadata, **fields_without_metadata)
 
-@dataclasses.dataclass
-class FieldArgs:
-    '''Creates kwargs dict to be passed to dataclasses.field. Read about args here:
-        https://docs.python.org/3/library/dataclasses.html
-    '''
-    default: typing.Any = MISSING # dataclass.field: default value for column
-    default_factory: typing.Optional[typing.Callable[[], typing.Any]] = MISSING # default factory for column
-    repr: bool = True # dataclass.field: whether to include in repr
-    hash: bool = None # dataclass.field: whether to include in hash
-    init: bool = True # dataclass.field: whether to include in init
-    compare: bool = True # dataclass.field: whether to include in comparison
-    kw_only: bool = MISSING # dataclass.field: whether to include in kw_only
-    metadata: typing.Optional[typing.Dict[str, typing.Any]] = dataclasses.field(default_factory=dict) # dataclass.field: metadata to include in field
-
-    def dict_without_metadata(self) -> typing.Dict[str, typing.Any]:
-        v = dataclasses.asdict(self)
-        del v['metadata']
-
-        # this is a hack to get around the fact that this dataclass uses the same
-        # default value that the dataclasses.field argument does (dataclasses.MISSING)
-        # this is the best way I could think of
-        if self.default_factory is MISSING:
-            v['default_factory'] = dataclasses.MISSING
-        return v
 
 @dataclasses.dataclass
 class ColumnArgs:
@@ -211,61 +258,32 @@ class ColumnArgs:
             **self.other_kwargs,
         )
 
+
 @dataclasses.dataclass
-class ColumnInfo:
-    '''Contains all information needed to create a column in a database.'''
-    attr_name: str # name of attribute in data container
-    type_hint: type
-    column_args: ColumnArgs
-    
-    @classmethod
-    def default(cls, attr_name: str, type_hint: type) -> ColumnInfo:
-        '''Get column info from only a sqlalchemy type.'''
-        return cls(
-            attr_name=attr_name,
-            type_hint=type_hint,
-            column_args=ColumnArgs(),
-        )
+class FieldArgs:
+    '''Creates kwargs dict to be passed to dataclasses.field. Read about args here:
+        https://docs.python.org/3/library/dataclasses.html
+    '''
+    default: typing.Any = MISSING # dataclass.field: default value for column
+    default_factory: typing.Optional[typing.Callable[[], typing.Any]] = MISSING # default factory for column
+    repr: bool = True # dataclass.field: whether to include in repr
+    hash: bool = None # dataclass.field: whether to include in hash
+    init: bool = True # dataclass.field: whether to include in init
+    compare: bool = True # dataclass.field: whether to include in comparison
+    kw_only: bool = MISSING # dataclass.field: whether to include in kw_only
+    metadata: typing.Optional[typing.Dict[str, typing.Any]] = dataclasses.field(default_factory=dict) # dataclass.field: metadata to include in field
 
-    @classmethod
-    def from_field(cls, field: dataclasses.Field) -> ColumnInfo:
-        '''Get column info from a dataclass field after dataclass is created.'''
-        return cls(
-            attr_name=field.name,
-            type_hint=field.type,
-            column_args=get_column_args(field) if has_column_args(field) else ColumnArgs(),
-        )
-    
-    def sqlalchemy_column(self) -> sqlalchemy.Column:
-        '''Get a sqlalchemy column from this column info.'''
-        return self.column_args.sqlalchemy_column(
-            type_hint=self.type_hint,
-            attr_name=self.attr_name,
-        )
+    def dict_without_metadata(self) -> typing.Dict[str, typing.Any]:
+        v = dataclasses.asdict(self)
+        del v['metadata']
 
-    def compare_key(self) -> typing.Tuple[float, str]:
-        return (self.column_args.order, self.final_name())
-    
-    def name_translation(self) -> typing.Tuple[str, str]:
-        '''Get (attribute, column) name pairs.'''
-        return self.attr_name, self.final_name()
-    
-    def final_name(self) -> str:
-        if self.column_args.column_name is None:
-            return self.attr_name
-        else:
-            return self.column_args.column_name
+        # this is a hack to get around the fact that this dataclass uses the same
+        # default value that the dataclasses.field argument does (dataclasses.MISSING)
+        # this is the best way I could think of
+        if self.default_factory is MISSING:
+            v['default_factory'] = dataclasses.MISSING
+        return v
 
-    def info_dict(self) -> typing.Dict[str, typing.Any]:
-        '''Get a dictionary of information about this column.'''
-        return {
-            'Column Name': self.final_name(),
-            'Attribute Name': self.attr_name,
-            'Type Hint': self.type_hint,
-            'SQLAlchemy Type': self.column_args.sqlalchemy_type,
-            'Order': self.column_args.order,
-            'Primary Key': self.column_args.primary_key,
-            'Index': self.column_args.index,
-            'Default': self.column_args.default,
-        }
+
+
 
