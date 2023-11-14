@@ -50,6 +50,9 @@ class FieldArgs:
         # this is the best way I could think of
         if self.default_factory is MISSING:
             v['default_factory'] = dataclasses.MISSING
+        else:
+            v['default'] = dataclasses.MISSING
+            
         if self.kw_only is MISSING:
             v['kw_only'] = dataclasses.MISSING
         
