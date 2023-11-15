@@ -14642,7 +14642,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="nd">@doctable</span><span class="o">.</span><span class="n">table_schema</span>
@@ -14703,7 +14703,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="n">core</span><span class="o">.</span><span class="n">query</span><span class="p">()</span> <span class="k">as</span> <span class="n">q</span><span class="p">:</span>
@@ -14711,7 +14711,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
         <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'Devin J. Cornell'</span><span class="p">,</span> <span class="s1">'age'</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
         <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'Dorothy Andrews'</span><span class="p">,</span> <span class="s1">'age'</span><span class="p">:</span> <span class="mi">49</span><span class="p">},</span>
     <span class="p">])</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">tab0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">tab0</span><span class="o">.</span><span class="n">all_cols</span><span class="p">())</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
 </pre></div>
 
      </div>
@@ -14747,7 +14747,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="n">tab0</span><span class="o">.</span><span class="n">query</span><span class="p">()</span> <span class="k">as</span> <span class="n">q</span><span class="p">:</span>
@@ -14788,7 +14788,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
@@ -14840,7 +14840,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>[{&#39;name&#39;: &#39;id&#39;, &#39;type&#39;: INTEGER(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 1}, {&#39;name&#39;: &#39;added&#39;, &#39;type&#39;: DATETIME(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}, {&#39;name&#39;: &#39;age&#39;, &#39;type&#39;: INTEGER(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}, {&#39;name&#39;: &#39;name&#39;, &#39;type&#39;: VARCHAR(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}, {&#39;name&#39;: &#39;updated&#39;, &#39;type&#39;: DATETIME(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}]
 MyContainer1(name=&#39;John Doe&#39;, age=30, id=MISSING, updated=MISSING, added=MISSING)
-[MyContainer1(name=&#39;John Doe&#39;, age=30, id=1, updated=datetime.datetime(2023, 11, 3, 13, 29, 18, 988161), added=datetime.datetime(2023, 11, 3, 13, 29, 18, 988156))]
+[MyContainer1(name=&#39;John Doe&#39;, age=30, id=1, updated=datetime.datetime(2023, 11, 14, 15, 3, 48, 302621), added=datetime.datetime(2023, 11, 14, 15, 3, 48, 302618))]
 </pre>
 </div>
 </div>
