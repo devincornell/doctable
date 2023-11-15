@@ -14,7 +14,7 @@ if typing.TYPE_CHECKING:
     from ..connectcore import ConnectCore
 
 from ..schema import TableSchema, Container, get_schema
-    
+from ..query import TableQuery
 
 @dataclasses.dataclass
 class DBTable(DBTableBase, typing.Generic[Container]):
@@ -59,3 +59,6 @@ class DBTable(DBTableBase, typing.Generic[Container]):
         )
         
     
+    def query(self) -> TableQuery:
+        '''Return a TableQuery object for querying this table.'''
+        return TableQuery.from_dbtable(self)

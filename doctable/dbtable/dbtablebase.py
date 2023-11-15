@@ -6,7 +6,6 @@ from typing import Any
 #if typing.TYPE_CHECKING:
 import sqlalchemy
 
-from ..query import TableQuery
 
 if typing.TYPE_CHECKING:
     from ..connectcore import ConnectCore
@@ -66,9 +65,5 @@ class DBTableBase:
     @property
     def name(self) -> str:
         return self.table.name
-    
-    def query(self) -> TableQuery:
-        '''Return a TableQuery object for querying this table.'''
-        return TableQuery.from_dbtable(self)
 
 
