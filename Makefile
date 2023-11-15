@@ -92,7 +92,12 @@ test_examples: uninstall
 	# cleanup temp folder
 	-rm -r $(TMP_TEST_FOLDER)
 
-test: pytest test_examples
+test_commands: uninstall
+	# test command line interface
+	python -m doctable execute ":memory:" --docs "c.inspect_table_names()"
+	python -m doctable execute ":memory:" "c.inspect_table_names()"
+
+test: pytest test_examples test_commands
 tests: test # alias	
 
 	
