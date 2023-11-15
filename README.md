@@ -34,6 +34,8 @@ For sqlalchemy <= 1.4: `pip install --upgrade git+https://github.com/devincornel
 
 + The `Column` function replaces `Col` as generic default parameter values with more fine-grained control over column properties. This function provides a clearer separation between parameters that affect the behavior of the object as a dataclass (supplied as a `FieldArgs` object) and those that affect the database column schema (supplied via a `ColumnArgs` object).
 
++ **New command line interface**: you may execute doctable functions through the command line. Just use `python -m doctable execute {args here}` to see how to use it.
+
 ---
 
 ## Examples
