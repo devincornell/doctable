@@ -219,7 +219,7 @@ class ConnectCore:
         '''Wraps Inspector.get_indexes(tabname).'''
         return self.inspector().get_indexes(table_name)
     
-    def list_tables(self) -> typing.List[str]:
+    def inspect_table_names(self) -> typing.List[str]:
         '''Provide a list of table names by wrapping Inspector.get_table_names(tabname).'''
         return self.inspector().get_table_names()
     
