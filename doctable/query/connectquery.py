@@ -217,7 +217,9 @@ class ConnectQuery:
     def execute_sql(self, query_str: str, *args, **kwargs) -> sqlalchemy.engine.CursorResult:
         '''Execute raw sql query.'''
         query_str = ' '.join(query_str.split('\n'))
-        return self.conn.execute(sqlalchemy.text(query_str), *args, **kwargs)
+        result = self.conn.execute(sqlalchemy.text(query_str), *args, **kwargs)
+        self.bind_as_dataframe(result)
+        return result
 
     @staticmethod
     def is_sequence(obj: typing.Any) -> bool:
