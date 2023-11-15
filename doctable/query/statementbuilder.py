@@ -17,7 +17,10 @@ class StatementBuilder:
     ) -> sqlalchemy.sql.Select:
         '''Build and exectute select query given all the conditionals provided as parameters.'''
         
-        q: sqlalchemy.sql.Select = sqlalchemy.sql.select(*cols)
+        try:
+            q: sqlalchemy.sql.Select = sqlalchemy.sql.select(*cols)
+        except NotImplementedError as e:
+            raise NotImplementedError(f'Did you mean to pass a list of columns to select?') from e
         
         if where is not None:
             q = q.where(where)
