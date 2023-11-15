@@ -214,8 +214,9 @@ class ConnectQuery:
         '''Execute a query using a query builder object.'''
         return self.conn.execute(query, *args, **kwargs)
     
-    def execute_string(self, query_str: str, *args, **kwargs) -> sqlalchemy.engine.CursorResult:
+    def execute_sql(self, query_str: str, *args, **kwargs) -> sqlalchemy.engine.CursorResult:
         '''Execute raw sql query.'''
+        query_str = ' '.join(query_str.split('\n'))
         return self.conn.execute(sqlalchemy.text(query_str), *args, **kwargs)
 
     @staticmethod

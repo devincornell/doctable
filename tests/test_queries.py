@@ -30,7 +30,7 @@ def test_query(test_table: str = 'test1'):
 
     # alternatively, do the same thing with query()
     with ce.query() as q:
-        r = q.execute_string(
+        r = q.execute_sql(
             f"INSERT INTO {test_table} (name, age) VALUES (:name, :age)",
             [{"name": 'a', "age": 1}, {"name": 'b', "age": 4}],
         )
