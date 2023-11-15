@@ -169,7 +169,7 @@ class ConnectCore:
         '''
         return self.engine.connect()
     
-    def list_tables(self) -> typing.List[str]:
+    def metadata_tables(self) -> typing.List[str]:
         ''' List table names in database connection.
         '''
         # TODO: is this wrong? mypy says it is wrong.
@@ -192,7 +192,7 @@ class ConnectCore:
         '''
         #for tabname in self.list_tables():
         #    self.add_table(tabname, **kwargs)
-        return self.metadata.reflect(**kwargs)
+        return self.metadata.reflect(self.engine, **kwargs)
     
     def create_all_tables(self) -> None:
         ''' Create all tables in metadata. Must be used when creating new tables!!
@@ -219,8 +219,8 @@ class ConnectCore:
         '''Wraps Inspector.get_indexes(tabname).'''
         return self.inspector().get_indexes(table_name)
     
-    def inspect_table_names(self) -> typing.List[str]:
-        '''Wraps Inspector.get_indexes(tabname).'''
+    def list_tables(self) -> typing.List[str]:
+        '''Provide a list of table names by wrapping Inspector.get_table_names(tabname).'''
         return self.inspector().get_table_names()
     
     def inspector(self) -> sqlalchemy.engine.Inspector:
