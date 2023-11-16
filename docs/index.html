@@ -95,7 +95,7 @@
       <div class="row h-100 align-items-center">
         <div class="col-lg-12">
           <h3 class="display-4 text-white mt-5 mb-2">Databases for text analysis</h3>
-          <p class="lead mb-5 text-white-50"><span style='font-family: "Lucida Console", Monaco, monospace;'>doctable</span> is a Python package for designing and manipulating database tables through a non-ORM object-oriented interface.</p>
+          <p class="lead mb-5 text-white-50"><span style='font-family: "Lucida Console", Monaco, monospace;'>doctable</span> is a Python package for designing and manipulating database tables through an object-oriented interface without ORM.</p>
 		      <img src="https://storage.googleapis.com/public_data_09324832787/website_diagram_v5.svg" style="width:80%"/>
         </div>
       </div>
@@ -110,23 +110,30 @@
         <!--<br/>-->
         <!--<h2>Here's the thing.</h2>-->
         
-        <h4>Doctable is getting a new interface!</h4>
-        <p>I recently updated doctable with an entirely new API to improve on some of the limitations of the previous interface and better match the new [Sqlalchemy 2.0](https://www.sqlalchemy.org/) interface. Inspired by the [attrs project](https://www.attrs.org/en/stable/names.html), I used different names for functions and classes to make it clear that the interface has changed and open the possibility for backwards compatibility with upgraded internals in the future. I decided to create the new API from scratch as it would have been more difficult to start from the old interface and improve incrementally, and I think the new interface works significantly better for the kinds of applications I have been using doctable for anyways. For now, stick to installing from the legacy repository when using sqlalchemy <= 1.4, and the master repository for sqlalchemy >= 2.0.</p>
-
-        <p>For an introduction to the new interface, see the <a href="examples/iris_example.html">iris dataset example</a>.</p>
+        <h3 id="doctable-has-a-new-interface-">Doctable has a new interface!</h2>
+        <p>The package has been updated with an entirely new API to improve on previous limitations and better match the <a href="https://www.sqlalchemy.org/">Sqlalchemy 2.0</a> interface. Inspired by the <a href="https://www.attrs.org/en/stable/names.html">attrs project</a>, I used different names for functions and classes to make it clear that the interface has changed and open the possibility for backwards compatibility with upgraded internals in the future. </p>
+        <p>For now, stick to installing from the <code>legacy</code> branch when using sqlalchemy &lt;= 1.4, and the <code>master</code> branch for sqlalchemy &gt;= 2.0.</p>
+        <hr>
+        <h2 id="installation">Installation</h2>
+        <p>From <a href="https://pypi.org/project/doctable/">Python Package Index</a>: <code>pip install doctable</code></p>
+        <p>For sqlalchemy &gt;= 2.0: <code>pip install --upgrade git+https://github.com/devincornell/doctable.git@master</code></p>
+        <p>For sqlalchemy &lt;= 1.4: <code>pip install --upgrade git+https://github.com/devincornell/doctable.git@legacy</code></p>
+        <hr>
+        <h3 id="changes-in-version-2-0">Changes in Version 2.0</h2>
+        <ul>
+          <li><p>Create database connections using <code>ConnectCore</code> objects instead of <code>ConnectEngine</code> or <code>DocTable</code> objects.</p>
+          </li>
+          <li><p>Database tables represented by <code>DBTable</code> objects instead of <code>DocTable</code> objects. All <code>DBTable</code> instances originate from a <code>ConnectCore</code> object.</p>
+          </li>
+          <li><p>Create schemas using the <code>doctable.table_schema</code> decorator instead of the <code>doctable.schema</code> decorator. This new decorator includes constraint and index parameters as well as those for the <code>dataclass</code> objects.</p>
+          </li>
+          <li><p>The <code>Column</code> function replaces <code>Col</code> as generic default parameter values with more fine-grained control over column properties. This function provides a clearer separation between parameters that affect the behavior of the object as a dataclass (supplied as a <code>FieldArgs</code> object) and those that affect the database column schema (supplied via a <code>ColumnArgs</code> object).</p>
+          </li>
+          <li><p><strong>New command line interface</strong>: you may execute doctable functions through the command line. Just use <code>python -m doctable execute {args here}</code> to see how to use it.</p>
+          </li>
+        </ul>
         
-        Features:
-        <ol>
-          <li>Define database schemas from object definitions that encapsulte inserted and retrieved data.</li>
-        </ol>
-
-        <hr/>
-        <h5>Installation</h5>
-        From [Python Package Index](https://pypi.org/project/doctable/): <pre><code>pip install doctable</code></pre>
-        For sqlalchemy >= 2.0: <pre><code>pip install --upgrade git+https://github.com/devincornell/doctable.git@master</code></pre>
-        For sqlalchemy <= 1.4: <pre><code>pip install --upgrade git+https://github.com/devincornell/doctable.git@legacy</code></pre>
-
-        <h3>Modern API</h3>
+        <h3>Documentation</h3>
         TODO
 
         <h3>Legacy API</h3>
