@@ -136,9 +136,12 @@
         <h3>Documentation</h3>
         TODO
 
+        <br/><hr/><br/>
+
+
         <h3>Legacy API</h3>
         <hr/>
-        <h4 id='DocTable'><pre>DocTable</pre></h4>
+        <h5 id='DocTable'><pre>DocTable</pre></h5>
           <a class="btn btn-outline-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> 
           <a class="btn btn-outline-primary btn-sm" href="ref/doctable/doctable.html">API &raquo;</a> 
           <a class="btn btn-outline-primary btn-sm" href="examples/example_nss_1_intro.html">Vignette &raquo;</a></h3>
@@ -162,9 +165,9 @@
           </li>
           <li>Low-level connections: <i><a href="examples/doctable_connectengine.html">ConnectEngine examples</a></i></li>
         </ul>
-        <br/><hr/>
+        <br/>
 
-        <h3 id='ParsePipeline'><pre>ParsePipeline</pre><a class="btn btn-outline-primary btn-sm" href="examples/parse_parsepipeline.html">Overview &raquo;</a></h3>
+        <h5 id='ParsePipeline'><pre>ParsePipeline</pre><a class="btn btn-outline-primary btn-sm" href="examples/parse_parsepipeline.html">Overview &raquo;</a></h5>
         <p>Various tools for parsing and storing documents into databases.</p>
         <!--<h5>Examples</h5>-->
         <ul>
@@ -181,9 +184,9 @@
             <i><a href="ref/doctable/parse/documents/parsetreedoc.html">ParseTreeDoc API</a></i>
           </li>
         </ul>
-        <br/><hr/>
+        <br/>
 
-        <h3 id='other_utilities'>Other Utilities</h3>
+        <h5 id='other_utilities'>Other Utilities</h5>
         <p><code>doctable</code> includes a number of other tools for text analysis and database management.</p>
         <ul>
           <!--<li><a href="ref/doctable/util/distribute.html">Distribute</a>: distributed processing interface similar to that used by <code>multiprocessing</code> 
@@ -193,13 +196,13 @@
           <li><a href="ref/doctable/util/tempfolder.html">TempFolder</a>: create temporary folder that will be deleted upon garbage collection.</li>
           <!--<li><a href="ref/doctable/util/io.html">I/O</a>: thin read/write interfaces.</li>-->
         </ul>
-        <br/><hr/>
+        <br/>
         
 
-        <h3 id='nss_vignette'>Vignette: US National Security Strategy Documents</h3>
+        <h5 id='nss_vignette'>Vignette: US National Security Strategy Documents</h5>
         <p>This demonstration shows a typical DocTable workflow. We show how to create a new DocTable, insert NSS document text and metadata, and parse data for storage in the table.</p>
         <a class="btn btn-primary btn-sm" href="examples/example_nss_1_intro.html">See NSS Example &raquo;</a>
-        <br/><hr/>
+        
         <!--<a class="btn btn-primary btn-lg" href="examples/example_nss_2_parsetrees.html">See Intro to ParseTrees Example &raquo;</a><br/>-->
           
         <!--<br/><br/><br/>-->
@@ -212,14 +215,19 @@
       </div>
 
       <div class="col-md-4 mb-5">
-        <h6>Created by</h6>
-        <h3><a href='https://devinjcornell.com'>Devin J. Cornell</a></h3>
-        <hr>
-		  <p>Devin uses computational methods to study cultural processes through which organizations and individuals produce meaning.</p>
-          <!--<a href='https://devinjcornell.com'>Webpage</a><br/>
-		  <a href='https://dcornellresearch.org'>Research Blog</a><br/>-->
-		  <a href='https://twitter.com/Devin_Cornell'>Twitter @devin_cornell</a>
-		  <img src="https://storage.googleapis.com/public_data_09324832787/profile_photo_square.png" alt="" style="width:200px;height:200px;"/>
+        <h5>Created by<a href='https://devinjcornell.com'>Devin J. Cornell</a></h5>
+        <a href='https://devinjcornell.com/blog'>Data Science Blog</a><br/>
+        
+        <h5>Blog articles about doctable:</h5>
+        <hr/>
+        
+        <h5><a href="https://devinjcornell.com/post/using_slots_with_doctable_schema.html"> Using Slot Classes in DocTable Schemas</a></h5>
+        <p>Allowing for defaulted parameters in slot classes using decorators so they can be used as doctable schemas.</p>
+        <hr/>
+
+        <h5><a href="https://devinjcornell.com/post/file_storage_types.html">Using SQLite to store and manage large Python objects</a></h5>
+        <p>My solution in doctable and some basic benchmark results.</p>
+
       </div>
     </div>
     <!-- /.row -->
