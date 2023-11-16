@@ -116,21 +116,16 @@
         <hr>
         <h2 id="installation">Installation</h2>
         <p>From <a href="https://pypi.org/project/doctable/">Python Package Index</a>: <code>pip install doctable</code></p>
-        <p>For sqlalchemy &gt;= 2.0: <code>pip install --upgrade git+https://github.com/devincornell/doctable.git@master</code></p>
-        <p>For sqlalchemy &lt;= 1.4: <code>pip install --upgrade git+https://github.com/devincornell/doctable.git@legacy</code></p>
+        <p><b>For sqlalchemy &gt;= 2.0:</b><br/><code>pip install --upgrade git+https://github.com/devincornell/doctable.git@master</code></p>
+        <p><b>For sqlalchemy &lt;= 1.4:</b><br/><code>pip install --upgrade git+https://github.com/devincornell/doctable.git@legacy</code></p>
         <hr>
         <h3 id="changes-in-version-2-0">Changes in Version 2.0</h2>
         <ul>
-          <li><p>Create database connections using <code>ConnectCore</code> objects instead of <code>ConnectEngine</code> or <code>DocTable</code> objects.</p>
-          </li>
-          <li><p>Database tables represented by <code>DBTable</code> objects instead of <code>DocTable</code> objects. All <code>DBTable</code> instances originate from a <code>ConnectCore</code> object.</p>
-          </li>
-          <li><p>Create schemas using the <code>doctable.table_schema</code> decorator instead of the <code>doctable.schema</code> decorator. This new decorator includes constraint and index parameters as well as those for the <code>dataclass</code> objects.</p>
-          </li>
-          <li><p>The <code>Column</code> function replaces <code>Col</code> as generic default parameter values with more fine-grained control over column properties. This function provides a clearer separation between parameters that affect the behavior of the object as a dataclass (supplied as a <code>FieldArgs</code> object) and those that affect the database column schema (supplied via a <code>ColumnArgs</code> object).</p>
-          </li>
-          <li><p><strong>New command line interface</strong>: you may execute doctable functions through the command line. Just use <code>python -m doctable execute {args here}</code> to see how to use it.</p>
-          </li>
+          <li>Create database connections using <code>ConnectCore</code> objects instead of <code>ConnectEngine</code> or <code>DocTable</code> objects.</li>
+          <li>Database tables represented by <code>DBTable</code> objects instead of <code>DocTable</code> objects. All <code>DBTable</code> instances originate from a <code>ConnectCore</code> object.</li>
+          <li>Create schemas using the <code>doctable.table_schema</code> decorator instead of the <code>doctable.schema</code> decorator. This new decorator includes constraint and index parameters as well as those for the <code>dataclass</code> objects.</li>
+          <li>The <code>Column</code> function replaces <code>Col</code> as generic default parameter values with more fine-grained control over column properties. This function provides a clearer separation between parameters that affect the behavior of the object as a dataclass (supplied as a <code>FieldArgs</code> object) and those that affect the database column schema (supplied via a <code>ColumnArgs</code> object).</li>
+          <li><strong>New command line interface</strong>: you may execute doctable functions through the command line. Just use <code>python -m doctable execute {args here}</code> to see how to use it.</li>
         </ul>
         
         <h3>Documentation</h3>
@@ -140,7 +135,13 @@
 
 
         <h3>Legacy API</h3>
+        
+        
+        <p>Note that these examples are for doctable legacy, supported with sqlalchemy &lt;= 1.4:<br/>
+          <code>pip install --upgrade git+https://github.com/devincornell/doctable.git@legacy</code>
+        </p>
         <hr/>
+
         <h5 id='DocTable'><pre>DocTable</pre></h5>
           <a class="btn btn-outline-primary btn-sm" href="examples/doctable_basics.html">Overview &raquo;</a> 
           <a class="btn btn-outline-primary btn-sm" href="ref/doctable/doctable.html">API &raquo;</a> 
@@ -167,7 +168,7 @@
         </ul>
         <br/>
 
-        <h5 id='ParsePipeline'><pre>ParsePipeline</pre><a class="btn btn-outline-primary btn-sm" href="examples/parse_parsepipeline.html">Overview &raquo;</a></h5>
+        <h5 id='ParsePipeline'>Text Processing Pipelines<a class="btn btn-outline-primary btn-sm" href="examples/parse_parsepipeline.html">Overview &raquo;</a></h5>
         <p>Various tools for parsing and storing documents into databases.</p>
         <!--<h5>Examples</h5>-->
         <ul>
