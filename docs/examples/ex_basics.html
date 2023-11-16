@@ -14573,7 +14573,25 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     </script>
     <!-- End of mathjax configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h1 id="Basics-of-doctable">Basics of doctable<a class="anchor-link" href="#Basics-of-doctable">&#182;</a></h1><p>In this brief tutorial, we will cover the basics of doctable. We will cover the following topics:</p>
+<ul>
+<li>Connecting to the database using <code>ConnectCore</code>.</li>
+<li>Defining a database schema using the <code>table_schema</code> decorator.</li>
+<li>Creating the table using the <code>begin_ddl()</code> context manager.</li>
+<li>Inserting values into the database using the <code>ConnectQuery</code> and <code>ConnectTable</code> interfaces.</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -14592,6 +14610,18 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 </div>
 
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>The <code>ConnectCore</code> objects acts as the primary starting point for any actions performed on the database. We create a new connection to the datbase using the <code>.open()</code> factory method constructor.</p>
+
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -14637,6 +14667,18 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 </div>
 
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Next we define a very basic schema using the <code>table_schema</code> decorator. This decorator is used to create a Container object, which contains information about the database schema and is also a dataclass that can be inserted or retrieved from the database. Read the schema definition examples for more information on creating container objects and database schemas.</p>
+
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -14651,9 +14693,130 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">age</span><span class="p">:</span> <span class="nb">int</span>
 
-<span class="k">with</span> <span class="n">core</span><span class="o">.</span><span class="n">begin_ddl</span><span class="p">()</span> <span class="k">as</span> <span class="n">emitter</span><span class="p">:</span>
-    <span class="n">tab0</span> <span class="o">=</span> <span class="n">emitter</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span><span class="n">container_type</span><span class="o">=</span><span class="n">MyContainer0</span><span class="p">)</span>
-<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">inspect_columns</span><span class="p">(</span><span class="s1">'MyContainer0'</span><span class="p">))</span>
+<span class="n">doctable</span><span class="o">.</span><span class="n">inspect_schema</span><span class="p">(</span><span class="n">MyContainer0</span><span class="p">)</span><span class="o">.</span><span class="n">column_info_df</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Col Name</th>
+      <th>Col Type</th>
+      <th>Attr Name</th>
+      <th>Hint</th>
+      <th>Order</th>
+      <th>Primary Key</th>
+      <th>Foreign Key</th>
+      <th>Index</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>Integer</td>
+      <td>id</td>
+      <td>int</td>
+      <td>(inf, 0)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>name</td>
+      <td>String</td>
+      <td>name</td>
+      <td>str</td>
+      <td>(inf, 1)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>age</td>
+      <td>Integer</td>
+      <td>age</td>
+      <td>int</td>
+      <td>(inf, 2)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>We actually connect to the database table using the context manager returned by <code>.begin_ddl()</code>. This design is necessary for multi-table schemas, but, because of the readability it provides, I will use it for single-table schemas as well. The method <code>create_table_if_not_exists</code> here returns a new instance of <code>DBTable</code>. Alternatively, we could reflect a database table, in which we would not be required to provide a schema container.</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="n">core</span><span class="o">.</span><span class="n">begin_ddl</span><span class="p">()</span> <span class="k">as</span> <span class="n">emitter</span><span class="p">:</span>
+    <span class="n">tab0</span> <span class="o">=</span> <span class="n">emitter</span><span class="o">.</span><span class="n">create_table_if_not_exists</span><span class="p">(</span><span class="n">container_type</span><span class="o">=</span><span class="n">MyContainer0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">ci</span> <span class="ow">in</span> <span class="n">core</span><span class="o">.</span><span class="n">inspect_columns</span><span class="p">(</span><span class="s1">'MyContainer0'</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ci</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14675,21 +14838,9 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[{&#39;default&#39;: None,
-  &#39;name&#39;: &#39;age&#39;,
-  &#39;nullable&#39;: True,
-  &#39;primary_key&#39;: 0,
-  &#39;type&#39;: INTEGER()},
- {&#39;default&#39;: None,
-  &#39;name&#39;: &#39;id&#39;,
-  &#39;nullable&#39;: True,
-  &#39;primary_key&#39;: 0,
-  &#39;type&#39;: INTEGER()},
- {&#39;default&#39;: None,
-  &#39;name&#39;: &#39;name&#39;,
-  &#39;nullable&#39;: True,
-  &#39;primary_key&#39;: 0,
-  &#39;type&#39;: VARCHAR()}]
+<pre>{&#39;name&#39;: &#39;id&#39;, &#39;type&#39;: INTEGER(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}
+{&#39;name&#39;: &#39;name&#39;, &#39;type&#39;: VARCHAR(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}
+{&#39;name&#39;: &#39;age&#39;, &#39;type&#39;: INTEGER(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}
 </pre>
 </div>
 </div>
@@ -14698,12 +14849,24 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 </div>
 
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>We can perform queries on the database using the <code>ConnectQuery</code> interface returned from the <code>ConnectCore.query()</code> method. In this case, we insert a new row into the database using the <code>insert_multi()</code> method. Not that we will use an alternative interface for inserting container instances into the database.</p>
+
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="n">core</span><span class="o">.</span><span class="n">query</span><span class="p">()</span> <span class="k">as</span> <span class="n">q</span><span class="p">:</span>
@@ -14733,7 +14896,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[(50, None, &#39;Devin J. Cornell&#39;), (49, None, &#39;Dorothy Andrews&#39;)]
+<pre>[(None, &#39;Devin J. Cornell&#39;, 50), (None, &#39;Dorothy Andrews&#39;, 49)]
 </pre>
 </div>
 </div>
@@ -14742,12 +14905,24 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 </div>
 
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>To insert container object instances into the table, I instead use the <code>DBTable.query()</code> method to generate a <code>TableQuery</code> instance. This behaves much like <code>ConnectQuery</code> except that returned data will be placed into new container instances and we may insert data from container instances directly.</p>
+
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="n">tab0</span><span class="o">.</span><span class="n">query</span><span class="p">()</span> <span class="k">as</span> <span class="n">q</span><span class="p">:</span>
@@ -14783,12 +14958,29 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 </div>
 
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Here I define a more complicated schema.</p>
+<ul>
+<li>The standard <code>id</code> column is now included. Notice that <code>order=0</code> means the column will appear first in the table.</li>
+<li>The <code>updated</code> and <code>added</code> attributes have been created to automatically record the time of insertion and update.</li>
+<li>I added the <code>birthyear</code> method to the container type.</li>
+</ul>
+
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
@@ -14805,18 +14997,167 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     <span class="n">added</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="n">doctable</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
         <span class="n">column_args</span><span class="o">=</span><span class="n">doctable</span><span class="o">.</span><span class="n">ColumnArgs</span><span class="p">(</span>
             <span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">,</span> 
-            <span class="n">onupdate</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span>
+            <span class="n">onupdate</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">birthyear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">'''Retrieve the birthyear of the person at the time this database entry was added.'''</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">added</span><span class="o">.</span><span class="n">year</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">age</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">'Cannot calculate birthyear without the added date. '</span>
+                <span class="s1">'Did you mean to call this on a retrieved container instance?'</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+    
+<span class="n">doctable</span><span class="o">.</span><span class="n">inspect_schema</span><span class="p">(</span><span class="n">MyContainer1</span><span class="p">)</span><span class="o">.</span><span class="n">column_info_df</span><span class="p">()</span>
+</pre></div>
 
-<span class="k">with</span> <span class="n">core</span><span class="o">.</span><span class="n">begin_ddl</span><span class="p">()</span> <span class="k">as</span> <span class="n">emitter</span><span class="p">:</span>
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Col Name</th>
+      <th>Col Type</th>
+      <th>Attr Name</th>
+      <th>Hint</th>
+      <th>Order</th>
+      <th>Primary Key</th>
+      <th>Foreign Key</th>
+      <th>Index</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>Integer</td>
+      <td>id</td>
+      <td>int</td>
+      <td>(0, 2)</td>
+      <td>True</td>
+      <td>False</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>name</td>
+      <td>String</td>
+      <td>name</td>
+      <td>str</td>
+      <td>(inf, 0)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>age</td>
+      <td>Integer</td>
+      <td>age</td>
+      <td>int</td>
+      <td>(inf, 1)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>updated</td>
+      <td>DateTime</td>
+      <td>updated</td>
+      <td>datetime</td>
+      <td>(inf, 3)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>utcnow</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>added</td>
+      <td>DateTime</td>
+      <td>added</td>
+      <td>datetime</td>
+      <td>(inf, 4)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>utcnow</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>We create this table just as we did the one before, and show the new schema using inspection.</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="n">core</span><span class="o">.</span><span class="n">begin_ddl</span><span class="p">()</span> <span class="k">as</span> <span class="n">emitter</span><span class="p">:</span>
     <span class="n">tab1</span> <span class="o">=</span> <span class="n">emitter</span><span class="o">.</span><span class="n">create_table_if_not_exists</span><span class="p">(</span><span class="n">container_type</span><span class="o">=</span><span class="n">MyContainer1</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">inspect_columns</span><span class="p">(</span><span class="s1">'mytable1'</span><span class="p">))</span>
-<span class="n">o</span> <span class="o">=</span> <span class="n">MyContainer1</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'John Doe'</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-<span class="k">with</span> <span class="n">tab1</span><span class="o">.</span><span class="n">query</span><span class="p">()</span> <span class="k">as</span> <span class="n">q</span><span class="p">:</span>
-    <span class="n">q</span><span class="o">.</span><span class="n">insert_single</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">select</span><span class="p">())</span>
+
+<span class="k">for</span> <span class="n">ci</span> <span class="ow">in</span> <span class="n">core</span><span class="o">.</span><span class="n">inspect_columns</span><span class="p">(</span><span class="s1">'mytable1'</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ci</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14838,9 +15179,11 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[{&#39;name&#39;: &#39;id&#39;, &#39;type&#39;: INTEGER(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 1}, {&#39;name&#39;: &#39;added&#39;, &#39;type&#39;: DATETIME(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}, {&#39;name&#39;: &#39;age&#39;, &#39;type&#39;: INTEGER(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}, {&#39;name&#39;: &#39;name&#39;, &#39;type&#39;: VARCHAR(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}, {&#39;name&#39;: &#39;updated&#39;, &#39;type&#39;: DATETIME(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}]
-MyContainer1(name=&#39;John Doe&#39;, age=30, id=MISSING, updated=MISSING, added=MISSING)
-[MyContainer1(name=&#39;John Doe&#39;, age=30, id=1, updated=datetime.datetime(2023, 11, 14, 15, 3, 48, 302621), added=datetime.datetime(2023, 11, 14, 15, 3, 48, 302618))]
+<pre>{&#39;name&#39;: &#39;id&#39;, &#39;type&#39;: INTEGER(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 1}
+{&#39;name&#39;: &#39;name&#39;, &#39;type&#39;: VARCHAR(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}
+{&#39;name&#39;: &#39;age&#39;, &#39;type&#39;: INTEGER(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}
+{&#39;name&#39;: &#39;updated&#39;, &#39;type&#39;: DATETIME(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}
+{&#39;name&#39;: &#39;added&#39;, &#39;type&#39;: DATETIME(), &#39;nullable&#39;: True, &#39;default&#39;: None, &#39;primary_key&#39;: 0}
 </pre>
 </div>
 </div>
@@ -14849,6 +15192,235 @@ MyContainer1(name=&#39;John Doe&#39;, age=30, id=MISSING, updated=MISSING, added
 
 </div>
 
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>We can create a containser instance just as we did before. Note that <code>id</code>, <code>updated</code>, and <code>added</code> are optionally now because we expect the database to create them.</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">o</span> <span class="o">=</span> <span class="n">MyContainer1</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'John Doe'</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">o</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>MyContainer1(name=&#39;John Doe&#39;, age=30, id=MISSING, updated=MISSING, added=MISSING)</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>As expected, calling <code>.birthyear()</code> raises an exception because the <code>added</code> entry has not been recorded - that will happen at insertion into the db.</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">o</span><span class="o">.</span><span class="n">birthyear</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'error raised:'</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>error raised: Cannot calculate birthyear without the added date. Did you mean to call this on a retrieved container instance?
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>After inserting the object into the database and retrieving it again, we can see that those previously missing fileds have been populated.</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="n">tab1</span><span class="o">.</span><span class="n">query</span><span class="p">()</span> <span class="k">as</span> <span class="n">q</span><span class="p">:</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">insert_single</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>MyContainer1(name=&#39;John Doe&#39;, age=30, id=1, updated=datetime.datetime(2023, 11, 16, 17, 40, 7, 684832), added=datetime.datetime(2023, 11, 16, 17, 40, 7, 684836))</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>And now we can call the <code>birthyear()</code> method.</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">birthyear</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>1993</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">&#182;</a></h3><p>For more detailed explanations of these topics, see the documentation and API reference provided on the website. Good luck!</p>
+
+</div>
+</div>
+</div>
 </div>
 </body>
 
