@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="pdoc 14.1.0"/>
-    <title>doctable.schema.column.column API documentation</title>
+    <title>doctable.schema.inferredschema API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
     <style>/*! syntax-highlighting.css */pre{line-height:125%;}span.linenos{color:inherit; background-color:transparent; padding-left:5px; padding-right:20px;}.pdoc-code .hll{background-color:#ffffcc}.pdoc-code{background:#f8f8f8;}.pdoc-code .c{color:#3D7B7B; font-style:italic}.pdoc-code .err{border:1px solid #FF0000}.pdoc-code .k{color:#008000; font-weight:bold}.pdoc-code .o{color:#666666}.pdoc-code .ch{color:#3D7B7B; font-style:italic}.pdoc-code .cm{color:#3D7B7B; font-style:italic}.pdoc-code .cp{color:#9C6500}.pdoc-code .cpf{color:#3D7B7B; font-style:italic}.pdoc-code .c1{color:#3D7B7B; font-style:italic}.pdoc-code .cs{color:#3D7B7B; font-style:italic}.pdoc-code .gd{color:#A00000}.pdoc-code .ge{font-style:italic}.pdoc-code .gr{color:#E40000}.pdoc-code .gh{color:#000080; font-weight:bold}.pdoc-code .gi{color:#008400}.pdoc-code .go{color:#717171}.pdoc-code .gp{color:#000080; font-weight:bold}.pdoc-code .gs{font-weight:bold}.pdoc-code .gu{color:#800080; font-weight:bold}.pdoc-code .gt{color:#0044DD}.pdoc-code .kc{color:#008000; font-weight:bold}.pdoc-code .kd{color:#008000; font-weight:bold}.pdoc-code .kn{color:#008000; font-weight:bold}.pdoc-code .kp{color:#008000}.pdoc-code .kr{color:#008000; font-weight:bold}.pdoc-code .kt{color:#B00040}.pdoc-code .m{color:#666666}.pdoc-code .s{color:#BA2121}.pdoc-code .na{color:#687822}.pdoc-code .nb{color:#008000}.pdoc-code .nc{color:#0000FF; font-weight:bold}.pdoc-code .no{color:#880000}.pdoc-code .nd{color:#AA22FF}.pdoc-code .ni{color:#717171; font-weight:bold}.pdoc-code .ne{color:#CB3F38; font-weight:bold}.pdoc-code .nf{color:#0000FF}.pdoc-code .nl{color:#767600}.pdoc-code .nn{color:#0000FF; font-weight:bold}.pdoc-code .nt{color:#008000; font-weight:bold}.pdoc-code .nv{color:#19177C}.pdoc-code .ow{color:#AA22FF; font-weight:bold}.pdoc-code .w{color:#bbbbbb}.pdoc-code .mb{color:#666666}.pdoc-code .mf{color:#666666}.pdoc-code .mh{color:#666666}.pdoc-code .mi{color:#666666}.pdoc-code .mo{color:#666666}.pdoc-code .sa{color:#BA2121}.pdoc-code .sb{color:#BA2121}.pdoc-code .sc{color:#BA2121}.pdoc-code .dl{color:#BA2121}.pdoc-code .sd{color:#BA2121; font-style:italic}.pdoc-code .s2{color:#BA2121}.pdoc-code .se{color:#AA5D1F; font-weight:bold}.pdoc-code .sh{color:#BA2121}.pdoc-code .si{color:#A45A77; font-weight:bold}.pdoc-code .sx{color:#008000}.pdoc-code .sr{color:#A45A77}.pdoc-code .s1{color:#BA2121}.pdoc-code .ss{color:#19177C}.pdoc-code .bp{color:#008000}.pdoc-code .fm{color:#0000FF}.pdoc-code .vc{color:#19177C}.pdoc-code .vg{color:#19177C}.pdoc-code .vi{color:#19177C}.pdoc-code .vm{color:#19177C}.pdoc-code .il{color:#666666}</style>
@@ -16,11 +16,11 @@
     <nav class="pdoc">
         <label id="navtoggle" for="togglestate" class="pdoc-button"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke-linecap='round' stroke="currentColor" stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg></label>
         <input id="togglestate" type="checkbox" aria-hidden="true" tabindex="-1">
-        <div>            <a class="pdoc-button module-list-button" href="../column.html">
+        <div>            <a class="pdoc-button module-list-button" href="../schema.html">
 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-left" viewBox="0 0 16 16">
   <path fill-rule="evenodd" d="M10 3.5a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 1 1 0v2A1.5 1.5 0 0 1 9.5 14h-8A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2h8A1.5 1.5 0 0 1 11 3.5v2a.5.5 0 0 1-1 0v-2z"/>
   <path fill-rule="evenodd" d="M4.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H14.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
-</svg>                &nbsp;doctable.schema.column</a>
+</svg>                &nbsp;doctable.schema</a>
 
 
             <input type="search" placeholder="Search..." role="searchbox" aria-label="search"
@@ -31,7 +31,31 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
-                    <a class="function" href="#Column">Column</a>
+                    <a class="class" href="#InferredSchema">InferredSchema</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#InferredSchema.__init__">InferredSchema</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#InferredSchema.columns">columns</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#InferredSchema.indices">indices</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#InferredSchema.constraints">constraints</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InferredSchema.from_schema_definition">from_schema_definition</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InferredSchema.object_to_dict">object_to_dict</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InferredSchema.row_to_object">row_to_object</a>
+                        </li>
+                </ul>
+
             </li>
     </ul>
 
@@ -47,95 +71,204 @@
     <main class="pdoc">
             <section class="module-info">
                     <h1 class="modulename">
-<a href="./../../../doctable.html">doctable</a><wbr>.<a href="./../../schema.html">schema</a><wbr>.<a href="./../column.html">column</a><wbr>.column    </h1>
+<a href="./../../doctable.html">doctable</a><wbr>.<a href="./../schema.html">schema</a><wbr>.inferredschema    </h1>
 
                 
-                        <input id="mod-column-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                        <input id="mod-inferredschema-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 
-                        <label class="view-source-button" for="mod-column-view-source"><span>View Source</span></label>
+                        <label class="view-source-button" for="mod-inferredschema-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">import</span> <span class="nn">typing</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">import</span> <span class="nn">sqlalchemy</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">import</span> <span class="nn">dataclasses</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">import</span> <span class="nn">sqlalchemy</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">import</span> <span class="nn">datetime</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span> <span class="nn">.fieldargs</span> <span class="kn">import</span> <span class="n">FieldArgs</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="kn">from</span> <span class="nn">.columnargs</span> <span class="kn">import</span> <span class="n">ColumnArgs</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">import</span> <span class="nn">typing</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">import</span> <span class="nn">datetime</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="kn">from</span> <span class="nn">.schemabase</span> <span class="kn">import</span> <span class="n">SchemaBase</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="k">def</span> <span class="nf">Column</span><span class="p">(</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>    <span class="n">column_args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ColumnArgs</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>    <span class="n">field_args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">FieldArgs</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">:</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Record column information in the metadata of a dataclass field.&#39;&#39;&#39;</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>    <span class="n">field_args</span> <span class="o">=</span> <span class="n">field_args</span> <span class="k">if</span> <span class="n">field_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">FieldArgs</span><span class="p">()</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="n">column_args</span> <span class="o">=</span> <span class="n">column_args</span> <span class="k">if</span> <span class="n">column_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ColumnArgs</span><span class="p">()</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="c1"># NOTE: this is all old code</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="c1"># bind column args to metadata</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    <span class="c1">#metadata = {</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="c1">#    **field_args.metadata, </span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="c1">#    COLUMN_METADATA_ATTRIBUTE_NAME: column_args,</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="c1">#}</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="c1"># replaces above (consistent with the getter/setter pattern)</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="c1">#metadata = dict(field_args.metadata) if field_args.metadata is not None else dict()</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="c1">#set_column_args(metadata, column_args)</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="c1">#</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="c1">#fields_without_metadata = field_args.dict_without_metadata()</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="c1">#try:</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="c1">#    return dataclasses.field(metadata=metadata, **fields_without_metadata)</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="c1">#except TypeError as e:</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="c1">#    del fields_without_metadata[&#39;kw_only&#39;]</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="c1">#    return dataclasses.field(metadata=metadata, **fields_without_metadata)</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="k">return</span> <span class="n">field_args</span><span class="o">.</span><span class="n">get_dataclass_field</span><span class="p">(</span><span class="n">column_args</span><span class="p">)</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="k">class</span> <span class="nc">InferredSchema</span><span class="p">(</span><span class="n">SchemaBase</span><span class="p">):</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>    <span class="n">columns</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">sqlalchemy</span><span class="o">.</span><span class="n">Column</span><span class="p">]</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>    <span class="n">indices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">sqlalchemy</span><span class="o">.</span><span class="n">Column</span><span class="p">]</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>    <span class="n">constraints</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">sqlalchemy</span><span class="o">.</span><span class="n">Column</span><span class="p">]</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>    
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="nd">@classmethod</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="k">def</span> <span class="nf">from_schema_definition</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">empty_schema</span><span class="p">:</span> <span class="kc">None</span><span class="p">):</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>        <span class="n">new_schema</span><span class="p">:</span> <span class="bp">cls</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>            <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>            <span class="n">indices</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>            <span class="n">constraints</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>        <span class="p">)</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>        <span class="k">return</span> <span class="n">new_schema</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="k">def</span> <span class="nf">object_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>        <span class="k">return</span> <span class="n">data</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="k">def</span> <span class="nf">row_to_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>        <span class="k">return</span> <span class="n">data</span>
 </span></pre></div>
 
 
             </section>
-                <section id="Column">
-                            <input id="Column-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">Column</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">column_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="columnargs.html#ColumnArgs">doctable.schema.column.columnargs.ColumnArgs</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">field_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="fieldargs.html#FieldArgs">doctable.schema.column.fieldargs.FieldArgs</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="o">&lt;</span><span class="n">function</span> <span class="n">field</span> <span class="n">at</span> <span class="mh">0x7fec644c1260</span><span class="o">&gt;</span>:</span></span>
+                <section id="InferredSchema">
+                            <input id="InferredSchema-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+                    <div class="decorator">@dataclasses.dataclass</div>
 
-                <label class="view-source-button" for="Column-view-source"><span>View Source</span></label>
+    <span class="def">class</span>
+    <span class="name">InferredSchema</span><wbr>(<span class="base"><a href="schemabase.html#SchemaBase">doctable.schema.schemabase.SchemaBase</a></span>):
+
+                <label class="view-source-button" for="InferredSchema-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#Column"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Column-12"><a href="#Column-12"><span class="linenos">12</span></a><span class="k">def</span> <span class="nf">Column</span><span class="p">(</span>
-</span><span id="Column-13"><a href="#Column-13"><span class="linenos">13</span></a>    <span class="n">column_args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ColumnArgs</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Column-14"><a href="#Column-14"><span class="linenos">14</span></a>    <span class="n">field_args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">FieldArgs</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Column-15"><a href="#Column-15"><span class="linenos">15</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">:</span>
-</span><span id="Column-16"><a href="#Column-16"><span class="linenos">16</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Record column information in the metadata of a dataclass field.&#39;&#39;&#39;</span>
-</span><span id="Column-17"><a href="#Column-17"><span class="linenos">17</span></a>    <span class="n">field_args</span> <span class="o">=</span> <span class="n">field_args</span> <span class="k">if</span> <span class="n">field_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">FieldArgs</span><span class="p">()</span>
-</span><span id="Column-18"><a href="#Column-18"><span class="linenos">18</span></a>    <span class="n">column_args</span> <span class="o">=</span> <span class="n">column_args</span> <span class="k">if</span> <span class="n">column_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ColumnArgs</span><span class="p">()</span>
-</span><span id="Column-19"><a href="#Column-19"><span class="linenos">19</span></a>
-</span><span id="Column-20"><a href="#Column-20"><span class="linenos">20</span></a>    <span class="c1"># NOTE: this is all old code</span>
-</span><span id="Column-21"><a href="#Column-21"><span class="linenos">21</span></a>    <span class="c1"># bind column args to metadata</span>
-</span><span id="Column-22"><a href="#Column-22"><span class="linenos">22</span></a>    <span class="c1">#metadata = {</span>
-</span><span id="Column-23"><a href="#Column-23"><span class="linenos">23</span></a>    <span class="c1">#    **field_args.metadata, </span>
-</span><span id="Column-24"><a href="#Column-24"><span class="linenos">24</span></a>    <span class="c1">#    COLUMN_METADATA_ATTRIBUTE_NAME: column_args,</span>
-</span><span id="Column-25"><a href="#Column-25"><span class="linenos">25</span></a>    <span class="c1">#}</span>
-</span><span id="Column-26"><a href="#Column-26"><span class="linenos">26</span></a>    <span class="c1"># replaces above (consistent with the getter/setter pattern)</span>
-</span><span id="Column-27"><a href="#Column-27"><span class="linenos">27</span></a>    <span class="c1">#metadata = dict(field_args.metadata) if field_args.metadata is not None else dict()</span>
-</span><span id="Column-28"><a href="#Column-28"><span class="linenos">28</span></a>    <span class="c1">#set_column_args(metadata, column_args)</span>
-</span><span id="Column-29"><a href="#Column-29"><span class="linenos">29</span></a>    <span class="c1">#</span>
-</span><span id="Column-30"><a href="#Column-30"><span class="linenos">30</span></a>    <span class="c1">#fields_without_metadata = field_args.dict_without_metadata()</span>
-</span><span id="Column-31"><a href="#Column-31"><span class="linenos">31</span></a>    <span class="c1">#try:</span>
-</span><span id="Column-32"><a href="#Column-32"><span class="linenos">32</span></a>    <span class="c1">#    return dataclasses.field(metadata=metadata, **fields_without_metadata)</span>
-</span><span id="Column-33"><a href="#Column-33"><span class="linenos">33</span></a>    <span class="c1">#except TypeError as e:</span>
-</span><span id="Column-34"><a href="#Column-34"><span class="linenos">34</span></a>    <span class="c1">#    del fields_without_metadata[&#39;kw_only&#39;]</span>
-</span><span id="Column-35"><a href="#Column-35"><span class="linenos">35</span></a>    <span class="c1">#    return dataclasses.field(metadata=metadata, **fields_without_metadata)</span>
-</span><span id="Column-36"><a href="#Column-36"><span class="linenos">36</span></a>    <span class="k">return</span> <span class="n">field_args</span><span class="o">.</span><span class="n">get_dataclass_field</span><span class="p">(</span><span class="n">column_args</span><span class="p">)</span>
+    <a class="headerlink" href="#InferredSchema"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="InferredSchema-12"><a href="#InferredSchema-12"><span class="linenos">12</span></a><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+</span><span id="InferredSchema-13"><a href="#InferredSchema-13"><span class="linenos">13</span></a><span class="k">class</span> <span class="nc">InferredSchema</span><span class="p">(</span><span class="n">SchemaBase</span><span class="p">):</span>
+</span><span id="InferredSchema-14"><a href="#InferredSchema-14"><span class="linenos">14</span></a>    <span class="n">columns</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">sqlalchemy</span><span class="o">.</span><span class="n">Column</span><span class="p">]</span>
+</span><span id="InferredSchema-15"><a href="#InferredSchema-15"><span class="linenos">15</span></a>    <span class="n">indices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">sqlalchemy</span><span class="o">.</span><span class="n">Column</span><span class="p">]</span>
+</span><span id="InferredSchema-16"><a href="#InferredSchema-16"><span class="linenos">16</span></a>    <span class="n">constraints</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">sqlalchemy</span><span class="o">.</span><span class="n">Column</span><span class="p">]</span>
+</span><span id="InferredSchema-17"><a href="#InferredSchema-17"><span class="linenos">17</span></a>    
+</span><span id="InferredSchema-18"><a href="#InferredSchema-18"><span class="linenos">18</span></a>    <span class="nd">@classmethod</span>
+</span><span id="InferredSchema-19"><a href="#InferredSchema-19"><span class="linenos">19</span></a>    <span class="k">def</span> <span class="nf">from_schema_definition</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">empty_schema</span><span class="p">:</span> <span class="kc">None</span><span class="p">):</span>
+</span><span id="InferredSchema-20"><a href="#InferredSchema-20"><span class="linenos">20</span></a>        <span class="n">new_schema</span><span class="p">:</span> <span class="bp">cls</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+</span><span id="InferredSchema-21"><a href="#InferredSchema-21"><span class="linenos">21</span></a>            <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="InferredSchema-22"><a href="#InferredSchema-22"><span class="linenos">22</span></a>            <span class="n">indices</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="InferredSchema-23"><a href="#InferredSchema-23"><span class="linenos">23</span></a>            <span class="n">constraints</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="InferredSchema-24"><a href="#InferredSchema-24"><span class="linenos">24</span></a>        <span class="p">)</span>
+</span><span id="InferredSchema-25"><a href="#InferredSchema-25"><span class="linenos">25</span></a>        <span class="k">return</span> <span class="n">new_schema</span>
+</span><span id="InferredSchema-26"><a href="#InferredSchema-26"><span class="linenos">26</span></a>    
+</span><span id="InferredSchema-27"><a href="#InferredSchema-27"><span class="linenos">27</span></a>    <span class="k">def</span> <span class="nf">object_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+</span><span id="InferredSchema-28"><a href="#InferredSchema-28"><span class="linenos">28</span></a>        <span class="k">return</span> <span class="n">data</span>
+</span><span id="InferredSchema-29"><a href="#InferredSchema-29"><span class="linenos">29</span></a>    
+</span><span id="InferredSchema-30"><a href="#InferredSchema-30"><span class="linenos">30</span></a>    <span class="k">def</span> <span class="nf">row_to_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+</span><span id="InferredSchema-31"><a href="#InferredSchema-31"><span class="linenos">31</span></a>        <span class="k">return</span> <span class="n">data</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Record column information in the metadata of a dataclass field.</p>
-</div>
+    
+
+                            <div id="InferredSchema.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">InferredSchema</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">Column</span><span class="p">]</span>,</span><span class="param">	<span class="n">indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">Column</span><span class="p">]</span>,</span><span class="param">	<span class="n">constraints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">sqlalchemy</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">Column</span><span class="p">]</span></span>)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#InferredSchema.__init__"></a>
+    
+    
+
+                            </div>
+                            <div id="InferredSchema.columns" class="classattr">
+                                <div class="attr variable">
+            <span class="name">columns</span><span class="annotation">: List[sqlalchemy.sql.schema.Column]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#InferredSchema.columns"></a>
+    
+    
+
+                            </div>
+                            <div id="InferredSchema.indices" class="classattr">
+                                <div class="attr variable">
+            <span class="name">indices</span><span class="annotation">: List[sqlalchemy.sql.schema.Column]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#InferredSchema.indices"></a>
+    
+    
+
+                            </div>
+                            <div id="InferredSchema.constraints" class="classattr">
+                                <div class="attr variable">
+            <span class="name">constraints</span><span class="annotation">: List[sqlalchemy.sql.schema.Column]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#InferredSchema.constraints"></a>
+    
+    
+
+                            </div>
+                            <div id="InferredSchema.from_schema_definition" class="classattr">
+                                        <input id="InferredSchema.from_schema_definition-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+                    <div class="decorator">@classmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">from_schema_definition</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">empty_schema</span><span class="p">:</span> <span class="kc">None</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="InferredSchema.from_schema_definition-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#InferredSchema.from_schema_definition"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="InferredSchema.from_schema_definition-18"><a href="#InferredSchema.from_schema_definition-18"><span class="linenos">18</span></a>    <span class="nd">@classmethod</span>
+</span><span id="InferredSchema.from_schema_definition-19"><a href="#InferredSchema.from_schema_definition-19"><span class="linenos">19</span></a>    <span class="k">def</span> <span class="nf">from_schema_definition</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">empty_schema</span><span class="p">:</span> <span class="kc">None</span><span class="p">):</span>
+</span><span id="InferredSchema.from_schema_definition-20"><a href="#InferredSchema.from_schema_definition-20"><span class="linenos">20</span></a>        <span class="n">new_schema</span><span class="p">:</span> <span class="bp">cls</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+</span><span id="InferredSchema.from_schema_definition-21"><a href="#InferredSchema.from_schema_definition-21"><span class="linenos">21</span></a>            <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="InferredSchema.from_schema_definition-22"><a href="#InferredSchema.from_schema_definition-22"><span class="linenos">22</span></a>            <span class="n">indices</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="InferredSchema.from_schema_definition-23"><a href="#InferredSchema.from_schema_definition-23"><span class="linenos">23</span></a>            <span class="n">constraints</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="InferredSchema.from_schema_definition-24"><a href="#InferredSchema.from_schema_definition-24"><span class="linenos">24</span></a>        <span class="p">)</span>
+</span><span id="InferredSchema.from_schema_definition-25"><a href="#InferredSchema.from_schema_definition-25"><span class="linenos">25</span></a>        <span class="k">return</span> <span class="n">new_schema</span>
+</span></pre></div>
 
 
+    
+
+                            </div>
+                            <div id="InferredSchema.object_to_dict" class="classattr">
+                                        <input id="InferredSchema.object_to_dict-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">object_to_dict</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>:</span></span>
+
+                <label class="view-source-button" for="InferredSchema.object_to_dict-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#InferredSchema.object_to_dict"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="InferredSchema.object_to_dict-27"><a href="#InferredSchema.object_to_dict-27"><span class="linenos">27</span></a>    <span class="k">def</span> <span class="nf">object_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+</span><span id="InferredSchema.object_to_dict-28"><a href="#InferredSchema.object_to_dict-28"><span class="linenos">28</span></a>        <span class="k">return</span> <span class="n">data</span>
+</span></pre></div>
+
+
+    
+
+                            </div>
+                            <div id="InferredSchema.row_to_object" class="classattr">
+                                        <input id="InferredSchema.row_to_object-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">row_to_object</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>:</span></span>
+
+                <label class="view-source-button" for="InferredSchema.row_to_object-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#InferredSchema.row_to_object"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="InferredSchema.row_to_object-30"><a href="#InferredSchema.row_to_object-30"><span class="linenos">30</span></a>    <span class="k">def</span> <span class="nf">row_to_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+</span><span id="InferredSchema.row_to_object-31"><a href="#InferredSchema.row_to_object-31"><span class="linenos">31</span></a>        <span class="k">return</span> <span class="n">data</span>
+</span></pre></div>
+
+
+    
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="schemabase.html#SchemaBase">doctable.schema.schemabase.SchemaBase</a></dt>
+                                <dd id="InferredSchema.schema_class" class="variable"><a href="schemabase.html#SchemaBase.schema_class">schema_class</a></dd>
+                <dd id="InferredSchema.object_to_dict_interface" class="function"><a href="schemabase.html#SchemaBase.object_to_dict_interface">object_to_dict_interface</a></dd>
+                <dd id="InferredSchema.row_to_object_interface" class="function"><a href="schemabase.html#SchemaBase.row_to_object_interface">row_to_object_interface</a></dd>
+
+            </div>
+                                </dl>
+                            </div>
                 </section>
     </main>
 <script>
@@ -190,7 +323,7 @@
                 script.async = true;
                 script.onload = () => resolve(window.pdocSearch);
                 script.onerror = (e) => reject(e);
-                script.src = "../../../search.js";
+                script.src = "../../search.js";
                 document.getElementsByTagName("head")[0].appendChild(script);
             });
         } catch (e) {
@@ -232,7 +365,7 @@
             }
             for (let result of results.slice(0, 10)) {
                 let doc = result.doc;
-                let url = `../../../${doc.modulename.replaceAll(".", "/")}.html`;
+                let url = `../../${doc.modulename.replaceAll(".", "/")}.html`;
                 if (doc.qualname) {
                     url += `#${doc.qualname}`;
                 }
