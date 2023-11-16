@@ -44,24 +44,35 @@ docs: pdoc example_html
 DOCS_FOLDER = docs/
 EXAMPLES_FOLDER = examples/
 DOCS_EXAMPLES_FOLDER = $(DOCS_FOLDER)/examples/
+
+LEGACY_EXAMPLES_FOLDER = legacy/examples/
+LEGACY_DOCS_EXAMPLES_FOLDER = $(DOCS_FOLDER)/legacy_examples/
+
 example_html:
 	jupyter nbconvert --to html $(EXAMPLES_FOLDER)/*.ipynb
-	
 	mv $(EXAMPLES_FOLDER)/*.html $(DOCS_EXAMPLES_FOLDER)
 	git add --all $(DOCS_EXAMPLES_FOLDER)*.html
 
+	jupyter nbconvert --to html $(LEGACY_EXAMPLES_FOLDER)/*.ipynb
+	mv $(EXAMPLES_FOLDER)/*.html $(LEGACY_DOCS_EXAMPLES_FOLDER)
+	git add --all $(LEGACY_DOCS_EXAMPLES_FOLDER)*.html
+
 
 DOCS_REF_FOLDER = $(DOCS_FOLDER)/ref/
+LEGACY_DOCS_REF_FOLDER = $(DOCS_FOLDER)/ref_legacy/
 #pydoc -w doctable.ConnectEngine doctable.DocTable doctable.dbutils doctable.DocTableRows doctable.schemas.field_columns doctable.parse.pipeline doctable.parse.parsetree doctable.parse.parsefuncs doctable.Bootstrap doctable.Timer doctable.FSStore doctable.util.io
 #mv *.html $(DOCS_REF_FOLDER)
 pdoc:
 	pdoc --docformat google -o ./docs/ref ./doctable/
-	
 	git add --all $(DOCS_REF_FOLDER)*.html
+
+	pdoc --docformat google -o ./docs/ref_legacy ./legacy/doctable/
+	git add --all ./docs/ref_legacy/*.html
 
 clean_docs:
 	-rm $(DOCS_REF_FOLDER)*.html
 	-rm $(DOCS_EXAMPLES_FOLDER)*.html
+	-rm $(LEGACY_DOCS_EXAMPLES_FOLDER)*.html
 
 
 ######################################## RUN TESTS ########################################
