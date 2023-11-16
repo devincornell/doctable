@@ -97,13 +97,10 @@
                                 <a class="function" href="#ConnectCore.connect">connect</a>
                         </li>
                         <li>
-                                <a class="function" href="#ConnectCore.list_tables">list_tables</a>
+                                <a class="variable" href="#ConnectCore.metadata_tables">metadata_tables</a>
                         </li>
                         <li>
                                 <a class="function" href="#ConnectCore.dispose_engine">dispose_engine</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#ConnectCore.metadata_tables">metadata_tables</a>
                         </li>
                         <li>
                                 <a class="function" href="#ConnectCore.metadata_reflect">metadata_reflect</a>
@@ -330,7 +327,7 @@
 </span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a><span class="sd">        &#39;&#39;&#39;</span>
 </span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 </span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>    
-</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>    <span class="k">def</span> <span class="nf">list_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>    <span class="k">def</span> <span class="nf">metadata_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a><span class="w">        </span><span class="sd">&#39;&#39;&#39; List table names in database connection.</span>
 </span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a><span class="sd">        &#39;&#39;&#39;</span>
 </span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>        <span class="c1"># TODO: is this wrong? mypy says it is wrong.</span>
@@ -353,7 +350,7 @@
 </span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a><span class="sd">        &#39;&#39;&#39;</span>
 </span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a>        <span class="c1">#for tabname in self.list_tables():</span>
 </span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a>        <span class="c1">#    self.add_table(tabname, **kwargs)</span>
-</span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a>    
 </span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a>    <span class="k">def</span> <span class="nf">create_all_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a><span class="w">        </span><span class="sd">&#39;&#39;&#39; Create all tables in metadata. Must be used when creating new tables!!</span>
@@ -381,7 +378,7 @@
 </span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inspector</span><span class="p">()</span><span class="o">.</span><span class="n">get_indexes</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
 </span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a>    
 </span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>    <span class="k">def</span> <span class="nf">inspect_table_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a><span class="w">        </span><span class="sd">&#39;&#39;&#39;Wraps Inspector.get_indexes(tabname).&#39;&#39;&#39;</span>
+</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a><span class="w">        </span><span class="sd">&#39;&#39;&#39;Provide a list of table names by wrapping Inspector.get_table_names(tabname).&#39;&#39;&#39;</span>
 </span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inspector</span><span class="p">()</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">()</span>
 </span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>    
 </span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a>    <span class="k">def</span> <span class="nf">inspector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">Inspector</span><span class="p">:</span>
@@ -638,7 +635,7 @@
 </span><span id="ConnectCore-170"><a href="#ConnectCore-170"><span class="linenos">170</span></a><span class="sd">        &#39;&#39;&#39;</span>
 </span><span id="ConnectCore-171"><a href="#ConnectCore-171"><span class="linenos">171</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 </span><span id="ConnectCore-172"><a href="#ConnectCore-172"><span class="linenos">172</span></a>    
-</span><span id="ConnectCore-173"><a href="#ConnectCore-173"><span class="linenos">173</span></a>    <span class="k">def</span> <span class="nf">list_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="ConnectCore-173"><a href="#ConnectCore-173"><span class="linenos">173</span></a>    <span class="k">def</span> <span class="nf">metadata_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="ConnectCore-174"><a href="#ConnectCore-174"><span class="linenos">174</span></a><span class="w">        </span><span class="sd">&#39;&#39;&#39; List table names in database connection.</span>
 </span><span id="ConnectCore-175"><a href="#ConnectCore-175"><span class="linenos">175</span></a><span class="sd">        &#39;&#39;&#39;</span>
 </span><span id="ConnectCore-176"><a href="#ConnectCore-176"><span class="linenos">176</span></a>        <span class="c1"># TODO: is this wrong? mypy says it is wrong.</span>
@@ -661,7 +658,7 @@
 </span><span id="ConnectCore-193"><a href="#ConnectCore-193"><span class="linenos">193</span></a><span class="sd">        &#39;&#39;&#39;</span>
 </span><span id="ConnectCore-194"><a href="#ConnectCore-194"><span class="linenos">194</span></a>        <span class="c1">#for tabname in self.list_tables():</span>
 </span><span id="ConnectCore-195"><a href="#ConnectCore-195"><span class="linenos">195</span></a>        <span class="c1">#    self.add_table(tabname, **kwargs)</span>
-</span><span id="ConnectCore-196"><a href="#ConnectCore-196"><span class="linenos">196</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="ConnectCore-196"><a href="#ConnectCore-196"><span class="linenos">196</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="ConnectCore-197"><a href="#ConnectCore-197"><span class="linenos">197</span></a>    
 </span><span id="ConnectCore-198"><a href="#ConnectCore-198"><span class="linenos">198</span></a>    <span class="k">def</span> <span class="nf">create_all_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="ConnectCore-199"><a href="#ConnectCore-199"><span class="linenos">199</span></a><span class="w">        </span><span class="sd">&#39;&#39;&#39; Create all tables in metadata. Must be used when creating new tables!!</span>
@@ -689,7 +686,7 @@
 </span><span id="ConnectCore-221"><a href="#ConnectCore-221"><span class="linenos">221</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inspector</span><span class="p">()</span><span class="o">.</span><span class="n">get_indexes</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
 </span><span id="ConnectCore-222"><a href="#ConnectCore-222"><span class="linenos">222</span></a>    
 </span><span id="ConnectCore-223"><a href="#ConnectCore-223"><span class="linenos">223</span></a>    <span class="k">def</span> <span class="nf">inspect_table_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="ConnectCore-224"><a href="#ConnectCore-224"><span class="linenos">224</span></a><span class="w">        </span><span class="sd">&#39;&#39;&#39;Wraps Inspector.get_indexes(tabname).&#39;&#39;&#39;</span>
+</span><span id="ConnectCore-224"><a href="#ConnectCore-224"><span class="linenos">224</span></a><span class="w">        </span><span class="sd">&#39;&#39;&#39;Provide a list of table names by wrapping Inspector.get_table_names(tabname).&#39;&#39;&#39;</span>
 </span><span id="ConnectCore-225"><a href="#ConnectCore-225"><span class="linenos">225</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inspector</span><span class="p">()</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">()</span>
 </span><span id="ConnectCore-226"><a href="#ConnectCore-226"><span class="linenos">226</span></a>    
 </span><span id="ConnectCore-227"><a href="#ConnectCore-227"><span class="linenos">227</span></a>    <span class="k">def</span> <span class="nf">inspector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">Inspector</span><span class="p">:</span>
@@ -1087,26 +1084,15 @@ Note: if table already exists as part of the metadata, it will return that table
 
 
                             </div>
-                            <div id="ConnectCore.list_tables" class="classattr">
-                                        <input id="ConnectCore.list_tables-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">list_tables</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+                            <div id="ConnectCore.metadata_tables" class="classattr">
+                                <div class="attr variable">
+            <span class="name">metadata_tables</span><span class="annotation">: Dict[str, sqlalchemy.sql.schema.Table]</span>
 
-                <label class="view-source-button" for="ConnectCore.list_tables-view-source"><span>View Source</span></label>
-
+        
     </div>
-    <a class="headerlink" href="#ConnectCore.list_tables"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ConnectCore.list_tables-173"><a href="#ConnectCore.list_tables-173"><span class="linenos">173</span></a>    <span class="k">def</span> <span class="nf">list_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="ConnectCore.list_tables-174"><a href="#ConnectCore.list_tables-174"><span class="linenos">174</span></a><span class="w">        </span><span class="sd">&#39;&#39;&#39; List table names in database connection.</span>
-</span><span id="ConnectCore.list_tables-175"><a href="#ConnectCore.list_tables-175"><span class="linenos">175</span></a><span class="sd">        &#39;&#39;&#39;</span>
-</span><span id="ConnectCore.list_tables-176"><a href="#ConnectCore.list_tables-176"><span class="linenos">176</span></a>        <span class="c1"># TODO: is this wrong? mypy says it is wrong.</span>
-</span><span id="ConnectCore.list_tables-177"><a href="#ConnectCore.list_tables-177"><span class="linenos">177</span></a>        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>List table names in database connection.</p>
+    <a class="headerlink" href="#ConnectCore.metadata_tables"></a>
+    
+            <div class="docstring"><p>Access metadata.tables</p>
 </div>
 
 
@@ -1134,19 +1120,6 @@ Note: if table already exists as part of the metadata, it will return that table
 
 
                             </div>
-                            <div id="ConnectCore.metadata_tables" class="classattr">
-                                <div class="attr variable">
-            <span class="name">metadata_tables</span><span class="annotation">: Dict[str, sqlalchemy.sql.schema.Table]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ConnectCore.metadata_tables"></a>
-    
-            <div class="docstring"><p>Access metadata.tables</p>
-</div>
-
-
-                            </div>
                             <div id="ConnectCore.metadata_reflect" class="classattr">
                                         <input id="ConnectCore.metadata_reflect-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -1163,7 +1136,7 @@ Note: if table already exists as part of the metadata, it will return that table
 </span><span id="ConnectCore.metadata_reflect-193"><a href="#ConnectCore.metadata_reflect-193"><span class="linenos">193</span></a><span class="sd">        &#39;&#39;&#39;</span>
 </span><span id="ConnectCore.metadata_reflect-194"><a href="#ConnectCore.metadata_reflect-194"><span class="linenos">194</span></a>        <span class="c1">#for tabname in self.list_tables():</span>
 </span><span id="ConnectCore.metadata_reflect-195"><a href="#ConnectCore.metadata_reflect-195"><span class="linenos">195</span></a>        <span class="c1">#    self.add_table(tabname, **kwargs)</span>
-</span><span id="ConnectCore.metadata_reflect-196"><a href="#ConnectCore.metadata_reflect-196"><span class="linenos">196</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="ConnectCore.metadata_reflect-196"><a href="#ConnectCore.metadata_reflect-196"><span class="linenos">196</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1298,12 +1271,12 @@ Note: if table already exists as part of the metadata, it will return that table
     </div>
     <a class="headerlink" href="#ConnectCore.inspect_table_names"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="ConnectCore.inspect_table_names-223"><a href="#ConnectCore.inspect_table_names-223"><span class="linenos">223</span></a>    <span class="k">def</span> <span class="nf">inspect_table_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="ConnectCore.inspect_table_names-224"><a href="#ConnectCore.inspect_table_names-224"><span class="linenos">224</span></a><span class="w">        </span><span class="sd">&#39;&#39;&#39;Wraps Inspector.get_indexes(tabname).&#39;&#39;&#39;</span>
+</span><span id="ConnectCore.inspect_table_names-224"><a href="#ConnectCore.inspect_table_names-224"><span class="linenos">224</span></a><span class="w">        </span><span class="sd">&#39;&#39;&#39;Provide a list of table names by wrapping Inspector.get_table_names(tabname).&#39;&#39;&#39;</span>
 </span><span id="ConnectCore.inspect_table_names-225"><a href="#ConnectCore.inspect_table_names-225"><span class="linenos">225</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inspector</span><span class="p">()</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">()</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Wraps Inspector.get_indexes(tabname).</p>
+            <div class="docstring"><p>Provide a list of table names by wrapping Inspector.get_table_names(tabname).</p>
 </div>
 
 
