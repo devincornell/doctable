@@ -118,7 +118,14 @@
         <p>From <a href="https://pypi.org/project/doctable/">Python Package Index</a>: <code>pip install doctable</code></p>
         <p><b>For sqlalchemy &gt;= 2.0:</b><br/><code>pip install --upgrade git+https://github.com/devincornell/doctable.git@master</code></p>
         <p><b>For sqlalchemy &lt;= 1.4:</b><br/><code>pip install --upgrade git+https://github.com/devincornell/doctable.git@legacy</code></p>
-        <hr>
+        
+        <h3>Documentation</h3>
+        TODO
+
+        <br/><hr/><br/>
+        
+        
+        
         <h3 id="changes-in-version-2-0">Changes in Version 2.0</h2>
         <ul>
           <li>Create database connections using <code>ConnectCore</code> objects instead of <code>ConnectEngine</code> or <code>DocTable</code> objects.</li>
@@ -127,16 +134,10 @@
           <li>The <code>Column</code> function replaces <code>Col</code> as generic default parameter values with more fine-grained control over column properties. This function provides a clearer separation between parameters that affect the behavior of the object as a dataclass (supplied as a <code>FieldArgs</code> object) and those that affect the database column schema (supplied via a <code>ColumnArgs</code> object).</li>
           <li><strong>New command line interface</strong>: you may execute doctable functions through the command line. Just use <code>python -m doctable execute {args here}</code> to see how to use it.</li>
         </ul>
-        
-        <h3>Documentation</h3>
-        TODO
 
         <br/><hr/><br/>
 
-
         <h3>Legacy API</h3>
-        
-        
         <p>Note that these examples are for doctable legacy, supported with sqlalchemy &lt;= 1.4:<br/>
           <code>pip install --upgrade git+https://github.com/devincornell/doctable.git@legacy</code>
         </p>
