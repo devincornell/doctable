@@ -54,7 +54,7 @@ example_html:
 	git add --all $(DOCS_EXAMPLES_FOLDER)*.html
 
 	jupyter nbconvert --to html $(LEGACY_EXAMPLES_FOLDER)/*.ipynb
-	mv $(EXAMPLES_FOLDER)/*.html $(LEGACY_DOCS_EXAMPLES_FOLDER)
+	mv $(LEGACY_EXAMPLES_FOLDER)/*.html $(LEGACY_DOCS_EXAMPLES_FOLDER)
 	git add --all $(LEGACY_DOCS_EXAMPLES_FOLDER)*.html
 
 
