@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Working with doctable Parsetrees - My Docs</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">My Docs</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../documentation/ex_basics/" class="dropdown-item">Basics of doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_insert_delete/" class="dropdown-item">Insert and Delete Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_schemas/" class="dropdown-item">Table Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_select/" class="dropdown-item">Select Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/iris_example/" class="dropdown-item">Iris example</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Legacy documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../dataclass_example/" class="dropdown-item">Dataclass Schema Example</a>
+</li>
+                                    
+<li>
+    <a href="../dataclass_vignette_advanced/" class="dropdown-item">Advanced dataclass schema vignette</a>
+</li>
+                                    
+<li>
+    <a href="../depric_vignette_newsgroups/" class="dropdown-item">NewsGroups Dataset Vignette</a>
+</li>
+                                    
+<li>
+    <a href="../distributed_basics/" class="dropdown-item">Distribute Parallel Processing Basics</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_basics/" class="dropdown-item">DocTable Overview</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_bootstrap/" class="dropdown-item">Document Bootstrapping Examples</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_concurrency/" class="dropdown-item">Concurrent Database Connections</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_connectengine/" class="dropdown-item">Manage SQL Connections with DocTable</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_file_column_types/" class="dropdown-item">DocTable File Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_insert_delete/" class="dropdown-item">DocTable Examples: Insert and Delete</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_multitable/" class="dropdown-item">Example: Multiple Tables</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_parsetreedoc_column/" class="dropdown-item">ParseTreeDoc Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_picklefile/" class="dropdown-item">DocTable Example: Pickle and Text Files</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema_dataclass/" class="dropdown-item">DocTable Example: Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema_legacy/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_select/" class="dropdown-item">DocTable Examples: Select</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_update/" class="dropdown-item">DocTable Examples: Update</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_1_intro/" class="dropdown-item">Vignette 1: Storing Document Metadata</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_2_parsing/" class="dropdown-item">Vignette 2: Storing Document Text</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_3_parsetrees/" class="dropdown-item">Vignette 3: Storing Parsed Documents</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_intro_dataclass/" class="dropdown-item">Example 1: US National Security Strategy Document Corpus</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_adv/" class="dropdown-item">DocTable (slightly more) Advanced Example</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_simple/" class="dropdown-item">DocTable Simple Example</a>
+</li>
+                                    
+<li>
+    <a href="../parse_parsepipeline/" class="dropdown-item">ParsePipeline Basics</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">Working with doctable Parsetrees</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../parse_parsepipeline/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" class="nav-link disabled">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#working-with-doctable-parsetrees" class="nav-link">Working with doctable Parsetrees</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#creating-parsetreedoc-objects" class="nav-link">Creating ParseTreeDoc Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#working-with-parsetrees" class="nav-link">Working With ParseTrees</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#more-about-tokens" class="nav-link">More About Tokens</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#recursive-functions-on-parsetrees" class="nav-link">Recursive Functions on Parsetrees</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#create-using-parsepipelines" class="nav-link">Create Using ParsePipelines</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="working-with-doctable-parsetrees">Working with doctable Parsetrees</h1>
+<p>Here I'll show you how to extract and use parsetrees in your doctable using Spacy + doctable. The motivation is that parsetree information in raw Spacy Document objects are very large and not suitable for storage when using large corpora. We solve this by simply converting the Spacy Document object to a tree data structure built from python lists and dictionaries, and use the <code>ParseTree</code> object to serialize, de-serialize, and interact with the tree structure.</p>
+<p>We use this feature using the <code>get_parsetrees</code> pipeline component after the spacy parser. <a href="ref/doctable.parse.html">Check the docs</a> to learn more about this function. You can see more examples of creating parse pipelines in our <a href="examples/parse_basics.html">overview examples</a>.</p>
+<pre><code class="language-python">import spacy
+nlp = spacy.load('en_core_web_sm')
+import pandas as pd
+import sys
+sys.path.append('..')
+import doctable
+</code></pre>
+<p>First we define some example text docuemnts, Star Wars themed.</p>
+<pre><code class="language-python">text = 'Help me Obi-Wan Kenobi. You’re my only hope. ' \
+    'I find your lack of faith disturbing. ' \
+    'Do, or do not - there is no try. '
+text
+</code></pre>
+<pre><code>'Help me Obi-Wan Kenobi. You’re my only hope. I find your lack of faith disturbing. Do, or do not - there is no try. '
+</code></pre>
+<h2 id="creating-parsetreedoc-objects">Creating <code>ParseTreeDoc</code> Objects</h2>
+<p>The most direct way of creating a parsetree is to parse the desired text using the spacy language model, then use <code>ParseTreeDoc.from_spacy()</code> to construct the <code>ParseTreeDoc</code>. The <code>ParseTreeDoc</code> object is a container for parsetree objects representing each of the sentences identified with the SpaCy parser.</p>
+<pre><code class="language-python">spacydoc = nlp(text)
+doc = doctable.ParseTreeDoc.from_spacy(spacydoc)
+print(f'{len(doc)} sentences of type {type(doc)}')
+</code></pre>
+<pre><code>4 sentences of type &lt;class 'doctable.parse.documents.parsetreedoc.ParseTreeDoc'&gt;
+</code></pre>
+<p>The most important arguments to <code>parse_tok_func</code> are <code>text_parse_func</code> and <code>userdata_map</code>.</p>
+<ol>
+<li>
+<p><code>text_parse_func</code> determines the mapping from a spacy doc object to the text representation of each token accessed through <code>token.text</code>. By default this parameter is set to <code>lambda d: d.text</code>.</p>
+</li>
+<li>
+<p><code>userdata_map</code> is a dictionary mapping an attribute name to a function. You can, for instance, extract info from the original spacy doc object through this method. I'll explain later how these attributes can be accessed and used.</p>
+</li>
+</ol>
+<pre><code class="language-python">doc = doctable.ParseTreeDoc.from_spacy(spacydoc, 
+    text_parse_func=lambda spacydoc: spacydoc.text,
+    userdata_map = {
+        'lower': lambda spacydoc: spacydoc.text.lower().strip(),
+        'lemma': lambda spacydoc: spacydoc.lemma_,
+        'like_num': lambda spacydoc: spacydoc.like_num,
+    }
+)
+print(doc[0]) # show the first sentence
+</code></pre>
+<pre><code>ParseTree(Help me Obi - Wan Kenobi .)
+</code></pre>
+<h2 id="working-with-parsetrees">Working With <code>ParseTree</code>s</h2>
+<p><code>ParseTreeDoc</code> objects represent sequences of <code>ParseTree</code> objects identified by the spacy language parser. You can see we can access individual sentence parsetrees using numerical indexing or through iteration.</p>
+<pre><code class="language-python">print(doc[0])
+for sent in doc:
+    print(sent)
+</code></pre>
+<pre><code>ParseTree(Help me Obi - Wan Kenobi .)
+ParseTree(Help me Obi - Wan Kenobi .)
+ParseTree(You ’re my only hope .)
+ParseTree(I find your lack of faith disturbing .)
+ParseTree(Do , or do not - there is no try .)
+</code></pre>
+<p>Now we will show how to work with <code>ParseTree</code> objects. These objects are collections of tokens that can be accessed either as a tree (based on the structure of the dependency tree produced by spacy), or as an ordered sequence. We can use numerical indexing or iteration to interact with individual tokens.</p>
+<pre><code class="language-python">for token in doc[0]:
+    print(token)
+</code></pre>
+<pre><code>Help
+me
+Obi
+-
+Wan
+Kenobi
+.
+</code></pre>
+<p>We can work with the tree structure of a <code>ParseTree</code> object using the <code>root</code> property.</p>
+<pre><code class="language-python">print(doc[0].root)
+</code></pre>
+<pre><code>Help
+</code></pre>
+<p>And access the children of a given token using the <code>childs</code> property. The following tokens are children of the root token.</p>
+<pre><code class="language-python">for child in doc[0].root.childs:
+    print(child)
+</code></pre>
+<pre><code>me
+Kenobi
+.
+</code></pre>
+<p>These objects can be serialized using the <code>.as_dict()</code> method and de-serialized using the <code>.from_dict()</code> method.</p>
+<pre><code class="language-python">serialized = doc.as_dict()
+deserialized = doctable.ParseTreeDoc.from_dict(serialized)
+for sent in deserialized:
+    print(sent)
+</code></pre>
+<pre><code>ParseTree(Help me Obi - Wan Kenobi .)
+ParseTree(You ’re my only hope .)
+ParseTree(I find your lack of faith disturbing .)
+ParseTree(Do , or do not - there is no try .)
+</code></pre>
+<h2 id="more-about-tokens">More About <code>Token</code>s</h2>
+<p>Each token in a <code>ParseTree</code> is represented by a <code>Token</code> object. These objects maintain the tree structure of a parsetree, and each node contains some default information as well as optional and custom information. These are the most important member variables:</p>
+<h4 id="member-variables">Member Variables</h4>
+<ul>
+<li><em>i</em>: index of token in sentence</li>
+<li><em>text</em>: text representation of token</li>
+<li><em>tag</em>: the part-of-speech tag offered by the dependency parser (different from POS tagger)</li>
+<li><em>dep</em>: the dependency relation to parent object. See the <a href="https://spacy.io/api/annotation#dependency-parsing">Spacy annotation docs</a> for more detail.</li>
+<li><em>parent</em>: reference to parent node</li>
+<li><em>childs</em>: list of references to child nodes</li>
+</ul>
+<h4 id="optional-member-variables">Optional Member Variables</h4>
+<p>The following are provided if the associated spacy parser component was enabled.</p>
+<ul>
+<li><em>pos</em>: part-of-speech tag created if user enablled POS 'tagger' in Spacy. See <a href="https://spacy.io/api/annotation#pos-tagging">Spacy POS tag docs</a> for more detail. Also check out docs for <a href="https://universaldependencies.org/docs/u/pos/">UPOS tags</a>.</li>
+<li><em>ent</em>: named entity type of token (if NER was enabled when creating parsetree). See <a href="https://spacy.io/api/annotation#named-entities">Spacy NER docs</a> for more detail.</li>
+</ul>
+<pre><code class="language-python">for tok in doc[0][:3]:
+    print(f&quot;{tok.text}:\n\ti={tok.i}\n\ttag={tok.tag}\n\tdep={tok.dep}\n\tent={tok.ent}\n\tpos={tok.pos}&quot;)
+</code></pre>
+<pre><code>Help:
+    i=0
+    tag=VB
+    dep=ROOT
+    ent=
+    pos=VERB
+me:
+    i=1
+    tag=PRP
+    dep=dobj
+    ent=
+    pos=PRON
+Obi:
+    i=2
+    tag=NNP
+    dep=compound
+    ent=
+    pos=PROPN
+</code></pre>
+<p>We can also access the custom token properties provided to the <code>ParseTreeDoc.from_spacy()</code> method earlier.</p>
+<pre><code class="language-python">for token in doc[0]:
+    print(f&quot;{token.text}: {token['lemma']}&quot;)
+</code></pre>
+<pre><code>Help: help
+me: I
+Obi: Obi
+-: -
+Wan: Wan
+Kenobi: Kenobi
+.: .
+</code></pre>
+<h2 id="recursive-functions-on-parsetrees">Recursive Functions on Parsetrees</h2>
+<p>We can also navigate the tree structure of parsetrees using recursive functions. Here I simply print out the trajectory of this recursive function.</p>
+<pre><code class="language-python">def print_recursion(tok, level=0):
+    if not tok.childs:
+        print('    '*level + 'base node', tok)
+    else:
+        print('    '*level + 'entering', tok)
+        for child in tok.childs:
+            print_recursion(child, level+1)
+        print('    '*level + 'leaving', tok)
+
+print_recursion(doc[0].root)
+</code></pre>
+<pre><code>entering Help
+    base node me
+    entering Kenobi
+        entering Wan
+            base node Obi
+            base node -
+        leaving Wan
+    leaving Kenobi
+    base node .
+leaving Help
+</code></pre>
+<h2 id="create-using-parsepipelines">Create Using <code>ParsePipeline</code>s</h2>
+<p>The most common use case, however, probably involves the creation of of a <code>ParsePipeline</code> in which the end result will be a <code>ParseTreeDoc</code>. We make this using the <code>get_parsetrees</code> pipeline component, and here we show several of the possible arguments.</p>
+<pre><code class="language-python">parser = doctable.ParsePipeline([
+    nlp, # the spacy parser
+    doctable.Comp('get_parsetrees', **{
+        'text_parse_func': lambda spacydoc: spacydoc.text,
+        'userdata_map': {
+            'lower': lambda spacydoc: spacydoc.text.lower().strip(),
+            'lemma': lambda spacydoc: spacydoc.lemma_,
+            'like_num': lambda spacydoc: spacydoc.like_num,
+        }
+    })
+])
+parser.components
+</code></pre>
+<pre><code>[&lt;spacy.lang.en.English at 0x7f3d584c7dc0&gt;,
+ functools.partial(&lt;function get_parsetrees at 0x7f3d27b95dc0&gt;, text_parse_func=&lt;function &lt;lambda&gt; at 0x7f3d26a17a60&gt;, userdata_map={'lower': &lt;function &lt;lambda&gt; at 0x7f3d26a17160&gt;, 'lemma': &lt;function &lt;lambda&gt; at 0x7f3d26a170d0&gt;, 'like_num': &lt;function &lt;lambda&gt; at 0x7f3d26a17040&gt;})]
+</code></pre>
+<p>You can see that the parser provides the same output as we got before with <code>ParseTreeDoc.from_spacy()</code>.</p>
+<pre><code class="language-python">for sent in parser.parse(text):
+    print(sent)
+</code></pre>
+<pre><code>ParseTree(Help me Obi - Wan Kenobi .)
+ParseTree(You ’re my only hope .)
+ParseTree(I find your lack of faith disturbing .)
+ParseTree(Do , or do not - there is no try .)
+</code></pre></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

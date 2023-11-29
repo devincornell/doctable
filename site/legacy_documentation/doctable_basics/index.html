@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>DocTable Overview - My Docs</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">My Docs</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../documentation/ex_basics/" class="dropdown-item">Basics of doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_insert_delete/" class="dropdown-item">Insert and Delete Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_schemas/" class="dropdown-item">Table Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_select/" class="dropdown-item">Select Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/iris_example/" class="dropdown-item">Iris example</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Legacy documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../dataclass_example/" class="dropdown-item">Dataclass Schema Example</a>
+</li>
+                                    
+<li>
+    <a href="../dataclass_vignette_advanced/" class="dropdown-item">Advanced dataclass schema vignette</a>
+</li>
+                                    
+<li>
+    <a href="../depric_vignette_newsgroups/" class="dropdown-item">NewsGroups Dataset Vignette</a>
+</li>
+                                    
+<li>
+    <a href="../distributed_basics/" class="dropdown-item">Distribute Parallel Processing Basics</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">DocTable Overview</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_bootstrap/" class="dropdown-item">Document Bootstrapping Examples</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_concurrency/" class="dropdown-item">Concurrent Database Connections</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_connectengine/" class="dropdown-item">Manage SQL Connections with DocTable</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_file_column_types/" class="dropdown-item">DocTable File Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_insert_delete/" class="dropdown-item">DocTable Examples: Insert and Delete</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_multitable/" class="dropdown-item">Example: Multiple Tables</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_parsetreedoc_column/" class="dropdown-item">ParseTreeDoc Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_picklefile/" class="dropdown-item">DocTable Example: Pickle and Text Files</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema_dataclass/" class="dropdown-item">DocTable Example: Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema_legacy/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_select/" class="dropdown-item">DocTable Examples: Select</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_update/" class="dropdown-item">DocTable Examples: Update</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_1_intro/" class="dropdown-item">Vignette 1: Storing Document Metadata</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_2_parsing/" class="dropdown-item">Vignette 2: Storing Document Text</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_3_parsetrees/" class="dropdown-item">Vignette 3: Storing Parsed Documents</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_intro_dataclass/" class="dropdown-item">Example 1: US National Security Strategy Document Corpus</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_adv/" class="dropdown-item">DocTable (slightly more) Advanced Example</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_simple/" class="dropdown-item">DocTable Simple Example</a>
+</li>
+                                    
+<li>
+    <a href="../parse_parsepipeline/" class="dropdown-item">ParsePipeline Basics</a>
+</li>
+                                    
+<li>
+    <a href="../parse_parsetrees/" class="dropdown-item">Working with doctable Parsetrees</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../distributed_basics/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../doctable_bootstrap/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#doctable-overview" class="nav-link">DocTable Overview</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#1-creating-a-database-schema" class="nav-link">1. Creating a Database Schema</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#2-maintaining-database-connections" class="nav-link">2. Maintaining Database Connections</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#3-insert-delete-and-select" class="nav-link">3. Insert, Delete, and Select</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#4-more-complicated-queries" class="nav-link">4. More Complicated Queries</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#notes-on-db-interface" class="nav-link">Notes on DB Interface</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="doctable-overview"><code>DocTable</code> Overview</h1>
+<p>A <code>DocTable</code> acts as an object-oriented interface to a single database table. It combines the utility of <a href="https://realpython.com/python-data-classes/"><code>dataclasses</code></a> to create schemas from simple object definitions and <a href="https://docs.sqlalchemy.org/en/14/core/">sqlalchemy</a> to create connections and execute queries to a database. It should be easy to convert existing data-oriented objects to database schemas, and use those objects when inserting/retrieving data. </p>
+<p>In this document I'll cover these topics:</p>
+<ol>
+<li>Creating Schemas</li>
+<li>Managing Connections</li>
+<li>Inserting, Deleting, and Selecting</li>
+<li>Select Queries</li>
+</ol>
+<p>You may also want to see the <a href="examples/example_nss_1_intro.html">vignettes</a> for more examples, the <a href="ref/doctable.DocTable.html"><code>DocTable</code> docs</a> for more information about the class, or the <a href="examples/doctable_schema.html">schema guide</a> for more information about creating schemas. I also recommend looking examples for <a href="examples/doctable_insert_delete.html">insert, delete</a>, <a href="examples/doctable_select.html">select</a>, and <a href="examples/doctable_update.html">update</a> methods.</p>
+<pre><code class="language-python">import random
+random.seed(0)
+import pandas as pd
+import numpy as np
+from dataclasses import dataclass
+
+import sys
+sys.path.append('..')
+import doctable
+</code></pre>
+<h1 id="1-creating-a-database-schema">1. Creating a Database Schema</h1>
+<p><code>DocTable</code> schemas are created using the <code>doctable.schema</code> decorator on a class that uses <code>doctable.Col</code> for defaulted parameters. Check out the <a href="examples/doctable_schema.html">schema guide</a> for more detail about schema classes. Our demonstration class will include three columns: <code>id</code>, <code>name</code>, and <code>age</code>, with an additional <code>.is_old</code> property derived from <code>age</code> for example.</p>
+<p>Note that the <code>id</code> column uses the default value <code>IDCol()</code> which sets the variable to be the primary key and to auto-increment. Arguments passed to the generic <code>Col()</code> function are passed directly to the <a href="https://docs.sqlalchemy.org/en/14/core/metadata.html">sqlalchemy metadata</a> to direct column creation. See more in the <a href="examples/doctable_schema.html">schema guide</a>.</p>
+<pre><code class="language-python">@doctable.schema
+class Record:
+    __slots__ = []
+    id: int = doctable.IDCol()
+    name: str = doctable.Col(nullable=False)
+    age: int = doctable.Col()
+
+    @property
+    def is_old(self):
+        return self.age &gt;= 30 # lol
+</code></pre>
+<p>We can instantiate a <code>DocTable</code> by passing a <code>target</code> and <code>schema</code> (<code>Record</code> in our example) parameters, and I show the resulting schema using <code>.schema_table()</code>. Note that the type hints were used to describe column types, and <code>id</code> was used as the auto-incremented primary key.</p>
+<pre><code class="language-python">table = doctable.DocTable(target=':memory:', schema=Record)
+table.schema_table()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>name</td>
+      <td>VARCHAR</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>age</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Probably a more common use case will be to subclass <code>DocTable</code> to provide some basic definitions.</p>
+<pre><code class="language-python">class RecordTable(doctable.DocTable):
+    _tabname_ = 'records'
+    _schema_ = Record
+    _indices_ = (
+        doctable.Index('ind_age', 'age'),
+    )
+    _constraints_ = (
+        doctable.Constraint('check', 'age &gt; 0'),
+    )
+
+table = RecordTable(target=':memory:')
+table
+</code></pre>
+<pre><code>&lt;__main__.RecordTable at 0x7f5b40325940&gt;
+</code></pre>
+<h1 id="2-maintaining-database-connections">2. Maintaining Database Connections</h1>
+<p>Obviously a big part of working with databases involves managing connections with the database. By default, <code>DocTable</code> instances DO NOT maintain persistent connections to the database - instead, they open a connection as-needed when executing a query. Benchmark comparisons show that the cost of creating a connection is so low relative to an actual insertion that this probably the approach for most applications.</p>
+<p>Alternatively, there are several ways of working with connections: as a context manager, using the <code>persistent_conn</code> constructor parameter, manually calling <code>open_conn()</code> and <code>close_conn()</code> (not recommended), and manually requesting a connection to execute using your own sqlalchemy or raw sql library queries.</p>
+<ol>
+<li>As a context manager. Note that the <code>__enter__</code> method returns the doctable instance itself, so you can access it using with or without the "as" keyword.</li>
+</ol>
+<pre><code class="language-python">tab = doctable.DocTable(target=':memory:', schema=Record)
+print(tab._conn)
+with tab as t:
+    r = Record(name = 'Devin Cornell', age = 32)
+    print(dir(r))
+    t.insert_single(Record(name = 'Devin Cornell', age = 32))
+    print(t._conn)
+
+# alternatively, no need to use &quot;as&quot;
+with tab:
+    tab.insert_single(Record(name = 'Devin Cornell', age = 32))
+    print(tab._conn)
+tab.head()
+
+</code></pre>
+<pre><code>None
+['__annotations__', '__class__', '__dataclass_fields__', '__dataclass_params__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__slots__', '__str__', '__subclasshook__', '__wrapped__', '_doctable__age', '_doctable__id', '_doctable__name', '_doctable_as_dict', '_doctable_from_db', '_doctable_get_val', 'age', 'as_dict', 'get_val', 'id', 'is_old', 'name']
+&lt;sqlalchemy.engine.base.Connection object at 0x7f5b40304550&gt;
+&lt;sqlalchemy.engine.base.Connection object at 0x7f5b403141c0&gt;
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:391: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:408: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn('Method .head() is depricated. Please use .q.select_head() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Devin Cornell</td>
+      <td>32</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Devin Cornell</td>
+      <td>32</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<ol>
+<li>Using the constructor argument <code>persistent_conn</code></li>
+</ol>
+<pre><code class="language-python">tab = doctable.DocTable(target=':memory:', schema=Record, persistent_conn=False)
+print(tab._conn)
+tab = doctable.DocTable(target=':memory:', schema=Record, persistent_conn=True)
+tab._conn
+</code></pre>
+<pre><code>None
+
+
+
+
+
+&lt;sqlalchemy.engine.base.Connection at 0x7f5b402cd280&gt;
+</code></pre>
+<ol>
+<li>Manually calling <code>.open_conn()</code> and <code>.close_conn()</code>. I recommend using a context manager if you go this route.</li>
+</ol>
+<pre><code class="language-python">tab = doctable.DocTable(target=':memory:', schema=Record)
+print(tab._conn)
+tab.open_conn()
+print(tab._conn)
+tab.close_conn()
+print(tab._conn)
+</code></pre>
+<pre><code>None
+&lt;sqlalchemy.engine.base.Connection object at 0x7f5b403097c0&gt;
+None
+</code></pre>
+<ol>
+<li>grabbing a connection object to execute your own sqlalchemy queries</li>
+</ol>
+<pre><code class="language-python">conn = tab.connect()
+conn
+</code></pre>
+<pre><code>&lt;sqlalchemy.engine.base.Connection at 0x7f5b40309550&gt;
+</code></pre>
+<h1 id="3-insert-delete-and-select">3. Insert, Delete, and Select</h1>
+<p>The nature of doctable schema definitions means the easiest way to work with database data is often to use the schema class as a normal dataclass. I recommend the <a href="examples/doctable_schema.html">schema guide</a> for more detail about the relationship between dataclasses, schema classes, and behavior of the actual database. While the intent behind using dataclasses for database schemas is intuitive and valuable, it can be tricky.</p>
+<blockquote>
+<p>NOTE!!!: Unlike ORM-based applications, <code>DocTable</code> instances do not have any connection to instances of the schema class - they are simply used to encapsulate data to be stored and retrieved in the table. This is why the same object can be inserted multiple times in this example.</p>
+</blockquote>
+<p>Lets start off by creating some record objects and inserting them into the database with <code>.insert_single()</code> and <code>.insert_many()</code>. In the <code>Record</code> constructor here we do not specify the id value - this is because our database schema dictated that it will be automatically incremented by the database - if we omit the value in the constructor, by default it will simply not pass any value to the database at all (this can be changed later though). See that the results of our call to <code>.head()</code> shows that the rows were given id values upon insertion.</p>
+<pre><code class="language-python">table = doctable.DocTable(target=':memory:', schema=Record)
+
+o = Record(name='Devin Cornell', age=35)
+table.insert_single(o, verbose=True)
+table.insert_single(o)
+table.insert_many([o, o], verbose=True)
+table.head()
+</code></pre>
+<pre><code>DocTable: INSERT OR FAIL INTO _documents_ (id, name, age) VALUES (?, ?, ?)
+DocTable: INSERT OR FAIL INTO _documents_ (id, name, age) VALUES (?, ?, ?)
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:391: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:379: UserWarning: .insert_many() is depricated: please use .q.insert_multi() or .q.insert_multi_raw()
+  warnings.warn(f'.insert_many() is depricated: please use .q.insert_multi() or '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:408: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn('Method .head() is depricated. Please use .q.select_head() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Devin Cornell</td>
+      <td>35</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Devin Cornell</td>
+      <td>35</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Devin Cornell</td>
+      <td>35</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>Devin Cornell</td>
+      <td>35</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Now we use <code>.select()</code> to retrieve data from the database. Here we call it with no parameters to simply get all the objects we previously inserted, this time with the id values that the database provided.</p>
+<pre><code class="language-python">results = table.select(verbose=True)
+results
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age 
+FROM _documents_
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:452: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn('Method .select() is depricated. Please use .q.select() instead.')
+
+
+
+
+
+[Record(id=1, name='Devin Cornell', age=35),
+ Record(id=2, name='Devin Cornell', age=35),
+ Record(id=3, name='Devin Cornell', age=35),
+ Record(id=4, name='Devin Cornell', age=35)]
+</code></pre>
+<h1 id="4-more-complicated-queries">4. More Complicated Queries</h1>
+<p>And, of course, the most important part of any database library is to execute queries. To do this, <code>DocTable</code> objects keep track of <a href="https://docs.sqlalchemy.org/en/14/core/metadata.html">sqlalchemy core <code>MetaData</code> and <code>Table</code> objects</a> and build queries using the <code>select()</code>, <code>delete()</code>, <code>insert()</code>, and <code>update()</code> methods from sqlalchemy core.</p>
+<p>First, note that subscripting the table object allows you to access the underlying sqlalchemy <code>Column</code> objects, which, as I will show a bit later, can be used to create where conditionals for select and update queries. You can also access specific column data using the <code>.c</code> property of the doctable.</p>
+<pre><code class="language-python">table = doctable.DocTable(target=':memory:', schema=Record)
+
+table['id'], table.c.id
+</code></pre>
+<pre><code>(Column('id', Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False),
+ Column('id', Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False))
+</code></pre>
+<p>As we'll show later, these column objects also have some operators defined such that they can be used to construct complex queries and functions. You can read more about this in the <a href="https://docs.sqlalchemy.org/en/14/core/operators.html">sqlalchemy operators documentation</a>.</p>
+<pre><code class="language-python">table.c.id &gt; 3, table.c.id.in_([1,2]), table.c.age == 4
+</code></pre>
+<pre><code>(&lt;sqlalchemy.sql.elements.BinaryExpression object at 0x7f5b4025cd00&gt;,
+ &lt;sqlalchemy.sql.elements.BinaryExpression object at 0x7f5b4025cc70&gt;,
+ &lt;sqlalchemy.sql.elements.BinaryExpression object at 0x7f5b4025c8e0&gt;)
+</code></pre>
+<p>You can use these expressions as part of <code>select()</code>, <code>update()</code>, and <code>delete()</code> operations by passing them to the <code>where</code> argument.</p>
+<pre><code class="language-python">table.insert_single(Record(name='Devin Cornell', age=35))
+table.insert_single(Record(name='Sam Adams', age=250))
+table.insert_single(Record(name='Rando', age=500))
+
+table.select(where=table.c.id &gt;= 3, verbose=True)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age 
+FROM _documents_ 
+WHERE _documents_.id &gt;= ?
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:391: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+
+
+
+
+
+[Record(id=3, name='Rando', age=500)]
+</code></pre>
+<pre><code class="language-python">table.select_first(where=table.c.name=='Devin Cornell', verbose=True)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age 
+FROM _documents_ 
+WHERE _documents_.name = ?
+ LIMIT ? OFFSET ?
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:427: UserWarning: Method .select_first() is depricated. Please use .q.select_first() instead.
+  warnings.warn('Method .select_first() is depricated. Please use .q.select_first() instead.')
+
+
+
+
+
+Record(id=1, name='Devin Cornell', age=35)
+</code></pre>
+<h3 id="select-statements">Select Statements</h3>
+<p>Now we show how to select data from the table. Use the <code>.count()</code> method to check the number of rows. It also accepts some column conditionals to count entries that satisfy a given criteria</p>
+<pre><code class="language-python">table.count(verbose=True), table.count(table['age']&gt;=30, verbose=True)
+</code></pre>
+<pre><code>DocTable: SELECT count(_documents_.id) AS count_1 
+FROM _documents_
+ LIMIT ? OFFSET ?
+DocTable: SELECT count(_documents_.id) AS count_1 
+FROM _documents_ 
+WHERE _documents_.age &gt;= ?
+ LIMIT ? OFFSET ?
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:403: UserWarning: Method .count() is depricated. Please use .q.count() instead.
+  warnings.warn('Method .count() is depricated. Please use .q.count() instead.')
+
+
+
+
+
+(3, 3)
+</code></pre>
+<p>Use the <code>.select()</code> method with no arguments to retrieve all rows of the table. You can also choose to select one or more columns to select.</p>
+<pre><code class="language-python">table.select(verbose=True)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age 
+FROM _documents_
+
+
+
+
+
+[Record(id=1, name='Devin Cornell', age=35),
+ Record(id=2, name='Sam Adams', age=250),
+ Record(id=3, name='Rando', age=500)]
+</code></pre>
+<p>By specifying a column name, you can retrieve a list of column values, or by offering a list of data, you can request only those datas.</p>
+<pre><code class="language-python">table.select('name', verbose=True)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.name 
+FROM _documents_
+
+
+
+
+
+['Devin Cornell', 'Sam Adams', 'Rando']
+</code></pre>
+<pre><code class="language-python"># note we have no access to the ID column - just name, but still part of Record type.
+table.select(['name'], verbose=True)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.name 
+FROM _documents_
+
+
+
+
+
+[Record(name='Devin Cornell'), Record(name='Sam Adams'), Record(name='Rando')]
+</code></pre>
+<p>Accessing a property which was not retrieved from the database will raise an exception.</p>
+<pre><code class="language-python">rec = table.select_first(['name'])
+try:
+    rec.id
+except doctable.RowDataNotAvailableError as e:
+    print('This exception was raised:', e)
+</code></pre>
+<pre><code>This exception was raised: The "id" property is not available. This might happen if you did not retrieve the information from a database or if you did not provide a value in the class constructor.
+</code></pre>
+<p>You may also use aggregation functions like <code>.sum</code>.</p>
+<pre><code class="language-python">table.select_first(table['age'].sum(), verbose=True)
+</code></pre>
+<pre><code>DocTable: SELECT sum(_documents_.age) AS sum_1 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+
+
+
+785
+</code></pre>
+<p>The SUM() and COUNT() SQL functions have been mapped to <code>.sum</code> and <code>.count</code> attributes of columns. Use <code>as_dataclass=False</code> if you do retrieve data which does not fit into a <code>Record</code> object.</p>
+<pre><code class="language-python">table.select_first([table['age'].sum(),table['age'].count()], verbose=True)
+</code></pre>
+<pre><code>DocTable: SELECT sum(_documents_.age) AS sum_1, count(_documents_.age) AS count_1 
+FROM _documents_
+ LIMIT ? OFFSET ?
+DocTable: SELECT sum(_documents_.age) AS sum_1, count(_documents_.age) AS count_1 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:443: UserWarning: Conversion from row to object failed according to the following error. Please use .q.select_first(..,raw_result=True) next time in the future to avoid this issue. e=RowDataConversionFailed("Conversion from &lt;class 'sqlalchemy.engine.row.LegacyRow'&gt; to &lt;class '__main__.Record'&gt; failed.")
+  warnings.warn(f'Conversion from row to object failed according to the following '
+
+
+
+
+
+(785, 3)
+</code></pre>
+<p>Alternatively, to see the results as a pandas dataframe, we can use <code>.select_df()</code>.</p>
+<pre><code class="language-python">table.select_df(verbose=True)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age 
+FROM _documents_
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:420: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Devin Cornell</td>
+      <td>35</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Sam Adams</td>
+      <td>250</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Rando</td>
+      <td>500</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Now we can select specific elements of the db using the <code>where</code> argument of the <code>.select()</code> method.</p>
+<pre><code class="language-python">table.select(where=table['age'] &gt;= 1, verbose=True)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age 
+FROM _documents_ 
+WHERE _documents_.age &gt;= ?
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:452: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn('Method .select() is depricated. Please use .q.select() instead.')
+
+
+
+
+
+[Record(id=1, name='Devin Cornell', age=35),
+ Record(id=2, name='Sam Adams', age=250),
+ Record(id=3, name='Rando', age=500)]
+</code></pre>
+<pre><code class="language-python">table.select(where=table['id']==3, verbose=True)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age 
+FROM _documents_ 
+WHERE _documents_.id = ?
+
+
+
+
+
+[Record(id=3, name='Rando', age=500)]
+</code></pre>
+<p>We can update the results in a similar way, using the <code>where</code> argument.</p>
+<pre><code class="language-python">table.update({'name':'smartypants'}, where=table['id']==3, verbose=True)
+table.select()
+</code></pre>
+<pre><code>DocTable: UPDATE _documents_ SET name=? WHERE _documents_.id = ?
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:504: UserWarning: Method .update() is depricated. Please use .q.update() instead.
+  warnings.warn('Method .update() is depricated. Please use .q.update() instead.')
+
+
+
+
+
+[Record(id=1, name='Devin Cornell', age=35),
+ Record(id=2, name='Sam Adams', age=250),
+ Record(id=3, name='smartypants', age=500)]
+</code></pre>
+<pre><code class="language-python">print(table['age']*100)
+table.update({'age':table['age']*100}, verbose=True)
+table.select()
+</code></pre>
+<pre><code>_documents_.age * :age_1
+DocTable: UPDATE _documents_ SET age=(_documents_.age * ?)
+
+
+
+
+
+[Record(id=1, name='Devin Cornell', age=3500),
+ Record(id=2, name='Sam Adams', age=25000),
+ Record(id=3, name='smartypants', age=50000)]
+</code></pre>
+<p>And we can delete elements using the <code>.delete()</code> method.</p>
+<pre><code class="language-python">table.delete(where=table['id']==3, verbose=True)
+table.select()
+</code></pre>
+<pre><code>DocTable: DELETE FROM _documents_ WHERE _documents_.id = ?
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:509: UserWarning: Method .delete() is depricated. Please use .q.delete() instead.
+  warnings.warn('Method .delete() is depricated. Please use .q.delete() instead.')
+
+
+
+
+
+[Record(id=1, name='Devin Cornell', age=3500),
+ Record(id=2, name='Sam Adams', age=25000)]
+</code></pre>
+<h1 id="notes-on-db-interface">Notes on DB Interface</h1>
+<p>DocTable2 allows you to access columns through direct subscripting, then relies on the power of sqlalchemy column objects to do most of the work of constructing queries. Here are a few notes on their use. For more demonstration, see the example in examples/dt2_select.ipynb</p>
+<pre><code class="language-python"># subscript is used to access underlying sqlalchemy column reference (without querying data)
+table['id']
+</code></pre>
+<pre><code>Column('id', Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False)
+</code></pre>
+<pre><code class="language-python"># conditionals are applied directly to the column objects (as we'll see with &quot;where&quot; clause)
+table['id'] &lt; 3
+</code></pre>
+<pre><code>&lt;sqlalchemy.sql.elements.BinaryExpression object at 0x7f5b4022fc10&gt;
+</code></pre>
+<pre><code class="language-python"># can also access using .col() method
+table.col('id')
+</code></pre>
+<pre><code>Column('id', Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False)
+</code></pre>
+<pre><code class="language-python"># to access all column objects (only useful for working directly with sql info)
+table.columns
+</code></pre>
+<pre><code>&lt;sqlalchemy.sql.base.ImmutableColumnCollection at 0x7f5b40388db0&gt;
+</code></pre>
+<pre><code class="language-python"># to access more detailed schema information
+table.schema_table()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>name</td>
+      <td>VARCHAR</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>age</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python"># If needed, you can also access the sqlalchemy table object using the .table property.
+table.table
+</code></pre>
+<pre><code>Table('_documents_', MetaData(bind=Engine(sqlite:///:memory:)), Column('id', Integer(), table=&lt;_documents_&gt;, primary_key=True, nullable=False), Column('name', String(), table=&lt;_documents_&gt;, nullable=False), Column('age', Integer(), table=&lt;_documents_&gt;), schema=None)
+</code></pre>
+<pre><code class="language-python"># the count method is also an easy way to count rows in the database
+table.count()
+</code></pre>
+<pre><code>/DataDrive/code/doctable/examples/../doctable/doctable.py:403: UserWarning: Method .count() is depricated. Please use .q.count() instead.
+  warnings.warn('Method .count() is depricated. Please use .q.count() instead.')
+
+
+
+
+
+2
+</code></pre>
+<pre><code class="language-python"># the print method makes it easy to see the table name and total row count
+print(table)
+</code></pre>
+<pre><code>&lt;DocTable (3 cols)::sqlite:///:memory::_documents_&gt;
+</code></pre></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Vignette 2: Storing Document Text - My Docs</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">My Docs</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../documentation/ex_basics/" class="dropdown-item">Basics of doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_insert_delete/" class="dropdown-item">Insert and Delete Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_schemas/" class="dropdown-item">Table Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_select/" class="dropdown-item">Select Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/iris_example/" class="dropdown-item">Iris example</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Legacy documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../dataclass_example/" class="dropdown-item">Dataclass Schema Example</a>
+</li>
+                                    
+<li>
+    <a href="../dataclass_vignette_advanced/" class="dropdown-item">Advanced dataclass schema vignette</a>
+</li>
+                                    
+<li>
+    <a href="../depric_vignette_newsgroups/" class="dropdown-item">NewsGroups Dataset Vignette</a>
+</li>
+                                    
+<li>
+    <a href="../distributed_basics/" class="dropdown-item">Distribute Parallel Processing Basics</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_basics/" class="dropdown-item">DocTable Overview</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_bootstrap/" class="dropdown-item">Document Bootstrapping Examples</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_concurrency/" class="dropdown-item">Concurrent Database Connections</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_connectengine/" class="dropdown-item">Manage SQL Connections with DocTable</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_file_column_types/" class="dropdown-item">DocTable File Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_insert_delete/" class="dropdown-item">DocTable Examples: Insert and Delete</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_multitable/" class="dropdown-item">Example: Multiple Tables</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_parsetreedoc_column/" class="dropdown-item">ParseTreeDoc Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_picklefile/" class="dropdown-item">DocTable Example: Pickle and Text Files</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema_dataclass/" class="dropdown-item">DocTable Example: Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema_legacy/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_select/" class="dropdown-item">DocTable Examples: Select</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_update/" class="dropdown-item">DocTable Examples: Update</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_1_intro/" class="dropdown-item">Vignette 1: Storing Document Metadata</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">Vignette 2: Storing Document Text</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_3_parsetrees/" class="dropdown-item">Vignette 3: Storing Parsed Documents</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_intro_dataclass/" class="dropdown-item">Example 1: US National Security Strategy Document Corpus</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_adv/" class="dropdown-item">DocTable (slightly more) Advanced Example</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_simple/" class="dropdown-item">DocTable Simple Example</a>
+</li>
+                                    
+<li>
+    <a href="../parse_parsepipeline/" class="dropdown-item">ParsePipeline Basics</a>
+</li>
+                                    
+<li>
+    <a href="../parse_parsetrees/" class="dropdown-item">Working with doctable Parsetrees</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../example_nss_1_intro/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../example_nss_3_parsetrees/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#vignette-2-storing-document-text" class="nav-link">Vignette 2: Storing Document Text</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#introduction-to-nss-corpus" class="nav-link">Introduction to NSS Corpus</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#1-create-a-table-schema" class="nav-link">1. Create a Table Schema</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#2-define-a-custom-doctable" class="nav-link">2. Define a Custom DocTable</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#2-insert-data-into-the-table" class="nav-link">2. Insert Data Into the Table</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#3-query-table-data" class="nav-link">3. Query Table Data</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#4-create-a-parser-for-tokenization" class="nav-link">4. Create a Parser for Tokenization</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="vignette-2-storing-document-text">Vignette 2: Storing Document Text</h1>
+<p>In this example, I'll show how to create a database for document text + metadata storage using the <code>DocTable</code> class, and a parser class using a <code>ParsePipeline</code>. We will store the metadata you see below with the raw text and parsed tokens in the same DocTable.</p>
+<p>These are the vignettes I have created:</p>
+<ul>
+<li>
+<p><a href="example_nss_1_intro.html">1: Storing Document Metadata</a></p>
+</li>
+<li>
+<p><a href="example_nss_2_parsing.html">2: Storing Document Text</a></p>
+</li>
+<li>
+<p><a href="example_nss_3_parsetrees.html">3: Storing Parsed Documents</a></p>
+</li>
+</ul>
+<pre><code class="language-python">import sys
+sys.path.append('..')
+import doctable
+import spacy
+from tqdm import tqdm
+import pandas as pd
+import os
+from pprint import pprint
+import urllib.request # used for downloading nss docs
+
+# automatically clean up temp folder after python ends
+import tempfile
+tempdir = tempfile.TemporaryDirectory()
+tmpfolder = tempdir.name
+tmpfolder
+</code></pre>
+<pre><code>'/tmp/tmpm_ciuemc'
+</code></pre>
+<h2 id="introduction-to-nss-corpus">Introduction to NSS Corpus</h2>
+<p>This dataset is the plain text version of the US National Security Strategy documents. During the parsing process, all plain text files will be downloaded from my <a href="https://github.com/devincornell/nssdocs">github project hosting the nss docs</a>. I compiled the metadata you see below from <a href="https://history.defense.gov/Historical-Sources/National-Security-Strategy/">a page hosted by the historical dept of the secretary's office</a>. In short, each US President must release at least one NSS per term, with some (namely Clinton) producing more.</p>
+<p>I've defined the document metadata as <code>nss_metadata</code>, which contains the year (which I used to make the url), the president name, and the political party they belong to. We will later use <code>download_nss()</code> to actually download the text and store it into the database.</p>
+<pre><code class="language-python">def download_nss(year):
+    ''' Simple helper function for downloading texts from my nssdocs repo.'''
+    baseurl = 'https://raw.githubusercontent.com/devincornell/nssdocs/master/docs/{}.txt'
+    url = baseurl.format(year)
+    text = urllib.request.urlopen(url).read().decode('utf-8')
+    return text
+</code></pre>
+<pre><code class="language-python">document_metadata = [
+    {'year': 2000, 'party': 'D', 'president': 'Clinton'},
+    {'year': 2002, 'party': 'R', 'president': 'W. Bush'}, 
+    {'year': 2006, 'party': 'R', 'president': 'W. Bush'}, 
+    {'year': 2010, 'party': 'D', 'president': 'Obama'}, 
+    {'year': 2015, 'party': 'D', 'president': 'Obama'}, 
+    {'year': 2017, 'party': 'R', 'president': 'Trump'}, 
+]
+</code></pre>
+<pre><code class="language-python"># downloader example: first 100 characters of 1993 NSS document
+text = download_nss(1993)
+text[:100]
+</code></pre>
+<pre><code>'Preface \n\nAmerican Leadership for Peaceful Change \n\nOur great Nation stands at a crossroads in histo'
+</code></pre>
+<h2 id="1-create-a-table-schema">1. Create a Table Schema</h2>
+<p>The first step will be to define a database schema that is appropriate for the data in <code>document_metadata</code>. We define an <code>NSSDoc</code> class to represent a single document. The <code>doctable.schema</code> decorator will convert the row objects into <a href="https://realpython.com/python-data-classes/"><code>dataclasses</code></a> with <a href="https://docs.python.org/3/reference/datamodel.html#slots">slots</a> enabled, and inherit from doctable.DocTableRow to add some additional functionality. The type hints associated with each variable will be used in the schema definition for the new tables, and arguments to <code>doctable.Col</code> will mostly be passed to <code>dataclasses.field</code> (see <a href="https://doctable.org/ref/doctable/schemas/field_columns.html#Col">docs</a> for more detail), so all dataclass functionality is maintained.</p>
+<p>See the <a href="examples/doctable_schema.html">schema guide</a> for examples of the full range of column types.</p>
+<pre><code class="language-python">from typing import Any # import generic type hint
+
+# to be used as a database row representing a single NSS document
+@doctable.schema
+class NSSDoc:
+    __slots__ = [] # include so that doctable.schema can create a slot class
+
+    id: int = doctable.IDCol() # this is an alias for doctable.Col(primary_key=True, autoincrement=True)
+    year: int =  doctable.Col()
+    party: str = doctable.Col()
+    president: str = doctable.Col()
+    text: str = doctable.Col()
+    tokens: Any = doctable.Col() # this will be used as a binary type that stores pickled data
+
+    @property
+    def num_tokens(self):
+        return len(self.tokens)
+
+    def paragraphs(self):
+        return self.text.split('\n\n')
+</code></pre>
+<h2 id="2-define-a-custom-doctable">2. Define a Custom DocTable</h2>
+<p>Now we define a class called <code>NSSDocTable</code> to represent the database table. This table must inherit from <code>DocTable</code> and will store connection and schema information.
+The <code>DocTable</code> class is often used by subclassing. Our <code>NSSDocs</code> class inherits from <code>DocTable</code> and will store connection and schema information. Because the default constructor checks for statically define member variables <code>tabname</code> and <code>schema</code> (as well as others), we can simply add them to the class definition. </p>
+<p>We also can use this definition to create indices and constraints using the <code>_indices_</code> and <code>_constraints_</code> member variables. The indices are provided as name-&gt;columns pairs, and the constraints are tuples of the form <code>(constraint_type, constraint_details)</code>. In this case, we limit the values for <code>check</code> to R or D.</p>
+<pre><code class="language-python">class NSSDocTable(doctable.DocTable):
+    _tabname_ = 'nss_documents'
+    _schema_ = NSSDoc
+    _indices_ = (
+        doctable.Index('party_index', 'party'),
+    )
+    _constraints_ = (
+        doctable.Constraint('check', 'party in (&quot;R&quot;, &quot;D&quot;)'),
+    )
+</code></pre>
+<p>We can then create a connection to a database by instantiating the <code>NSSDocTable</code> class. We used <code>target=':memory:'</code> to indicate that the sqlite table should be created in-memory.</p>
+<pre><code class="language-python"># printing the DocTable object itself shows how many entries there are
+nss_table = NSSDocTable(target=':memory:')
+print(nss_table.count())
+print(nss_table)
+nss_table.schema_table()
+</code></pre>
+<pre><code>0
+&lt;NSSDocTable (6 cols)::sqlite:///:memory::nss_documents&gt;
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:402: UserWarning: Method .count() is depricated. Please use .q.count() instead.
+  warnings.warn('Method .count() is depricated. Please use .q.count() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>year</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>party</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>president</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>text</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>tokens</td>
+      <td>BLOB</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="2-insert-data-into-the-table">2. Insert Data Into the Table</h2>
+<p>Now let's download and store the text into the database. Each loop downloads a text document and inserts it into the doctable, and we use the <code>.insert()</code> method to insert a single row at a time. The row to be inserted is represented as a dictionary, and any missing column information is left as NULL. The <code>ifnotunique</code> argument is set to false because if we were to re-run this code, it needs to replace the existing document of the same year. Recall that in the schema we placed a unique constraint on the year column.</p>
+<pre><code class="language-python">for docmeta in tqdm(document_metadata):
+    text = download_nss(docmeta['year'])
+    nss_table.insert({**docmeta, **{'text': text}}, ifnotunique='replace')
+nss_table.head()
+</code></pre>
+<pre><code>  0%|                                                                                                                                                      | 0/6 [00:00&lt;?, ?it/s]/DataDrive/code/doctable/examples/../doctable/doctable.py:364: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:390: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:00&lt;00:00, 12.32it/s]
+/DataDrive/code/doctable/examples/../doctable/doctable.py:407: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn('Method .head() is depricated. Please use .q.select_head() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>year</th>
+      <th>party</th>
+      <th>president</th>
+      <th>text</th>
+      <th>tokens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>2000</td>
+      <td>D</td>
+      <td>Clinton</td>
+      <td>As we enter the new millennium, we are blessed...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2002</td>
+      <td>R</td>
+      <td>W. Bush</td>
+      <td>The great struggles of the twentieth century b...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>2006</td>
+      <td>R</td>
+      <td>W. Bush</td>
+      <td>My fellow Americans, \n\nAmerica is at war. Th...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>2010</td>
+      <td>D</td>
+      <td>Obama</td>
+      <td>Time and again in our Nation's history, Americ...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>2015</td>
+      <td>D</td>
+      <td>Obama</td>
+      <td>Today, the United States is stronger and bette...</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="3-query-table-data">3. Query Table Data</h2>
+<p>Now that we have inserted the NSS documents into the table, there are a few ways we can query the data. To select the first entry of the table use <code>.select_first()</code>. This method returns a simple <code>sqlalchemy.RowProxy</code> object which can be accessed like a dictionary or like a tuple.</p>
+<pre><code class="language-python">row = nss_table.select_first(['id', 'year', 'party', 'president'])
+print(row)
+print(row.president)
+</code></pre>
+<pre><code>/DataDrive/code/doctable/examples/../doctable/doctable.py:426: UserWarning: Method .select_first() is depricated. Please use .q.select_first() instead.
+  warnings.warn('Method .select_first() is depricated. Please use .q.select_first() instead.')
+
+
+NSSDoc(id=1, year=2000, party='D', president='Clinton')
+Clinton
+</code></pre>
+<p>To select more than one row, use the <code>.select()</code> method. If you'd only like to return the first few rows, you can use the <code>limit</code> argument.</p>
+<pre><code class="language-python">rows = nss_table.select(limit=2)
+print(rows[0].year)
+print(rows[1].year)
+</code></pre>
+<pre><code>2000
+2002
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:443: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn('Method .select() is depricated. Please use .q.select() instead.')
+</code></pre>
+<p>We can also select only a few columns.</p>
+<pre><code class="language-python">nss_table.select(['year', 'president'], limit=3)
+</code></pre>
+<pre><code>[NSSDoc(year=2000, president='Clinton'),
+ NSSDoc(year=2002, president='W. Bush'),
+ NSSDoc(year=2006, president='W. Bush')]
+</code></pre>
+<p>For convenience, we can also use the <code>.select_df()</code> method to return directly as a pandas dataframe.</p>
+<pre><code class="language-python"># use select_df to show a couple rows of our database
+nss_table.select_df(limit=2)
+</code></pre>
+<pre><code>/DataDrive/code/doctable/examples/../doctable/doctable.py:419: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>year</th>
+      <th>party</th>
+      <th>president</th>
+      <th>text</th>
+      <th>tokens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>2000</td>
+      <td>D</td>
+      <td>Clinton</td>
+      <td>As we enter the new millennium, we are blessed...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2002</td>
+      <td>R</td>
+      <td>W. Bush</td>
+      <td>The great struggles of the twentieth century b...</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>And access the <code>.paragraphs()</code> method we defined in <code>NSSDoc</code>.</p>
+<pre><code class="language-python">for row in nss_table.select(limit=3):
+    print(f&quot;{row.president} ({row.year}): num_paragraphs={len(row.paragraphs())}&quot;)
+</code></pre>
+<pre><code>Clinton (2000): num_paragraphs=569
+W. Bush (2002): num_paragraphs=199
+W. Bush (2006): num_paragraphs=474
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:443: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn('Method .select() is depricated. Please use .q.select() instead.')
+</code></pre>
+<h2 id="4-create-a-parser-for-tokenization">4. Create a Parser for Tokenization</h2>
+<p>Now that the text is in the doctable, we can extract it using <code>.select()</code>, parse it, and store the parsed text back into the table using <code>.update()</code>.</p>
+<p>Now we create a parser using <code>ParsePipeline</code> and a list of functions to apply to the text sequentially. The <code>Comp</code> function returns a <a href="ref/doctable.parse.html">doctable parse function</a> with additional keyword arguments. For instance, the following two expressions would be the same.</p>
+<pre><code>doctable.Comp('keep_tok', keep_punct=True) # is equivalent to
+lambda x: doctable.parse.parse_tok_func(x, keep_punct=True)
+</code></pre>
+<p>Note in this example that the 'tokenize' function takes two function arguments: <code>keep_tok_func</code> and <code>parse_tok_func</code>, which are also specified using the <code>.Comp()</code> function. The available pipeline components are listed in the <a href="ref/doctable.parse.html">parse function documentation</a>.</p>
+<pre><code class="language-python"># add pipeline components
+parser = doctable.ParsePipeline([
+    spacy.load('en_core_web_sm'), # load a spacy parser as first step in pipeline
+    doctable.Comp('tokenize', **{
+        'split_sents': False,
+        'keep_tok_func': doctable.Comp('keep_tok'),
+        'parse_tok_func': doctable.Comp('parse_tok'),
+    })
+])
+
+parser.components
+</code></pre>
+<pre><code>[&lt;spacy.lang.en.English at 0x7f37ce907f70&gt;,
+ functools.partial(&lt;function tokenize at 0x7f37d3d74e50&gt;, split_sents=False, keep_tok_func=functools.partial(&lt;function keep_tok at 0x7f37d3d74f70&gt;), parse_tok_func=functools.partial(&lt;function parse_tok at 0x7f37d3d74ee0&gt;))]
+</code></pre>
+<p>Now we loop through rows in the doctable and for each iteration parse the text and insert it back into the table using <code>.update()</code>. We use the <code>ParsePipeline</code> method <code>.parsemany()</code> to parse paragraphs from each document in parallel.</p>
+<pre><code class="language-python">for doc in tqdm(nss_table.select(['id','year','text'])):
+    paragraphs = parser.parsemany(doc.text.split('\n\n'), workers=30) # parse paragraphs in parallel
+    nss_table.update({'tokens': [t for p in paragraphs for t in p]}, where=nss_table['id']==doc.id)
+</code></pre>
+<pre><code>  0%|                                                                                                                                                      | 0/6 [00:00&lt;?, ?it/s]/DataDrive/code/doctable/examples/../doctable/doctable.py:489: UserWarning: Method .update() is depricated. Please use .q.update() instead.
+  warnings.warn('Method .update() is depricated. Please use .q.update() instead.')
+100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:07&lt;00:00,  1.18s/it]
+</code></pre>
+<pre><code class="language-python">nss_table.select_df(limit=3)
+</code></pre>
+<pre><code>/DataDrive/code/doctable/examples/../doctable/doctable.py:419: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>year</th>
+      <th>party</th>
+      <th>president</th>
+      <th>text</th>
+      <th>tokens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>2000</td>
+      <td>D</td>
+      <td>Clinton</td>
+      <td>As we enter the new millennium, we are blessed...</td>
+      <td>[as, we, enter, the, new, millennium, ,, we, a...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2002</td>
+      <td>R</td>
+      <td>W. Bush</td>
+      <td>The great struggles of the twentieth century b...</td>
+      <td>[the, great, struggles, of, the, twentieth, ce...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>2006</td>
+      <td>R</td>
+      <td>W. Bush</td>
+      <td>My fellow Americans, \n\nAmerica is at war. Th...</td>
+      <td>[my, fellow, Americans, ,, America, is, at, wa...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">for doc in nss_table.select():
+    print(f&quot;{doc.president} ({doc.year}): {len(doc.tokens)} tokens.&quot;)
+</code></pre>
+<pre><code>Clinton (2000): 50156 tokens.
+W. Bush (2002): 14493 tokens.
+W. Bush (2006): 21590 tokens.
+Obama (2010): 31997 tokens.
+Obama (2015): 16611 tokens.
+Trump (2017): 24420 tokens.
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:443: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn('Method .select() is depricated. Please use .q.select() instead.')
+</code></pre>
+<p>And that is all for this vignette! See the list of vignettes at the top of this page for more examples.</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

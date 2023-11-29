@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>ParseTreeDoc Column Types - My Docs</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">My Docs</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../documentation/ex_basics/" class="dropdown-item">Basics of doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_insert_delete/" class="dropdown-item">Insert and Delete Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_schemas/" class="dropdown-item">Table Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_select/" class="dropdown-item">Select Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/iris_example/" class="dropdown-item">Iris example</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Legacy documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../dataclass_example/" class="dropdown-item">Dataclass Schema Example</a>
+</li>
+                                    
+<li>
+    <a href="../dataclass_vignette_advanced/" class="dropdown-item">Advanced dataclass schema vignette</a>
+</li>
+                                    
+<li>
+    <a href="../depric_vignette_newsgroups/" class="dropdown-item">NewsGroups Dataset Vignette</a>
+</li>
+                                    
+<li>
+    <a href="../distributed_basics/" class="dropdown-item">Distribute Parallel Processing Basics</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_basics/" class="dropdown-item">DocTable Overview</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_bootstrap/" class="dropdown-item">Document Bootstrapping Examples</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_concurrency/" class="dropdown-item">Concurrent Database Connections</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_connectengine/" class="dropdown-item">Manage SQL Connections with DocTable</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_file_column_types/" class="dropdown-item">DocTable File Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_insert_delete/" class="dropdown-item">DocTable Examples: Insert and Delete</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_multitable/" class="dropdown-item">Example: Multiple Tables</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">ParseTreeDoc Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_picklefile/" class="dropdown-item">DocTable Example: Pickle and Text Files</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema_dataclass/" class="dropdown-item">DocTable Example: Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema_legacy/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_select/" class="dropdown-item">DocTable Examples: Select</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_update/" class="dropdown-item">DocTable Examples: Update</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_1_intro/" class="dropdown-item">Vignette 1: Storing Document Metadata</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_2_parsing/" class="dropdown-item">Vignette 2: Storing Document Text</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_3_parsetrees/" class="dropdown-item">Vignette 3: Storing Parsed Documents</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_intro_dataclass/" class="dropdown-item">Example 1: US National Security Strategy Document Corpus</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_adv/" class="dropdown-item">DocTable (slightly more) Advanced Example</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_simple/" class="dropdown-item">DocTable Simple Example</a>
+</li>
+                                    
+<li>
+    <a href="../parse_parsepipeline/" class="dropdown-item">ParsePipeline Basics</a>
+</li>
+                                    
+<li>
+    <a href="../parse_parsetrees/" class="dropdown-item">Working with doctable Parsetrees</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../doctable_multitable/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../doctable_picklefile/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#parsetreedoc-column-types" class="nav-link">ParseTreeDoc Column Types</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="parsetreedoc-column-types">ParseTreeDoc Column Types</h1>
+<p>Creating parsetrees with spacy can be a computationally expensive task, so we may often want to store them in a database for better use. Because they may be large binary files, we will store them as pickle file column types, but with an additional serialization step.</p>
+<pre><code class="language-python">import spacy
+nlp = spacy.load('en_core_web_sm')
+import numpy as np
+from pathlib import Path
+
+import sys
+sys.path.append('..')
+import doctable
+
+# automatically clean up temp folder after python ends
+import tempfile
+tempdir = tempfile.TemporaryDirectory()
+tmpfolder = tempdir.name
+tmpfolder
+
+import tempfile
+with tempfile.TemporaryDirectory() as tmp:
+    print(tmp)
+</code></pre>
+<pre><code>/tmp/tmpnmvhkw9t
+</code></pre>
+<p>Create some test data and make a new <code>ParseTreeDoc</code> object.</p>
+<pre><code class="language-python">texts = [
+    'Help me Obi-Wan Kenobi. You’re my only hope. ',
+    'I find your lack of faith disturbing. ',
+    'Do, or do not. There is no try. '
+]
+parser = doctable.ParsePipeline([nlp, doctable.Comp('get_parsetrees')])
+docs = parser.parsemany(texts)
+for doc in docs:
+    print(len(doc))
+</code></pre>
+<pre><code>2
+1
+2
+</code></pre>
+<p>Now we create a schema that includes the <code>doc</code> column and the <code>ParseTreeFileCol</code> default value. Notice that using the type hint <code>ParseTreeDoc</code> and giving a generic <code>Col</code> default value is also sufficient.</p>
+<pre><code class="language-python">import dataclasses
+@doctable.schema(require_slots=False)
+class DocRow:
+    id: int = doctable.IDCol()
+    doc: doctable.ParseTreeDoc = doctable.ParseTreeFileCol(f'{tmpfolder}/parsetree_pickle_files')
+
+    # could also use this:
+    #doc: doctable.ParseTreeDoc = doctable.Col(type_args=dict(folder=f'{tmp}/parsetree_pickle_files'))
+
+db = doctable.DocTable(target=f'{tmpfolder}/test_ptrees.db', schema=DocRow, new_db=True)
+db.schema_info()
+</code></pre>
+<pre><code>[{'name': 'id',
+  'type': INTEGER(),
+  'nullable': False,
+  'default': None,
+  'autoincrement': 'auto',
+  'primary_key': 1},
+ {'name': 'doc',
+  'type': VARCHAR(),
+  'nullable': True,
+  'default': None,
+  'autoincrement': 'auto',
+  'primary_key': 0}]
+</code></pre>
+<pre><code class="language-python">#db.insert([{'doc':doc} for doc in docs])
+for doc in docs:
+    db.insert({'doc': doc})
+db.head(3)
+</code></pre>
+<pre><code>/DataDrive/code/doctable/examples/../doctable/doctable.py:365: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:391: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:408: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn('Method .head() is depricated. Please use .q.select_head() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">for idx, doc in db.q.select_raw():
+    print(f&quot;doc id {idx}:&quot;)
+    for i, sent in enumerate(doc):
+        print(f&quot;\tsent {i}: {[t.text for t in sent]}&quot;)
+</code></pre>
+<pre><code>doc id 1:
+    sent 0: ['Help', 'me', 'Obi', '-', 'Wan', 'Kenobi', '.']
+    sent 1: ['You', '’re', 'my', 'only', 'hope', '.']
+doc id 2:
+    sent 0: ['I', 'find', 'your', 'lack', 'of', 'faith', 'disturbing', '.']
+doc id 3:
+    sent 0: ['Do', ',', 'or', 'do', 'not', '.']
+    sent 1: ['There', 'is', 'no', 'try', '.']
+
+
+/DataDrive/code/doctable/examples/../doctable/connectengine.py:70: SAWarning: TypeDecorator ParseTreeDocFileType() will not produce a cache key because the ``cache_ok`` attribute is not set to True.  This can have significant performance implications including some performance degradations in comparison to prior SQLAlchemy versions.  Set this attribute to True if this type object's state is safe to use in a cache key, or False to disable this warning. (Background on this error at: https://sqlalche.me/e/14/cprf)
+  return self._engine.execute(query, *args, **kwargs)
+</code></pre>
+<p>See that the files exist, and we can remove/clean them just as any other file column type.</p>
+<pre><code class="language-python">for fpath in Path(tmpfolder).rglob('*.pic'):
+    print(str(fpath))
+</code></pre>
+<pre><code>/tmp/tmpvmthfr7t/parsetree_pickle_files/347692105083_parsetreedoc.pic
+/tmp/tmpvmthfr7t/parsetree_pickle_files/98072534351_parsetreedoc.pic
+/tmp/tmpvmthfr7t/parsetree_pickle_files/689952128879_parsetreedoc.pic
+</code></pre>
+<pre><code class="language-python">db.delete(db['id']==1)
+for fpath in Path(tmpfolder).rglob('*.pic'):
+    print(str(fpath))
+db.head()
+</code></pre>
+<pre><code>/tmp/tmpvmthfr7t/parsetree_pickle_files/347692105083_parsetreedoc.pic
+/tmp/tmpvmthfr7t/parsetree_pickle_files/98072534351_parsetreedoc.pic
+/tmp/tmpvmthfr7t/parsetree_pickle_files/689952128879_parsetreedoc.pic
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:506: UserWarning: Method .delete() is depricated. Please use .q.delete() instead.
+  warnings.warn('Method .delete() is depricated. Please use .q.delete() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:408: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn('Method .head() is depricated. Please use .q.select_head() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>doc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2</td>
+      <td>[(I, find, your, lack, of, faith, disturbing, .)]</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>3</td>
+      <td>[(Do, ,, or, do, not, .), (There, is, no, try,...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">db.clean_col_files('doc')
+for fpath in Path(tmpfolder).rglob('*.pic'):
+    print(str(fpath))
+</code></pre>
+<pre><code>/tmp/tmpvmthfr7t/parsetree_pickle_files/347692105083_parsetreedoc.pic
+/tmp/tmpvmthfr7t/parsetree_pickle_files/98072534351_parsetreedoc.pic
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:449: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn('Method .select() is depricated. Please use .q.select() instead.')
+/DataDrive/code/doctable/examples/../doctable/connectengine.py:70: SAWarning: TypeDecorator ParseTreeDocFileType() will not produce a cache key because the ``cache_ok`` attribute is not set to True.  This can have significant performance implications including some performance degradations in comparison to prior SQLAlchemy versions.  Set this attribute to True if this type object's state is safe to use in a cache key, or False to disable this warning. (Background on this error at: https://sqlalche.me/e/14/cprf)
+  return self._engine.execute(query, *args, **kwargs)
+</code></pre></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

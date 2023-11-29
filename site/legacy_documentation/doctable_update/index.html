@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>DocTable Examples: Update - My Docs</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">My Docs</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../documentation/ex_basics/" class="dropdown-item">Basics of doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_insert_delete/" class="dropdown-item">Insert and Delete Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_schemas/" class="dropdown-item">Table Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_select/" class="dropdown-item">Select Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/iris_example/" class="dropdown-item">Iris example</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Legacy documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../dataclass_example/" class="dropdown-item">Dataclass Schema Example</a>
+</li>
+                                    
+<li>
+    <a href="../dataclass_vignette_advanced/" class="dropdown-item">Advanced dataclass schema vignette</a>
+</li>
+                                    
+<li>
+    <a href="../depric_vignette_newsgroups/" class="dropdown-item">NewsGroups Dataset Vignette</a>
+</li>
+                                    
+<li>
+    <a href="../distributed_basics/" class="dropdown-item">Distribute Parallel Processing Basics</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_basics/" class="dropdown-item">DocTable Overview</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_bootstrap/" class="dropdown-item">Document Bootstrapping Examples</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_concurrency/" class="dropdown-item">Concurrent Database Connections</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_connectengine/" class="dropdown-item">Manage SQL Connections with DocTable</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_file_column_types/" class="dropdown-item">DocTable File Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_insert_delete/" class="dropdown-item">DocTable Examples: Insert and Delete</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_multitable/" class="dropdown-item">Example: Multiple Tables</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_parsetreedoc_column/" class="dropdown-item">ParseTreeDoc Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_picklefile/" class="dropdown-item">DocTable Example: Pickle and Text Files</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema_dataclass/" class="dropdown-item">DocTable Example: Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema_legacy/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_select/" class="dropdown-item">DocTable Examples: Select</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">DocTable Examples: Update</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_1_intro/" class="dropdown-item">Vignette 1: Storing Document Metadata</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_2_parsing/" class="dropdown-item">Vignette 2: Storing Document Text</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_3_parsetrees/" class="dropdown-item">Vignette 3: Storing Parsed Documents</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_intro_dataclass/" class="dropdown-item">Example 1: US National Security Strategy Document Corpus</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_adv/" class="dropdown-item">DocTable (slightly more) Advanced Example</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_simple/" class="dropdown-item">DocTable Simple Example</a>
+</li>
+                                    
+<li>
+    <a href="../parse_parsepipeline/" class="dropdown-item">ParsePipeline Basics</a>
+</li>
+                                    
+<li>
+    <a href="../parse_parsetrees/" class="dropdown-item">Working with doctable Parsetrees</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../doctable_select/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../example_nss_1_intro/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#doctable-examples-update" class="nav-link">DocTable Examples: Update</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#single-update" class="nav-link">Single Update</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#apply-as-map-function" class="nav-link">Apply as Map Function</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#apply-as-set-of-ordered-map-functions" class="nav-link">Apply as Set of Ordered Map Functions</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#update-using-sql-where-string" class="nav-link">Update Using SQL WHERE String</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="doctable-examples-update">DocTable Examples: Update</h1>
+<p>Here I show how to update data into a DocTable. In addition to providing updated values, DocTable also allows you to create map functions to transform existing data.</p>
+<pre><code class="language-python">import random
+import pandas as pd
+import numpy as np
+import sys
+sys.path.append('..')
+import doctable
+</code></pre>
+<pre><code class="language-python">import dataclasses
+@doctable.schema
+class Record:
+    __slots__ = []
+    id: int = doctable.IDCol()
+    name: str = doctable.Col(nullable=False)
+    age: int = None
+    is_old: bool = None
+
+def new_db():
+    table = doctable.DocTable(schema=Record, target=':memory:', verbose=True)
+    N = 10
+    for i in range(N):
+        age = random.random() # number in [0,1]
+        is_old = age &gt; 0.5
+        table.insert({'name':'user_'+str(i), 'age':age, 'is_old':is_old}, verbose=False)
+    return table
+
+table = new_db()
+print(table)
+</code></pre>
+<pre><code>&lt;DocTable (4 cols)::sqlite:///:memory::_documents_&gt;
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:324: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:350: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+</code></pre>
+<pre><code class="language-python">table.select_df(limit=3)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:379: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>user_0</td>
+      <td>0.998030</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>user_1</td>
+      <td>0.210891</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>user_2</td>
+      <td>0.431233</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="single-update">Single Update</h2>
+<p>Update multiple (or single) rows with same values.</p>
+<pre><code class="language-python">table = new_db()
+table.select_df(where=table['is_old']==True, limit=3, verbose=False)
+</code></pre>
+<pre><code>/DataDrive/code/doctable/examples/../doctable/doctable.py:324: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:350: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:379: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>user_0</td>
+      <td>0.670833</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>user_1</td>
+      <td>0.895172</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>5</td>
+      <td>user_4</td>
+      <td>0.688209</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">table = new_db()
+table.update({'age':1},where=table['is_old']==True)
+table.update({'age':0},where=table['is_old']==False)
+table.select_df(limit=3, verbose=False)
+</code></pre>
+<pre><code>DocTable: UPDATE _documents_ SET age=? WHERE _documents_.is_old = 1
+DocTable: UPDATE _documents_ SET age=? WHERE _documents_.is_old = 0
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:324: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:350: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:440: UserWarning: Method .update() is depricated. Please use .q.update() instead.
+  warnings.warn('Method .update() is depricated. Please use .q.update() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:379: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>user_0</td>
+      <td>1</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>user_1</td>
+      <td>0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>user_2</td>
+      <td>1</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="apply-as-map-function">Apply as Map Function</h2>
+<p>This feature allows you to update columns based on the values of old columns.</p>
+<pre><code class="language-python">table = new_db()
+values = {table['name']:table['name']+'th', table['age']:table['age']+1, table['is_old']:True}
+table.update(values)
+table.select_df(limit=3, verbose=False)
+</code></pre>
+<pre><code>DocTable: UPDATE _documents_ SET name=(_documents_.name || ?), age=(_documents_.age + ?), is_old=?
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:324: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:350: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:440: UserWarning: Method .update() is depricated. Please use .q.update() instead.
+  warnings.warn('Method .update() is depricated. Please use .q.update() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:379: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>user_0th</td>
+      <td>1.566417</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>user_1th</td>
+      <td>1.434875</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>user_2th</td>
+      <td>1.422777</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="apply-as-set-of-ordered-map-functions">Apply as Set of Ordered Map Functions</h2>
+<p>This is useful for when the updating of one column might change the value of another, depending on the order in which it was applied.</p>
+<pre><code class="language-python">table = new_db()
+values = [(table['name'],table['age']-1), (table['age'],table['age']+1),]
+table.update(values)
+table.select_df(limit=3, verbose=False)
+</code></pre>
+<pre><code>DocTable: UPDATE _documents_ SET name=(_documents_.age - ?), age=(_documents_.age + ?)
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:324: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:350: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:440: UserWarning: Method .update() is depricated. Please use .q.update() instead.
+  warnings.warn('Method .update() is depricated. Please use .q.update() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:379: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>-0.823513491706054</td>
+      <td>1.176487</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>-0.567734080088791</td>
+      <td>1.432266</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>-0.838314843815808</td>
+      <td>1.161685</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="update-using-sql-where-string">Update Using SQL WHERE String</h2>
+<pre><code class="language-python">table = new_db()
+table.update({'age':1.00}, wherestr='is_old==true')
+table.select_df(limit=5, verbose=False)
+</code></pre>
+<pre><code>DocTable: UPDATE _documents_ SET age=? WHERE is_old==true
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:324: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:350: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:440: UserWarning: Method .update() is depricated. Please use .q.update() instead.
+  warnings.warn('Method .update() is depricated. Please use .q.update() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:379: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>age</th>
+      <th>is_old</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>user_0</td>
+      <td>0.488699</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>user_1</td>
+      <td>0.391556</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>user_2</td>
+      <td>1.000000</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>user_3</td>
+      <td>0.472176</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>user_4</td>
+      <td>0.154501</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

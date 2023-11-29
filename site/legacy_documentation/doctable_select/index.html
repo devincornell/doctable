@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>DocTable Examples: Select - My Docs</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">My Docs</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../documentation/ex_basics/" class="dropdown-item">Basics of doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_insert_delete/" class="dropdown-item">Insert and Delete Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_schemas/" class="dropdown-item">Table Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_select/" class="dropdown-item">Select Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/iris_example/" class="dropdown-item">Iris example</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Legacy documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../dataclass_example/" class="dropdown-item">Dataclass Schema Example</a>
+</li>
+                                    
+<li>
+    <a href="../dataclass_vignette_advanced/" class="dropdown-item">Advanced dataclass schema vignette</a>
+</li>
+                                    
+<li>
+    <a href="../depric_vignette_newsgroups/" class="dropdown-item">NewsGroups Dataset Vignette</a>
+</li>
+                                    
+<li>
+    <a href="../distributed_basics/" class="dropdown-item">Distribute Parallel Processing Basics</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_basics/" class="dropdown-item">DocTable Overview</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_bootstrap/" class="dropdown-item">Document Bootstrapping Examples</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_concurrency/" class="dropdown-item">Concurrent Database Connections</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_connectengine/" class="dropdown-item">Manage SQL Connections with DocTable</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_file_column_types/" class="dropdown-item">DocTable File Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_insert_delete/" class="dropdown-item">DocTable Examples: Insert and Delete</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_multitable/" class="dropdown-item">Example: Multiple Tables</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_parsetreedoc_column/" class="dropdown-item">ParseTreeDoc Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_picklefile/" class="dropdown-item">DocTable Example: Pickle and Text Files</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema_dataclass/" class="dropdown-item">DocTable Example: Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema_legacy/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">DocTable Examples: Select</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_update/" class="dropdown-item">DocTable Examples: Update</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_1_intro/" class="dropdown-item">Vignette 1: Storing Document Metadata</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_2_parsing/" class="dropdown-item">Vignette 2: Storing Document Text</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_3_parsetrees/" class="dropdown-item">Vignette 3: Storing Parsed Documents</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_intro_dataclass/" class="dropdown-item">Example 1: US National Security Strategy Document Corpus</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_adv/" class="dropdown-item">DocTable (slightly more) Advanced Example</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_simple/" class="dropdown-item">DocTable Simple Example</a>
+</li>
+                                    
+<li>
+    <a href="../parse_parsepipeline/" class="dropdown-item">ParsePipeline Basics</a>
+</li>
+                                    
+<li>
+    <a href="../parse_parsetrees/" class="dropdown-item">Working with doctable Parsetrees</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../doctable_schema_legacy/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../doctable_update/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#doctable-examples-select" class="nav-link">DocTable Examples: Select</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#regular-selects" class="nav-link">Regular Selects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#conditional-selects" class="nav-link">Conditional Selects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#column-operators" class="nav-link">Column Operators</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#order-by-group-by-limit" class="nav-link">ORDER BY, GROUP BY, LIMIT</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#sql-string-commands-and-additional-clauses" class="nav-link">SQL String Commands and Additional Clauses</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#count-method-and-get-next-id" class="nav-link">Count Method and Get Next ID</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#select-as-pandas-series-and-dataframe" class="nav-link">Select as Pandas Series and DataFrame</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#select-with-buffer" class="nav-link">Select with Buffer</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="doctable-examples-select">DocTable Examples: Select</h1>
+<p>Here I show how to select data from a DocTable. We cover object-oriented conditional selects emulating the <code>WHERE</code> SQL clause, as well as some reduce functions.</p>
+<pre><code class="language-python">import random
+import pandas as pd
+import numpy as np
+import sys
+sys.path.append('..')
+import doctable
+</code></pre>
+<pre><code class="language-python">import dataclasses
+@doctable.schema
+class Record:
+    __slots__ = []
+    id: int = doctable.IDCol()
+    name: str = doctable.Col(nullable=False)
+    age: int = None
+    is_old: bool = None
+
+table = doctable.DocTable(target=':memory:', schema=Record, verbose=True)
+print(table)
+</code></pre>
+<pre><code>&lt;DocTable (4 cols)::sqlite:///:memory::_documents_&gt;
+</code></pre>
+<pre><code class="language-python">N = 10
+for i in range(N):
+    age = random.random() # number in [0,1]
+    is_old = age &gt; 0.5
+    table.insert({'name':'user_'+str(i), 'age':age, 'is_old':is_old}, verbose=False)
+print(table)
+</code></pre>
+<pre><code>&lt;DocTable (4 cols)::sqlite:///:memory::_documents_&gt;
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:365: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:391: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+</code></pre>
+<h2 id="regular-selects">Regular Selects</h2>
+<p>These functions all return lists of ResultProxy objects. As such, they can be accessed using numerical indices or keyword indices. For instance, if one select output row is <code>row=(1, 'user_0')</code> (after selecting "id" and "user"), it can be accessed such that <code>row[0]==row['id']</code> and <code>row[1]==row['user']</code>.</p>
+<pre><code class="language-python"># the limit argument means the result will only return some rows.
+# I'll use it for convenience in these examples.
+# this selects all rows
+table.select(limit=2)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:449: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn('Method .select() is depricated. Please use .q.select() instead.')
+
+
+
+
+
+[Record(id=1, name='user_0', age=0.30111935823671676, is_old=False),
+ Record(id=2, name='user_1', age=0.7524872495613466, is_old=True)]
+</code></pre>
+<pre><code class="language-python">table.select(['id','name'], limit=1)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+
+
+
+[Record(id=1, name='user_0', age=None, is_old=None)]
+</code></pre>
+<pre><code class="language-python"># can also select by accessing the column object (db['id']) itself
+# this will be useful later with more complex queries
+table.select([table['id'],table['name']], limit=1)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+
+
+
+[Record(id=1, name='user_0', age=None, is_old=None)]
+</code></pre>
+<pre><code class="language-python">table.select_first()
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:427: UserWarning: Method .select_first() is depricated. Please use .q.select_first() instead.
+  warnings.warn('Method .select_first() is depricated. Please use .q.select_first() instead.')
+
+
+
+
+
+Record(id=1, name='user_0', age=0.30111935823671676, is_old=False)
+</code></pre>
+<pre><code class="language-python">table.select('name',limit=5)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.name 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+
+
+
+['user_0', 'user_1', 'user_2', 'user_3', 'user_4']
+</code></pre>
+<pre><code class="language-python">table.select_first('age')
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.age 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+
+
+
+Record(age=0.30111935823671676, is_old=None)
+</code></pre>
+<h2 id="conditional-selects">Conditional Selects</h2>
+<pre><code class="language-python">table.select(where=table['id']==2)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id = ?
+
+
+
+
+
+[Record(id=2, name='user_1', age=0.7524872495613466, is_old=True)]
+</code></pre>
+<pre><code class="language-python">table.select(where=table['id']&lt;3)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id &lt; ?
+
+
+
+
+
+[Record(id=1, name='user_0', age=0.30111935823671676, is_old=False),
+ Record(id=2, name='user_1', age=0.7524872495613466, is_old=True)]
+</code></pre>
+<pre><code class="language-python"># mod operator works too
+table.select(where=(table['id']%2)==0, limit=2)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id % ? = ?
+ LIMIT ? OFFSET ?
+
+
+
+
+
+[Record(id=2, name='user_1', age=0.7524872495613466, is_old=True),
+ Record(id=4, name='user_3', age=0.9011039173289395, is_old=True)]
+</code></pre>
+<pre><code class="language-python"># note parantheses to handle order of ops with overloaded bitwise ops
+table.select(where= (table['id']&gt;=2) &amp; (table['id']&lt;=4) &amp; (table['name']!='user_2'))
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id &gt;= ? AND _documents_.id &lt;= ? AND _documents_.name != ?
+
+
+
+
+
+[Record(id=2, name='user_1', age=0.7524872495613466, is_old=True),
+ Record(id=4, name='user_3', age=0.9011039173289395, is_old=True)]
+</code></pre>
+<pre><code class="language-python">table.select(where=table['name'].in_(('user_2','user_3')))
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.name IN (__[POSTCOMPILE_name_1])
+
+
+
+
+
+[Record(id=3, name='user_2', age=0.33272186856831554, is_old=False),
+ Record(id=4, name='user_3', age=0.9011039173289395, is_old=True)]
+</code></pre>
+<pre><code class="language-python">table.select(where=table['id'].between(2,4))
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id BETWEEN ? AND ?
+
+
+
+
+
+[Record(id=2, name='user_1', age=0.7524872495613466, is_old=True),
+ Record(id=3, name='user_2', age=0.33272186856831554, is_old=False),
+ Record(id=4, name='user_3', age=0.9011039173289395, is_old=True)]
+</code></pre>
+<pre><code class="language-python"># use of logical not operator &quot;~&quot;
+table.select(where= ~(table['name'].in_(('user_2','user_3'))) &amp; (table['id'] &lt; 4))
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE (_documents_.name NOT IN (__[POSTCOMPILE_name_1])) AND _documents_.id &lt; ?
+
+
+
+
+
+[Record(id=1, name='user_0', age=0.30111935823671676, is_old=False),
+ Record(id=2, name='user_1', age=0.7524872495613466, is_old=True)]
+</code></pre>
+<pre><code class="language-python"># more verbose operators .and_, .or_, and .not_ are bound to the doctable package
+table.select(where= doctable.f.or_(doctable.f.not_(table['id']==4)) &amp; (table['id'] &lt;= 2))
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id != ? AND _documents_.id &lt;= ?
+
+
+
+
+
+[Record(id=1, name='user_0', age=0.30111935823671676, is_old=False),
+ Record(id=2, name='user_1', age=0.7524872495613466, is_old=True)]
+</code></pre>
+<pre><code class="language-python"># now with simple computation
+ages = table.select(table['age'])
+mean_age = sum(ages)/len(ages)
+table.select(table['name'], where=table['age']&gt;mean_age, limit=2)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.age 
+FROM _documents_
+DocTable: SELECT _documents_.name 
+FROM _documents_ 
+WHERE _documents_.age &gt; ?
+ LIMIT ? OFFSET ?
+
+
+
+
+
+['user_1', 'user_3']
+</code></pre>
+<pre><code class="language-python"># apply .label() method to columns
+dict(table.select_first([table['age'].label('myage'), table['name'].label('myname')], as_dataclass=False))
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.age AS myage, _documents_.name AS myname 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:429: UserWarning: The "as_dataclass" parameter has been depricated: please set get_raw=True or select_raw to specify that you would like to retrieve a raw RowProxy pobject.
+  warnings.warn(f'The "as_dataclass" parameter has been depricated: please set get_raw=True or '
+
+
+
+
+
+{'myage': 0.30111935823671676, 'myname': 'user_0'}
+</code></pre>
+<h2 id="column-operators">Column Operators</h2>
+<p>I bind the .min, .max, .count, .sum, and .mode methods to the column objects. Additionally, I move the .count method to a separate DocTable2 method.</p>
+<pre><code class="language-python"># with labels now
+dict(table.select_first([table['age'].sum().label('sum'), table['age'].count().label('ct')], as_dataclass=False))
+</code></pre>
+<pre><code>DocTable: SELECT sum(_documents_.age) AS sum, count(_documents_.age) AS ct 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+
+
+
+{'sum': 4.99992719426638, 'ct': 10}
+</code></pre>
+<pre><code class="language-python">table.select_first([table['age'].sum(), table['age'].count(), table['age']], as_dataclass=False)
+</code></pre>
+<pre><code>DocTable: SELECT sum(_documents_.age) AS sum_1, count(_documents_.age) AS count_1, _documents_.age 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+
+
+
+(4.99992719426638, 10, 0.30111935823671676)
+</code></pre>
+<h2 id="order-by-group-by-limit">ORDER BY, GROUP BY, LIMIT</h2>
+<p>These additional arguments have also been provided.</p>
+<pre><code class="language-python"># the limit is obvious - it has been used throughout these examples
+table.select(limit=2)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+
+
+
+[Record(id=1, name='user_0', age=0.30111935823671676, is_old=False),
+ Record(id=2, name='user_1', age=0.7524872495613466, is_old=True)]
+</code></pre>
+<pre><code class="language-python">table.select([table['is_old'], doctable.f.count()], groupby=table['is_old'])
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.is_old, count(*) AS count_1 
+FROM _documents_ GROUP BY _documents_.is_old
+DocTable: SELECT _documents_.is_old, count(*) AS count_1 
+FROM _documents_ GROUP BY _documents_.is_old
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:464: UserWarning: Conversion from row to object failed according to the following error. Please use .q.select_raw() when requesting non-object formatted data such as counts or sums in the future. For now it is automatically converted. e=RowDataConversionFailed("Conversion from &lt;class 'sqlalchemy.engine.row.LegacyRow'&gt; to &lt;class '__main__.Record'&gt; failed.")
+  warnings.warn(f'Conversion from row to object failed according to the following '
+
+
+
+
+
+[(False, 5), (True, 5)]
+</code></pre>
+<pre><code class="language-python"># orderby clause
+table.select(orderby=table['age'].desc(), limit=2)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ ORDER BY _documents_.age DESC
+ LIMIT ? OFFSET ?
+
+
+
+
+
+[Record(id=4, name='user_3', age=0.9011039173289395, is_old=True),
+ Record(id=2, name='user_1', age=0.7524872495613466, is_old=True)]
+</code></pre>
+<pre><code class="language-python"># compound orderby
+table.select(orderby=(table['age'].desc(),table['is_old'].asc()), limit=2)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ ORDER BY _documents_.age DESC, _documents_.is_old ASC
+ LIMIT ? OFFSET ?
+
+
+
+
+
+[Record(id=4, name='user_3', age=0.9011039173289395, is_old=True),
+ Record(id=2, name='user_1', age=0.7524872495613466, is_old=True)]
+</code></pre>
+<pre><code class="language-python">f = doctable.f
+cols = [table['is_old'], f.count().label('ct')]
+table.q.select_raw(cols, groupby=table['is_old'], orderby=f.asc('ct'))
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.is_old, count(*) AS ct 
+FROM _documents_ GROUP BY _documents_.is_old ORDER BY ct ASC
+
+
+
+
+
+[(False, 5), (True, 5)]
+</code></pre>
+<pre><code class="language-python"># can also use column name directly
+# can only use ascending and can use only one col
+table.select(orderby='age', limit=2)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ ORDER BY _documents_.age
+ LIMIT ? OFFSET ?
+
+
+
+
+
+[Record(id=7, name='user_6', age=0.04850236983248746, is_old=False),
+ Record(id=6, name='user_5', age=0.300309388680601, is_old=False)]
+</code></pre>
+<pre><code class="language-python"># groupby clause
+# returns first row of each group without any aggregation functions
+table.select(groupby=table['is_old'])
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ GROUP BY _documents_.is_old
+
+
+
+
+
+[Record(id=1, name='user_0', age=0.30111935823671676, is_old=False),
+ Record(id=2, name='user_1', age=0.7524872495613466, is_old=True)]
+</code></pre>
+<pre><code class="language-python"># compound groupby (weird example bc name is unique - have only one cat var in this demo)
+table.select(groupby=(table['is_old'],table['name']), limit=3)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ GROUP BY _documents_.is_old, _documents_.name
+ LIMIT ? OFFSET ?
+
+
+
+
+
+[Record(id=1, name='user_0', age=0.30111935823671676, is_old=False),
+ Record(id=3, name='user_2', age=0.33272186856831554, is_old=False),
+ Record(id=6, name='user_5', age=0.300309388680601, is_old=False)]
+</code></pre>
+<pre><code class="language-python"># groupby clause using max aggregation function
+# gets match age for both old and young groups
+table.select(table['age'].max(), groupby=table['is_old'])
+</code></pre>
+<pre><code>DocTable: SELECT max(_documents_.age) AS max_1 
+FROM _documents_ GROUP BY _documents_.is_old
+
+
+
+
+
+[0.46166274965800924, 0.9011039173289395]
+</code></pre>
+<h2 id="sql-string-commands-and-additional-clauses">SQL String Commands and Additional Clauses</h2>
+<p>For cases where DocTable2 does not provide a convenient interface, you may submit raw SQL commands. These may be a bit more unwieldly, but they offer maximum flexibility. They may be used either as simply an addition to the WHERE or arbitrary end clauses, or accessed in totality.</p>
+<pre><code class="language-python">qstr = 'SELECT age,name FROM {} WHERE id==&quot;{}&quot;'.format(table.tabname, 1)
+results = table.execute(qstr)
+dict(list(results)[0])
+</code></pre>
+<pre><code>DocTable: SELECT age,name FROM _documents_ WHERE id=="1"
+
+
+
+
+
+{'age': 0.30111935823671676, 'name': 'user_0'}
+</code></pre>
+<pre><code class="language-python">wherestr = 'is_old==&quot;{}&quot;'.format('1')
+table.select(wherestr=wherestr, limit=2)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE (is_old=="1")
+ LIMIT ? OFFSET ?
+
+
+
+
+
+[Record(id=2, name='user_1', age=0.7524872495613466, is_old=True),
+ Record(id=4, name='user_3', age=0.9011039173289395, is_old=True)]
+</code></pre>
+<pre><code class="language-python"># combine whrstr with structured query where clause
+wherestr = 'is_old==&quot;{}&quot;'.format('1')
+table.select(where=table['id']&lt;=5, wherestr=wherestr)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id &lt;= ? AND (is_old=="1")
+
+
+
+
+
+[Record(id=2, name='user_1', age=0.7524872495613466, is_old=True),
+ Record(id=4, name='user_3', age=0.9011039173289395, is_old=True),
+ Record(id=5, name='user_4', age=0.6092744222076869, is_old=True)]
+</code></pre>
+<pre><code class="language-python"># combine whrstr with structured query where clause
+wherestr = 'is_old==&quot;{}&quot;'.format('1')
+table.select(where=table['id']&lt;=5, wherestr=wherestr)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.name, _documents_.age, _documents_.is_old 
+FROM _documents_ 
+WHERE _documents_.id &lt;= ? AND (is_old=="1")
+
+
+
+
+
+[Record(id=2, name='user_1', age=0.7524872495613466, is_old=True),
+ Record(id=4, name='user_3', age=0.9011039173289395, is_old=True),
+ Record(id=5, name='user_4', age=0.6092744222076869, is_old=True)]
+</code></pre>
+<h2 id="count-method-and-get-next-id">Count Method and Get Next ID</h2>
+<p><code>.count()</code> is a convenience method. Mostly the same could be accomplished by <code>db.select_first(db['id'].count())</code>, but this requires no reference to a specific column.</p>
+<p><code>.next_id()</code> is especially useful if one hopes to enter the id (or any primary key column) into new rows manually. Especially useful because SQL engines don't provide new ids except when a single insert is performed.</p>
+<pre><code class="language-python">table.count()
+</code></pre>
+<pre><code>DocTable: SELECT count(_documents_.id) AS count_1 
+FROM _documents_
+ LIMIT ? OFFSET ?
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:403: UserWarning: Method .count() is depricated. Please use .q.count() instead.
+  warnings.warn('Method .count() is depricated. Please use .q.count() instead.')
+
+
+
+
+
+10
+</code></pre>
+<pre><code class="language-python">table.count(table['age'] &lt; 0.5)
+</code></pre>
+<pre><code>DocTable: SELECT count(_documents_.id) AS count_1 
+FROM _documents_ 
+WHERE _documents_.age &lt; ?
+ LIMIT ? OFFSET ?
+
+
+
+
+
+5
+</code></pre>
+<h2 id="select-as-pandas-series-and-dataframe">Select as Pandas Series and DataFrame</h2>
+<p>These are especially useful when working with metadata because Pandas provides robust descriptive and plotting features than SQL alone. Good for generating sample information.</p>
+<pre><code class="language-python"># must provide only a single column
+table.select_series(table['age']).head(2)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.age 
+FROM _documents_
+
+
+
+
+
+0    0.301119
+1    0.752487
+dtype: float64
+</code></pre>
+<pre><code class="language-python">table.select_series(table['age']).quantile([0.025, 0.985])
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.age 
+FROM _documents_
+
+
+
+
+
+0.025    0.105159
+0.985    0.881041
+dtype: float64
+</code></pre>
+<pre><code class="language-python">table.select_df(['id','age']).head(2)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.age 
+FROM _documents_
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:420: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>0.301119</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>0.752487</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">table.select_df('age').head(2)
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.age 
+FROM _documents_
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:420: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.301119</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.752487</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python"># must provide list of cols (even for one col)
+table.select_df([table['id'],table['age']]).corr()
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.age 
+FROM _documents_
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:420: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>id</th>
+      <td>1.000000</td>
+      <td>0.006293</td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>0.006293</td>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">table.select_df([table['id'],table['age']]).describe().T
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.id, _documents_.age 
+FROM _documents_
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:420: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>count</th>
+      <th>mean</th>
+      <th>std</th>
+      <th>min</th>
+      <th>25%</th>
+      <th>50%</th>
+      <th>75%</th>
+      <th>max</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>id</th>
+      <td>10.0</td>
+      <td>5.500000</td>
+      <td>3.027650</td>
+      <td>1.000000</td>
+      <td>3.25000</td>
+      <td>5.500000</td>
+      <td>7.750000</td>
+      <td>10.000000</td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>10.0</td>
+      <td>0.499993</td>
+      <td>0.256825</td>
+      <td>0.048502</td>
+      <td>0.30902</td>
+      <td>0.535469</td>
+      <td>0.659958</td>
+      <td>0.901104</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">mean_age = table.select_series(table['age']).mean()
+df = table.select_df([table['id'],table['age']])
+df['old_grp'] = df['age'] &gt; mean_age
+df.groupby('old_grp').describe()
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.age 
+FROM _documents_
+DocTable: SELECT _documents_.id, _documents_.age 
+FROM _documents_
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:415: UserWarning: Method .select_series() is depricated. Please use .q.select_series() instead.
+  warnings.warn('Method .select_series() is depricated. Please use .q.select_series() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:420: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+
+    .dataframe thead tr:last-of-type th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th colspan="8" halign="left">id</th>
+      <th colspan="8" halign="left">age</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>count</th>
+      <th>mean</th>
+      <th>std</th>
+      <th>min</th>
+      <th>25%</th>
+      <th>50%</th>
+      <th>75%</th>
+      <th>max</th>
+      <th>count</th>
+      <th>mean</th>
+      <th>std</th>
+      <th>min</th>
+      <th>25%</th>
+      <th>50%</th>
+      <th>75%</th>
+      <th>max</th>
+    </tr>
+    <tr>
+      <th>old_grp</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>False</th>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>2.915476</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>6.0</td>
+      <td>7.0</td>
+      <td>8.0</td>
+      <td>5.0</td>
+      <td>0.288863</td>
+      <td>0.149865</td>
+      <td>0.048502</td>
+      <td>0.300309</td>
+      <td>0.301119</td>
+      <td>0.332722</td>
+      <td>0.461663</td>
+    </tr>
+    <tr>
+      <th>True</th>
+      <td>5.0</td>
+      <td>6.0</td>
+      <td>3.391165</td>
+      <td>2.0</td>
+      <td>4.0</td>
+      <td>5.0</td>
+      <td>9.0</td>
+      <td>10.0</td>
+      <td>5.0</td>
+      <td>0.711122</td>
+      <td>0.120456</td>
+      <td>0.609274</td>
+      <td>0.619203</td>
+      <td>0.673543</td>
+      <td>0.752487</td>
+      <td>0.901104</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python"># more complicated groupby aggregation.
+# calculates the variance both for entries above and below average age
+mean_age = table.select_series(table['age']).mean()
+df = table.select_df([table['name'],table['age']])
+df['old_grp'] = df['age']&gt;mean_age
+df.groupby('old_grp').agg(**{
+    'first_name':pd.NamedAgg(column='name', aggfunc='first'),
+    'var_age':pd.NamedAgg(column='age', aggfunc=np.var),
+})
+</code></pre>
+<pre><code>DocTable: SELECT _documents_.age 
+FROM _documents_
+DocTable: SELECT _documents_.name, _documents_.age 
+FROM _documents_
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:415: UserWarning: Method .select_series() is depricated. Please use .q.select_series() instead.
+  warnings.warn('Method .select_series() is depricated. Please use .q.select_series() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:420: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>first_name</th>
+      <th>var_age</th>
+    </tr>
+    <tr>
+      <th>old_grp</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>False</th>
+      <td>user_0</td>
+      <td>0.022459</td>
+    </tr>
+    <tr>
+      <th>True</th>
+      <td>user_1</td>
+      <td>0.014510</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h1 id="select-with-buffer">Select with Buffer</h1>
+<p>In cases where you have many rows or each row contains a lot of data, you may want to perform a select query which makes requests in chunks. This is performed using the SQL OFFSET command, and querying up to buffsize while yielding each returned row. This system is designed this way because the underlying sql engine buffers all rows retreived from a query, and thus there is no way to stream data into memory without this system.</p>
+<p>NOTE: The limit keyword is incompatible with this method - it will return all results. A workaround is to use the approx_max_rows param, which will return at minimum this number of rows, at max the specified number of rows plus buffsize.</p>
+<pre><code class="language-python">for row_chunk in table.select_chunks(chunksize=2, where=(table['id']%2)==0, verbose=False):
+    print(row_chunk)
+</code></pre>
+<pre><code>[Record(id=2, name='user_1', age=0.7524872495613466, is_old=True), Record(id=4, name='user_3', age=0.9011039173289395, is_old=True)]
+[Record(id=6, name='user_5', age=0.300309388680601, is_old=False), Record(id=8, name='user_7', age=0.46166274965800924, is_old=False)]
+[Record(id=10, name='user_9', age=0.6192026652607745, is_old=True)]
+[]
+</code></pre></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

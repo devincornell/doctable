@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>DocTable Schemas - My Docs</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">My Docs</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../documentation/ex_basics/" class="dropdown-item">Basics of doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_insert_delete/" class="dropdown-item">Insert and Delete Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_schemas/" class="dropdown-item">Table Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/ex_select/" class="dropdown-item">Select Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../../documentation/iris_example/" class="dropdown-item">Iris example</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Legacy documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../dataclass_example/" class="dropdown-item">Dataclass Schema Example</a>
+</li>
+                                    
+<li>
+    <a href="../dataclass_vignette_advanced/" class="dropdown-item">Advanced dataclass schema vignette</a>
+</li>
+                                    
+<li>
+    <a href="../depric_vignette_newsgroups/" class="dropdown-item">NewsGroups Dataset Vignette</a>
+</li>
+                                    
+<li>
+    <a href="../distributed_basics/" class="dropdown-item">Distribute Parallel Processing Basics</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_basics/" class="dropdown-item">DocTable Overview</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_bootstrap/" class="dropdown-item">Document Bootstrapping Examples</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_concurrency/" class="dropdown-item">Concurrent Database Connections</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_connectengine/" class="dropdown-item">Manage SQL Connections with DocTable</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_file_column_types/" class="dropdown-item">DocTable File Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_insert_delete/" class="dropdown-item">DocTable Examples: Insert and Delete</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_multitable/" class="dropdown-item">Example: Multiple Tables</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_parsetreedoc_column/" class="dropdown-item">ParseTreeDoc Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_picklefile/" class="dropdown-item">DocTable Example: Pickle and Text Files</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_schema_dataclass/" class="dropdown-item">DocTable Example: Schemas</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_select/" class="dropdown-item">DocTable Examples: Select</a>
+</li>
+                                    
+<li>
+    <a href="../doctable_update/" class="dropdown-item">DocTable Examples: Update</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_1_intro/" class="dropdown-item">Vignette 1: Storing Document Metadata</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_2_parsing/" class="dropdown-item">Vignette 2: Storing Document Text</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_3_parsetrees/" class="dropdown-item">Vignette 3: Storing Parsed Documents</a>
+</li>
+                                    
+<li>
+    <a href="../example_nss_intro_dataclass/" class="dropdown-item">Example 1: US National Security Strategy Document Corpus</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_adv/" class="dropdown-item">DocTable (slightly more) Advanced Example</a>
+</li>
+                                    
+<li>
+    <a href="../legacy_simple/" class="dropdown-item">DocTable Simple Example</a>
+</li>
+                                    
+<li>
+    <a href="../parse_parsepipeline/" class="dropdown-item">ParsePipeline Basics</a>
+</li>
+                                    
+<li>
+    <a href="../parse_parsetrees/" class="dropdown-item">Working with doctable Parsetrees</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../doctable_schema_dataclass/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../doctable_select/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#doctable-schemas" class="nav-link">DocTable Schemas</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#schema-type-mappings" class="nav-link">Schema Type Mappings</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#list-schemas" class="nav-link">List Schemas</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="doctable-schemas">DocTable Schemas</h1>
+<p>There are two ways to define schemas for a DocTable:</p>
+<ol>
+<li>
+<p><strong>dataclass schema</strong>: column names and types come from a class created using the <code>@doctable.schema</code> decorator. This class represents a single row, and is returned by default when a select query is executed. <code>doctable</code> provides a thin layer over <a href="https://realpython.com/python-data-classes/">dataclasses</a> with slots to reduce memory overhead from returned results. Custom methods can also be defined on the class that will not affect the database schema. When using this method, constraints and indices must be provided at the time of <code>DocTable</code> instantiation (or in the definition of an inheriting <code>DocTable</code>).</p>
+</li>
+<li>
+<p><strong>list schema</strong>: column names and types come from sequences of strings according to a custom doctable format. This method requires less knowledge of doctable objects but otherwise has no advantages over dataclass schemas.</p>
+</li>
+</ol>
+<p>The doctable package builds on sqlalchemy, so both types of schema specifications ultimately result in a sequence of <a href="https://docs.sqlalchemy.org/en/13/core/type_basics.html"><code>sqlalchemy</code> column types</a> that will be used to construct (or interface with) the database table.</p>
+<pre><code class="language-python">from datetime import datetime
+from pprint import pprint
+import pandas as pd
+
+import sys
+sys.path.append('..')
+import doctable
+</code></pre>
+<h2 id="schema-type-mappings">Schema Type Mappings</h2>
+<p>There are two lookup tables used to relate to sqlalchemy column types. The first is a map from Python datatypes to the sqlalchemy types. This is sufficient for the simplest possible dataclass schema specification.</p>
+<p>The second is a string lookup that is provided for the list schema format. You can see that this offers a larger number of types compared to the Python type conversion.</p>
+<p>There are several other custom column types I included for convenience.</p>
+<pre><code class="language-python">doctable.string_to_sqlalchemy_type
+</code></pre>
+<pre><code>{'biginteger': sqlalchemy.sql.sqltypes.BigInteger,
+ 'boolean': sqlalchemy.sql.sqltypes.Boolean,
+ 'date': sqlalchemy.sql.sqltypes.Date,
+ 'datetime': sqlalchemy.sql.sqltypes.DateTime,
+ 'enum': sqlalchemy.sql.sqltypes.Enum,
+ 'float': sqlalchemy.sql.sqltypes.Float,
+ 'integer': sqlalchemy.sql.sqltypes.Integer,
+ 'interval': sqlalchemy.sql.sqltypes.Interval,
+ 'largebinary': sqlalchemy.sql.sqltypes.LargeBinary,
+ 'numeric': sqlalchemy.sql.sqltypes.Numeric,
+ 'smallinteger': sqlalchemy.sql.sqltypes.SmallInteger,
+ 'string': sqlalchemy.sql.sqltypes.String,
+ 'text': sqlalchemy.sql.sqltypes.Text,
+ 'time': sqlalchemy.sql.sqltypes.Time,
+ 'unicode': sqlalchemy.sql.sqltypes.Unicode,
+ 'unicodetext': sqlalchemy.sql.sqltypes.UnicodeText,
+ 'json': doctable.schemas.custom_coltypes.JSONType,
+ 'pickle': doctable.schemas.custom_coltypes.CpickleType,
+ 'parsetree': doctable.schemas.custom_coltypes.ParseTreeDocFileType,
+ 'picklefile': doctable.schemas.custom_coltypes.PickleFileType,
+ 'textfile': doctable.schemas.custom_coltypes.TextFileType}
+</code></pre>
+<h2 id="list-schemas">List Schemas</h2>
+<p>And this is another example showing the list schema format.</p>
+<pre><code class="language-python">schema = (
+    # standard id column
+    #SQLAlchemy: Column('id', Integer, primary_key = True, autoincrement=True), 
+    ('integer', 'id', dict(primary_key=True, autoincrement=True)),
+    # short form (can't provide any additional args though): ('idcol', 'id')
+
+    # make a category column with two options: &quot;FICTION&quot; and &quot;NONFICTION&quot;
+    #SQLAlchemy: Column('title', String,)
+    ('string', 'category', dict(nullable=False)),
+
+    # make a non-null title column
+    #SQLAlchemy: Column('title', String,)
+    ('string', 'title', dict(nullable=False)),
+
+    # make an abstract where the default is an empty string instead of null
+    #SQLAlchemy: Column('abstract', String, default='')
+    ('string', 'abstract',dict(default='')),
+
+    # make an age column where age must be greater than zero
+    #SQLAlchemy: Column('abstract', Integer)
+    ('integer', 'age'),
+
+    # make a column that keeps track of column updates
+    #SQLAlchemy: Column('updated_on', DateTime(), default=datetime.now, onupdate=datetime.now)
+    ('datetime', 'updated_on',  dict(default=datetime.now, onupdate=datetime.now)),
+    # short form to auto-record update date: ('date_updated', 'updated_on')
+
+    #SQLAlchemy: Column('updated_on', DateTime(), default=datetime.now)
+    ('datetime', 'updated_on',  dict(default=datetime.now)),
+    # short form to auto-record insertion date: ('date_added', 'added_on')
+
+    # make a string column with max of 500 characters
+    #SQLAlchemy: Column('abstract', String, default='')
+    ('string', 'text',dict(),dict(length=500)),
+
+
+    ##### Custom DocTable Column Types #####
+
+    # uses json.dump to convert python object to json when storing and
+    # json.load to convert json back to python when querying
+    ('json','json_data'),
+
+    # stores pickled python object directly in table as BLOB
+    # TokensType and ParagraphsType are defined in doctable/coltypes.py
+    # SQLAlchemy: Column('tokenized', TokensType), Column('sentencized', ParagraphsType)
+    ('pickle','tokenized'),
+
+    # store pickled data into a separate file, recording only filename directly in table
+    # the 'fpath' argument can specify where the files should be placed, but by
+    # default they are stored in &lt;dbname&gt;_&lt;tablename&gt;_&lt;columnname&gt;
+    #('picklefile', 'pickle_obj', dict(), dict(fpath='folder_for_picklefiles')),
+
+    # very similar to above, but use only when storing text data
+    #('textfile', 'text_file'), # similar to above
+
+
+    ##### Constraints #####
+
+    #SQLAlchemy: CheckConstraint('category in (&quot;FICTION&quot;,&quot;NONFICTION&quot;)', name='salary_check')
+    ('check_constraint', 'category in (&quot;FICTION&quot;,&quot;NONFICTION&quot;)', dict(name='salary_check')),
+
+    #SQLAlchemy: CheckConstraint('age &gt; 0')
+    ('check_constraint', 'age &gt; 0'),
+
+    # make sure each category/title entry is unique
+    #SQLAlchemy:  UniqueConstraint('category', 'title', name='work_key')
+    ('unique_constraint', ['category','title'], dict(name='work_key')),
+
+    # makes a foreign key from the 'subkey' column of this table to the 'id'
+    # column of ANOTHERDOCTABLE, setting the SQL onupdate and ondelete foreign key constraints
+    #('foreignkey_constraint', [['subkey'], [ANOTHERDOCTABLE['id']]], {}, dict(onupdate=&quot;CASCADE&quot;, ondelete=&quot;CASCADE&quot;)),
+    #NOTE: Can't show here because we didn't make ANOTHERDOCTABLE
+
+    ##### Indexes ######
+
+    # make index table
+    # SQLAlchemy: Index('ind0', 'category', 'title', unique=True)
+    ('index', 'ind0', ('category','title'),dict(unique=True)),
+
+)
+md = doctable.DocTable(target=':memory:', schema=schema, verbose=True)
+md.schema_table()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>category</td>
+      <td>VARCHAR</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>title</td>
+      <td>VARCHAR</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>abstract</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>age</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>updated_on</td>
+      <td>DATETIME</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>text</td>
+      <td>VARCHAR(500)</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>json_data</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>tokenized</td>
+      <td>BLOB</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Insert and Delete Queries with doctable - My Docs</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">My Docs</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ex_basics/" class="dropdown-item">Basics of doctable</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">Insert and Delete Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../ex_schemas/" class="dropdown-item">Table Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../ex_select/" class="dropdown-item">Select Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../iris_example/" class="dropdown-item">Iris example</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Legacy documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../legacy_documentation/dataclass_example/" class="dropdown-item">Dataclass Schema Example</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/dataclass_vignette_advanced/" class="dropdown-item">Advanced dataclass schema vignette</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/depric_vignette_newsgroups/" class="dropdown-item">NewsGroups Dataset Vignette</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/distributed_basics/" class="dropdown-item">Distribute Parallel Processing Basics</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_basics/" class="dropdown-item">DocTable Overview</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_bootstrap/" class="dropdown-item">Document Bootstrapping Examples</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_concurrency/" class="dropdown-item">Concurrent Database Connections</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_connectengine/" class="dropdown-item">Manage SQL Connections with DocTable</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_file_column_types/" class="dropdown-item">DocTable File Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_insert_delete/" class="dropdown-item">DocTable Examples: Insert and Delete</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_multitable/" class="dropdown-item">Example: Multiple Tables</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_parsetreedoc_column/" class="dropdown-item">ParseTreeDoc Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_picklefile/" class="dropdown-item">DocTable Example: Pickle and Text Files</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_schema/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_schema_dataclass/" class="dropdown-item">DocTable Example: Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_schema_legacy/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_select/" class="dropdown-item">DocTable Examples: Select</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_update/" class="dropdown-item">DocTable Examples: Update</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/example_nss_1_intro/" class="dropdown-item">Vignette 1: Storing Document Metadata</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/example_nss_2_parsing/" class="dropdown-item">Vignette 2: Storing Document Text</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/example_nss_3_parsetrees/" class="dropdown-item">Vignette 3: Storing Parsed Documents</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/example_nss_intro_dataclass/" class="dropdown-item">Example 1: US National Security Strategy Document Corpus</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/legacy_adv/" class="dropdown-item">DocTable (slightly more) Advanced Example</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/legacy_simple/" class="dropdown-item">DocTable Simple Example</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/parse_parsepipeline/" class="dropdown-item">ParsePipeline Basics</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/parse_parsetrees/" class="dropdown-item">Working with doctable Parsetrees</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../ex_basics/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../ex_schemas/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#insert-and-delete-queries-with-doctable" class="nav-link">Insert and Delete Queries with doctable</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#two-interfaces-connectquery-and-tablequery" class="nav-link">Two Interfaces: ConnectQuery and TableQuery</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#inserts-via-tablequery" class="nav-link">Inserts via TableQuery</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#deletion-interface" class="nav-link">Deletion Interface</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="insert-and-delete-queries-with-doctable">Insert and Delete Queries with <code>doctable</code></h1>
+<p>In this document I will describe the interface for performing insert and delete queries with doctable.</p>
+<pre><code class="language-python">
+import pandas as pd
+import numpy as np
+import typing
+
+import sys
+sys.path.append('..')
+import doctable
+</code></pre>
+<h4 id="define-a-demonstration-schema">Define a demonstration schema</h4>
+<p>The very first step is to define a table schema that will be appropriate for our examples. This table includes the typical <code>id</code> column (the first column, specified by <code>order=0</code>), as well as string, integer, and boolean attributes. The object used to specify the schema is called a <em>container</em>, and I will use that terminology as we go.</p>
+<pre><code class="language-python">@doctable.table_schema
+class Record:
+    name: str = doctable.Column(column_args=doctable.ColumnArgs(nullable=False, unique=True))
+    age: int = doctable.Column()
+    is_old: bool = doctable.Column()
+
+    id: int = doctable.Column(
+        column_args=doctable.ColumnArgs(
+            order = 0, 
+            primary_key=True, 
+            autoincrement=True
+        ),
+    )
+
+core = doctable.ConnectCore.open(target=':memory:', dialect='sqlite', echo=True)
+
+with core.begin_ddl() as ddl:
+    rtab = ddl.create_table_if_not_exists(container_type=Record)
+</code></pre>
+<pre><code>2023-11-13 14:46:03,418 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,418 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("Record")
+2023-11-13 14:46:03,419 INFO sqlalchemy.engine.Engine [raw sql] ()
+2023-11-13 14:46:03,420 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("Record")
+2023-11-13 14:46:03,421 INFO sqlalchemy.engine.Engine [raw sql] ()
+2023-11-13 14:46:03,422 INFO sqlalchemy.engine.Engine 
+CREATE TABLE "Record" (
+    id INTEGER, 
+    age INTEGER, 
+    is_old INTEGER, 
+    name VARCHAR NOT NULL, 
+    PRIMARY KEY (id), 
+    UNIQUE (name)
+)
+
+
+2023-11-13 14:46:03,423 INFO sqlalchemy.engine.Engine [no key 0.00050s] ()
+2023-11-13 14:46:03,424 INFO sqlalchemy.engine.Engine COMMIT
+</code></pre>
+<h2 id="two-interfaces-connectquery-and-tablequery">Two Interfaces: <code>ConnectQuery</code> and <code>TableQuery</code></h2>
+<p>First, a little about the <code>doctable</code> query interface. There are two interfaces for performing queries: <code>ConnectQuery</code> and <code>TableQuery</code>. </p>
+<ul>
+<li>
+<p><strong><code>ConnectQuery</code></strong> table-agnostic interface for querying any table in any result format. Create this object using the <code>ConnectCore.query()</code> method.</p>
+</li>
+<li>
+<p><strong><code>TableQuery</code></strong> table-specific interface for querying a specific table. Insert and select from container objects used to define the schema. Create this object using the <code>DBTable.query()</code> method.</p>
+</li>
+</ul>
+<h3 id="inserts-via-connectquery">Inserts via <code>ConnectQuery</code></h3>
+<p>First I will discuss the <code>ConnectQuery</code> interface, which is created via the <code>ConnectCore.query()</code> method. This object maintains a database connection, and, when used as a context manager, will commit all changes upon exit. It is fine to use the <code>ConnectQuery</code> object without a context manager for queries that do not require commits.</p>
+<p>There are two primary methods for insertions via the <code>ConnectQuery</code> interface, which you can see in this table. Both accept a single <code>DBTable</code> object, followed by one or multiple dictionaries of data to insert, depending on the method.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>insert_single()</code></td>
+<td>Insert a single row into a table.</td>
+</tr>
+<tr>
+<td><code>insert_multi()</code></td>
+<td>Insert multiple rows into a table.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">with core.query() as q:
+    q.insert_single(rtab, {
+        'name': 'test_A',
+        'age': 10,
+        'is_old': False,
+    })
+
+    q.insert_multi(rtab, data = [
+        {
+            'name': 'test_B',
+            'age': 10,
+            'is_old': False,
+        },
+        {
+            'name': 'test_C',
+            'age': 10,
+            'is_old': False,
+        }
+    ])
+
+q.select(rtab.all_cols()).df()
+</code></pre>
+<pre><code>2023-11-13 14:46:03,478 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,480 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (age, is_old, name) VALUES (?, ?, ?)
+2023-11-13 14:46:03,482 INFO sqlalchemy.engine.Engine [generated in 0.00420s] (10, False, 'test_A')
+2023-11-13 14:46:03,487 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (age, is_old, name) VALUES (?, ?, ?)
+2023-11-13 14:46:03,489 INFO sqlalchemy.engine.Engine [generated in 0.00216s] [(10, False, 'test_B'), (10, False, 'test_C')]
+2023-11-13 14:46:03,491 INFO sqlalchemy.engine.Engine COMMIT
+2023-11-13 14:46:03,494 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,495 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".age, "Record".is_old, "Record".name 
+FROM "Record"
+2023-11-13 14:46:03,497 INFO sqlalchemy.engine.Engine [generated in 0.00319s] ()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>age</th>
+      <th>is_old</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>10</td>
+      <td>0</td>
+      <td>test_A</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>10</td>
+      <td>0</td>
+      <td>test_B</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>10</td>
+      <td>0</td>
+      <td>test_C</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h4 id="omit-attributes">Omit Attributes</h4>
+<p>If some values are not provided, the database will decide which values they take. In this case, the database populates the ID column according to the schema (it acts as the primary key in this case).</p>
+<pre><code class="language-python">core.query().insert_single(rtab, {
+    'name': 'test_D',
+})
+core.query().select(rtab.all_cols()).df()
+</code></pre>
+<pre><code>2023-11-13 14:46:03,544 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,546 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (name) VALUES (?)
+2023-11-13 14:46:03,548 INFO sqlalchemy.engine.Engine [generated in 0.00389s] ('test_D',)
+2023-11-13 14:46:03,551 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,552 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".age, "Record".is_old, "Record".name 
+FROM "Record"
+2023-11-13 14:46:03,554 INFO sqlalchemy.engine.Engine [cached since 0.06015s ago] ()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>age</th>
+      <th>is_old</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>test_A</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>test_B</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>test_C</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>test_D</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Note that in our schema we set <code>nullable=False</code> for the name column, so this must be provided in an insert otherwise there will be an error. This typically results in an <code>sqlalchemy.exc.IntegrityError</code>, which you may catch if needed.</p>
+<pre><code class="language-python">import sqlalchemy.exc
+
+try:
+    core.query().insert_single(rtab, {
+        'is_old': True,
+    })
+except sqlalchemy.exc.IntegrityError as e:
+    print(type(e), e)
+</code></pre>
+<pre><code>2023-11-13 14:46:03,605 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,607 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (is_old) VALUES (?)
+2023-11-13 14:46:03,609 INFO sqlalchemy.engine.Engine [generated in 0.00380s] (True,)
+&lt;class 'sqlalchemy.exc.IntegrityError'&gt; (sqlite3.IntegrityError) NOT NULL constraint failed: Record.name
+[SQL: INSERT OR FAIL INTO "Record" (is_old) VALUES (?)]
+[parameters: (True,)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+</code></pre>
+<h4 id="ifnotunique-parameter"><code>ifnotunique</code> Parameter</h4>
+<p>The <code>ifnotunique</code> paramter controls the behavior when a unique constraint is violated. </p>
+<p>The default value is <code>FAIL</code>, which will raise an error when a unique constraint is violated - it will raise an <code>sqlalchemy.exc.IntegrityError</code> exception in this case. The other options are <code>IGNORE</code>, meaning inserted rows that violate the constraints should be ignored, and <code>REPLACE</code>, which will replace the existing row with the new row.</p>
+<p>In the <code>Record</code> table we have created, there is a unique constraint on <code>name</code>. We will receive an integrity error if we try to insert a duplicate there when using the default <code>ifnotunique='ERROR'</code>.</p>
+<pre><code class="language-python">try:
+    core.query().insert_single(rtab, {
+        'name': 'test_A',
+    })
+except sqlalchemy.exc.IntegrityError as e:
+    print(type(e), e)
+</code></pre>
+<pre><code>2023-11-13 14:46:03,665 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,668 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (name) VALUES (?)
+2023-11-13 14:46:03,669 INFO sqlalchemy.engine.Engine [cached since 0.1247s ago] ('test_A',)
+&lt;class 'sqlalchemy.exc.IntegrityError'&gt; (sqlite3.IntegrityError) UNIQUE constraint failed: Record.name
+[SQL: INSERT OR FAIL INTO "Record" (name) VALUES (?)]
+[parameters: ('test_A',)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+</code></pre>
+<p>When using <code>ifnotunique='REPLACE'</code>, the insert will replace the existing row with the new row. This is useful when you want to update a row if it already exists, but insert it if it does not.</p>
+<pre><code class="language-python">core.query().insert_single(rtab, {
+    'name': 'test_A',
+}, ifnotunique='REPLACE')
+core.query().select(rtab.all_cols()).df()
+</code></pre>
+<pre><code>2023-11-13 14:46:03,728 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,731 INFO sqlalchemy.engine.Engine INSERT OR REPLACE INTO "Record" (name) VALUES (?)
+2023-11-13 14:46:03,733 INFO sqlalchemy.engine.Engine [generated in 0.00453s] ('test_A',)
+2023-11-13 14:46:03,738 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,739 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".age, "Record".is_old, "Record".name 
+FROM "Record"
+2023-11-13 14:46:03,741 INFO sqlalchemy.engine.Engine [cached since 0.2469s ago] ()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>age</th>
+      <th>is_old</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>test_B</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>3</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>test_C</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>test_D</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>5</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>test_A</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="inserts-via-tablequery">Inserts via <code>TableQuery</code></h2>
+<p>The <code>TableQuery</code> interface is created via the <code>DBTable.query()</code> method. This object is table-specific, and is used to insert and select from a single table. As such, inserts ONLY accept the <code>Record</code> container objects used to define the schema. Following the <code>ConnectQuery</code> interface, there are two methods for inserting data into a table: <code>.insert_single()</code> and <code>.insert_multi()</code>.</p>
+<pre><code class="language-python">rtab.query().insert_single(Record(name='test_E', is_old=False, age=10))
+rtab.query().select(rtab.all_cols())
+</code></pre>
+<pre><code>2023-11-13 14:46:03,806 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,809 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (age, is_old, name) VALUES (?, ?, ?)
+2023-11-13 14:46:03,811 INFO sqlalchemy.engine.Engine [cached since 0.3334s ago] (10, False, 'test_E')
+2023-11-13 14:46:03,814 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,815 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".age, "Record".is_old, "Record".name 
+FROM "Record"
+2023-11-13 14:46:03,816 INFO sqlalchemy.engine.Engine [cached since 0.3218s ago] ()
+
+
+
+
+
+[Record(name='test_B', age=10, is_old=0, id=2),
+ Record(name='test_C', age=10, is_old=0, id=3),
+ Record(name='test_D', age=None, is_old=None, id=4),
+ Record(name='test_A', age=None, is_old=None, id=5),
+ Record(name='test_E', age=10, is_old=0, id=6)]
+</code></pre>
+<pre><code class="language-python">rtab.query().insert_multi([
+    Record(name='test_F', is_old=False, age=10),
+    Record(name='test_G', is_old=True, age=80),
+])
+rtab.query().select(rtab.all_cols())
+</code></pre>
+<pre><code>2023-11-13 14:46:03,866 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,869 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (age, is_old, name) VALUES (?, ?, ?)
+2023-11-13 14:46:03,870 INFO sqlalchemy.engine.Engine [cached since 0.3834s ago] [(10, False, 'test_F'), (80, True, 'test_G')]
+2023-11-13 14:46:03,874 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,875 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".age, "Record".is_old, "Record".name 
+FROM "Record"
+2023-11-13 14:46:03,876 INFO sqlalchemy.engine.Engine [cached since 0.3818s ago] ()
+
+
+
+
+
+[Record(name='test_B', age=10, is_old=0, id=2),
+ Record(name='test_C', age=10, is_old=0, id=3),
+ Record(name='test_D', age=None, is_old=None, id=4),
+ Record(name='test_A', age=None, is_old=None, id=5),
+ Record(name='test_E', age=10, is_old=0, id=6),
+ Record(name='test_F', age=10, is_old=0, id=7),
+ Record(name='test_G', age=80, is_old=1, id=8)]
+</code></pre>
+<h4 id="the-doctablemissing-sentinel">The <code>doctable.MISSING</code> Sentinel</h4>
+<p>Lets now take a closer look at the container object behavior. Notice that in the schema definition we gave default values of <code>doctable.Column</code>, which we used to specify additional attributes. This automatically sets the default value for the dataclass to be <code>doctable.MISSING</code>, which is special because it will be ignored when inserting - instead, it will let the database decide how to handle it. This is especially useful for columns like <code>id</code>, which are intended to be automatically generated by the database. We can see this when we omit attributes from the object.</p>
+<pre><code class="language-python">test_record = Record(name='test_H')
+test_record
+</code></pre>
+<pre><code>Record(name='test_H', age=MISSING, is_old=MISSING, id=MISSING)
+</code></pre>
+<p>Those values will be omitted in the insert, filled in by the db, and be returned upon selection.</p>
+<pre><code class="language-python">rtab.query().insert_single(test_record)
+rtab.query().select(rtab.all_cols())
+</code></pre>
+<pre><code>2023-11-13 14:46:03,982 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,985 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (name) VALUES (?)
+2023-11-13 14:46:03,987 INFO sqlalchemy.engine.Engine [cached since 0.4426s ago] ('test_H',)
+2023-11-13 14:46:03,990 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,991 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".age, "Record".is_old, "Record".name 
+FROM "Record"
+2023-11-13 14:46:03,992 INFO sqlalchemy.engine.Engine [cached since 0.4979s ago] ()
+
+
+
+
+
+[Record(name='test_B', age=10, is_old=0, id=2),
+ Record(name='test_C', age=10, is_old=0, id=3),
+ Record(name='test_D', age=None, is_old=None, id=4),
+ Record(name='test_A', age=None, is_old=None, id=5),
+ Record(name='test_E', age=10, is_old=0, id=6),
+ Record(name='test_F', age=10, is_old=0, id=7),
+ Record(name='test_G', age=80, is_old=1, id=8),
+ Record(name='test_H', age=None, is_old=None, id=9)]
+</code></pre>
+<p>If we select a subset of columns, the missing values will refer to <code>doctable.MISSING</code>, even though the attributes will continue to exist.</p>
+<pre><code class="language-python">rtab.query().select(rtab.cols('id', 'name'))
+</code></pre>
+<pre><code>2023-11-13 14:46:04,041 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:04,044 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".name 
+FROM "Record"
+2023-11-13 14:46:04,045 INFO sqlalchemy.engine.Engine [generated in 0.00350s] ()
+
+
+
+
+
+[Record(name='test_A', age=MISSING, is_old=MISSING, id=5),
+ Record(name='test_B', age=MISSING, is_old=MISSING, id=2),
+ Record(name='test_C', age=MISSING, is_old=MISSING, id=3),
+ Record(name='test_D', age=MISSING, is_old=MISSING, id=4),
+ Record(name='test_E', age=MISSING, is_old=MISSING, id=6),
+ Record(name='test_F', age=MISSING, is_old=MISSING, id=7),
+ Record(name='test_G', age=MISSING, is_old=MISSING, id=8),
+ Record(name='test_H', age=MISSING, is_old=MISSING, id=9)]
+</code></pre>
+<p>Note that the <code>doctable.MISSING</code> will never be inserted into the databse because it will be ignored.</p>
+<h2 id="deletion-interface">Deletion Interface</h2>
+<p>Deleting rows is pretty straightforward when using either the <code>ConnectQuery</code> or <code>TableQuery</code> interfaces. In fact, it is the exact same for both. The only parameters are <code>where</code> and <code>wherestr</code> (where you can add additional conditionals as strings).</p>
+<pre><code class="language-python">print(core.query().select([rtab['id'].count()]).scalar_one())
+with rtab.query() as q:
+    q.delete(where=rtab['name']=='test_A')
+core.query().select([rtab['id'].count()]).scalar_one()
+</code></pre>
+<pre><code>2023-11-13 14:46:31,486 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:31,489 INFO sqlalchemy.engine.Engine SELECT count("Record".id) AS count_1 
+FROM "Record"
+2023-11-13 14:46:31,490 INFO sqlalchemy.engine.Engine [cached since 27.39s ago] ()
+7
+2023-11-13 14:46:31,493 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:31,495 INFO sqlalchemy.engine.Engine DELETE FROM "Record" WHERE "Record".name = ?
+2023-11-13 14:46:31,497 INFO sqlalchemy.engine.Engine [cached since 27.39s ago] ('test_A',)
+2023-11-13 14:46:31,498 INFO sqlalchemy.engine.Engine COMMIT
+2023-11-13 14:46:31,500 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:31,500 INFO sqlalchemy.engine.Engine SELECT count("Record".id) AS count_1 
+FROM "Record"
+2023-11-13 14:46:31,501 INFO sqlalchemy.engine.Engine [cached since 27.4s ago] ()
+
+
+
+
+
+7
+</code></pre>
+<p>To delete all columns, pass the <code>all=True</code> flag. This prevents the user from accidentally deleting all rows.</p>
+<pre><code class="language-python">with rtab.query() as q:
+    q.delete(all=True)
+core.query().select([rtab['id'].count()]).scalar_one()
+</code></pre>
+<pre><code>2023-11-13 14:48:08,718 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:48:08,720 INFO sqlalchemy.engine.Engine DELETE FROM "Record"
+2023-11-13 14:48:08,722 INFO sqlalchemy.engine.Engine [cached since 13.97s ago] ()
+2023-11-13 14:48:08,724 INFO sqlalchemy.engine.Engine COMMIT
+2023-11-13 14:48:08,726 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:48:08,727 INFO sqlalchemy.engine.Engine SELECT count("Record".id) AS count_1 
+FROM "Record"
+2023-11-13 14:48:08,729 INFO sqlalchemy.engine.Engine [cached since 124.6s ago] ()
+
+
+
+
+
+0
+</code></pre></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

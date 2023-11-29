@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Basics of doctable - My Docs</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">My Docs</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="./" class="dropdown-item active">Basics of doctable</a>
+</li>
+                                    
+<li>
+    <a href="../ex_insert_delete/" class="dropdown-item">Insert and Delete Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../ex_schemas/" class="dropdown-item">Table Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../ex_select/" class="dropdown-item">Select Queries with doctable</a>
+</li>
+                                    
+<li>
+    <a href="../iris_example/" class="dropdown-item">Iris example</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Legacy documentation <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../legacy_documentation/dataclass_example/" class="dropdown-item">Dataclass Schema Example</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/dataclass_vignette_advanced/" class="dropdown-item">Advanced dataclass schema vignette</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/depric_vignette_newsgroups/" class="dropdown-item">NewsGroups Dataset Vignette</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/distributed_basics/" class="dropdown-item">Distribute Parallel Processing Basics</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_basics/" class="dropdown-item">DocTable Overview</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_bootstrap/" class="dropdown-item">Document Bootstrapping Examples</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_concurrency/" class="dropdown-item">Concurrent Database Connections</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_connectengine/" class="dropdown-item">Manage SQL Connections with DocTable</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_file_column_types/" class="dropdown-item">DocTable File Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_insert_delete/" class="dropdown-item">DocTable Examples: Insert and Delete</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_multitable/" class="dropdown-item">Example: Multiple Tables</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_parsetreedoc_column/" class="dropdown-item">ParseTreeDoc Column Types</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_picklefile/" class="dropdown-item">DocTable Example: Pickle and Text Files</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_schema/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_schema_dataclass/" class="dropdown-item">DocTable Example: Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_schema_legacy/" class="dropdown-item">DocTable Schemas</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_select/" class="dropdown-item">DocTable Examples: Select</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/doctable_update/" class="dropdown-item">DocTable Examples: Update</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/example_nss_1_intro/" class="dropdown-item">Vignette 1: Storing Document Metadata</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/example_nss_2_parsing/" class="dropdown-item">Vignette 2: Storing Document Text</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/example_nss_3_parsetrees/" class="dropdown-item">Vignette 3: Storing Parsed Documents</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/example_nss_intro_dataclass/" class="dropdown-item">Example 1: US National Security Strategy Document Corpus</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/legacy_adv/" class="dropdown-item">DocTable (slightly more) Advanced Example</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/legacy_simple/" class="dropdown-item">DocTable Simple Example</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/parse_parsepipeline/" class="dropdown-item">ParsePipeline Basics</a>
+</li>
+                                    
+<li>
+    <a href="../../legacy_documentation/parse_parsetrees/" class="dropdown-item">Working with doctable Parsetrees</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../.." class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../ex_insert_delete/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#basics-of-doctable" class="nav-link">Basics of doctable</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="basics-of-doctable">Basics of doctable</h1>
+<p>In this brief tutorial, we will cover the basics of doctable. We will cover the following topics:</p>
+<ul>
+<li>Connecting to the database using <code>ConnectCore</code>.</li>
+<li>Defining a database schema using the <code>table_schema</code> decorator.</li>
+<li>Creating the table using the <code>begin_ddl()</code> context manager.</li>
+<li>Inserting values into the database using the <code>ConnectQuery</code> and <code>ConnectTable</code> interfaces.</li>
+</ul>
+<pre><code class="language-python">import sys
+sys.path.append('../')
+import doctable
+import pprint
+</code></pre>
+<p>The <code>ConnectCore</code> objects acts as the primary starting point for any actions performed on the database. We create a new connection to the datbase using the <code>.open()</code> factory method constructor.</p>
+<pre><code class="language-python">core = doctable.ConnectCore.open(
+    target=':memory:', 
+    dialect='sqlite'
+)
+core
+</code></pre>
+<pre><code>ConnectCore(target=':memory:', dialect='sqlite', engine=Engine(sqlite:///:memory:), metadata=MetaData())
+</code></pre>
+<p>Next we define a very basic schema using the <code>table_schema</code> decorator. This decorator is used to create a Container object, which contains information about the database schema and is also a dataclass that can be inserted or retrieved from the database. Read the schema definition examples for more information on creating container objects and database schemas.</p>
+<pre><code class="language-python">@doctable.table_schema
+class MyContainer0:
+    id: int
+    name: str
+    age: int
+
+doctable.inspect_schema(MyContainer0).column_info_df()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Col Name</th>
+      <th>Col Type</th>
+      <th>Attr Name</th>
+      <th>Hint</th>
+      <th>Order</th>
+      <th>Primary Key</th>
+      <th>Foreign Key</th>
+      <th>Index</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>Integer</td>
+      <td>id</td>
+      <td>int</td>
+      <td>(inf, 0)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>name</td>
+      <td>String</td>
+      <td>name</td>
+      <td>str</td>
+      <td>(inf, 1)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>age</td>
+      <td>Integer</td>
+      <td>age</td>
+      <td>int</td>
+      <td>(inf, 2)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>We actually connect to the database table using the context manager returned by <code>.begin_ddl()</code>. This design is necessary for multi-table schemas, but, because of the readability it provides, I will use it for single-table schemas as well. The method <code>create_table_if_not_exists</code> here returns a new instance of <code>DBTable</code>. Alternatively, we could reflect a database table, in which we would not be required to provide a schema container.</p>
+<pre><code class="language-python">with core.begin_ddl() as emitter:
+    tab0 = emitter.create_table_if_not_exists(container_type=MyContainer0)
+for ci in core.inspect_columns('MyContainer0'):
+    print(ci)
+</code></pre>
+<pre><code>{'name': 'id', 'type': INTEGER(), 'nullable': True, 'default': None, 'primary_key': 0}
+{'name': 'name', 'type': VARCHAR(), 'nullable': True, 'default': None, 'primary_key': 0}
+{'name': 'age', 'type': INTEGER(), 'nullable': True, 'default': None, 'primary_key': 0}
+</code></pre>
+<p>We can perform queries on the database using the <code>ConnectQuery</code> interface returned from the <code>ConnectCore.query()</code> method. In this case, we insert a new row into the database using the <code>insert_multi()</code> method. Not that we will use an alternative interface for inserting container instances into the database.</p>
+<pre><code class="language-python">with core.query() as q:
+    q.insert_multi(tab0, [
+        {'name': 'Devin J. Cornell', 'age': 50},
+        {'name': 'Dorothy Andrews', 'age': 49},
+    ])
+    print(q.select(tab0.all_cols()).all())
+</code></pre>
+<pre><code>[(None, 'Devin J. Cornell', 50), (None, 'Dorothy Andrews', 49)]
+</code></pre>
+<p>To insert container object instances into the table, I instead use the <code>DBTable.query()</code> method to generate a <code>TableQuery</code> instance. This behaves much like <code>ConnectQuery</code> except that returned data will be placed into new container instances and we may insert data from container instances directly.</p>
+<pre><code class="language-python">with tab0.query() as q:
+    q.insert_single(MyContainer0(id=0, name='John Doe', age=30))
+    print(q.select())
+</code></pre>
+<pre><code>[MyContainer0(id=None, name='Devin J. Cornell', age=50), MyContainer0(id=None, name='Dorothy Andrews', age=49), MyContainer0(id=0, name='John Doe', age=30)]
+</code></pre>
+<p>Here I define a more complicated schema. </p>
+<ul>
+<li>The standard <code>id</code> column is now included. Notice that <code>order=0</code> means the column will appear first in the table.</li>
+<li>The <code>updated</code> and <code>added</code> attributes have been created to automatically record the time of insertion and update.</li>
+<li>I added the <code>birthyear</code> method to the container type.</li>
+</ul>
+<pre><code class="language-python">import datetime
+@doctable.table_schema(table_name='mytable1')
+class MyContainer1:
+    name: str
+    age: int
+    id: int = doctable.Column(
+        column_args=doctable.ColumnArgs(order=0, primary_key=True, autoincrement=True),
+    )
+    updated: datetime.datetime = doctable.Column(
+        column_args=doctable.ColumnArgs(default=datetime.datetime.utcnow),
+    )
+    added: datetime.datetime = doctable.Column(
+        column_args=doctable.ColumnArgs(
+            default=datetime.datetime.utcnow, 
+            onupdate=datetime.datetime.utcnow,
+        )
+    )
+
+    def birthyear(self):
+        '''Retrieve the birthyear of the person at the time this database entry was added.'''
+        try:
+            return self.added.year - self.age
+        except AttributeError as e:
+            raise AttributeError('Cannot calculate birthyear without the added date. '
+                'Did you mean to call this on a retrieved container instance?') from e
+
+doctable.inspect_schema(MyContainer1).column_info_df()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Col Name</th>
+      <th>Col Type</th>
+      <th>Attr Name</th>
+      <th>Hint</th>
+      <th>Order</th>
+      <th>Primary Key</th>
+      <th>Foreign Key</th>
+      <th>Index</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>Integer</td>
+      <td>id</td>
+      <td>int</td>
+      <td>(0, 2)</td>
+      <td>True</td>
+      <td>False</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>name</td>
+      <td>String</td>
+      <td>name</td>
+      <td>str</td>
+      <td>(inf, 0)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>age</td>
+      <td>Integer</td>
+      <td>age</td>
+      <td>int</td>
+      <td>(inf, 1)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>updated</td>
+      <td>DateTime</td>
+      <td>updated</td>
+      <td>datetime</td>
+      <td>(inf, 3)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>utcnow</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>added</td>
+      <td>DateTime</td>
+      <td>added</td>
+      <td>datetime</td>
+      <td>(inf, 4)</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>utcnow</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>We create this table just as we did the one before, and show the new schema using inspection.</p>
+<pre><code class="language-python">with core.begin_ddl() as emitter:
+    tab1 = emitter.create_table_if_not_exists(container_type=MyContainer1)
+
+for ci in core.inspect_columns('mytable1'):
+    print(ci)
+</code></pre>
+<pre><code>{'name': 'id', 'type': INTEGER(), 'nullable': True, 'default': None, 'primary_key': 1}
+{'name': 'name', 'type': VARCHAR(), 'nullable': True, 'default': None, 'primary_key': 0}
+{'name': 'age', 'type': INTEGER(), 'nullable': True, 'default': None, 'primary_key': 0}
+{'name': 'updated', 'type': DATETIME(), 'nullable': True, 'default': None, 'primary_key': 0}
+{'name': 'added', 'type': DATETIME(), 'nullable': True, 'default': None, 'primary_key': 0}
+</code></pre>
+<p>We can create a containser instance just as we did before. Note that <code>id</code>, <code>updated</code>, and <code>added</code> are optionally now because we expect the database to create them.</p>
+<pre><code class="language-python">o = MyContainer1(name='John Doe', age=30)
+o
+</code></pre>
+<pre><code>MyContainer1(name='John Doe', age=30, id=MISSING, updated=MISSING, added=MISSING)
+</code></pre>
+<p>As expected, calling <code>.birthyear()</code> raises an exception because the <code>added</code> entry has not been recorded - that will happen at insertion into the db.</p>
+<pre><code class="language-python">try:
+    o.birthyear()
+except AttributeError as e:
+    print('error raised:', e)
+</code></pre>
+<pre><code>error raised: Cannot calculate birthyear without the added date. Did you mean to call this on a retrieved container instance?
+</code></pre>
+<p>After inserting the object into the database and retrieving it again, we can see that those previously missing fileds have been populated.</p>
+<pre><code class="language-python">with tab1.query() as q:
+    q.insert_single(o)
+    results = q.select()
+results[0]
+</code></pre>
+<pre><code>MyContainer1(name='John Doe', age=30, id=1, updated=datetime.datetime(2023, 11, 16, 17, 40, 7, 684832), added=datetime.datetime(2023, 11, 16, 17, 40, 7, 684836))
+</code></pre>
+<p>And now we can call the <code>birthyear()</code> method.</p>
+<pre><code class="language-python">results[0].birthyear()
+</code></pre>
+<pre><code>1993
+</code></pre>
+<h3 id="conclusion">Conclusion</h3>
+<p>For more detailed explanations of these topics, see the documentation and API reference provided on the website. Good luck!</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
