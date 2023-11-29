@@ -267,7 +267,7 @@ with core.query() as q:
         {'sepal_length': 1, 'sepal_width': 2, 'petal_length': 3, 'petal_width': 4, 'species': 'setosa'},
         {'sepal_length': 1, 'sepal_width': 2, 'petal_length': 3, 'petal_width': 4, 'species': 'setosa'},
     ])
-    print(q.select(itab).fetchall())
+    print(q.select(itab.all_cols()).fetchall())
 ```
 
     2023-11-07 15:57:55,319 INFO sqlalchemy.engine.Engine BEGIN (implicit)
