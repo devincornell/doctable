@@ -53,7 +53,7 @@ clean: clean_tests clean_docs clean_build
 ################################# CREATE DOCUMENTATION ##############################
 
 docs: example_notebooks requirements mkdocs
-	git add -f --all site/*
+	#git add -f --all site/*
 	git add --all docs/*
 
 # for testing mkdocs
