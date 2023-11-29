@@ -62,7 +62,7 @@ docs: example_notebooks requirements mkdocs pdoc
 serve_mkdocs: build_mkdocs
 	mkdocs serve -a localhost:8882
 
-mkdocs: mkdocs deploy_mkdocs
+mkdocs: build_mkdocs deploy_mkdocs
 	# mkdocs build
 	# mkdocs gh-deploy
 
@@ -71,6 +71,7 @@ deploy_mkdocs:
 
 build_mkdocs:
 	mkdocs build
+
 pdoc:
 	-mkdir $(PDOC_TARGET_FOLDER)
 	pdoc --docformat google -o $(PDOC_TARGET_FOLDER) $(PACKAGE_FOLDER)
@@ -78,12 +79,6 @@ pdoc:
 	-mkdir ./legacy/doctable
 	pdoc --docformat google -o ./docs/legacy_api ./legacy/doctable
 
-# pdoc:
-	# pdoc --docformat google -o ./docs/ref ./doctable/
-	# git add --all $(DOCS_REF_FOLDER)*.html
-
-	# pdoc --docformat google -o ./docs/ref_legacy ./legacy/doctable/
-	# git add --all ./docs/ref_legacy/*.html
 
 example_notebooks:
 	-mkdir $(EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER)

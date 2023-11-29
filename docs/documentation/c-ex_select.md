@@ -1,4 +1,4 @@
-# Select Queries with `doctable`
+# Select Queries
 
 In this document I will describe the interface for performing select queries with `doctable`. 
 

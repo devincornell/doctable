@@ -1,3 +1,8 @@
+# Iris Vignette
+
+Here I will demonstrate the use of `doctable` to store and analyze components of the classic iris dataset. This dataset is a collection of measurements of three different species of iris flowers.
+
+
 ```python
 from __future__ import annotations
 import pprint

@@ -1,6 +1,8 @@
-# Basics of doctable
+# Introduction
 
-In this brief tutorial, we will cover the basics of doctable. We will cover the following topics:
+Here I will give an overview of the basic functionality of `doctable`.
+
+I will cover the following topics:
 
 + Connecting to the database using `ConnectCore`.
 + Defining a database schema using the `table_schema` decorator.
@@ -8,7 +10,7 @@ In this brief tutorial, we will cover the basics of doctable. We will cover the 
 + Inserting values into the database using the `ConnectQuery` and `ConnectTable` interfaces.
 
 
-```python
+```
 import sys
 sys.path.append('../')
 import doctable
@@ -18,7 +20,7 @@ import pprint
 The `ConnectCore` objects acts as the primary starting point for any actions performed on the database. We create a new connection to the datbase using the `.open()` factory method constructor.
 
 
-```python
+```
 core = doctable.ConnectCore.open(
     target=':memory:', 
     dialect='sqlite'
@@ -36,7 +38,7 @@ core
 Next we define a very basic schema using the `table_schema` decorator. This decorator is used to create a Container object, which contains information about the database schema and is also a dataclass that can be inserted or retrieved from the database. Read the schema definition examples for more information on creating container objects and database schemas.
 
 
-```python
+```
 @doctable.table_schema
 class MyContainer0:
     id: int
@@ -124,7 +126,7 @@ doctable.inspect_schema(MyContainer0).column_info_df()
 We actually connect to the database table using the context manager returned by `.begin_ddl()`. This design is necessary for multi-table schemas, but, because of the readability it provides, I will use it for single-table schemas as well. The method `create_table_if_not_exists` here returns a new instance of `DBTable`. Alternatively, we could reflect a database table, in which we would not be required to provide a schema container.
 
 
-```python
+```
 with core.begin_ddl() as emitter:
     tab0 = emitter.create_table_if_not_exists(container_type=MyContainer0)
 for ci in core.inspect_columns('MyContainer0'):
@@ -139,7 +141,7 @@ for ci in core.inspect_columns('MyContainer0'):
 We can perform queries on the database using the `ConnectQuery` interface returned from the `ConnectCore.query()` method. In this case, we insert a new row into the database using the `insert_multi()` method. Not that we will use an alternative interface for inserting container instances into the database.
 
 
-```python
+```
 with core.query() as q:
     q.insert_multi(tab0, [
         {'name': 'Devin J. Cornell', 'age': 50},
@@ -154,7 +156,7 @@ with core.query() as q:
 To insert container object instances into the table, I instead use the `DBTable.query()` method to generate a `TableQuery` instance. This behaves much like `ConnectQuery` except that returned data will be placed into new container instances and we may insert data from container instances directly.
 
 
-```python
+```
 with tab0.query() as q:
     q.insert_single(MyContainer0(id=0, name='John Doe', age=30))
     print(q.select())
@@ -170,7 +172,7 @@ Here I define a more complicated schema.
 + I added the `birthyear` method to the container type.
 
 
-```python
+```
 import datetime
 @doctable.table_schema(table_name='mytable1')
 class MyContainer1:
@@ -302,7 +304,7 @@ doctable.inspect_schema(MyContainer1).column_info_df()
 We create this table just as we did the one before, and show the new schema using inspection.
 
 
-```python
+```
 with core.begin_ddl() as emitter:
     tab1 = emitter.create_table_if_not_exists(container_type=MyContainer1)
 
@@ -320,7 +322,7 @@ for ci in core.inspect_columns('mytable1'):
 We can create a containser instance just as we did before. Note that `id`, `updated`, and `added` are optionally now because we expect the database to create them.
 
 
-```python
+```
 o = MyContainer1(name='John Doe', age=30)
 o
 ```
@@ -335,7 +337,7 @@ o
 As expected, calling `.birthyear()` raises an exception because the `added` entry has not been recorded - that will happen at insertion into the db.
 
 
-```python
+```
 try:
     o.birthyear()
 except AttributeError as e:
@@ -348,7 +350,7 @@ except AttributeError as e:
 After inserting the object into the database and retrieving it again, we can see that those previously missing fileds have been populated.
 
 
-```python
+```
 with tab1.query() as q:
     q.insert_single(o)
     results = q.select()
@@ -365,7 +367,7 @@ results[0]
 And now we can call the `birthyear()` method.
 
 
-```python
+```
 results[0].birthyear()
 ```
 
