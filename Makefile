@@ -23,15 +23,10 @@ REQUIREMENTS_FOLDER = ./requirements/
 # make deploy (actually builds package)
 
 
-#################### TO DEPLOY INSTRUCTIONS ###########################
-#make test
-#make clean
-#make docs
-#make build
-#make deploy
+#################### installation ###########################
 
 # toplevel (run when enters 'make' without args)
-all: docs build
+all: test docs build
 	git add Makefile
 
 final_check: docs build test
@@ -50,8 +45,12 @@ uninstall:
 install:
 	pip install .
 
-################################# CREATE DOCUMENTATION ##############################
 
+################################ CLEAN ####################################
+
+clean: clean_tests clean_docs clean_build
+
+################################# CREATE DOCUMENTATION ##############################
 
 docs: example_notebooks requirements mkdocs deploy_mkdocs
 	git add -f --all site/*
@@ -176,14 +175,12 @@ deploy: build
 	# here we go now upload
 	python -m twine upload dist/*
 	
-clean_deploy:
+clean_build:
 	-rm -r $(PACKAGE_NAME).egg-info
 	-rm -r dist
 	-rm -r build
 	
-################################ CLEAN ####################################
 
-clean: clean_tests clean_docs clean_deploy
 
 
 	
