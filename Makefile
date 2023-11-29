@@ -64,7 +64,6 @@ deploy_mkdocs:
 	mkdocs gh-deploy
 
 mkdocs:
-	cp README.md docs/index.md
 	mkdocs build
 
 #pdoc:
