@@ -60,6 +60,10 @@ docs: example_notebooks requirements mkdocs deploy_mkdocs
 serve_mkdocs: mkdocs
 	mkdocs serve -a localhost:8882
 
+all_mkdocs: mkdocs deploy_mkdocs
+	# mkdocs build
+	# mkdocs gh-deploy
+
 deploy_mkdocs:
 	mkdocs gh-deploy
 
