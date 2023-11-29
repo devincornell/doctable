@@ -1,4 +1,4 @@
-site_name: doctable Package
+site_name: doctable
 theme:
   name: material
   icon:

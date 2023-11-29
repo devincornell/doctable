@@ -1,5 +1,7 @@
 # `doctable` Python Package
 
+![doctable diagram](https://storage.googleapis.com/public_data_09324832787/website_diagram_v5.svg)
+
 See the [doctable website](https://devinjcornell.com/doctable/) for documentation and examples.
 
 Created by [Devin J. Cornell](https://devinjcornell.com).

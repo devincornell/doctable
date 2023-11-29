@@ -1,7 +1,11 @@
+
+![doctable diagram](https://storage.googleapis.com/public_data_09324832787/website_diagram_v5.svg)
+
 `doctable` is a Python package for manipulating SQL databases through an object-oriented interface without the overhead of object-relational mapping. It is built on top of the [Sqlalchemy](https://www.sqlalchemy.org/) core interface, and takes advantage of [dataclasses](https://docs.python.org/3/library/dataclasses.html) to define database schemas.
 
-
 `doctable` also enables the high-performance storage of binary files (think ML models), parse trees, and compressed text files.
+
+Created by [Devin J. Cornell](https://devinjcornell.com).
 
 ### Doctable has a new interface!
 
