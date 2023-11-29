@@ -1,8 +1,16 @@
-## `doctable` Python Package
+# `doctable` Python Package
 
 See the [doctable website](https://devinjcornell.com/doctable/) for documentation and examples.
 
 Created by [Devin J. Cornell](https://devinjcornell.com).
+
+## Installation
+
+`doctable` is on PyPI, so you can install it with `pip`:
+
+For sqlalchemy >= 2.0: `pip install doctable==2.0`
+
+For sqlalchemy <= 1.4: `pip install doctable==1.0`
 
 ---
 
@@ -11,16 +19,6 @@ Created by [Devin J. Cornell](https://devinjcornell.com).
 The package has been updated with an entirely new API to improve on previous limitations and better match the [Sqlalchemy 2.0](https://www.sqlalchemy.org/) interface. Inspired by the [attrs project](https://www.attrs.org/en/stable/names.html), I used different names for functions and classes to make it clear that the interface has changed and open the possibility for backwards compatibility with upgraded internals in the future. 
 
 For now, stick to installing from the `legacy` branch when using sqlalchemy <= 1.4, and the `master` branch for sqlalchemy >= 2.0.
-
----
-
-## Installation
-
-From [Python Package Index](https://pypi.org/project/doctable/): `pip install doctable`
-
-For sqlalchemy >= 2.0: `pip install --upgrade git+https://github.com/devincornell/doctable.git@master`
-
-For sqlalchemy <= 1.4: `pip install --upgrade git+https://github.com/devincornell/doctable.git@legacy`
 
 ---
 
@@ -36,15 +34,13 @@ For sqlalchemy <= 1.4: `pip install --upgrade git+https://github.com/devincornel
 
 + **New command line interface**: you may execute doctable functions through the command line. Just use `python -m doctable execute {args here}` to see how to use it.
 
+
+
 ---
 
-## Examples
+## Basic Steps
 
-See the `examples/` directory for more detailed examples.
-
-### Basic steps
-
-These are the basic steps for using `doctable` to create a database connection, define a schema, and execute queries. For more examples, see the [doctable website](https://doctable.org).
+These are the basic steps for using `doctable` to create a database connection, define a schema, and execute queries. See the Documentation for more detailed examples.
 
 **1. Create a database connection.**
 
