@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../ex_insert_delete/">
+        <link rel="prev" href="../c-ex_select/">
       
       
-        <link rel="next" href="../ex_select/">
+        <link rel="next" href="../e-iris_example/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Table Schemas - doctable</title>
+        <title>Insert and Delete Queries - doctable</title>
       
     
     
@@ -65,7 +65,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#table-schemas" class="md-skip">
+        <a href="#insert-and-delete-queries" class="md-skip">
           Skip to content
         </a>
       
@@ -101,7 +101,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Table Schemas
+              Insert and Delete Queries
             
           </span>
         </div>
@@ -348,9 +348,29 @@
                 
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../d-ex_insert_delete/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Insert and Delete Queries
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -359,6 +379,116 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#define-a-demonstration-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Define a demonstration schema
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#two-interfaces-connectquery-and-tablequery" class="md-nav__link">
+    <span class="md-ellipsis">
+      Two Interfaces: ConnectQuery and TableQuery
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Two Interfaces: ConnectQuery and TableQuery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inserts-via-connectquery" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inserts via ConnectQuery
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inserts via ConnectQuery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#omit-attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Omit Attributes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ifnotunique-parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      ifnotunique Parameter
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inserts-via-tablequery" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inserts via TableQuery
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inserts via TableQuery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-doctablemissing-sentinel" class="md-nav__link">
+    <span class="md-ellipsis">
+      The doctable.MISSING Sentinel
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deletion-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deletion Interface
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -428,29 +558,9 @@
                 
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Table Schemas
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../ex_schemas/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -459,95 +569,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#containers-and-the-table_schema-decorator" class="md-nav__link">
-    <span class="md-ellipsis">
-      Containers and the table_schema decorator
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#specifying-column-properties" class="md-nav__link">
-    <span class="md-ellipsis">
-      Specifying Column Properties
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#indices" class="md-nav__link">
-    <span class="md-ellipsis">
-      Indices
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#constraints" class="md-nav__link">
-    <span class="md-ellipsis">
-      Constraints
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#column-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      Column Types
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Column Types">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#special-column-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      Special Column Types
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multi-table-schemas" class="md-nav__link">
-    <span class="md-ellipsis">
-      Multi-table Schemas
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1190,55 +1211,76 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#containers-and-the-table_schema-decorator" class="md-nav__link">
+  <a href="#define-a-demonstration-schema" class="md-nav__link">
     <span class="md-ellipsis">
-      Containers and the table_schema decorator
+      Define a demonstration schema
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#specifying-column-properties" class="md-nav__link">
+  <a href="#two-interfaces-connectquery-and-tablequery" class="md-nav__link">
     <span class="md-ellipsis">
-      Specifying Column Properties
+      Two Interfaces: ConnectQuery and TableQuery
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#indices" class="md-nav__link">
-    <span class="md-ellipsis">
-      Indices
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#constraints" class="md-nav__link">
-    <span class="md-ellipsis">
-      Constraints
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#column-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      Column Types
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Column Types">
+    <nav class="md-nav" aria-label="Two Interfaces: ConnectQuery and TableQuery">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#special-column-types" class="md-nav__link">
+  <a href="#inserts-via-connectquery" class="md-nav__link">
     <span class="md-ellipsis">
-      Special Column Types
+      Inserts via ConnectQuery
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inserts via ConnectQuery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#omit-attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Omit Attributes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ifnotunique-parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      ifnotunique Parameter
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inserts-via-tablequery" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inserts via TableQuery
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inserts via TableQuery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-doctablemissing-sentinel" class="md-nav__link">
+    <span class="md-ellipsis">
+      The doctable.MISSING Sentinel
     </span>
   </a>
   
@@ -1250,9 +1292,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#multi-table-schemas" class="md-nav__link">
+  <a href="#deletion-interface" class="md-nav__link">
     <span class="md-ellipsis">
-      Multi-table Schemas
+      Deletion Interface
     </span>
   </a>
   
@@ -1276,817 +1318,500 @@
   
 
 
-<h1 id="table-schemas">Table Schemas</h1>
-<p>In this document, I give some examples for defining single and multi-table database schemas in Python. </p>
-<pre><code class="language-python">import sys
-sys.path.append('../')
-import doctable
-import pprint
-</code></pre>
-<h3 id="containers-and-the-table_schema-decorator">Containers and the <code>table_schema</code> decorator</h3>
-<p>The first step in using doctable is to define a <em>container</em> object. Container objects are defined using the <code>table_schema</code> decorator, and are used both to define the schema of a database table and to wrap the data for insertion and selection. Container objects act very similar to normal dataclasses - in fact, they actually are dataclasses with additional information needed to create the database table attached. This informaiton is collected at the time when the decorator is used, and thus the decorator serves only to parse the database schema from the class definition, attach that information to the container class, and return the container type as a dataclass.</p>
-<pre><code class="language-python">@doctable.table_schema # equivalent to @doctable.table_schema()
-class Container1:
-    name: str
-
-ins = doctable.inspect_schema(Container1)
-print(ins.table_name())
-ins.column_info_df()
-</code></pre>
-<pre><code>Container1
-</code></pre>
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Col Name</th>
-      <th>Col Type</th>
-      <th>Attr Name</th>
-      <th>Hint</th>
-      <th>Order</th>
-      <th>Primary Key</th>
-      <th>Foreign Key</th>
-      <th>Index</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>name</td>
-      <td>String</td>
-      <td>name</td>
-      <td>str</td>
-      <td>(inf, 0)</td>
-      <td>False</td>
-      <td>False</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-<pre><code class="language-python">@doctable.table_schema(table_name='container2')
-class Container2:
-    name: str
-    age: int
-ins = doctable.inspect_schema(Container2)
-print(ins.table_name())
-ins.column_info_df()
-</code></pre>
-<pre><code>container2
-</code></pre>
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Col Name</th>
-      <th>Col Type</th>
-      <th>Attr Name</th>
-      <th>Hint</th>
-      <th>Order</th>
-      <th>Primary Key</th>
-      <th>Foreign Key</th>
-      <th>Index</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>name</td>
-      <td>String</td>
-      <td>name</td>
-      <td>str</td>
-      <td>(inf, 0)</td>
-      <td>False</td>
-      <td>False</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>age</td>
-      <td>Integer</td>
-      <td>age</td>
-      <td>int</td>
-      <td>(inf, 1)</td>
-      <td>False</td>
-      <td>False</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-<h3 id="specifying-column-properties">Specifying Column Properties</h3>
-<p>There are two sets of parameters you may adjust to change the behavior of a column: </p>
-<ul>
-<li>
-<p><code>ColumnArgs</code>: adjust the behavior of the generated column. This does not affect the container object, but does affect the database column.</p>
-</li>
-<li>
-<p><code>FieldArgs</code>: adjust the behavior of container attribute by passing arguments to <code>dataclasses.field()</code>. This does not affect the database column, but does affect the way the container object can be used.</p>
-</li>
-</ul>
-<p>Both are passed directly to the <code>Column</code> function, which, as you can see, simply returns a <code>dataclasses.field</code> object with column arguments passed to the <code>metadata</code> attribute. Note that by default, the <code>default</code> argument is set to <code>doctable.MISSING</code>, so the parameter is optional and will be populated with that value. Missing values will be ignored when inserting the object into the database.</p>
-<pre><code class="language-python">doctable.Column(
-    column_args=doctable.ColumnArgs(),
-    field_args=doctable.FieldArgs(),
-)
-</code></pre>
-<pre><code>Field(name=None,type=None,default=MISSING,default_factory=&lt;dataclasses._MISSING_TYPE object at 0x7fc0f9afe590&gt;,init=True,repr=True,hash=None,compare=True,metadata=mappingproxy({'_column_args': ColumnArgs(order=inf, column_name=None, type_kwargs={}, use_type=None, sqlalchemy_type=None, autoincrement=False, nullable=True, unique=None, primary_key=False, index=None, foreign_key=None, default=None, onupdate=None, server_default=None, server_onupdate=None, comment=None, other_kwargs={})}),kw_only=&lt;dataclasses._MISSING_TYPE object at 0x7fc0f9afe590&gt;,_field_type=None)
-</code></pre>
-<pre><code class="language-python">import datetime
-
-class PhoneNumber(str):
-    pass
-
-class Address(str):
-    pass
-
-@doctable.table_schema(table_name='container3')
-class Container3:
-    name: str
-    age: int = doctable.Column(field_args=doctable.FieldArgs(init_required=True))
-    address: Address = doctable.Column()
-    phone: PhoneNumber = doctable.Column()
-
-    # this column will appear first in the database, even though this attribute is later
-    _id: int = doctable.Column(
-        column_args=doctable.ColumnArgs(
-            column_name='id', # name of the column in the db (might not want to have an attr called 'id')
-            order = 0, # affects the ordering of the columns in the db
-            primary_key=True,
-            autoincrement=True,
-        ),
-    )
-
-    # doctable will define default and onupdate when inserting into database
-    added: datetime.datetime = doctable.Column(
-        column_args=doctable.ColumnArgs(
-            default=datetime.datetime.now, 
-            onupdate=datetime.datetime.now
-        ),
-        field_args = doctable.FieldArgs(
-            repr=False, # don't show this field when printing
-        )
-    )    
-
-doctable.inspect_schema(Container3).column_info_df()
-</code></pre>
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Col Name</th>
-      <th>Col Type</th>
-      <th>Attr Name</th>
-      <th>Hint</th>
-      <th>Order</th>
-      <th>Primary Key</th>
-      <th>Foreign Key</th>
-      <th>Index</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>id</td>
-      <td>Integer</td>
-      <td>_id</td>
-      <td>int</td>
-      <td>(0, 4)</td>
-      <td>True</td>
-      <td>False</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>name</td>
-      <td>String</td>
-      <td>name</td>
-      <td>str</td>
-      <td>(inf, 0)</td>
-      <td>False</td>
-      <td>False</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>age</td>
-      <td>Integer</td>
-      <td>age</td>
-      <td>int</td>
-      <td>(inf, 1)</td>
-      <td>False</td>
-      <td>False</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>address</td>
-      <td>String</td>
-      <td>address</td>
-      <td>Address</td>
-      <td>(inf, 2)</td>
-      <td>False</td>
-      <td>False</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>phone</td>
-      <td>String</td>
-      <td>phone</td>
-      <td>PhoneNumber</td>
-      <td>(inf, 3)</td>
-      <td>False</td>
-      <td>False</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>added</td>
-      <td>DateTime</td>
-      <td>added</td>
-      <td>datetime</td>
-      <td>(inf, 5)</td>
-      <td>False</td>
-      <td>False</td>
-      <td>None</td>
-      <td>now</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-<p>Notice that the string representation does not show the <code>added</code> attribute, as specified via <code>FieldAargs(repr=False)</code>.</p>
-<pre><code class="language-python">Container3('Devin J. Cornell', 30)
-</code></pre>
-<pre><code>Container3(name='Devin J. Cornell', age=30, address=MISSING, phone=MISSING, _id=MISSING)
-</code></pre>
-<h3 id="indices">Indices</h3>
-<p>Indices may be added to a table by passing a dictionary of name, <code>Index</code> pairs to the <code>indices</code> parameter of the <code>table_schema</code> decorator. The arguments are the columns, and any additional keyword arguments may be passed after.</p>
-<pre><code class="language-python">@doctable.table_schema(
-    table_name='container4',
-    indices = {
-        'ind_name': doctable.Index('name'),
-        'ind_name_age': doctable.Index('name', 'age', unique=True),
-    }
-)
-class Container4:
-    name: str
-    age: int
-
-ins = doctable.inspect_schema(Container4)
-ins.index_info_df()
-</code></pre>
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>name</th>
-      <th>columns</th>
-      <th>kwargs</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>ind_name</td>
-      <td>name</td>
-      <td></td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>ind_name_age</td>
-      <td>name, age</td>
-      <td>unique: True</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-<h3 id="constraints">Constraints</h3>
-<p>You may pass constraints through the <code>constraint</code> parameter of the <code>table_schema</code> decorator.</p>
-<p>There are several types of constraints you may want to use in your schema. The following methods are thin wrappers over the <a href="https://docs.sqlalchemy.org/en/20/core/constraints.html">SQLAlchemy objects of the same name</a>.</p>
-<table>
-<thead>
-<tr>
-<th>docs</th>
-<th>Constraint</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="https://docs.sqlalchemy.org/en/20/core/constraints.html#sqlalchemy.schema.ForeignKeyConstraint">link</a></td>
-<td><code>ForeignKey(local_columns, foreign_columns, optional[onupdate], optional[ondelete])</code></td>
-<td>A foreign key constraint.</td>
-</tr>
-<tr>
-<td><a href="https://docs.sqlalchemy.org/en/20/core/constraints.html#sqlalchemy.schema.CheckConstraint">link</a></td>
-<td><code>CheckConstraint(text, optional[Name])</code></td>
-<td>A unique constraint.</td>
-</tr>
-<tr>
-<td><a href="https://docs.sqlalchemy.org/en/20/core/constraints.html#sqlalchemy.schema.UniqueConstraint">link</a></td>
-<td><code>UniqueConstraint(*column_names, optional[name])</code></td>
-<td>A unique constraint.</td>
-</tr>
-<tr>
-<td><a href="https://docs.sqlalchemy.org/en/20/core/constraints.html#sqlalchemy.schema.PrimaryKeyConstraint">link</a></td>
-<td><code>PrimaryKeyConstraint(*column_names, optional[name])</code></td>
-<td>A unique constraint.</td>
-</tr>
-</tbody>
-</table>
-<pre><code class="language-python">@doctable.table_schema(
-    table_name='container5',
-    constraints = [
-        #doctable.ForeignKey(..), # see multi-table schemas below
-        doctable.CheckConstraint('age &gt;= 0', name='check_age'),
-        doctable.UniqueConstraint('age', 'name', name='unique_age_name'),
-        doctable.PrimaryKeyConstraint('id'),
-    ]
-)
-class Container5:
-    id: int # this is the primary key now
-    name: str
-    age: int
-</code></pre>
-<h3 id="column-types">Column Types</h3>
-<p>The column type resolution works according to the following steps:</p>
-<ol>
-<li>Check <code>ColumnArgs.sqlalchemy_type</code> and use this if it is not <code>None</code>.</li>
-<li>Check if column is foreign key - if it is, ask sqlalchemy to resolve the type</li>
-<li>Check <code>ColumnArgs.use_type</code> and use this if it is provided.</li>
-<li>Use the provided type hint to resolve the type.</li>
-</ol>
-<p>The valid type hints and their sqlalchemy equivalents are listed below.</p>
-<table>
-<thead>
-<tr>
-<th>Type Hint</th>
-<th>SQLAlchemy Type</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>int</code></td>
-<td><code>sqlalchemy.Integer</code></td>
-</tr>
-<tr>
-<td><code>float</code></td>
-<td><code>sqlalchemy.Float</code></td>
-</tr>
-<tr>
-<td><code>bool</code></td>
-<td><code>sqlalchemy.Boolean</code></td>
-</tr>
-<tr>
-<td><code>str</code></td>
-<td><code>sqlalchemy.String</code></td>
-</tr>
-<tr>
-<td><code>bytes</code></td>
-<td><code>sqlalchemy.LargeBinary</code></td>
-</tr>
-<tr>
-<td><code>datetime.datetime</code></td>
-<td><code>sqlalchemy.DateTime</code></td>
-</tr>
-<tr>
-<td><code>datetime.time</code></td>
-<td><code>sqlalchemy.Time</code></td>
-</tr>
-<tr>
-<td><code>datetime.date</code></td>
-<td><code>sqlalchemy.Date</code></td>
-</tr>
-<tr>
-<td><code>typing.Any</code></td>
-<td><code>sqlalchemy.PickleType</code></td>
-</tr>
-<tr>
-<td><code>'datetime.datetime'</code></td>
-<td><code>sqlalchemy.DateTime</code></td>
-</tr>
-<tr>
-<td><code>'datetime.time'</code></td>
-<td><code>sqlalchemy.Time</code></td>
-</tr>
-<tr>
-<td><code>'datetime.date'</code></td>
-<td><code>sqlalchemy.Date</code></td>
-</tr>
-<tr>
-<td><code>'Any'</code></td>
-<td><code>sqlalchemy.PickleType</code></td>
-</tr>
-</tbody>
-</table>
-<p>You can get the mappings programatically if needed as well:</p>
-<pre><code class="language-python">doctable.type_mappings()
-</code></pre>
-<pre><code>{int: sqlalchemy.sql.sqltypes.Integer,
- float: sqlalchemy.sql.sqltypes.Float,
- bool: sqlalchemy.sql.sqltypes.Boolean,
- str: sqlalchemy.sql.sqltypes.String,
- bytes: sqlalchemy.sql.sqltypes.LargeBinary,
- datetime.datetime: sqlalchemy.sql.sqltypes.DateTime,
- datetime.time: sqlalchemy.sql.sqltypes.Time,
- datetime.date: sqlalchemy.sql.sqltypes.Date,
- doctable.schema.column.column_types.PickleType: sqlalchemy.sql.sqltypes.PickleType,
- 'datetime.datetime': sqlalchemy.sql.sqltypes.DateTime,
- 'datetime.time': sqlalchemy.sql.sqltypes.Time,
- 'datetime.date': sqlalchemy.sql.sqltypes.Date,
- doctable.schema.column.column_types.JSON: sqlalchemy.sql.sqltypes.JSON}
-</code></pre>
-<h4 id="special-column-types">Special Column Types</h4>
-<p>There are several special column types that can be used in your schemas.</p>
-<table>
-<thead>
-<tr>
-<th>Type Hint</th>
-<th>SQLAlchemy Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>doctable.JSON</code></td>
-<td><code>sqlalchemy.JSON</code></td>
-<td>Calls <code>json.dumps</code> on write, <code>json.loads</code> on read.</td>
-</tr>
-<tr>
-<td><code>doctable.PickleType</code></td>
-<td><code>sqlalchemy.PickleType</code></td>
-<td>Calls <code>pickle.dumps</code> on write, <code>pickle.loads</code> on read.</td>
-</tr>
-</tbody>
-</table>
-<pre><code class="language-python">import dataclasses
+<h1 id="insert-and-delete-queries">Insert and Delete Queries</h1>
+<p>In this document I will describe the interface for performing insert and delete queries with doctable.</p>
+<pre><code>
+import pandas as pd
+import numpy as np
 import typing
 
-@dataclasses.dataclass
-class Address:
-    street: str
-    city: str
-    state: str
-    zip: str
-
-@doctable.table_schema
-class Container6:
-    name: str
-
-    # NOTE: will be serialized as a JSON string in the database
-    # notice how we can use a more accurate type hint and still specify
-    # the column type using use_type
-    other_info: typing.Dict[str, typing.Union[str,int,float]] = doctable.Column(
-        column_args=doctable.ColumnArgs(
-            use_type=doctable.JSON,
-        ),
-        field_args=doctable.FieldArgs(default_factory=dict),
-    )
-
-    # NOTE: will be pickled in the database
-    address: Address = doctable.Column(
-        column_args=doctable.ColumnArgs(
-            use_type=doctable.PickleType,
-        )
-    )
-
-doctable.inspect_schema(Container6).column_info_df()
+import sys
+sys.path.append('..')
+import doctable
 </code></pre>
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
+<h4 id="define-a-demonstration-schema">Define a demonstration schema</h4>
+<p>The very first step is to define a table schema that will be appropriate for our examples. This table includes the typical <code>id</code> column (the first column, specified by <code>order=0</code>), as well as string, integer, and boolean attributes. The object used to specify the schema is called a <em>container</em>, and I will use that terminology as we go.</p>
+<pre><code>@doctable.table_schema
+class Record:
+    name: str = doctable.Column(column_args=doctable.ColumnArgs(nullable=False, unique=True))
+    age: int = doctable.Column()
+    is_old: bool = doctable.Column()
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Col Name</th>
-      <th>Col Type</th>
-      <th>Attr Name</th>
-      <th>Hint</th>
-      <th>Order</th>
-      <th>Primary Key</th>
-      <th>Foreign Key</th>
-      <th>Index</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>name</td>
-      <td>String</td>
-      <td>name</td>
-      <td>str</td>
-      <td>(inf, 0)</td>
-      <td>False</td>
-      <td>False</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>other_info</td>
-      <td>JSON</td>
-      <td>other_info</td>
-      <td>Dict</td>
-      <td>(inf, 1)</td>
-      <td>False</td>
-      <td>False</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>address</td>
-      <td>PickleType</td>
-      <td>address</td>
-      <td>Address</td>
-      <td>(inf, 2)</td>
-      <td>False</td>
-      <td>False</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-<p>Now create a new container object that contains an address for insertion.</p>
-<pre><code class="language-python">new_obj = Container6(
-    name = 'Devin J. Cornell', 
-    other_info = {'favorite_color': 'blue'},
-    address = Address('123 Main St.', 'San Francisco', 'CA', '94122'), 
-)
-new_obj
-</code></pre>
-<pre><code>Container6(name='Devin J. Cornell', other_info={'favorite_color': 'blue'}, address=Address(street='123 Main St.', city='San Francisco', state='CA', zip='94122'))
-</code></pre>
-<p>Now we open a new database, insert the row, and query it back - you can see that the dict data was converted to json and back again, and the address was converted to pickle data and back again.</p>
-<pre><code class="language-python">core = doctable.ConnectCore.open(':memory:', 'sqlite')
-with core.begin_ddl() as ddl:
-    tab = ddl.create_table(Container6)
-
-with tab.query() as q:
-    q.insert_single(new_obj)
-
-with core.query() as q:
-    result = q.select(tab.all_cols())
-result.first()
-</code></pre>
-<pre><code>('Devin J. Cornell', {'favorite_color': 'blue'}, Address(street='123 Main St.', city='San Francisco', state='CA', zip='94122'))
-</code></pre>
-<h2 id="multi-table-schemas">Multi-table Schemas</h2>
-<p>The example below shows two linked tables: one for colors, and the other for people. Each person has a favorite color that is constrained by a foriegn key to the colors table. The colors table also has a unique constraint on the color name. I demonstrate use of the <code>Column</code> function to describe behavior of columns - specifically the use of <code>ColumnArgs</code> to specify additional column features that are not conveyed through type annotations or attribute names. I also show use of the <code>Index</code> object for creating indexes, the <code>UniqueConstraint</code> object for creating unique constraints, and the <code>ForeignKey</code> object for creating foreign key constraints. </p>
-<p>Note that the container object representing the database schema is also a usable <code>dataclass</code> that can used like any other container object. In fact, tables created according to this schema can insert these objects directly and will wrap return values issued via select queries.</p>
-<pre><code class="language-python">import datetime
-
-@doctable.table_schema(
-    table_name='color',
-    constraints = [
-        doctable.UniqueConstraint('name'),
-    ]
-)
-class Color:
-    name: str
     id: int = doctable.Column(
         column_args=doctable.ColumnArgs(
-            primary_key=True,
-            autoincrement=True,
-        )
-    )
-
-# lets say we use this instead of an int
-class PersonID(int):
-    pass
-
-# add table-level parameters to this decorator
-@doctable.table_schema(
-    table_name='person',
-    indices = {
-        'ind_name_birthday': doctable.Index('name', 'birthday', unique=True),
-    },
-    constraints = [ # these constraints are set on the database
-        doctable.CheckConstraint('length(address) &gt; 0'), # cannot have a blank address
-        doctable.UniqueConstraint('birthday', 'fav_color'),
-        doctable.ForeignKey(['fav_color'], ['color.name'], onupdate='CASCADE', ondelete='CASCADE'),
-    ],
-    frozen = True, # parameter passed to dataclasses.dataclass
-)
-class Person:
-    name: str
-
-    # default value will be &quot;not provided&quot; - good standardization
-    address: str = doctable.Column(
-        column_args=doctable.ColumnArgs(
-            server_default='not provided',
-        )
-    )
-
-    # provided as datetime, set to be indexed
-    birthday: datetime.datetime = doctable.Column(
-        column_args=doctable.ColumnArgs(
-            index = True,
-        )
-    )
-
-    # note that this has a foreign key constraint above
-    fav_color: str = doctable.Column(
-        column_args=doctable.ColumnArgs(
-            nullable=False,
-        )
-    )
-
-    id: PersonID = doctable.Column( # standard id column
-        column_args=doctable.ColumnArgs(
-            order=0, # will be the first column
-            primary_key=True,
+            order = 0, 
+            primary_key=True, 
             autoincrement=True
         ),
     )
 
-    # doctable will define default and onupdate when inserting into database
-    added: datetime.datetime = doctable.Column(
-        column_args=doctable.ColumnArgs(
-            index=True,
-            default=datetime.datetime.utcnow, 
-            onupdate=datetime.datetime.utcnow
-        )
-    )
+core = doctable.ConnectCore.open(target=':memory:', dialect='sqlite', echo=True)
 
-    # this property will not be stored in the database 
-    #   - it acts like any other property
-    @property
-    def age(self):
-        return datetime.datetime.now() - self.birthday
-
-
-core = doctable.ConnectCore.open(
-    target=':memory:', 
-    dialect='sqlite'
-)
-# NOTE: weird error when trying to run this twice after defining containers
-with core.begin_ddl() as emitter:
-    core.enable_foreign_keys() # NOTE: NEEDED TO ENABLE FOREIGN KEYS
-    color_tab = emitter.create_table_if_not_exists(container_type=Color)
-    person_tab = emitter.create_table_if_not_exists(container_type=Person)
-for col_info in person_tab.inspect_columns():
-    print(f'{col_info[&quot;name&quot;]}: {col_info[&quot;type&quot;]}')
+with core.begin_ddl() as ddl:
+    rtab = ddl.create_table_if_not_exists(container_type=Record)
 </code></pre>
-<pre><code>id: INTEGER
-name: VARCHAR
-address: VARCHAR
-birthday: DATETIME
-fav_color: VARCHAR
-added: DATETIME
-</code></pre>
-<p>Insertion into the color table is fairly straightforward.</p>
-<pre><code class="language-python">color_names = ['red', 'green', 'blue']
-colors = [Color(name=name) for name in color_names]
-with color_tab.query() as q:
-    q.insert_multi(colors)
-    for c in q.select():
-        print(c)
-    #print(q.select())
-</code></pre>
-<pre><code>Color(name='red', id=1)
-Color(name='green', id=2)
-Color(name='blue', id=3)
-</code></pre>
-<p>Insertion into the person table is similar, and note that we see an exception if we try to insert a person with a favorite color that is not in the color table.</p>
-<pre><code class="language-python">persons = [
-    Person(name='John', birthday=datetime.datetime(1990, 1, 1), fav_color='red'),
-    Person(name='Sue', birthday=datetime.datetime(1991, 1, 1), fav_color='green'),
-    Person(name='Ren', birthday=datetime.datetime(1995, 1, 1), fav_color='blue'),
-]
-other_person = Person(
-    name='Bob', 
-    address='123 Main St', 
-    birthday=datetime.datetime(1990, 1, 1), 
-    fav_color='other', # NOTE: THIS WILL CAUSE AN ERROR (NOT IN COLOR TABLE)
+<pre><code>2023-11-13 14:46:03,418 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,418 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("Record")
+2023-11-13 14:46:03,419 INFO sqlalchemy.engine.Engine [raw sql] ()
+2023-11-13 14:46:03,420 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("Record")
+2023-11-13 14:46:03,421 INFO sqlalchemy.engine.Engine [raw sql] ()
+2023-11-13 14:46:03,422 INFO sqlalchemy.engine.Engine 
+CREATE TABLE "Record" (
+    id INTEGER, 
+    age INTEGER, 
+    is_old INTEGER, 
+    name VARCHAR NOT NULL, 
+    PRIMARY KEY (id), 
+    UNIQUE (name)
 )
 
-import sqlalchemy.exc
 
-sec_in_one_year = 24*60*60*365
-with person_tab.query() as q:
-    q.insert_multi(persons, ifnotunique='replace')
-
-    try:
-        q.insert_single(other_person, ifnotunique='replace')
-        print(f'THIS SHOULD NOT APPEAR')
-    except sqlalchemy.exc.IntegrityError as e:
-        print(f'successfully threw exception: {e}')
-
-    for p in q.select():
-        print(f'{p.name} ({p.fav_color}): {p.age.total_seconds()//sec_in_one_year:0.0f} y/o')
+2023-11-13 14:46:03,423 INFO sqlalchemy.engine.Engine [no key 0.00050s] ()
+2023-11-13 14:46:03,424 INFO sqlalchemy.engine.Engine COMMIT
 </code></pre>
-<pre><code>successfully threw exception: (sqlite3.IntegrityError) FOREIGN KEY constraint failed
-[SQL: INSERT OR REPLACE INTO person (name, address, birthday, fav_color, added) VALUES (?, ?, ?, ?, ?)]
-[parameters: ('Bob', '123 Main St', '1990-01-01 00:00:00.000000', 'other', '2023-11-14 22:17:40.402308')]
+<h2 id="two-interfaces-connectquery-and-tablequery">Two Interfaces: <code>ConnectQuery</code> and <code>TableQuery</code></h2>
+<p>First, a little about the <code>doctable</code> query interface. There are two interfaces for performing queries: <code>ConnectQuery</code> and <code>TableQuery</code>. </p>
+<ul>
+<li>
+<p><strong><code>ConnectQuery</code></strong> table-agnostic interface for querying any table in any result format. Create this object using the <code>ConnectCore.query()</code> method.</p>
+</li>
+<li>
+<p><strong><code>TableQuery</code></strong> table-specific interface for querying a specific table. Insert and select from container objects used to define the schema. Create this object using the <code>DBTable.query()</code> method.</p>
+</li>
+</ul>
+<h3 id="inserts-via-connectquery">Inserts via <code>ConnectQuery</code></h3>
+<p>First I will discuss the <code>ConnectQuery</code> interface, which is created via the <code>ConnectCore.query()</code> method. This object maintains a database connection, and, when used as a context manager, will commit all changes upon exit. It is fine to use the <code>ConnectQuery</code> object without a context manager for queries that do not require commits.</p>
+<p>There are two primary methods for insertions via the <code>ConnectQuery</code> interface, which you can see in this table. Both accept a single <code>DBTable</code> object, followed by one or multiple dictionaries of data to insert, depending on the method.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>insert_single()</code></td>
+<td>Insert a single row into a table.</td>
+</tr>
+<tr>
+<td><code>insert_multi()</code></td>
+<td>Insert multiple rows into a table.</td>
+</tr>
+</tbody>
+</table>
+<pre><code>with core.query() as q:
+    q.insert_single(rtab, {
+        'name': 'test_A',
+        'age': 10,
+        'is_old': False,
+    })
+
+    q.insert_multi(rtab, data = [
+        {
+            'name': 'test_B',
+            'age': 10,
+            'is_old': False,
+        },
+        {
+            'name': 'test_C',
+            'age': 10,
+            'is_old': False,
+        }
+    ])
+
+q.select(rtab.all_cols()).df()
+</code></pre>
+<pre><code>2023-11-13 14:46:03,478 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,480 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (age, is_old, name) VALUES (?, ?, ?)
+2023-11-13 14:46:03,482 INFO sqlalchemy.engine.Engine [generated in 0.00420s] (10, False, 'test_A')
+2023-11-13 14:46:03,487 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (age, is_old, name) VALUES (?, ?, ?)
+2023-11-13 14:46:03,489 INFO sqlalchemy.engine.Engine [generated in 0.00216s] [(10, False, 'test_B'), (10, False, 'test_C')]
+2023-11-13 14:46:03,491 INFO sqlalchemy.engine.Engine COMMIT
+2023-11-13 14:46:03,494 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,495 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".age, "Record".is_old, "Record".name 
+FROM "Record"
+2023-11-13 14:46:03,497 INFO sqlalchemy.engine.Engine [generated in 0.00319s] ()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>age</th>
+      <th>is_old</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>10</td>
+      <td>0</td>
+      <td>test_A</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>10</td>
+      <td>0</td>
+      <td>test_B</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>10</td>
+      <td>0</td>
+      <td>test_C</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h4 id="omit-attributes">Omit Attributes</h4>
+<p>If some values are not provided, the database will decide which values they take. In this case, the database populates the ID column according to the schema (it acts as the primary key in this case).</p>
+<pre><code>core.query().insert_single(rtab, {
+    'name': 'test_D',
+})
+core.query().select(rtab.all_cols()).df()
+</code></pre>
+<pre><code>2023-11-13 14:46:03,544 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,546 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (name) VALUES (?)
+2023-11-13 14:46:03,548 INFO sqlalchemy.engine.Engine [generated in 0.00389s] ('test_D',)
+2023-11-13 14:46:03,551 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,552 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".age, "Record".is_old, "Record".name 
+FROM "Record"
+2023-11-13 14:46:03,554 INFO sqlalchemy.engine.Engine [cached since 0.06015s ago] ()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>age</th>
+      <th>is_old</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>test_A</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>test_B</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>test_C</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>test_D</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Note that in our schema we set <code>nullable=False</code> for the name column, so this must be provided in an insert otherwise there will be an error. This typically results in an <code>sqlalchemy.exc.IntegrityError</code>, which you may catch if needed.</p>
+<pre><code>import sqlalchemy.exc
+
+try:
+    core.query().insert_single(rtab, {
+        'is_old': True,
+    })
+except sqlalchemy.exc.IntegrityError as e:
+    print(type(e), e)
+</code></pre>
+<pre><code>2023-11-13 14:46:03,605 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,607 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (is_old) VALUES (?)
+2023-11-13 14:46:03,609 INFO sqlalchemy.engine.Engine [generated in 0.00380s] (True,)
+&lt;class 'sqlalchemy.exc.IntegrityError'&gt; (sqlite3.IntegrityError) NOT NULL constraint failed: Record.name
+[SQL: INSERT OR FAIL INTO "Record" (is_old) VALUES (?)]
+[parameters: (True,)]
 (Background on this error at: https://sqlalche.me/e/20/gkpj)
-John (red): 33 y/o
-Sue (green): 32 y/o
-Ren (blue): 28 y/o
 </code></pre>
-<p>The foreign key works as expected because we set <code>onupdate</code>: changing that value in the parent table will update the value in the child table.</p>
-<pre><code class="language-python">with color_tab.query() as q:
-    q.update_single(dict(name='reddish'), where=color_tab['name']=='red')
-    for c in q.select():
-        print(c)
+<h4 id="ifnotunique-parameter"><code>ifnotunique</code> Parameter</h4>
+<p>The <code>ifnotunique</code> paramter controls the behavior when a unique constraint is violated. </p>
+<p>The default value is <code>FAIL</code>, which will raise an error when a unique constraint is violated - it will raise an <code>sqlalchemy.exc.IntegrityError</code> exception in this case. The other options are <code>IGNORE</code>, meaning inserted rows that violate the constraints should be ignored, and <code>REPLACE</code>, which will replace the existing row with the new row.</p>
+<p>In the <code>Record</code> table we have created, there is a unique constraint on <code>name</code>. We will receive an integrity error if we try to insert a duplicate there when using the default <code>ifnotunique='ERROR'</code>.</p>
+<pre><code>try:
+    core.query().insert_single(rtab, {
+        'name': 'test_A',
+    })
+except sqlalchemy.exc.IntegrityError as e:
+    print(type(e), e)
+</code></pre>
+<pre><code>2023-11-13 14:46:03,665 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,668 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (name) VALUES (?)
+2023-11-13 14:46:03,669 INFO sqlalchemy.engine.Engine [cached since 0.1247s ago] ('test_A',)
+&lt;class 'sqlalchemy.exc.IntegrityError'&gt; (sqlite3.IntegrityError) UNIQUE constraint failed: Record.name
+[SQL: INSERT OR FAIL INTO "Record" (name) VALUES (?)]
+[parameters: ('test_A',)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+</code></pre>
+<p>When using <code>ifnotunique='REPLACE'</code>, the insert will replace the existing row with the new row. This is useful when you want to update a row if it already exists, but insert it if it does not.</p>
+<pre><code>core.query().insert_single(rtab, {
+    'name': 'test_A',
+}, ifnotunique='REPLACE')
+core.query().select(rtab.all_cols()).df()
+</code></pre>
+<pre><code>2023-11-13 14:46:03,728 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,731 INFO sqlalchemy.engine.Engine INSERT OR REPLACE INTO "Record" (name) VALUES (?)
+2023-11-13 14:46:03,733 INFO sqlalchemy.engine.Engine [generated in 0.00453s] ('test_A',)
+2023-11-13 14:46:03,738 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,739 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".age, "Record".is_old, "Record".name 
+FROM "Record"
+2023-11-13 14:46:03,741 INFO sqlalchemy.engine.Engine [cached since 0.2469s ago] ()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-with person_tab.query() as q:
-    for p in q.select():
-        print(f'{p.name} ({p.fav_color}): {p.age.total_seconds()//sec_in_one_year:0.0f} y/o')
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>age</th>
+      <th>is_old</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>test_B</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>3</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>test_C</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>test_D</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>5</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>test_A</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="inserts-via-tablequery">Inserts via <code>TableQuery</code></h2>
+<p>The <code>TableQuery</code> interface is created via the <code>DBTable.query()</code> method. This object is table-specific, and is used to insert and select from a single table. As such, inserts ONLY accept the <code>Record</code> container objects used to define the schema. Following the <code>ConnectQuery</code> interface, there are two methods for inserting data into a table: <code>.insert_single()</code> and <code>.insert_multi()</code>.</p>
+<pre><code>rtab.query().insert_single(Record(name='test_E', is_old=False, age=10))
+rtab.query().select(rtab.all_cols())
 </code></pre>
-<pre><code>Color(name='reddish', id=1)
-Color(name='green', id=2)
-Color(name='blue', id=3)
-John (reddish): 33 y/o
-Sue (green): 32 y/o
-Ren (blue): 28 y/o
+<pre><code>2023-11-13 14:46:03,806 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,809 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (age, is_old, name) VALUES (?, ?, ?)
+2023-11-13 14:46:03,811 INFO sqlalchemy.engine.Engine [cached since 0.3334s ago] (10, False, 'test_E')
+2023-11-13 14:46:03,814 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,815 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".age, "Record".is_old, "Record".name 
+FROM "Record"
+2023-11-13 14:46:03,816 INFO sqlalchemy.engine.Engine [cached since 0.3218s ago] ()
+
+
+
+
+
+[Record(name='test_B', age=10, is_old=0, id=2),
+ Record(name='test_C', age=10, is_old=0, id=3),
+ Record(name='test_D', age=None, is_old=None, id=4),
+ Record(name='test_A', age=None, is_old=None, id=5),
+ Record(name='test_E', age=10, is_old=0, id=6)]
+</code></pre>
+<pre><code>rtab.query().insert_multi([
+    Record(name='test_F', is_old=False, age=10),
+    Record(name='test_G', is_old=True, age=80),
+])
+rtab.query().select(rtab.all_cols())
+</code></pre>
+<pre><code>2023-11-13 14:46:03,866 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,869 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (age, is_old, name) VALUES (?, ?, ?)
+2023-11-13 14:46:03,870 INFO sqlalchemy.engine.Engine [cached since 0.3834s ago] [(10, False, 'test_F'), (80, True, 'test_G')]
+2023-11-13 14:46:03,874 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,875 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".age, "Record".is_old, "Record".name 
+FROM "Record"
+2023-11-13 14:46:03,876 INFO sqlalchemy.engine.Engine [cached since 0.3818s ago] ()
+
+
+
+
+
+[Record(name='test_B', age=10, is_old=0, id=2),
+ Record(name='test_C', age=10, is_old=0, id=3),
+ Record(name='test_D', age=None, is_old=None, id=4),
+ Record(name='test_A', age=None, is_old=None, id=5),
+ Record(name='test_E', age=10, is_old=0, id=6),
+ Record(name='test_F', age=10, is_old=0, id=7),
+ Record(name='test_G', age=80, is_old=1, id=8)]
+</code></pre>
+<h4 id="the-doctablemissing-sentinel">The <code>doctable.MISSING</code> Sentinel</h4>
+<p>Lets now take a closer look at the container object behavior. Notice that in the schema definition we gave default values of <code>doctable.Column</code>, which we used to specify additional attributes. This automatically sets the default value for the dataclass to be <code>doctable.MISSING</code>, which is special because it will be ignored when inserting - instead, it will let the database decide how to handle it. This is especially useful for columns like <code>id</code>, which are intended to be automatically generated by the database. We can see this when we omit attributes from the object.</p>
+<pre><code>test_record = Record(name='test_H')
+test_record
+</code></pre>
+<pre><code>Record(name='test_H', age=MISSING, is_old=MISSING, id=MISSING)
+</code></pre>
+<p>Those values will be omitted in the insert, filled in by the db, and be returned upon selection.</p>
+<pre><code>rtab.query().insert_single(test_record)
+rtab.query().select(rtab.all_cols())
+</code></pre>
+<pre><code>2023-11-13 14:46:03,982 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,985 INFO sqlalchemy.engine.Engine INSERT OR FAIL INTO "Record" (name) VALUES (?)
+2023-11-13 14:46:03,987 INFO sqlalchemy.engine.Engine [cached since 0.4426s ago] ('test_H',)
+2023-11-13 14:46:03,990 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:03,991 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".age, "Record".is_old, "Record".name 
+FROM "Record"
+2023-11-13 14:46:03,992 INFO sqlalchemy.engine.Engine [cached since 0.4979s ago] ()
+
+
+
+
+
+[Record(name='test_B', age=10, is_old=0, id=2),
+ Record(name='test_C', age=10, is_old=0, id=3),
+ Record(name='test_D', age=None, is_old=None, id=4),
+ Record(name='test_A', age=None, is_old=None, id=5),
+ Record(name='test_E', age=10, is_old=0, id=6),
+ Record(name='test_F', age=10, is_old=0, id=7),
+ Record(name='test_G', age=80, is_old=1, id=8),
+ Record(name='test_H', age=None, is_old=None, id=9)]
+</code></pre>
+<p>If we select a subset of columns, the missing values will refer to <code>doctable.MISSING</code>, even though the attributes will continue to exist.</p>
+<pre><code>rtab.query().select(rtab.cols('id', 'name'))
+</code></pre>
+<pre><code>2023-11-13 14:46:04,041 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:04,044 INFO sqlalchemy.engine.Engine SELECT "Record".id, "Record".name 
+FROM "Record"
+2023-11-13 14:46:04,045 INFO sqlalchemy.engine.Engine [generated in 0.00350s] ()
+
+
+
+
+
+[Record(name='test_A', age=MISSING, is_old=MISSING, id=5),
+ Record(name='test_B', age=MISSING, is_old=MISSING, id=2),
+ Record(name='test_C', age=MISSING, is_old=MISSING, id=3),
+ Record(name='test_D', age=MISSING, is_old=MISSING, id=4),
+ Record(name='test_E', age=MISSING, is_old=MISSING, id=6),
+ Record(name='test_F', age=MISSING, is_old=MISSING, id=7),
+ Record(name='test_G', age=MISSING, is_old=MISSING, id=8),
+ Record(name='test_H', age=MISSING, is_old=MISSING, id=9)]
+</code></pre>
+<p>Note that the <code>doctable.MISSING</code> will never be inserted into the databse because it will be ignored.</p>
+<h2 id="deletion-interface">Deletion Interface</h2>
+<p>Deleting rows is pretty straightforward when using either the <code>ConnectQuery</code> or <code>TableQuery</code> interfaces. In fact, it is the exact same for both. The only parameters are <code>where</code> and <code>wherestr</code> (where you can add additional conditionals as strings).</p>
+<pre><code>print(core.query().select([rtab['id'].count()]).scalar_one())
+with rtab.query() as q:
+    q.delete(where=rtab['name']=='test_A')
+core.query().select([rtab['id'].count()]).scalar_one()
+</code></pre>
+<pre><code>2023-11-13 14:46:31,486 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:31,489 INFO sqlalchemy.engine.Engine SELECT count("Record".id) AS count_1 
+FROM "Record"
+2023-11-13 14:46:31,490 INFO sqlalchemy.engine.Engine [cached since 27.39s ago] ()
+7
+2023-11-13 14:46:31,493 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:31,495 INFO sqlalchemy.engine.Engine DELETE FROM "Record" WHERE "Record".name = ?
+2023-11-13 14:46:31,497 INFO sqlalchemy.engine.Engine [cached since 27.39s ago] ('test_A',)
+2023-11-13 14:46:31,498 INFO sqlalchemy.engine.Engine COMMIT
+2023-11-13 14:46:31,500 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:46:31,500 INFO sqlalchemy.engine.Engine SELECT count("Record".id) AS count_1 
+FROM "Record"
+2023-11-13 14:46:31,501 INFO sqlalchemy.engine.Engine [cached since 27.4s ago] ()
+
+
+
+
+
+7
+</code></pre>
+<p>To delete all columns, pass the <code>all=True</code> flag. This prevents the user from accidentally deleting all rows.</p>
+<pre><code>with rtab.query() as q:
+    q.delete(all=True)
+core.query().select([rtab['id'].count()]).scalar_one()
+</code></pre>
+<pre><code>2023-11-13 14:48:08,718 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:48:08,720 INFO sqlalchemy.engine.Engine DELETE FROM "Record"
+2023-11-13 14:48:08,722 INFO sqlalchemy.engine.Engine [cached since 13.97s ago] ()
+2023-11-13 14:48:08,724 INFO sqlalchemy.engine.Engine COMMIT
+2023-11-13 14:48:08,726 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2023-11-13 14:48:08,727 INFO sqlalchemy.engine.Engine SELECT count("Record".id) AS count_1 
+FROM "Record"
+2023-11-13 14:48:08,729 INFO sqlalchemy.engine.Engine [cached since 124.6s ago] ()
+
+
+
+
+
+0
 </code></pre>
 
 
