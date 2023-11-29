@@ -1,14 +1,19 @@
 PACKAGE_NAME = coproc
 PACKAGE_FOLDER = $(PACKAGE_NAME)/
 
-PDOC_TARGET_FOLDER = ./site/api/ # pdoc html files will be placed here
-
-EXAMPLE_NOTEBOOK_FOLDER = ./examples/# this is where example notebooks are stored
-EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER = ./docs/documentation/# this is where example notebooks are stored
-EXAMPLE_NOTEBOOK_HTML_FOLDER = ./site/example_notebooks/# this is where example notebooks are stored
+# PDOC_TARGET_FOLDER = ./site/api/ # pdoc html files will be placed here
 
 TESTS_FOLDER = ./tests/ # all pytest files are here
 
+EXAMPLE_NOTEBOOK_FOLDER = ./examples/# this is where example notebooks are stored
+EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER = ./docs/documentation/# this is where example notebooks are stored
+# EXAMPLE_NOTEBOOK_HTML_FOLDER = ./site/example_notebooks/# this is where example notebooks are stored
+
+LEGACY_NOTEBOOK_FOLDER = ./legacy/examples/
+LEGACY_NOTEBOOK_MARKDOWN_FOLDER = ./docs/legacy_documentation/
+#LEGACY_DOCS_EXAMPLES_FOLDER = $(DOCS_FOLDER)/legacy_examples/
+
+REQUIREMENTS_FOLDER = ./requirements/
 
 # examples
 # make docs (generates all docs)
@@ -47,74 +52,58 @@ install:
 
 ################################# CREATE DOCUMENTATION ##############################
 
+
+docs: mkdocs requirements
+	git add -f --all site/*
+	git add --all docs/*
+
 # for testing mkdocs
 serve_mkdocs: mkdocs
 	mkdocs serve -a localhost:8882
 
-docs: mkdocs pdoc requirements
-	git add -f --all site/*
-	git add --all docs/*
-	# git add requirements.txt
-
 mkdocs: example_notebooks
-	mkdocs build
 	cp README.md docs/index.md
+	mkdocs build
 	mkdocs gh-deploy
 
-pdoc:
-	-mkdir $(PDOC_TARGET_FOLDER)
+#pdoc:
+	# -mkdir $(PDOC_TARGET_FOLDER)
 	# pdoc --docformat google -o $(PDOC_TARGET_FOLDER) $(PACKAGE_FOLDER)
 
-pdoc:
+# pdoc:
 	# pdoc --docformat google -o ./docs/ref ./doctable/
 	# git add --all $(DOCS_REF_FOLDER)*.html
 
 	# pdoc --docformat google -o ./docs/ref_legacy ./legacy/doctable/
 	# git add --all ./docs/ref_legacy/*.html
 
-
-
-requirements:
-	pip freeze > requirements.txt
-	git add requirements.txt
-	
-	pip list > packages.txt
-	git add packages.txt
-
-
-docs: pdoc example_html
-	git add README.md
-
-DOCS_FOLDER = docs/
-EXAMPLES_FOLDER = examples/
-DOCS_EXAMPLES_FOLDER = $(DOCS_FOLDER)/examples/
-
-LEGACY_EXAMPLES_FOLDER = legacy/examples/
-LEGACY_DOCS_EXAMPLES_FOLDER = $(DOCS_FOLDER)/legacy_examples/
-
-example_html:
-	jupyter nbconvert --to html $(EXAMPLES_FOLDER)/*.ipynb
-	mv $(EXAMPLES_FOLDER)/*.html $(DOCS_EXAMPLES_FOLDER)
-	git add --all $(DOCS_EXAMPLES_FOLDER)*.html
-
-	jupyter nbconvert --to html $(LEGACY_EXAMPLES_FOLDER)/*.ipynb
-	mv $(LEGACY_EXAMPLES_FOLDER)/*.html $(LEGACY_DOCS_EXAMPLES_FOLDER)
-	git add --all $(LEGACY_DOCS_EXAMPLES_FOLDER)*.html
-
+example_notebooks:
 	-mkdir $(EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER)
 	jupyter nbconvert --to markdown $(EXAMPLE_NOTEBOOK_FOLDER)/*.ipynb
 	mv $(EXAMPLE_NOTEBOOK_FOLDER)/*.md $(EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER)
 
+	-mkdir $(LEGACY_NOTEBOOK_MARKDOWN_FOLDER)
+	jupyter nbconvert --to markdown $(LEGACY_NOTEBOOK_FOLDER)/*.ipynb
+	mv $(LEGACY_NOTEBOOK_FOLDER)/*.md $(LEGACY_NOTEBOOK_MARKDOWN_FOLDER)
+
+requirements:
+	-mkdir $(REQUIREMENTS_FOLDER)
+	pip freeze > $(REQUIREMENTS_FOLDER)/requirements.txt	
+	pip list > $(REQUIREMENTS_FOLDER)/packages.txt
 
 add_docs:
-	git add --all $(PDOC_TARGET_FOLDER)
-	git add --all $(EXAMPLE_NOTEBOOK_HTML_FOLDER)
+	git add $(REQUIREMENTS_FOLDER)/requirements.txt
+	git add $(REQUIREMENTS_FOLDER)/packages.txt
+	# git add --all $(PDOC_TARGET_FOLDER)
+	# git add --all $(EXAMPLE_NOTEBOOK_HTML_FOLDER)
 	git add --all $(EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER)
+	git add --all $(LEGACY_NOTEBOOK_MARKDOWN_FOLDER)
 
 clean_docs:
-	-rm -r $(PDOC_TARGET_FOLDER)
-	-rm -r $(EXAMPLE_NOTEBOOK_HTML_FOLDER)
-	-rm -r $(EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER)
+	# -rm -r $(PDOC_TARGET_FOLDER)
+	# -rm -r $(EXAMPLE_NOTEBOOK_HTML_FOLDER)
+	-rm -r $(EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER)/*.md
+	-rm -r $(LEGACY_NOTEBOOK_MARKDOWN_FOLDER)/*.md
 
 ######################################## RUN TESTS ########################################
 
