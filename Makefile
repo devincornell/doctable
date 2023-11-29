@@ -53,7 +53,7 @@ install:
 ################################# CREATE DOCUMENTATION ##############################
 
 
-docs: mkdocs requirements
+docs: example_notebooks mkdocs requirements
 	git add -f --all site/*
 	git add --all docs/*
 
@@ -61,7 +61,7 @@ docs: mkdocs requirements
 serve_mkdocs: mkdocs
 	mkdocs serve -a localhost:8882
 
-mkdocs: example_notebooks
+mkdocs:
 	cp README.md docs/index.md
 	mkdocs build
 	mkdocs gh-deploy
