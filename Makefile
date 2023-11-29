@@ -1,3 +1,14 @@
+PACKAGE_NAME = coproc
+PACKAGE_FOLDER = $(PACKAGE_NAME)/
+
+PDOC_TARGET_FOLDER = ./site/api/ # pdoc html files will be placed here
+
+EXAMPLE_NOTEBOOK_FOLDER = ./examples/# this is where example notebooks are stored
+EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER = ./docs/documentation/# this is where example notebooks are stored
+EXAMPLE_NOTEBOOK_HTML_FOLDER = ./site/example_notebooks/# this is where example notebooks are stored
+
+TESTS_FOLDER = ./tests/ # all pytest files are here
+
 
 # examples
 # make docs (generates all docs)
@@ -14,7 +25,6 @@
 #make build
 #make deploy
 
-
 # toplevel (run when enters 'make' without args)
 all: docs build
 	git add Makefile
@@ -26,17 +36,51 @@ push_all:
 	git commit -a -m '[auto_pushed_from_Makefile]'
 	git push
 
-reinstall:
-	pip uninstall -y doctable
-	pip install .
+reinstall: uninstall install
+	@echo "reinstalled"
 
 uninstall:
-	pip uninstall -y doctable
+	pip uninstall -y $(PACKAGE_NAME)
 
 install:
 	pip install .
 
 ################################# CREATE DOCUMENTATION ##############################
+
+# for testing mkdocs
+serve_mkdocs: mkdocs
+	mkdocs serve -a localhost:8882
+
+docs: mkdocs pdoc requirements
+	git add -f --all site/*
+	git add --all docs/*
+	# git add requirements.txt
+
+mkdocs: example_notebooks
+	mkdocs build
+	cp README.md docs/index.md
+	mkdocs gh-deploy
+
+pdoc:
+	-mkdir $(PDOC_TARGET_FOLDER)
+	# pdoc --docformat google -o $(PDOC_TARGET_FOLDER) $(PACKAGE_FOLDER)
+
+pdoc:
+	# pdoc --docformat google -o ./docs/ref ./doctable/
+	# git add --all $(DOCS_REF_FOLDER)*.html
+
+	# pdoc --docformat google -o ./docs/ref_legacy ./legacy/doctable/
+	# git add --all ./docs/ref_legacy/*.html
+
+
+
+requirements:
+	pip freeze > requirements.txt
+	git add requirements.txt
+	
+	pip list > packages.txt
+	git add packages.txt
+
 
 docs: pdoc example_html
 	git add README.md
@@ -57,23 +101,20 @@ example_html:
 	mv $(LEGACY_EXAMPLES_FOLDER)/*.html $(LEGACY_DOCS_EXAMPLES_FOLDER)
 	git add --all $(LEGACY_DOCS_EXAMPLES_FOLDER)*.html
 
+	-mkdir $(EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER)
+	jupyter nbconvert --to markdown $(EXAMPLE_NOTEBOOK_FOLDER)/*.ipynb
+	mv $(EXAMPLE_NOTEBOOK_FOLDER)/*.md $(EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER)
 
-DOCS_REF_FOLDER = $(DOCS_FOLDER)/ref/
-LEGACY_DOCS_REF_FOLDER = $(DOCS_FOLDER)/ref_legacy/
-#pydoc -w doctable.ConnectEngine doctable.DocTable doctable.dbutils doctable.DocTableRows doctable.schemas.field_columns doctable.parse.pipeline doctable.parse.parsetree doctable.parse.parsefuncs doctable.Bootstrap doctable.Timer doctable.FSStore doctable.util.io
-#mv *.html $(DOCS_REF_FOLDER)
-pdoc:
-	pdoc --docformat google -o ./docs/ref ./doctable/
-	git add --all $(DOCS_REF_FOLDER)*.html
 
-	pdoc --docformat google -o ./docs/ref_legacy ./legacy/doctable/
-	git add --all ./docs/ref_legacy/*.html
+add_docs:
+	git add --all $(PDOC_TARGET_FOLDER)
+	git add --all $(EXAMPLE_NOTEBOOK_HTML_FOLDER)
+	git add --all $(EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER)
 
 clean_docs:
-	-rm $(DOCS_REF_FOLDER)*.html
-	-rm $(DOCS_EXAMPLES_FOLDER)*.html
-	-rm $(LEGACY_DOCS_EXAMPLES_FOLDER)*.html
-
+	-rm -r $(PDOC_TARGET_FOLDER)
+	-rm -r $(EXAMPLE_NOTEBOOK_HTML_FOLDER)
+	-rm -r $(EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER)
 
 ######################################## RUN TESTS ########################################
 
@@ -120,8 +161,6 @@ clean_tests:
 	
 ########################################## BUILD AND DEPLOY ################################
 
-PACKAGE_NAME = doctable
-PACKAGE_FOLDER = $(PACKAGE_NAME)/
 build:
 	# install latest version of compiler software
 	pip install --user --upgrade setuptools wheel
