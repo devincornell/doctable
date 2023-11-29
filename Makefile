@@ -1,9 +1,11 @@
-PACKAGE_NAME = coproc
+PACKAGE_NAME = doctable
 PACKAGE_FOLDER = $(PACKAGE_NAME)/
 
-# PDOC_TARGET_FOLDER = ./site/api/ # pdoc html files will be placed here
+
 
 TESTS_FOLDER = ./tests/ # all pytest files are here
+
+PDOC_TARGET_FOLDER = ./docs/api/ # pdoc html files will be placed here
 
 EXAMPLE_NOTEBOOK_FOLDER = ./examples/# this is where example notebooks are stored
 EXAMPLE_NOTEBOOK_MARKDOWN_FOLDER = ./docs/documentation/# this is where example notebooks are stored
@@ -52,7 +54,7 @@ clean: clean_tests clean_docs clean_build
 
 ################################# CREATE DOCUMENTATION ##############################
 
-docs: example_notebooks requirements mkdocs
+docs: example_notebooks requirements mkdocs pdoc
 	#git add -f --all site/*
 	git add --all docs/*
 
@@ -69,10 +71,12 @@ deploy_mkdocs:
 
 build_mkdocs:
 	mkdocs build
+pdoc:
+	-mkdir $(PDOC_TARGET_FOLDER)
+	pdoc --docformat google -o $(PDOC_TARGET_FOLDER) $(PACKAGE_FOLDER)
 
-#pdoc:
-	# -mkdir $(PDOC_TARGET_FOLDER)
-	# pdoc --docformat google -o $(PDOC_TARGET_FOLDER) $(PACKAGE_FOLDER)
+	-mkdir ./legacy/doctable
+	pdoc --docformat google -o ./docs/legacy_api ./legacy/doctable
 
 # pdoc:
 	# pdoc --docformat google -o ./docs/ref ./doctable/
