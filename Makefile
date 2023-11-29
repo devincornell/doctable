@@ -52,22 +52,22 @@ clean: clean_tests clean_docs clean_build
 
 ################################# CREATE DOCUMENTATION ##############################
 
-docs: example_notebooks requirements mkdocs deploy_mkdocs
+docs: example_notebooks requirements mkdocs
 	git add -f --all site/*
 	git add --all docs/*
 
 # for testing mkdocs
-serve_mkdocs: mkdocs
+serve_mkdocs: build_mkdocs
 	mkdocs serve -a localhost:8882
 
-all_mkdocs: mkdocs deploy_mkdocs
+mkdocs: mkdocs deploy_mkdocs
 	# mkdocs build
 	# mkdocs gh-deploy
 
 deploy_mkdocs:
 	mkdocs gh-deploy
 
-mkdocs:
+build_mkdocs:
 	mkdocs build
 
 #pdoc:
