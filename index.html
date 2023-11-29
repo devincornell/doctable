@@ -18,7 +18,7 @@
     
     
       
-        <title>doctable Package</title>
+        <title>doctable</title>
       
     
     
@@ -79,7 +79,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="doctable Package" class="md-header__button md-logo" aria-label="doctable Package" data-md-component="logo">
+    <a href="." title="doctable" class="md-header__button md-logo" aria-label="doctable" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -93,7 +93,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            doctable Package
+            doctable
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -183,13 +183,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="doctable Package" class="md-nav__button md-logo" aria-label="doctable Package" data-md-component="logo">
+    <a href="." title="doctable" class="md-nav__button md-logo" aria-label="doctable" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
 
     </a>
-    doctable Package
+    doctable
   </label>
   
     <div class="md-nav__source">
@@ -1048,8 +1048,10 @@
 
   <h1>Home</h1>
 
+<p><img alt="doctable diagram" src="https://storage.googleapis.com/public_data_09324832787/website_diagram_v5.svg" /></p>
 <p><code>doctable</code> is a Python package for manipulating SQL databases through an object-oriented interface without the overhead of object-relational mapping. It is built on top of the <a href="https://www.sqlalchemy.org/">Sqlalchemy</a> core interface, and takes advantage of <a href="https://docs.python.org/3/library/dataclasses.html">dataclasses</a> to define database schemas.</p>
 <p><code>doctable</code> also enables the high-performance storage of binary files (think ML models), parse trees, and compressed text files.</p>
+<p>Created by <a href="https://devinjcornell.com">Devin J. Cornell</a>.</p>
 <h3 id="doctable-has-a-new-interface">Doctable has a new interface!</h3>
 <p>The package has been updated with an entirely new API to improve on previous limitations and better match the <a href="https://www.sqlalchemy.org/">Sqlalchemy 2.0</a> interface. Inspired by the <a href="https://www.attrs.org/en/stable/names.html">attrs project</a>, I used different names for functions and classes to make it clear that the interface has changed and open the possibility for backwards compatibility with upgraded internals in the future. </p>
 <p>For now, install version 1.0 when using sqlalchemy &lt;= 1.4 and version 2.0 when using sqlalchemy &gt;= 2.0. See the installation page for more.</p>
