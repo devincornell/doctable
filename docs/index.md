@@ -7,7 +7,7 @@
 
 Created by [Devin J. Cornell](https://devinjcornell.com).
 
-### Doctable has a new interface!
+### News update: `doctable` has a new interface!
 
 The package has been updated with an entirely new API to improve on previous limitations and better match the [Sqlalchemy 2.0](https://www.sqlalchemy.org/) interface. Inspired by the [attrs project](https://www.attrs.org/en/stable/names.html), I used different names for functions and classes to make it clear that the interface has changed and open the possibility for backwards compatibility with upgraded internals in the future. 
 
