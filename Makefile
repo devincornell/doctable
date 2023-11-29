@@ -53,7 +53,7 @@ install:
 ################################# CREATE DOCUMENTATION ##############################
 
 
-docs: example_notebooks mkdocs requirements
+docs: example_notebooks requirements mkdocs deploy_mkdocs
 	git add -f --all site/*
 	git add --all docs/*
 
@@ -61,10 +61,12 @@ docs: example_notebooks mkdocs requirements
 serve_mkdocs: mkdocs
 	mkdocs serve -a localhost:8882
 
+deploy_mkdocs:
+	mkdocs gh-deploy
+
 mkdocs:
 	cp README.md docs/index.md
 	mkdocs build
-	mkdocs gh-deploy
 
 #pdoc:
 	# -mkdir $(PDOC_TARGET_FOLDER)
@@ -107,8 +109,14 @@ clean_docs:
 
 ######################################## RUN TESTS ########################################
 
-#TESTS_FOLDER = tests/
-TESTS_FOLDER = tests/
+test: pytest test_examples test_commands clean_tests
+tests: test # alias	
+
+test_commands: uninstall
+	# test command line interface
+	python -m doctable execute ":memory:" --docs "c.inspect_table_names()"
+	python -m doctable execute ":memory:" "c.inspect_table_names()"
+
 pytest: uninstall
 	# tests from tests folder
 	cd $(TESTS_FOLDER); pytest test_*.py
@@ -118,35 +126,30 @@ test_examples: uninstall
 	# make temporary testing folder and copy files into it
 	-rm -r $(TMP_TEST_FOLDER)
 	mkdir $(TMP_TEST_FOLDER)
-	cp $(EXAMPLES_FOLDER)/*.ipynb $(TMP_TEST_FOLDER)
-	-cp $(EXAMPLES_FOLDER)/*.py $(TMP_TEST_FOLDER)
+	cp $(EXAMPLE_NOTEBOOK_FOLDER)/*.ipynb $(TMP_TEST_FOLDER)
+	-cp $(EXAMPLE_NOTEBOOK_FOLDER)/*.py $(TMP_TEST_FOLDER)
 	
 	# convert notebooks to .py scripts
 	jupyter nbconvert --to script $(TMP_TEST_FOLDER)/*.ipynb
 	
 	# execute example files to make sure they work
 
-	# main tutorials
-	cd $(TMP_TEST_FOLDER); python ex_basics.py
-	#cd $(TMP_TEST_FOLDER); python doctable_schema.py
+	# old design - manually test each notebook
+	# cd $(TMP_TEST_FOLDER); python ex_basics.py
+	# cd $(TMP_TEST_FOLDER); python doctable_schema.py
 
-	# cleanup temp folder
-	-rm -r $(TMP_TEST_FOLDER)
-
-test_commands: uninstall
-	# test command line interface
-	python -m doctable execute ":memory:" --docs "c.inspect_table_names()"
-	python -m doctable execute ":memory:" "c.inspect_table_names()"
-
-test: pytest test_examples test_commands
-tests: test # alias	
+	cd $(TMP_TEST_FOLDER); \
+		for FILE in *.py; do \
+			echo "testing $$FILE"; \
+			python $$FILE; \
+		done
 
 	
 clean_tests:
-	-rm $(EXAMPLES_FOLDER)*.db
-	-rm $(EXAMPLES_FOLDER)/exdb/*.db
+	-rm -r $(TMP_TEST_FOLDER)
+	-rm $(EXAMPLE_NOTEBOOK_FOLDER)*.db
+	-rm $(EXAMPLE_NOTEBOOK_FOLDER)/exdb/*.db
 	-rm $(TESTS_FOLDER)*.db
-	-rm *.db
 	
 ########################################## BUILD AND DEPLOY ################################
 
