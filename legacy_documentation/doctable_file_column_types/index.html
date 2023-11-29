@@ -1,0 +1,1480 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../doctable_connectengine/">
+      
+      
+        <link rel="next" href="../doctable_insert_delete/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.10">
+    
+    
+      
+        <title>DocTable File Column Types - doctable Package</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.fad675c6.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#doctable-file-column-types" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="doctable Package" class="md-header__button md-logo" aria-label="doctable Package" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            doctable Package
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DocTable File Column Types
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/devincornell/doctable" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    devincornell/doctable
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="doctable Package" class="md-nav__button md-logo" aria-label="doctable Package" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    doctable Package
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/devincornell/doctable" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    devincornell/doctable
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation and Change Log
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Basics of doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_insert_delete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Insert and Delete Queries with doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_schemas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Table Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_select/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Select Queries with doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/iris_example/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Iris example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Legacy documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Legacy documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataclass_example/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dataclass Schema Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataclass_vignette_advanced/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced dataclass schema vignette
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../depric_vignette_newsgroups/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NewsGroups Dataset Vignette
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distributed_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Distribute Parallel Processing Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_bootstrap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Document Bootstrapping Examples
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_concurrency/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Concurrent Database Connections
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_connectengine/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manage SQL Connections with DocTable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    DocTable File Column Types
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    DocTable File Column Types
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data-folder-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Folder Consistency
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#text-file-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      Text File Types
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_insert_delete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Insert and Delete
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_multitable/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example: Multiple Tables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_parsetreedoc_column/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ParseTreeDoc Column Types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_picklefile/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Example: Pickle and Text Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema_dataclass/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Example: Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema_legacy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_select/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Select
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_update/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Update
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_1_intro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 1: Storing Document Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_2_parsing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 2: Storing Document Text
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_3_parsetrees/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 3: Storing Parsed Documents
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_intro_dataclass/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 1: US National Security Strategy Document Corpus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../legacy_adv/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable (slightly more) Advanced Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../legacy_simple/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Simple Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parse_parsepipeline/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ParsePipeline Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parse_parsetrees/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Working with doctable Parsetrees
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data-folder-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Folder Consistency
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#text-file-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      Text File Types
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="doctable-file-column-types">DocTable File Column Types</h1>
+<p>It is often good advice to avoid storing large binary data in an SQL table because it will significantly impact the read performance of the entire table. I find, however, that it can be extremely useful in text analysis applications as a way to keep track of a large number of models with associated metadata. As an alternative to storing binary data in the table directly, <code>DocTable</code> includes a number of custom column types that can transparently store data into the filesystem and keep track of it using the schema definitions.</p>
+<p>I provide two file storage column types: (1) <code>TextFileCol</code> for storing text data, and (2) <code>PickleFileCol</code> for storing any python data that requires pickling.</p>
+<pre><code class="language-python">import numpy as np
+from pathlib import Path
+
+import sys
+sys.path.append('..')
+import doctable
+
+# automatically clean up temp folder after python ends
+import tempfile
+tempdir = tempfile.TemporaryDirectory()
+tmpfolder = tempdir.name
+tmpfolder = Path(tmpfolder)
+tmpfolder
+</code></pre>
+<pre><code>PosixPath('/tmp/tmpkoe57pma')
+</code></pre>
+<p>Now I create a new table representing a matrix. Notice that I use the <code>PickleFileCol</code> column shortcut to create the column. This column is equivalent to <code>Col(None, coltype='picklefile', type_args=dict(folder=folder))</code>. See that to SQLite, this column simply looks like a text column.</p>
+<pre><code class="language-python">import dataclasses
+@doctable.schema(require_slots=False)
+class MatrixRow:
+    id: int = doctable.IDCol()
+    array: np.ndarray = doctable.PickleFileCol(f'{tmpfolder}/matrix_pickle_files') # will store files in the tmp directory
+
+db = doctable.DocTable(target=f'{tmpfolder}/test.db', schema=MatrixRow, new_db=True)
+db.schema_info()
+</code></pre>
+<pre><code>[{'name': 'id',
+  'type': INTEGER(),
+  'nullable': False,
+  'default': None,
+  'autoincrement': 'auto',
+  'primary_key': 1},
+ {'name': 'array',
+  'type': VARCHAR(),
+  'nullable': True,
+  'default': None,
+  'autoincrement': 'auto',
+  'primary_key': 0}]
+</code></pre>
+<p>Now we insert a new array. It appears to be inserted the same as any other object. </p>
+<pre><code class="language-python">db.insert({'array': np.random.rand(10,10)})
+db.insert({'array': np.random.rand(10,10)})
+print(db.count())
+db.select_df(limit=3)
+</code></pre>
+<pre><code>2
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:365: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:391: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:403: UserWarning: Method .count() is depricated. Please use .q.count() instead.
+  warnings.warn('Method .count() is depricated. Please use .q.count() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:420: UserWarning: Method .select_df() is depricated. Please use .q.select_df() instead.
+  warnings.warn('Method .select_df() is depricated. Please use .q.select_df() instead.')
+/DataDrive/code/doctable/examples/../doctable/connectengine.py:69: SAWarning: TypeDecorator PickleFileType() will not produce a cache key because the ``cache_ok`` attribute is not set to True.  This can have significant performance implications including some performance degradations in comparison to prior SQLAlchemy versions.  Set this attribute to True if this type object's state is safe to use in a cache key, or False to disable this warning. (Background on this error at: https://sqlalche.me/e/14/cprf)
+  return self._engine.execute(query, *args, **kwargs)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>array</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>[[0.5329174823769329, 0.45399901667272, 0.4110...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>[[0.6837499182333924, 0.40540705856582326, 0.6...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>But when we actually look at the filesystem, we see that files have been created to store the array.</p>
+<pre><code class="language-python">for fpath in tmpfolder.rglob('*.pic'):
+    print(str(fpath))
+</code></pre>
+<pre><code>/tmp/tmpkoe57pma/matrix_pickle_files/838448859815.pic
+/tmp/tmpkoe57pma/matrix_pickle_files/241946168596.pic
+</code></pre>
+<p>If we want to see the raw data stored in the table, we can create a new doctable without a defined schema. See that the raw filenames have been stored in the database. Recall that the directory indicating where to find these files was provided in the schema itself. </p>
+<pre><code class="language-python">vdb = doctable.DocTable(f'{tmpfolder}/test.db')
+print(vdb.count())
+vdb.head()
+</code></pre>
+<pre><code>2
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:403: UserWarning: Method .count() is depricated. Please use .q.count() instead.
+  warnings.warn('Method .count() is depricated. Please use .q.count() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:408: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn('Method .head() is depricated. Please use .q.select_head() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>array</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>838448859815.pic</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>241946168596.pic</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="data-folder-consistency">Data Folder Consistency</h2>
+<p>Now we try to delete a row from the database. We can see that it was deleted as expected.</p>
+<pre><code class="language-python">db.delete(where=db['id']==1)
+print(db.count())
+db.head()
+</code></pre>
+<pre><code>1
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:495: UserWarning: Method .delete() is depricated. Please use .q.delete() instead.
+  warnings.warn('Method .delete() is depricated. Please use .q.delete() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:403: UserWarning: Method .count() is depricated. Please use .q.count() instead.
+  warnings.warn('Method .count() is depricated. Please use .q.count() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:408: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn('Method .head() is depricated. Please use .q.select_head() instead.')
+/DataDrive/code/doctable/examples/../doctable/connectengine.py:69: SAWarning: TypeDecorator PickleFileType() will not produce a cache key because the ``cache_ok`` attribute is not set to True.  This can have significant performance implications including some performance degradations in comparison to prior SQLAlchemy versions.  Set this attribute to True if this type object's state is safe to use in a cache key, or False to disable this warning. (Background on this error at: https://sqlalche.me/e/14/cprf)
+  return self._engine.execute(query, *args, **kwargs)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>array</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2</td>
+      <td>[[0.6837499182333924, 0.40540705856582326, 0.6...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>However, when we check the folder where the data was stored, we find that the file was, in fact, not deleted. This is the case for technical reasons.</p>
+<pre><code class="language-python">for fpath in tmpfolder.rglob('*.pic'):
+    print(str(fpath))
+</code></pre>
+<pre><code>/tmp/tmpkoe57pma/matrix_pickle_files/838448859815.pic
+/tmp/tmpkoe57pma/matrix_pickle_files/241946168596.pic
+</code></pre>
+<p>We can clean up the unused files using <code>clean_col_files()</code> though. Note that the specific column to clean must be provided.</p>
+<pre><code class="language-python">db.clean_col_files('array')
+for fpath in tmpfolder.rglob('*.pic'):
+    print(str(fpath))
+</code></pre>
+<pre><code>/tmp/tmpkoe57pma/matrix_pickle_files/241946168596.pic
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:444: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn('Method .select() is depricated. Please use .q.select() instead.')
+/DataDrive/code/doctable/examples/../doctable/connectengine.py:69: SAWarning: TypeDecorator PickleFileType() will not produce a cache key because the ``cache_ok`` attribute is not set to True.  This can have significant performance implications including some performance degradations in comparison to prior SQLAlchemy versions.  Set this attribute to True if this type object's state is safe to use in a cache key, or False to disable this warning. (Background on this error at: https://sqlalche.me/e/14/cprf)
+  return self._engine.execute(query, *args, **kwargs)
+</code></pre>
+<p>There may be a situation where doctable cannot find the folder associated with an existing row. We can also use <code>clean_col_files()</code> to check for missing data. This might most frequently occur when the wrong folder is specified in the schema after moving the data file folder. For example, we delete all the pickle files in the directory and then run <code>clean_col_files()</code>.</p>
+<pre><code class="language-python">[fp.unlink() for fp in tmpfolder.rglob('*.pic')]
+for fpath in tmpfolder.rglob('*.pic'):
+    print(str(fpath))
+</code></pre>
+<pre><code class="language-python"># see that the exception was raised
+try:
+    db.clean_col_files('array')
+except FileNotFoundError as e:
+    print(e)
+</code></pre>
+<pre><code>These files were not found while cleaning: {'/tmp/tmpkoe57pma/matrix_pickle_files/241946168596.pic'}
+</code></pre>
+<h2 id="text-file-types">Text File Types</h2>
+<p>We can also store text files in a similar way. For this, use <code>TextFileCol</code> in the folder specification.</p>
+<pre><code class="language-python">@doctable.schema(require_slots=False)
+class TextFileRow:
+    id: int = doctable.IDCol()
+    text: str = doctable.TextFileCol(f'{tmpfolder}/my_text_files') # will store files in the tmp directory
+
+tdb = doctable.DocTable(target=f'{tmpfolder}/test_textfiles.db', schema=TextFileRow, new_db=True)
+tdb.insert({'text': 'Hello world. DocTable is the most useful python package of all time.'})
+tdb.insert({'text': 'Star Wars is my favorite movie.'})
+tdb.head()
+</code></pre>
+<pre><code>/DataDrive/code/doctable/examples/../doctable/doctable.py:365: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:391: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:408: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn('Method .head() is depricated. Please use .q.select_head() instead.')
+/DataDrive/code/doctable/examples/../doctable/connectengine.py:69: SAWarning: TypeDecorator TextFileType() will not produce a cache key because the ``cache_ok`` attribute is not set to True.  This can have significant performance implications including some performance degradations in comparison to prior SQLAlchemy versions.  Set this attribute to True if this type object's state is safe to use in a cache key, or False to disable this warning. (Background on this error at: https://sqlalche.me/e/14/cprf)
+  return self._engine.execute(query, *args, **kwargs)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>text</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Hello world. DocTable is the most useful pytho...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Star Wars is my favorite movie.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python"># and they look like text files
+vdb = doctable.DocTable(f'{tmpfolder}/test_textfiles.db')
+print(vdb.count())
+vdb.head()
+</code></pre>
+<pre><code>2
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:403: UserWarning: Method .count() is depricated. Please use .q.count() instead.
+  warnings.warn('Method .count() is depricated. Please use .q.count() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:408: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn('Method .head() is depricated. Please use .q.select_head() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>text</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>509620359442.txt</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>409663648614.txt</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>See that the text files were created, and they look like normal text files so we can read them normally.</p>
+<pre><code class="language-python">for fpath in tmpfolder.rglob('*.txt'):
+    print(f&quot;{fpath}: {fpath.read_text()}&quot;)
+</code></pre>
+<pre><code>/tmp/tmpkoe57pma/my_text_files/409663648614.txt: Star Wars is my favorite movie.
+/tmp/tmpkoe57pma/my_text_files/509620359442.txt: Hello world. DocTable is the most useful python package of all time.
+</code></pre>
+<pre><code class="language-python">
+</code></pre>
+<pre><code class="language-python">
+</code></pre>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      
+    
+  </body>
+</html>

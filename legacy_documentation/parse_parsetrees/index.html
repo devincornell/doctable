@@ -1,0 +1,1419 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../parse_parsepipeline/">
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.10">
+    
+    
+      
+        <title>Working with doctable Parsetrees - doctable Package</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.fad675c6.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#working-with-doctable-parsetrees" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="doctable Package" class="md-header__button md-logo" aria-label="doctable Package" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            doctable Package
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Working with doctable Parsetrees
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/devincornell/doctable" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    devincornell/doctable
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="doctable Package" class="md-nav__button md-logo" aria-label="doctable Package" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    doctable Package
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/devincornell/doctable" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    devincornell/doctable
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation and Change Log
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Basics of doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_insert_delete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Insert and Delete Queries with doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_schemas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Table Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_select/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Select Queries with doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/iris_example/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Iris example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Legacy documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Legacy documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataclass_example/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dataclass Schema Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataclass_vignette_advanced/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced dataclass schema vignette
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../depric_vignette_newsgroups/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NewsGroups Dataset Vignette
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distributed_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Distribute Parallel Processing Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_bootstrap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Document Bootstrapping Examples
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_concurrency/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Concurrent Database Connections
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_connectengine/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manage SQL Connections with DocTable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_file_column_types/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable File Column Types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_insert_delete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Insert and Delete
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_multitable/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example: Multiple Tables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_parsetreedoc_column/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ParseTreeDoc Column Types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_picklefile/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Example: Pickle and Text Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema_dataclass/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Example: Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema_legacy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_select/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Select
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_update/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Update
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_1_intro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 1: Storing Document Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_2_parsing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 2: Storing Document Text
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_3_parsetrees/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 3: Storing Parsed Documents
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_intro_dataclass/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 1: US National Security Strategy Document Corpus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../legacy_adv/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable (slightly more) Advanced Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../legacy_simple/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Simple Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parse_parsepipeline/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ParsePipeline Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Working with doctable Parsetrees
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Working with doctable Parsetrees
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#creating-parsetreedoc-objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating ParseTreeDoc Objects
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#working-with-parsetrees" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working With ParseTrees
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#more-about-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      More About Tokens
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="More About Tokens">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#member-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Member Variables
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-member-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional Member Variables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recursive-functions-on-parsetrees" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recursive Functions on Parsetrees
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-using-parsepipelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create Using ParsePipelines
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#creating-parsetreedoc-objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating ParseTreeDoc Objects
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#working-with-parsetrees" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working With ParseTrees
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#more-about-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      More About Tokens
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="More About Tokens">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#member-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Member Variables
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-member-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional Member Variables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recursive-functions-on-parsetrees" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recursive Functions on Parsetrees
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-using-parsepipelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create Using ParsePipelines
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="working-with-doctable-parsetrees">Working with doctable Parsetrees</h1>
+<p>Here I'll show you how to extract and use parsetrees in your doctable using Spacy + doctable. The motivation is that parsetree information in raw Spacy Document objects are very large and not suitable for storage when using large corpora. We solve this by simply converting the Spacy Document object to a tree data structure built from python lists and dictionaries, and use the <code>ParseTree</code> object to serialize, de-serialize, and interact with the tree structure.</p>
+<p>We use this feature using the <code>get_parsetrees</code> pipeline component after the spacy parser. <a href="ref/doctable.parse.html">Check the docs</a> to learn more about this function. You can see more examples of creating parse pipelines in our <a href="examples/parse_basics.html">overview examples</a>.</p>
+<pre><code class="language-python">import spacy
+nlp = spacy.load('en_core_web_sm')
+import pandas as pd
+import sys
+sys.path.append('..')
+import doctable
+</code></pre>
+<p>First we define some example text docuemnts, Star Wars themed.</p>
+<pre><code class="language-python">text = 'Help me Obi-Wan Kenobi. You’re my only hope. ' \
+    'I find your lack of faith disturbing. ' \
+    'Do, or do not - there is no try. '
+text
+</code></pre>
+<pre><code>'Help me Obi-Wan Kenobi. You’re my only hope. I find your lack of faith disturbing. Do, or do not - there is no try. '
+</code></pre>
+<h2 id="creating-parsetreedoc-objects">Creating <code>ParseTreeDoc</code> Objects</h2>
+<p>The most direct way of creating a parsetree is to parse the desired text using the spacy language model, then use <code>ParseTreeDoc.from_spacy()</code> to construct the <code>ParseTreeDoc</code>. The <code>ParseTreeDoc</code> object is a container for parsetree objects representing each of the sentences identified with the SpaCy parser.</p>
+<pre><code class="language-python">spacydoc = nlp(text)
+doc = doctable.ParseTreeDoc.from_spacy(spacydoc)
+print(f'{len(doc)} sentences of type {type(doc)}')
+</code></pre>
+<pre><code>4 sentences of type &lt;class 'doctable.parse.documents.parsetreedoc.ParseTreeDoc'&gt;
+</code></pre>
+<p>The most important arguments to <code>parse_tok_func</code> are <code>text_parse_func</code> and <code>userdata_map</code>.</p>
+<ol>
+<li>
+<p><code>text_parse_func</code> determines the mapping from a spacy doc object to the text representation of each token accessed through <code>token.text</code>. By default this parameter is set to <code>lambda d: d.text</code>.</p>
+</li>
+<li>
+<p><code>userdata_map</code> is a dictionary mapping an attribute name to a function. You can, for instance, extract info from the original spacy doc object through this method. I'll explain later how these attributes can be accessed and used.</p>
+</li>
+</ol>
+<pre><code class="language-python">doc = doctable.ParseTreeDoc.from_spacy(spacydoc, 
+    text_parse_func=lambda spacydoc: spacydoc.text,
+    userdata_map = {
+        'lower': lambda spacydoc: spacydoc.text.lower().strip(),
+        'lemma': lambda spacydoc: spacydoc.lemma_,
+        'like_num': lambda spacydoc: spacydoc.like_num,
+    }
+)
+print(doc[0]) # show the first sentence
+</code></pre>
+<pre><code>ParseTree(Help me Obi - Wan Kenobi .)
+</code></pre>
+<h2 id="working-with-parsetrees">Working With <code>ParseTree</code>s</h2>
+<p><code>ParseTreeDoc</code> objects represent sequences of <code>ParseTree</code> objects identified by the spacy language parser. You can see we can access individual sentence parsetrees using numerical indexing or through iteration.</p>
+<pre><code class="language-python">print(doc[0])
+for sent in doc:
+    print(sent)
+</code></pre>
+<pre><code>ParseTree(Help me Obi - Wan Kenobi .)
+ParseTree(Help me Obi - Wan Kenobi .)
+ParseTree(You ’re my only hope .)
+ParseTree(I find your lack of faith disturbing .)
+ParseTree(Do , or do not - there is no try .)
+</code></pre>
+<p>Now we will show how to work with <code>ParseTree</code> objects. These objects are collections of tokens that can be accessed either as a tree (based on the structure of the dependency tree produced by spacy), or as an ordered sequence. We can use numerical indexing or iteration to interact with individual tokens.</p>
+<pre><code class="language-python">for token in doc[0]:
+    print(token)
+</code></pre>
+<pre><code>Help
+me
+Obi
+-
+Wan
+Kenobi
+.
+</code></pre>
+<p>We can work with the tree structure of a <code>ParseTree</code> object using the <code>root</code> property.</p>
+<pre><code class="language-python">print(doc[0].root)
+</code></pre>
+<pre><code>Help
+</code></pre>
+<p>And access the children of a given token using the <code>childs</code> property. The following tokens are children of the root token.</p>
+<pre><code class="language-python">for child in doc[0].root.childs:
+    print(child)
+</code></pre>
+<pre><code>me
+Kenobi
+.
+</code></pre>
+<p>These objects can be serialized using the <code>.as_dict()</code> method and de-serialized using the <code>.from_dict()</code> method.</p>
+<pre><code class="language-python">serialized = doc.as_dict()
+deserialized = doctable.ParseTreeDoc.from_dict(serialized)
+for sent in deserialized:
+    print(sent)
+</code></pre>
+<pre><code>ParseTree(Help me Obi - Wan Kenobi .)
+ParseTree(You ’re my only hope .)
+ParseTree(I find your lack of faith disturbing .)
+ParseTree(Do , or do not - there is no try .)
+</code></pre>
+<h2 id="more-about-tokens">More About <code>Token</code>s</h2>
+<p>Each token in a <code>ParseTree</code> is represented by a <code>Token</code> object. These objects maintain the tree structure of a parsetree, and each node contains some default information as well as optional and custom information. These are the most important member variables:</p>
+<h4 id="member-variables">Member Variables</h4>
+<ul>
+<li><em>i</em>: index of token in sentence</li>
+<li><em>text</em>: text representation of token</li>
+<li><em>tag</em>: the part-of-speech tag offered by the dependency parser (different from POS tagger)</li>
+<li><em>dep</em>: the dependency relation to parent object. See the <a href="https://spacy.io/api/annotation#dependency-parsing">Spacy annotation docs</a> for more detail.</li>
+<li><em>parent</em>: reference to parent node</li>
+<li><em>childs</em>: list of references to child nodes</li>
+</ul>
+<h4 id="optional-member-variables">Optional Member Variables</h4>
+<p>The following are provided if the associated spacy parser component was enabled.</p>
+<ul>
+<li><em>pos</em>: part-of-speech tag created if user enablled POS 'tagger' in Spacy. See <a href="https://spacy.io/api/annotation#pos-tagging">Spacy POS tag docs</a> for more detail. Also check out docs for <a href="https://universaldependencies.org/docs/u/pos/">UPOS tags</a>.</li>
+<li><em>ent</em>: named entity type of token (if NER was enabled when creating parsetree). See <a href="https://spacy.io/api/annotation#named-entities">Spacy NER docs</a> for more detail.</li>
+</ul>
+<pre><code class="language-python">for tok in doc[0][:3]:
+    print(f&quot;{tok.text}:\n\ti={tok.i}\n\ttag={tok.tag}\n\tdep={tok.dep}\n\tent={tok.ent}\n\tpos={tok.pos}&quot;)
+</code></pre>
+<pre><code>Help:
+    i=0
+    tag=VB
+    dep=ROOT
+    ent=
+    pos=VERB
+me:
+    i=1
+    tag=PRP
+    dep=dobj
+    ent=
+    pos=PRON
+Obi:
+    i=2
+    tag=NNP
+    dep=compound
+    ent=
+    pos=PROPN
+</code></pre>
+<p>We can also access the custom token properties provided to the <code>ParseTreeDoc.from_spacy()</code> method earlier.</p>
+<pre><code class="language-python">for token in doc[0]:
+    print(f&quot;{token.text}: {token['lemma']}&quot;)
+</code></pre>
+<pre><code>Help: help
+me: I
+Obi: Obi
+-: -
+Wan: Wan
+Kenobi: Kenobi
+.: .
+</code></pre>
+<h2 id="recursive-functions-on-parsetrees">Recursive Functions on Parsetrees</h2>
+<p>We can also navigate the tree structure of parsetrees using recursive functions. Here I simply print out the trajectory of this recursive function.</p>
+<pre><code class="language-python">def print_recursion(tok, level=0):
+    if not tok.childs:
+        print('    '*level + 'base node', tok)
+    else:
+        print('    '*level + 'entering', tok)
+        for child in tok.childs:
+            print_recursion(child, level+1)
+        print('    '*level + 'leaving', tok)
+
+print_recursion(doc[0].root)
+</code></pre>
+<pre><code>entering Help
+    base node me
+    entering Kenobi
+        entering Wan
+            base node Obi
+            base node -
+        leaving Wan
+    leaving Kenobi
+    base node .
+leaving Help
+</code></pre>
+<h2 id="create-using-parsepipelines">Create Using <code>ParsePipeline</code>s</h2>
+<p>The most common use case, however, probably involves the creation of of a <code>ParsePipeline</code> in which the end result will be a <code>ParseTreeDoc</code>. We make this using the <code>get_parsetrees</code> pipeline component, and here we show several of the possible arguments.</p>
+<pre><code class="language-python">parser = doctable.ParsePipeline([
+    nlp, # the spacy parser
+    doctable.Comp('get_parsetrees', **{
+        'text_parse_func': lambda spacydoc: spacydoc.text,
+        'userdata_map': {
+            'lower': lambda spacydoc: spacydoc.text.lower().strip(),
+            'lemma': lambda spacydoc: spacydoc.lemma_,
+            'like_num': lambda spacydoc: spacydoc.like_num,
+        }
+    })
+])
+parser.components
+</code></pre>
+<pre><code>[&lt;spacy.lang.en.English at 0x7f3d584c7dc0&gt;,
+ functools.partial(&lt;function get_parsetrees at 0x7f3d27b95dc0&gt;, text_parse_func=&lt;function &lt;lambda&gt; at 0x7f3d26a17a60&gt;, userdata_map={'lower': &lt;function &lt;lambda&gt; at 0x7f3d26a17160&gt;, 'lemma': &lt;function &lt;lambda&gt; at 0x7f3d26a170d0&gt;, 'like_num': &lt;function &lt;lambda&gt; at 0x7f3d26a17040&gt;})]
+</code></pre>
+<p>You can see that the parser provides the same output as we got before with <code>ParseTreeDoc.from_spacy()</code>.</p>
+<pre><code class="language-python">for sent in parser.parse(text):
+    print(sent)
+</code></pre>
+<pre><code>ParseTree(Help me Obi - Wan Kenobi .)
+ParseTree(You ’re my only hope .)
+ParseTree(I find your lack of faith disturbing .)
+ParseTree(Do , or do not - there is no try .)
+</code></pre>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      
+    
+  </body>
+</html>

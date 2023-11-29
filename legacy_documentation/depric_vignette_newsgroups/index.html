@@ -1,0 +1,1719 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../dataclass_vignette_advanced/">
+      
+      
+        <link rel="next" href="../distributed_basics/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.10">
+    
+    
+      
+        <title>NewsGroups Dataset Vignette - doctable Package</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.fad675c6.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#newsgroups-dataset-vignette" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="doctable Package" class="md-header__button md-logo" aria-label="doctable Package" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            doctable Package
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              NewsGroups Dataset Vignette
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/devincornell/doctable" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    devincornell/doctable
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="doctable Package" class="md-nav__button md-logo" aria-label="doctable Package" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    doctable Package
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/devincornell/doctable" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    devincornell/doctable
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation and Change Log
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Basics of doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_insert_delete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Insert and Delete Queries with doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_schemas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Table Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_select/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Select Queries with doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/iris_example/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Iris example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Legacy documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Legacy documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataclass_example/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dataclass Schema Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataclass_vignette_advanced/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced dataclass schema vignette
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    NewsGroups Dataset Vignette
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    NewsGroups Dataset Vignette
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction-to-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introduction to dataset
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-database-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a database schema
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parsing-and-storing-documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parsing and storing documents
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distributed_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Distribute Parallel Processing Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_bootstrap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Document Bootstrapping Examples
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_concurrency/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Concurrent Database Connections
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_connectengine/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manage SQL Connections with DocTable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_file_column_types/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable File Column Types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_insert_delete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Insert and Delete
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_multitable/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example: Multiple Tables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_parsetreedoc_column/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ParseTreeDoc Column Types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_picklefile/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Example: Pickle and Text Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema_dataclass/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Example: Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema_legacy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_select/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Select
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_update/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Update
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_1_intro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 1: Storing Document Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_2_parsing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 2: Storing Document Text
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_3_parsetrees/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 3: Storing Parsed Documents
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_intro_dataclass/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 1: US National Security Strategy Document Corpus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../legacy_adv/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable (slightly more) Advanced Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../legacy_simple/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Simple Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parse_parsepipeline/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ParsePipeline Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parse_parsetrees/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Working with doctable Parsetrees
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction-to-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introduction to dataset
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-database-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a database schema
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parsing-and-storing-documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parsing and storing documents
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="newsgroups-dataset-vignette">NewsGroups Dataset Vignette</h1>
+<p>In this vignette, I will show you how to create a database for storing and manipulating </p>
+<h2 id="introduction-to-dataset">Introduction to dataset</h2>
+<p>We will be using the <a href="http://qwone.com/~jason/20Newsgroups/">20 Newsgroups dataset</a> for this vignette. This is the <a href="https://scikit-learn.org/stable/datasets/real_world.html#the-20-newsgroups-text-dataset">sklearn website description</a>:</p>
+<p><em>The 20 newsgroups dataset comprises around 18000 newsgroups posts on 20 topics split in two subsets: one for training (or development) and the other one for testing (or for performance evaluation). The split between the train and test set is based upon a messages posted before and after a specific date.</em></p>
+<p>We use sklearn's <a href="https://scikit-learn.org/stable/modules/generated/sklearn.datasets.fetch_20newsgroups.html#sklearn.datasets.fetch_20newsgroups">fetch_20newsgroups</a> method to download and access articles from the politics newsgroup.</p>
+<pre><code class="language-python">import sklearn.datasets
+newsgroups = sklearn.datasets.fetch_20newsgroups(categories=['talk.politics.guns', 'talk.politics.mideast', 'talk.politics.misc'])
+newsgroups.keys(), len(newsgroups['data'])
+</code></pre>
+<pre><code>(dict_keys(['data', 'filenames', 'target_names', 'target', 'DESCR']), 1575)
+</code></pre>
+<p>This is an example of a newsgroup post.</p>
+<pre><code class="language-python">print(newsgroups['data'][0])
+</code></pre>
+<pre><code>From: golchowy@alchemy.chem.utoronto.ca (Gerald Olchowy)
+Subject: Re: Help fight the Clinton Administration's invasion of your privacy
+Organization: University of Toronto Chemistry Department
+Lines: 16
+
+In article &lt;9308@blue.cis.pitt.edu&gt; cjp+@pitt.edu (Casimir J Palowitch) writes:
+&gt;The Clinton Administration wants to "manage" your use of digital
+&gt;encryption. This includes a proposal which would limit your use of
+&gt;encryption to a standard developed by the NSA, the technical details of 
+&gt;which would remain classified with the government.
+&gt;
+&gt;This cannot be allowed to happen.
+&gt;
+
+It is a bit unfair to call blame the Clinton Administration alone...this
+initiative was underway under the Bush Administration...it is basically
+a bipartisan effort of the establishment Demopublicans and
+Republicrats...the same bipartisan effort that brought the S&amp;L scandal,
+and BCCI, etc.
+
+Gerald
+</code></pre>
+<p>It looks very similar to an email, so we will use Python's <code>email</code> package to parse the text and return a dictionary containing the various relevant fields. Our <code>parse_email</code> function shows how we can extract metadata fields like author, subject, and organization from the message, as well as the main text body.</p>
+<pre><code class="language-python">import email
+
+def parse_newsgroup(email_text):
+    message = email.message_from_string(email_text)
+    return {
+        'author': message['from'],
+        'subject': message['Subject'],
+        'organization': message['Organization'],
+        'lines': int(message['Lines']),
+        'text': message.get_payload(),
+    }
+
+parse_newsgroup(newsgroups['data'][0])
+</code></pre>
+<pre><code>{'author': 'golchowy@alchemy.chem.utoronto.ca (Gerald Olchowy)',
+ 'subject': "Re: Help fight the Clinton Administration's invasion of your privacy",
+ 'organization': 'University of Toronto Chemistry Department',
+ 'lines': 16,
+ 'text': 'In article &lt;9308@blue.cis.pitt.edu&gt; cjp+@pitt.edu (Casimir J Palowitch) writes:\n&gt;The Clinton Administration wants to "manage" your use of digital\n&gt;encryption. This includes a proposal which would limit your use of\n&gt;encryption to a standard developed by the NSA, the technical details of \n&gt;which would remain classified with the government.\n&gt;\n&gt;This cannot be allowed to happen.\n&gt;\n\nIt is a bit unfair to call blame the Clinton Administration alone...this\ninitiative was underway under the Bush Administration...it is basically\na bipartisan effort of the establishment Demopublicans and\nRepublicrats...the same bipartisan effort that brought the S&amp;L scandal,\nand BCCI, etc.\n\nGerald\n'}
+</code></pre>
+<h2 id="creating-a-database-schema">Creating a database schema</h2>
+<p>The first step will be to create a database schema that is appropriate for the newsgroup dataset by defining a container dataclass using the <code>@schema</code> decorator.  The <code>schema</code> decorator will convert the class into a <a href="https://realpython.com/python-data-classes/"><code>dataclass</code></a> with <a href="https://docs.python.org/3/reference/datamodel.html#slots">slots</a> enabled (provided <code>__slots__ = []</code> is given in the definition), and inherit from <code>DocTableRow</code> to add some additional functionality. The type hints associated with each variable will be used in the schema definition for the new tables, and arguments to <code>Col()</code>, <code>IDCol()</code>, <code>AddedCol()</code>, and <code>UpdatedCol()</code> will mostly be passed to <code>dataclasses.field</code> (see <a href="https://doctable.org/ref/doctable/schemas/field_columns.html#Col">docs</a> for more detail), so all dataclass functionality is maintained. The <a href="doctable_schema.html">doctable schema guide</a> explains more about schema and schema object definitions. </p>
+<p>Here I define a <code>NewsgroupDoc</code> class to represent a single document and define <code>__slots__</code> so the decorator can automatically create a slot class. Each member variable will act as a column in our database schema, and the first variable we define is an <code>id</code> column with the defaulted value <code>IDCol()</code>. This is a special function that will translate to a schema that uses the <code>id</code> colum as the primary key and enable auto-incrementing. Because <code>id</code> is defaulted, we must default our other variables as well.</p>
+<p>I also define a couple of methods as part of our schema class - they are ignored in the schema creation process, but allow us to manipulate the object within Python. The <code>author_email</code> property will extract just the email address from the author field. Note that even though it is a property, it is defined as a method and therefore will not be considered when creating the class schema. I also define a <code>classmethod</code> that can be used to create a new <code>NewsgroupDoc</code> from the newsgroup text - this replaces the functionality of the <code>parse_email</code> function we created above. This way, the class knows how to create itself from the raw newsgroup text.</p>
+<pre><code class="language-python">import sys
+sys.path.append('..')
+import doctable
+
+import re
+import email
+import dataclasses
+
+def try_int(text):
+    try:
+        return int(text.split()[0])
+    except:
+        return None
+
+
+@doctable.schema
+class NewsgroupDoc:
+    __slots__ = []
+
+    # schema columns
+    id: int = doctable.IDCol()
+    author: str = None
+    subject: str = None
+    organization: str = None
+    length: int = None
+    text: str = None
+
+    @property
+    def author_email(self, pattern=re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')):
+        '''Get the author\'s email address from the author field text.
+        '''
+        return re.search(pattern, self.author)[0]
+
+
+    @classmethod
+    def from_string(cls, newsgroup_text):
+        '''Code to create a NewsGroupDoc object from the original newsgroup string.
+        '''
+        message = email.message_from_string(newsgroup_text)
+        return cls(
+            author = message['from'],
+            subject = message['Subject'],
+            organization = message['Organization'],
+            length = len(message.get_payload()),
+            text = message.get_payload(),
+        )
+
+
+# for example, we create a new NewsGroupDoc from the first newsgroup article
+ngdoc = NewsgroupDoc.from_string(newsgroups['data'][0])
+print(ngdoc.author)
+ngdoc.author_email
+</code></pre>
+<pre><code>golchowy@alchemy.chem.utoronto.ca (Gerald Olchowy)
+
+
+
+
+
+'golchowy@alchemy.chem.utoronto.ca'
+</code></pre>
+<p>To make sure the <code>NewsgroupDoc</code> will translate to the database schema we expect, we can create a new <code>DocTable</code> object that uses it as a schema. We use the <code>schema</code> argument of the <code>DocTable</code> constructor to specify the schema, and print it below. See that most fields were translated to <code>VARCHAR</code> type fields, but <code>id</code> and <code>length</code> were translated to <code>INTEGER</code> types based on their type hints.</p>
+<pre><code class="language-python">ng_table = doctable.DocTable(target=':memory:', tabname='documents', schema=NewsgroupDoc)
+ng_table.schema_table()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>author</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>subject</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>organization</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>length</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>text</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>To better describe the data we are interested in, we now create a class that inherits from <code>DocTable</code>. This class will act as the main interface for working with our dataset. We use the <code>_tabname_</code> and <code>_schema_</code> properties to define the table name and schema so we don't need to include them in the constructor. We also define a method <code>count_author_emails</code> - we will describe the behavior of this method later.</p>
+<pre><code class="language-python">import collections
+
+class NewsgroupTable(doctable.DocTable):
+    _tabname_ = 'documents'
+    _schema_ = NewsgroupDoc
+
+    def count_author_emails(self, *args, **kwargs):
+        author_emails = self.select('author', *args, **kwargs)
+        return collections.Counter(author_emails)
+
+</code></pre>
+<p>Instead of using <code>target=':memory:'</code>, we want to create a database on our filesystem so we can store data. By default, <code>DocTable</code> uses sqlite as the database engine, so with <code>target</code> we need only specify a filename. Because this is just a demonstration, we will create the database in a temporary folder using the <code>tempfile</code> package. This database does not exist yet, so we use the <code>new_db</code> flag to indicate that a new one should be created.</p>
+<pre><code class="language-python">import tempfile
+
+tempfolder = tempfile.TemporaryDirectory()
+table_fname = f'{tempfolder.name}/tmp1.db'
+ng_table = NewsgroupTable(target=table_fname, new_db=True)
+ng_table.schema_table()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>author</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>subject</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>organization</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>length</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>text</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="parsing-and-storing-documents">Parsing and storing documents</h2>
+<p>Now we would like to parse our documents for storage in the database. It is relatively straighforward to create a list of parsed texts using the <code>from_string</code> method. After doing this, we could potentially just insert them directly into the database.</p>
+<pre><code class="language-python">%timeit [NewsgroupDoc.from_string(text) for text in newsgroups['data']]
+</code></pre>
+<pre><code>191 ms ± 527 µs per loop (mean ± std. dev. of 7 runs, 1 loop each)
+</code></pre>
+<p>This is a relatively straigtforward task with a dataset of this size, but if we had a larger dataset or used more costly parsing algorithms, we would want to distribute parsing across multiple processes - we will take that approach for demonstration. First we define the <code>process_and_store</code> class to be used in each worker process.</p>
+<pre><code class="language-python">def thread_func(numbers, db):
+    print(f'starting process')
+    db.reopen_engine() # create all new connections
+    db.insert([{'subject': i} for  i in numbers])
+    #for num in numbers:
+    #    db.insert({'process': process_id, 'number': num})
+    #    time.sleep(0.01)
+
+numbers = list(range(100)) # these numbers are to be inserted into the database
+
+ng_table.delete()
+with doctable.Distribute(5) as d:
+    d.map_chunk(thread_func, numbers, ng_table)
+ng_table.head(10)
+</code></pre>
+<pre><code>starting process
+starting process
+starting process
+starting process
+starting process
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>author</th>
+      <th>subject</th>
+      <th>organization</th>
+      <th>length</th>
+      <th>text</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>None</td>
+      <td>0</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>None</td>
+      <td>1</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>None</td>
+      <td>2</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>None</td>
+      <td>3</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>None</td>
+      <td>4</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>None</td>
+      <td>5</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>None</td>
+      <td>6</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>None</td>
+      <td>7</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>None</td>
+      <td>8</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>None</td>
+      <td>9</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">def printer(x, table):
+    print(x, table)
+
+with doctable.WorkerPool(3, verbose=False) as p:
+    assert(p.any_alive())
+    print(f'av efficiency: {p.av_efficiency()}')
+
+    p.map(printer, list(range(100)), table=ng_table)
+
+
+    # test most basic map function
+    #elements = list(range(100))
+    #assert(pool.map(example_func, elements) == [example_func(e) for e in elements])
+    print(f'av efficiency: {p.av_efficiency()}')
+</code></pre>
+<pre><code>---------------------------------------------------------------------------
+
+AssertionError                            Traceback (most recent call last)
+
+&lt;ipython-input-10-48aa27ce5dc0&gt; in &lt;module&gt;
+      3 
+      4 with doctable.WorkerPool(3, verbose=False) as p:
+----&gt; 5     assert(p.any_alive())
+      6     print(f'av efficiency: {p.av_efficiency()}')
+      7
+
+
+AssertionError:
+</code></pre>
+<pre><code class="language-python">import pickle
+pickle.dumps(ng_table.schema_info)
+</code></pre>
+<pre><code class="language-python">import multiprocessing
+class parse_thread:
+    def __init__(self, table: doctable.DocTable):
+        self.table = table
+
+    def __call__(self, texts):
+        with self.table as t:
+            #records = [NewsgroupDoc.from_string(text) for text in texts]
+
+            t.insert(NewsgroupDoc(1000))
+
+def parse_thread2(x):
+    return None
+
+chunks = doctable.chunk(newsgroups['data'], chunk_size=100)
+#parse_func = parse_thread(ng_table)
+with multiprocessing.Pool(4) as p:
+    %time p.map(parse_thread(ng_table), chunks, 100)
+#%time map(parse_thread(1), chunks)
+</code></pre>
+<pre><code class="language-python">class process_and_store:
+    table: doctable.DocTable = None
+
+    def __init__(self, table_cls, *table_args, **table_kwargs):
+        '''Store info to construct the table.
+        '''
+        self.table_cls = table_cls
+        self.table_args = table_args
+        self.table_kwargs = table_kwargs
+
+    def connect_db(self):
+        '''Make a new connection to the database and return the associated table.
+        '''
+        if self.table is None:
+            self.table = self.table_cls(*self.table_args, **self.table_kwargs)
+        return self.table
+
+    def __call__(self, text):
+        '''Execute function in worker process.
+        '''
+        table = self.connect_db()
+
+        record = NewsgroupDoc.from_string(text)
+        table.insert(record)
+
+import multiprocessing
+with multiprocessing.Pool(4) as p:
+    %time p.map(process_and_store(NewsgroupTable, target=table_fname), newsgroups['data'])
+</code></pre>
+<p>Notice that this takes very little CPU time, but a long "wall time" (overall time it takes to run the program). This is because the threads are IO-starved - they spend a lot of time waiting on each other to commit database transactions. This might be a good opportunity to use variations on threading models, but most parsing classes </p>
+<pre><code class="language-python">class process_and_store_chunk(process_and_store):
+    def __call__(self, texts):
+        '''Execute function in worker process.
+        '''
+        table = self.connect_db()
+
+        records = [NewsgroupDoc.from_string(text) for text in texts]
+        table.insert(records)
+
+chunked_newsgroups = doctable.chunk(newsgroups['data'], chunk_size=500)
+with multiprocessing.Pool(4) as p:
+    %time p.map(process_and_store_chunk(NewsgroupTable, target=table_fname), chunked_newsgroups)
+</code></pre>
+<pre><code class="language-python">
+</code></pre>
+<pre><code class="language-python">
+</code></pre>
+<pre><code class="language-python">parser = ParsePipeline([
+    parse_email
+])
+
+
+for email_text in newsgroups['data']:
+    email_data = parse_email(email_text)
+</code></pre>
+<pre><code class="language-python">
+
+import multiprocessing
+with multiprocessing.Pool(10) as p:
+    print(p)
+</code></pre>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1754 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../doctable_insert_delete/">
+      
+      
+        <link rel="next" href="../doctable_parsetreedoc_column/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.10">
+    
+    
+      
+        <title>Example: Multiple Tables - doctable Package</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.fad675c6.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#example-multiple-tables" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="doctable Package" class="md-header__button md-logo" aria-label="doctable Package" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            doctable Package
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Example: Multiple Tables
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/devincornell/doctable" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    devincornell/doctable
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="doctable Package" class="md-nav__button md-logo" aria-label="doctable Package" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    doctable Package
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/devincornell/doctable" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    devincornell/doctable
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation and Change Log
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Basics of doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_insert_delete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Insert and Delete Queries with doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_schemas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Table Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_select/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Select Queries with doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/iris_example/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Iris example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Legacy documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Legacy documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataclass_example/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dataclass Schema Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataclass_vignette_advanced/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced dataclass schema vignette
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../depric_vignette_newsgroups/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NewsGroups Dataset Vignette
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distributed_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Distribute Parallel Processing Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_bootstrap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Document Bootstrapping Examples
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_concurrency/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Concurrent Database Connections
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_connectengine/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manage SQL Connections with DocTable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_file_column_types/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable File Column Types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_insert_delete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Insert and Delete
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Example: Multiple Tables
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Example: Multiple Tables
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#many-to-many-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      Many-to-Many Relationships
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Many-to-Many Relationships">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#select-queries-that-join-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Select Queries That Join Tables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#many-to-one-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      Many-to-One Relationships
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_parsetreedoc_column/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ParseTreeDoc Column Types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_picklefile/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Example: Pickle and Text Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema_dataclass/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Example: Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema_legacy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_select/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Select
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_update/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Update
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_1_intro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 1: Storing Document Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_2_parsing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 2: Storing Document Text
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_3_parsetrees/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 3: Storing Parsed Documents
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_intro_dataclass/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 1: US National Security Strategy Document Corpus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../legacy_adv/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable (slightly more) Advanced Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../legacy_simple/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Simple Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parse_parsepipeline/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ParsePipeline Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parse_parsetrees/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Working with doctable Parsetrees
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#many-to-many-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      Many-to-Many Relationships
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Many-to-Many Relationships">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#select-queries-that-join-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Select Queries That Join Tables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#many-to-one-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      Many-to-One Relationships
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="example-multiple-tables">Example: Multiple Tables</h1>
+<p>In this example, I show how doctable can be used with multiple relational tables to perform queries which automatically merge different aspects of your dataset when you use <code>.select()</code>. By integrating these relations into the schema, your database can automatically maintain consistency between tables by deleting irrelevant elements when their relations disappear. There are two important features of any multi-table schema using doctable:</p>
+<p>(1) Set the foreign_keys=True in the DocTable or ConnectEngine constructor. It is enabled by default. Otherwise sqlalchemy will not enable.</p>
+<p>(2) Use the "foreignkey" column type to set the constraint, probably with the onupdate and ondelete keywords specifiied.</p>
+<p>I will show two examples here: many-to-many relations, and many-to-one relations.</p>
+<pre><code class="language-python">import datetime
+import dataclasses
+import tempfile
+import sys
+sys.path.append('..')
+import doctable
+tmp = tempfile.TemporaryDirectory()
+</code></pre>
+<h2 id="many-to-many-relationships">Many-to-Many Relationships</h2>
+<p>The premise is that we have an imaginary API where we can get newly released books along with the libraries they are associted with (although they man, in some cases, not have library information). We want to keep track of the set of books with unique titles, and have book information exist on its own (i.e. we can insert book information if it does not have library information). We would also like to keep track of the libraries they belong to. We need this schema to be fast for selection, but it can be slow for insertion.</p>
+<p>Primary accesses methods:</p>
+<ul>
+<li>insert a book</li>
+<li>query books by year of publication</li>
+<li>insert a single library and associated books</li>
+<li>query books associated with libraries in certain zips</li>
+</ul>
+<p>In this example, we are going to use two tables with a many-to-many relationships and a table to handle relationships between them (required for a many-to-many relationship):</p>
+<ul>
+<li><em><code>BookTable</code></em>: keeps title and publication year of each book. Should exist independently of LibraryTable, because we may not want to use LibraryTable at all.</li>
+<li><em><code>LibraryTable</code></em>: keeps name of library, makes it easy to query by Library.</li>
+<li><em><code>BookLibraryRelationsTable</code></em>: keeps track of relationships between BookTable and LibraryTable.</li>
+</ul>
+<p>First we define the <code>BookTable</code> table. Because we are primarily interested in books, we will create a separate <code>Book</code> object for working with them.</p>
+<pre><code class="language-python">@doctable.schema(frozen=True, eq=True)
+class Book:
+    __slots__ = []
+    _id: int = doctable.IDCol()
+    isbn: str = doctable.Col(unique=True)
+    title: str = doctable.Col()
+    year: int = doctable.Col()
+    author: str = doctable.Col()
+    date_updated: datetime.datetime = doctable.UpdatedCol()
+
+class BookTable(doctable.DocTable):
+    _tabname_ = 'books'
+    _schema_ = Book
+    _indices_ = [doctable.Index('isbn_index', 'isbn')]
+
+book_table = BookTable(target=f'{tmp.name}/1.db', new_db=True)
+</code></pre>
+<p>We are not planning to work with author data outside of the schema definition, so we include it as part of the table definition.</p>
+<pre><code class="language-python">@doctable.schema(frozen=True, eq=True)
+class Library:
+    __slots__ = []
+    _id: int = doctable.IDCol()
+    name: str = doctable.Col()
+    zip: int = doctable.Col()
+
+class LibraryTable(doctable.DocTable):
+    _tabname_ = 'libraries'
+    _schema_ = Library    
+    _constraints_ = [doctable.Constraint('unique', 'name', 'zip')]
+
+
+library_table = LibraryTable(engine=book_table.engine)
+</code></pre>
+<pre><code class="language-python">class BookLibraryRelationsTable(doctable.DocTable):
+    '''Link between books and libraries.'''
+    _tabname_ = 'book_library_relations'
+
+    @doctable.schema
+    class _schema_:
+        __slots__ = []
+        _id: int = doctable.IDCol()
+        book_isbn: int = doctable.Col(nullable=False)
+        library_id: int = doctable.Col(nullable=False)
+
+    _constraints_ = (
+        doctable.Constraint('foreignkey', ('book_isbn',), ('books.isbn',)),
+        doctable.Constraint('foreignkey', ('library_id',), ('libraries._id',)),
+        doctable.Constraint('unique', 'book_isbn', 'library_id'),
+    )
+
+relations_table = BookLibraryRelationsTable(engine=book_table.engine)
+relations_table.list_tables()
+</code></pre>
+<pre><code>['book_library_relations', 'books', 'libraries']
+</code></pre>
+<p>Now we create some random books that are not at libraries and add them into our database.</p>
+<pre><code class="language-python">newly_published_books = [
+    Book(isbn='A', title='A', year=2020, author='Pierre Bourdieu'),
+    Book(isbn='E', title='E', year=2018, author='Jean-Luc Picard'),
+]
+
+for book in newly_published_books:
+    print(book)
+</code></pre>
+<pre><code>Book(isbn='A', title='A', year=2020, author='Pierre Bourdieu')
+Book(isbn='E', title='E', year=2018, author='Jean-Luc Picard')
+</code></pre>
+<p>Now we insert the list of books that were published. It works as expected.</p>
+<pre><code class="language-python">book_table.insert(newly_published_books, ifnotunique='replace')
+book_table.head()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>_id</th>
+      <th>isbn</th>
+      <th>title</th>
+      <th>year</th>
+      <th>author</th>
+      <th>date_updated</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>A</td>
+      <td>A</td>
+      <td>2020</td>
+      <td>Pierre Bourdieu</td>
+      <td>2022-07-26 21:30:30.364805</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>E</td>
+      <td>E</td>
+      <td>2018</td>
+      <td>Jean-Luc Picard</td>
+      <td>2022-07-26 21:30:30.364812</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>And now lets add a bunch of books that are associated with library objects.</p>
+<pre><code class="language-python">new_library_books = {
+    Library(name='Library1', zip=12345): [
+        Book(isbn='A', title='A', year=2020, author='Pierre Bourdieu'),
+        Book(isbn='B', title='B', year=2020, author='Pierre Bourdieu'),
+    ],
+    Library(name='Library2', zip=12345): [
+        Book(isbn='A', title='A', year=2020, author='Devin Cornell'),
+        Book(isbn='C', title='C', year=2021, author='Jean-Luc Picard'),
+    ],
+    Library(name='Library3', zip=67890): [
+        Book(isbn='A', title='A', year=2020, author='Pierre Bourdieu'),
+        Book(isbn='B', title='B', year=2020, author='Jean-Luc Picard'),
+        Book(isbn='D', title='D', year=2019, author='Devin Cornell'),
+    ],
+}
+
+for library, books in new_library_books.items():
+    r = library_table.insert(library, ifnotunique='ignore')
+    book_table.insert(books, ifnotunique='replace')
+    relations_table.insert([{'book_isbn':b.isbn, 'library_id': r.lastrowid} for b in books], ifnotunique='ignore')
+</code></pre>
+<pre><code class="language-python">book_table.select_df()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>_id</th>
+      <th>isbn</th>
+      <th>title</th>
+      <th>year</th>
+      <th>author</th>
+      <th>date_updated</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2</td>
+      <td>E</td>
+      <td>E</td>
+      <td>2018</td>
+      <td>Jean-Luc Picard</td>
+      <td>2022-07-26 21:30:30.364812</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6</td>
+      <td>C</td>
+      <td>C</td>
+      <td>2021</td>
+      <td>Jean-Luc Picard</td>
+      <td>2022-07-26 21:30:30.482867</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>7</td>
+      <td>A</td>
+      <td>A</td>
+      <td>2020</td>
+      <td>Pierre Bourdieu</td>
+      <td>2022-07-26 21:30:30.494686</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>8</td>
+      <td>B</td>
+      <td>B</td>
+      <td>2020</td>
+      <td>Jean-Luc Picard</td>
+      <td>2022-07-26 21:30:30.494692</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>9</td>
+      <td>D</td>
+      <td>D</td>
+      <td>2019</td>
+      <td>Devin Cornell</td>
+      <td>2022-07-26 21:30:30.494694</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">library_table.select_df()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>_id</th>
+      <th>name</th>
+      <th>zip</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Library1</td>
+      <td>12345</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Library2</td>
+      <td>12345</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Library3</td>
+      <td>67890</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">relations_table.select_df()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>_id</th>
+      <th>book_isbn</th>
+      <th>library_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>A</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>B</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>A</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>C</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>A</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>B</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>D</td>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="select-queries-that-join-tables">Select Queries That Join Tables</h3>
+<p>Similar to sqlalchemy, <code>DocTable</code> joins are doen simply by replacing the where conditional. While not technically nessecary, typically you will be joining tables on foreign key columns because it is much faster.</p>
+<pre><code class="language-python">bt, lt, rt = book_table, library_table, relations_table
+</code></pre>
+<p>For the first example, say we want to get the isbn numbers of books associated with each library in zip code 12345. We implement the join using a simple conditional  equating the associated keys in each table. Our database schema already knows that the foreign keys are in place, so this expression will give us the join we want.</p>
+<pre><code class="language-python">lt.select([lt['name'], rt['book_isbn']], where=(lt['_id']==rt['library_id']) &amp; (lt['zip']==12345), as_dataclass=False)
+</code></pre>
+<pre><code>[('Library1', 'A'), ('Library1', 'B'), ('Library2', 'A'), ('Library2', 'C')]
+</code></pre>
+<p>Now say we want to characterize each library according to the age distribution of it's books. We use two conditionals for the join: one connecting library table to relations table, and another connecting relations table to books table. We also include the condition to get only libraries associated with the given zip.</p>
+<pre><code class="language-python">conditions = (bt['isbn']==rt['book_isbn']) &amp; (rt['library_id']==lt['_id']) &amp; (lt['zip']==12345)
+bt.select([bt['title'], bt['year'], lt['name']], where=conditions, as_dataclass=False)
+</code></pre>
+<pre><code>[('C', 2021, 'Library2'),
+ ('A', 2020, 'Library1'),
+ ('A', 2020, 'Library2'),
+ ('B', 2020, 'Library1')]
+</code></pre>
+<p>Alternatively we can use the <code>.join</code> method of doctable (although I recommend just using select statements).</p>
+<pre><code class="language-python">jt = lt.join(rt, (lt['zip']==12345) &amp; (lt['_id']==rt['library_id']), isouter=False)
+bt.select(where=bt['isbn']==jt.c['book_library_relations_book_isbn'], as_dataclass=True)
+bt.select([bt['title'], jt.c['book_library_relations_library_id']], where=bt['isbn']==jt.c['book_library_relations_book_isbn'], as_dataclass=False)
+bt.select([bt['title'], jt.c['libraries_name']], where=bt['isbn']==jt.c['book_library_relations_book_isbn'], as_dataclass=False, limit=3)
+</code></pre>
+<pre><code>[('C', 'Library1'), ('C', 'Library2'), ('C', 'Library3')]
+</code></pre>
+<h2 id="many-to-one-relationships">Many-to-One Relationships</h2>
+<p>Now we create an author class and table to demonstrate a many-to-one relationship.</p>
+<pre><code class="language-python">@doctable.schema(frozen=True, eq=True)
+class Author:
+    __slots__ = []
+    #_id: int = doctable.IDCol()
+    name: str = doctable.Col(primary_key=True, unique=True)
+    age: int = doctable.Col()
+
+class AuthorTable(doctable.DocTable):
+    _tabname_ = 'authors'
+    _schema_ = Author  
+    _constraints_ = [doctable.Constraint('foreignkey', ('name',), ('books.author',))]
+
+#book_table_auth = BookTable(target=f'{tmp.name}/16.db', new_db=True)
+#author_table = AuthorTable(engine=book_table_auth.engine)
+author_table = AuthorTable(engine=book_table.engine)
+</code></pre>
+<pre><code class="language-python">author_table.delete()
+author_table.insert([
+    Author(name='Devin Cornell', age=30),
+    Author(name='Pierre Bourdieu', age=99),
+    Author(name='Jean-Luc Picard', age=1000),
+])
+author_table.head()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Devin Cornell</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Pierre Bourdieu</td>
+      <td>99</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Jean-Luc Picard</td>
+      <td>1000</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">book_table.head()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>_id</th>
+      <th>isbn</th>
+      <th>title</th>
+      <th>year</th>
+      <th>author</th>
+      <th>date_updated</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2</td>
+      <td>E</td>
+      <td>E</td>
+      <td>2018</td>
+      <td>Jean-Luc Picard</td>
+      <td>2022-07-26 21:30:30.364812</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6</td>
+      <td>C</td>
+      <td>C</td>
+      <td>2021</td>
+      <td>Jean-Luc Picard</td>
+      <td>2022-07-26 21:30:30.482867</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>7</td>
+      <td>A</td>
+      <td>A</td>
+      <td>2020</td>
+      <td>Pierre Bourdieu</td>
+      <td>2022-07-26 21:30:30.494686</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>8</td>
+      <td>B</td>
+      <td>B</td>
+      <td>2020</td>
+      <td>Jean-Luc Picard</td>
+      <td>2022-07-26 21:30:30.494692</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>9</td>
+      <td>D</td>
+      <td>D</td>
+      <td>2019</td>
+      <td>Devin Cornell</td>
+      <td>2022-07-26 21:30:30.494694</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">columns = [book_table['year'], author_table['age'], author_table['name']]
+where = (book_table['author']==author_table['name']) &amp; (book_table['author'] &gt; 30)
+book_table.select_df(columns, where=where)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>year</th>
+      <th>age</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2018</td>
+      <td>1000</td>
+      <td>Jean-Luc Picard</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2021</td>
+      <td>1000</td>
+      <td>Jean-Luc Picard</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2020</td>
+      <td>99</td>
+      <td>Pierre Bourdieu</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2020</td>
+      <td>1000</td>
+      <td>Jean-Luc Picard</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2019</td>
+      <td>30</td>
+      <td>Devin Cornell</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      
+    
+  </body>
+</html>

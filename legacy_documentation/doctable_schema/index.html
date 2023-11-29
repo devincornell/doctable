@@ -1,0 +1,1687 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../doctable_picklefile/">
+      
+      
+        <link rel="next" href="../doctable_schema_dataclass/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.10">
+    
+    
+      
+        <title>DocTable Schemas - doctable Package</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.fad675c6.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#doctable-schemas" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="doctable Package" class="md-header__button md-logo" aria-label="doctable Package" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            doctable Package
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DocTable Schemas
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/devincornell/doctable" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    devincornell/doctable
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="doctable Package" class="md-nav__button md-logo" aria-label="doctable Package" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    doctable Package
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/devincornell/doctable" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    devincornell/doctable
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation and Change Log
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Basics of doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_insert_delete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Insert and Delete Queries with doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_schemas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Table Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_select/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Select Queries with doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/iris_example/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Iris example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Legacy documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Legacy documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataclass_example/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dataclass Schema Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataclass_vignette_advanced/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced dataclass schema vignette
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../depric_vignette_newsgroups/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NewsGroups Dataset Vignette
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distributed_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Distribute Parallel Processing Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_bootstrap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Document Bootstrapping Examples
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_concurrency/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Concurrent Database Connections
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_connectengine/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manage SQL Connections with DocTable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_file_column_types/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable File Column Types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_insert_delete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Insert and Delete
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_multitable/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example: Multiple Tables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_parsetreedoc_column/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ParseTreeDoc Column Types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_picklefile/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Example: Pickle and Text Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Schemas
+  </span>
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema_dataclass/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Example: Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema_legacy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_select/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Select
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_update/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Update
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_1_intro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 1: Storing Document Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_2_parsing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 2: Storing Document Text
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_3_parsetrees/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 3: Storing Parsed Documents
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_intro_dataclass/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 1: US National Security Strategy Document Corpus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../legacy_adv/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable (slightly more) Advanced Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../legacy_simple/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Simple Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parse_parsepipeline/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ParsePipeline Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parse_parsetrees/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Working with doctable Parsetrees
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="doctable-schemas">DocTable Schemas</h1>
+<p>Your database table column names and types come from a schema class defined using the <code>@doctable.schema</code> decorator. In addition to providing a schema definition, this class can be used to encapsulate data when inserting or retrieving from the database. </p>
+<p>At its most basic, your schema class operates like a <a href="https://realpython.com/python-data-classes/">dataclass</a> that uses slots for efficiency and allows for custom methods that will not affect the database schema.</p>
+<pre><code class="language-python">from datetime import datetime
+from pprint import pprint
+import pandas as pd
+
+import sys
+sys.path.append('..')
+import doctable
+</code></pre>
+<h1 id="introduction">Introduction</h1>
+<p>This is an example of a basic doctable schema. Note the use of the decorator <code>@doctable.schema</code>, the inclusion of <code>__slots__ = []</code>, and the type hints of the member variables - I will explain each of these later in this document.</p>
+<p>This class represents a database schema that includes two columns: <code>name</code> (an <code>int</code>) and <code>age</code> (a <code>str</code>).</p>
+<pre><code class="language-python">@doctable.schema
+class Record:
+    __slots__ = []
+    name: str
+    age: int
+</code></pre>
+<p>The schema class definition is then provided to the doctable constructor to create the database table. Here we create an in-memory sqlite table and show the schema resulting from our custom class. Note that doctable automatically inferred that <code>name</code> should be a <code>VARCHAR</code> and <code>age</code> should be an <code>INTEGER</code> based on the provided type hints.</p>
+<pre><code class="language-python"># the schema that would result from this dataclass:
+table = doctable.DocTable(target=':memory:', schema=Record)
+table.schema_table()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>name</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>age</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>We can also use the schema class to insert data into our <code>DocTable</code>. We simply create a new <code>Record</code> and pass it to the <code>DocTable.insert()</code> method. Using <code>.head()</code>, we see the contents of the database so far. Note that you may also pass a dictionary to insert data - this is just one way of inserting data.</p>
+<pre><code class="language-python">new_record = Record(name='Devin Cornell', age=30)
+print(new_record)
+table.insert(new_record)
+table.head()
+</code></pre>
+<pre><code>Record(name='Devin Cornell', age=30)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Devin Cornell</td>
+      <td>30</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>And perhaps more usefully, we can use it to encapsulate results from <code>.select()</code> queries. Note that the returned object is exactly the same as the one we put in. Slot classes are more memory-efficient than dictionaries for storing data, but there is cpu time overhead from inserting that data into the slots.</p>
+<pre><code class="language-python">first_record = table.select_first()
+print(first_record)
+</code></pre>
+<pre><code>Record(name='Devin Cornell', age=30)
+</code></pre>
+<p>But, of course, the data can be returned in its raw format by passing the parameter <code>as_dataclass=False</code>.</p>
+<pre><code class="language-python">first_record = table.select_first(as_dataclass=False)
+print(first_record)
+</code></pre>
+<pre><code>('Devin Cornell', 30)
+</code></pre>
+<h1 id="the-doctableschema-decorator">The <code>doctable.schema</code> Decorator</h1>
+<p>The <code>@doctable.schema</code> decorator does the work to convert your custom class into a schema class. It transforms your schema class in three ways:</p>
+<ol>
+<li>
+<p><strong>create slots</strong>: First, <a href="https://docs.python.org/3/reference/datamodel.html#slots">slot</a> variable names will be added to <code>__slots__</code> automatically based on the fields in your class definition. This is why the default functionality requires you to add <code>__slots__ = []</code> with no variable names. You may also turn slots off by passing <code>require_slots=False</code> to the decorator (i.e. <code>@doctable.schema(require_slots=False)</code>), otherwise an exception will be raised.</p>
+</li>
+<li>
+<p><strong>convert to dataclass</strong>: Second, your schema class will be converted to a <a href="https://realpython.com/python-data-classes/">dataclass</a> that generates <code>__init__</code>, <code>__repr__</code>, and other boilerplate methods meant for classes that primarily store data. Any keyword arguments passed to the <code>schema</code> decorator, with the exception of <code>require_slots</code>, will be passed directly to the <code>@dataclasses.dataclass</code> decorator so you have control over the dataclass definition.</p>
+</li>
+<li>
+<p><strong>inherit from <code>DocTableSchema</code></strong>: Lastly, your schema class will inherit from <code>doctable.DocTableSchema</code>, which provides additional accessors that are used for storage in a <code>DocTable</code> and fine-grained control over retreived data. More on this later.</p>
+</li>
+</ol>
+<p>Column names and types will be inferred from the type hints in your schema class definition. Because <code>DocTable</code> is built on <a href="https://docs.sqlalchemy.org/en/14/core/">sqlalchemy core</a>, all fields will eventually be converted to <a href="https://docs.sqlalchemy.org/en/13/core/type_basics.html"><code>sqlalchemy</code> column objects</a> and added to the DocTable metadata. This table shows the type mappings implemented in doctable:</p>
+<pre><code class="language-python">doctable.python_to_slqlchemy_type
+</code></pre>
+<pre><code>{int: sqlalchemy.sql.sqltypes.Integer,
+ float: sqlalchemy.sql.sqltypes.Float,
+ str: sqlalchemy.sql.sqltypes.String,
+ bool: sqlalchemy.sql.sqltypes.Boolean,
+ datetime.datetime: sqlalchemy.sql.sqltypes.DateTime,
+ datetime.time: sqlalchemy.sql.sqltypes.Time,
+ datetime.date: sqlalchemy.sql.sqltypes.Date,
+ doctable.textmodels.parsetreedoc.ParseTreeDoc: doctable.schemas.custom_coltypes.ParseTreeDocFileType}
+</code></pre>
+<p>For example, see this example of the most basic possible schema class that can be used to create a doctable. We use static defaulted parameters and type hints including <code>str</code>, <code>int</code>, <code>datetime</code>, and <code>Any</code>, which you can see are converted to <code>VARCHAR</code>, <code>INTEGER</code>, <code>DATETIME</code>, and <code>BLOB</code> column types, respectively. <code>BLOB</code> was used because the provided type hint <code>Any</code> has no entry in the above table.</p>
+<pre><code class="language-python">from typing import Any
+import datetime
+
+@doctable.schema
+class Record:
+    __slots__ = []
+    name: str = None
+    age: int = None
+    time: datetime.datetime = None
+    friends: Any = None
+
+# the schema that would result from this dataclass:
+doctable.DocTable(target=':memory:', schema=Record).schema_table()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>name</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>age</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>time</td>
+      <td>DATETIME</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>friends</td>
+      <td>BLOB</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>You can see that this class operates much like a regular dataclass with slots. Thus, these defaulted parameters are applied in the constructor of the schema class, and <em>NOT</em> as the default value in the database schema.</p>
+<pre><code class="language-python">Record('Devin Cornell', 30)
+</code></pre>
+<pre><code>Record(name='Devin Cornell', age=30, time=None, friends=None)
+</code></pre>
+<h1 id="use-doctablecol-for-more-control-over-schema-creation">Use <code>doctable.Col</code> For More Control Over Schema Creation</h1>
+<p>Using <code>doctable.Col()</code> as a default value in the schema class definition can give you more control over schema definitions. </p>
+<p>Firstly, this function returns a dataclass <a href="https://docs.python.org/3/library/dataclasses.html#dataclasses.field"><code>field</code></a> object that can be used to set parameters like <code>default_factory</code> or <code>compare</code> as used by the dataclass. Pass arguments meant for <code>field</code> through the <code>Col</code> parameter <code>field_kwargs=dict(..)</code>. Other data passed to <code>Col</code> will be used to create the <code>DocTable</code> schema, which is stored as metadata inside the <code>field</code>.</p>
+<p>This example shows how <code>Col</code> can be used to set some parameters meant for <code>field</code>. These will affect your schema class behavior without affecting the produced DocTable schema.</p>
+<pre><code class="language-python">@doctable.schema
+class Record:
+    __slots__ = []
+    name: str = doctable.Col()
+    age: int = doctable.Col(field_kwargs=dict(default_factory=list, compare=True))
+
+Record()
+</code></pre>
+<pre><code>Record(age=[])
+</code></pre>
+<p><code>Col</code> also allows you to explicitly specify a column type using a string, sqlalchemy type definition, or sqlalchemy instance passed to <code>column_type</code>. You can then pass arguments meant for the sqlalchemy type constructor through <code>type_kwargs</code>. You may also use <code>type_kwargs</code> with the column type inferred from the type hint.</p>
+<pre><code class="language-python">import sqlalchemy
+
+@doctable.schema
+class Record:
+    __slots__ = []
+
+    # providing only the type as first argument
+    age: int = doctable.Col(sqlalchemy.BigInteger)
+
+    # these are all quivalent
+    name1: str = doctable.Col(type_kwargs=dict(length=100)) # infers type from type hint
+    name2: str = doctable.Col(sqlalchemy.String, type_kwargs=dict(length=100)) # accepts provided type sqlalchemy.String, pass parameters through type_kwargs
+    name3: str = doctable.Col(sqlalchemy.String(length=100)) # accepts type instance (no need for type_kwargs this way)
+    name4: str = doctable.Col('string', type_kwargs=dict(length=100))
+
+
+# the schema that would result from this dataclass:
+doctable.DocTable(target=':memory:', schema=Record).schema_table()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>age</td>
+      <td>BIGINT</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>name1</td>
+      <td>VARCHAR(100)</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>name2</td>
+      <td>VARCHAR(100)</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>name3</td>
+      <td>VARCHAR(100)</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>name4</td>
+      <td>VARCHAR(100)</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>A full list of string -&gt; sqlalchemy type mappings is shown below:</p>
+<pre><code class="language-python">doctable.string_to_sqlalchemy_type
+</code></pre>
+<pre><code>{'biginteger': sqlalchemy.sql.sqltypes.BigInteger,
+ 'boolean': sqlalchemy.sql.sqltypes.Boolean,
+ 'date': sqlalchemy.sql.sqltypes.Date,
+ 'datetime': sqlalchemy.sql.sqltypes.DateTime,
+ 'enum': sqlalchemy.sql.sqltypes.Enum,
+ 'float': sqlalchemy.sql.sqltypes.Float,
+ 'integer': sqlalchemy.sql.sqltypes.Integer,
+ 'interval': sqlalchemy.sql.sqltypes.Interval,
+ 'largebinary': sqlalchemy.sql.sqltypes.LargeBinary,
+ 'numeric': sqlalchemy.sql.sqltypes.Numeric,
+ 'smallinteger': sqlalchemy.sql.sqltypes.SmallInteger,
+ 'string': sqlalchemy.sql.sqltypes.String,
+ 'text': sqlalchemy.sql.sqltypes.Text,
+ 'time': sqlalchemy.sql.sqltypes.Time,
+ 'unicode': sqlalchemy.sql.sqltypes.Unicode,
+ 'unicodetext': sqlalchemy.sql.sqltypes.UnicodeText,
+ 'json': doctable.schemas.custom_coltypes.JSONType,
+ 'pickle': doctable.schemas.custom_coltypes.CpickleType,
+ 'parsetree': doctable.schemas.custom_coltypes.ParseTreeDocFileType,
+ 'picklefile': doctable.schemas.custom_coltypes.PickleFileType,
+ 'textfile': doctable.schemas.custom_coltypes.TextFileType}
+</code></pre>
+<p>Finally, <code>Col</code> allows you to pass keyword arguments directly to the sqlalchemy <code>Column</code> constructor. This includes flags like <code>primary_key</code> or <code>default</code>, which are both used to construct the database schema but do not affect the python dataclass. Note that I recreated the classic <code>id</code> column below.</p>
+<pre><code class="language-python">@doctable.schema
+class Record:
+    __slots__ = []
+    id: int = doctable.Col(primary_key=True, autoincrement=True)
+    age: int = doctable.Col(nullable=False)
+    name: str = doctable.Col(default='MISSING_NAME')
+
+# the schema that would result from this dataclass:
+doctable.DocTable(target=':memory:', schema=Record).schema_table()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>age</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>name</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>I also included some shortcut <code>Col</code> functions like <code>IDCol</code>, <code>AddedCol</code>, and <code>UpdatedCol</code> - see below.</p>
+<pre><code class="language-python">import datetime
+
+@doctable.schema
+class Record:
+    __slots__ = []
+    id: int = doctable.IDCol() # auto-increment primary key
+    added: datetime.datetime = doctable.AddedCol() # record when row was added
+    updated: datetime.datetime = doctable.UpdatedCol() # record when row was updated
+
+doctable.DocTable(target=':memory:', schema=Record).schema_table()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>added</td>
+      <td>DATETIME</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>updated</td>
+      <td>DATETIME</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>In this way, <code>Col</code> allows you to give fine-grained control to both the schema class behavior and the sql schema definition.</p>
+<h1 id="working-with-schema-objects">Working With Schema Objects</h1>
+<p>Using <code>Col</code> default parameters also has some additional side effects, primarily due to the inherited class <code>DocTableSchema</code>. Among other things, the <code>Col</code> method defines the default dataclass value to be a <code>doctable.EmptyValue()</code> object, which is essentially a placeholder for data that was not inserted into the class upon construction. The <code>__repr__</code> defined in <code>DocTableSchema</code> dictates that member objects containing this value not appear when printing the class, and furthermore, member variables with the value <code>EmptyValue()</code> will not be provided in the database insertion. This means that the database schema is allowed to use its own default value - an effect which is most obviously useful when inserting an object that does not have an <code>id</code> or other automatically provided values.</p>
+<p>The example below shows the <code>new_record.id</code> contains <code>EmptyValue()</code> as a default, and that the <code>id</code> column is not included in the insert query - only <code>name</code>.</p>
+<pre><code class="language-python">@doctable.schema
+class Record:
+    __slots__ = []
+    id: int = doctable.IDCol()
+    name: str = doctable.Col()
+
+new_record = Record(name='Devin Cornell')
+print(new_record)
+try:
+    print(new_record.id)
+except doctable.DataNotAvailableError:
+    print(f'exception was raised')
+
+table = doctable.DocTable(target=':memory:', schema=Record, verbose=True)
+table.insert(new_record)
+table.head()
+</code></pre>
+<pre><code>Record(name='Devin Cornell')
+exception was raised
+DocTable: INSERT OR FAIL INTO _documents_ (name) VALUES (?)
+DocTable: SELECT _documents_.id, _documents_.name 
+FROM _documents_
+ LIMIT ? OFFSET ?
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Devin Cornell</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Yet when we go to retrieve the inserted data, we can see that the value has been replaced by the defaulted value in the database. This is a useful feature if your pipeline involves the insertion of schema objects directly (as opposed to inserting dictionaries for each row).</p>
+<pre><code class="language-python">table.select_first(verbose=False)
+</code></pre>
+<pre><code>Record(id=1, name='Devin Cornell')
+</code></pre>
+<p>The <code>EmptyValue()</code> feature is also useful when issuing select queries involving only a subset of columns. See here we run a select query where we just retrieve the name data, yet the result is still stored in a <code>Record</code> object.</p>
+<pre><code class="language-python">returned_record = table.select_first(['name'], verbose=False)
+print(returned_record)
+</code></pre>
+<pre><code>Record(name='Devin Cornell')
+</code></pre>
+<p>To avoid working with <code>EmptyValue()</code> objects directly, it is recommended that you use the <code>__getitem__</code> string subscripting to access column data. When using this subscript, the schema object will raise an exception if the returned value is an <code>EmptyValue()</code>.</p>
+<pre><code class="language-python">try:
+    returned_record.id
+except doctable.DataNotAvailableError as e:
+    print(e)
+</code></pre>
+<pre><code>The "id" property is not available. This might happen if you did not retrieve the information from a database or if you did not provide a value in the class constructor.
+</code></pre>
+<h1 id="indices-and-constraints">Indices and Constraints</h1>
+<p>Indices and constraints are provided to the <code>DocTable</code> constructor or definition, as it is not part of the schema class. Here I create custom schema and table definitions where the table has some defined indices and constraints. <code>doctable.Index</code> is really just a direct reference to <code>sqlalchemy.Index</code>, and <code>doctable.Constraint</code> is a mapping to an sqlalchemy constraint type, with the first argument indicating which one.</p>
+<pre><code class="language-python">@doctable.schema
+class Record:
+    __slots__ = []
+    id: int = doctable.IDCol()
+    name: str = doctable.Col()
+    age: int = doctable.Col()
+
+class RecordTable(doctable.DocTable):
+    _tabname_ = 'records'
+    _schema_ = Record
+
+    # table indices
+    _indices_ = (
+        doctable.Index('name_index', 'name'),
+        doctable.Index('name_age_index', 'name', 'age', unique=True),
+    )
+
+    # table constraints
+    _constraints_ = (
+        doctable.Constraint('unique', 'name', 'age', name='name_age_constraint'),
+        doctable.Constraint('check', 'age &gt; 0', name='check_age'),
+    )
+
+table = RecordTable(target=':memory:')
+</code></pre>
+<p>And we can see that the constraints are working when we try to insert a record where age is less than 1.</p>
+<pre><code class="language-python">try:
+    table.insert(Record(age=-1))
+except sqlalchemy.exc.IntegrityError as e:
+    print(e)
+</code></pre>
+<pre><code>(sqlite3.IntegrityError) CHECK constraint failed: check_age
+[SQL: INSERT OR FAIL INTO records (age) VALUES (?)]
+[parameters: (-1,)]
+(Background on this error at: http://sqlalche.me/e/13/gkpj)
+</code></pre>
+<p>This is a full list of the mappings between constraint names and the associated sqlalchemy objects.</p>
+<pre><code class="language-python">doctable.constraint_lookup
+</code></pre>
+<pre><code>{'check': sqlalchemy.sql.schema.CheckConstraint,
+ 'unique': sqlalchemy.sql.schema.UniqueConstraint,
+ 'primarykey': sqlalchemy.sql.schema.PrimaryKeyConstraint,
+ 'foreignkey': sqlalchemy.sql.schema.ForeignKeyConstraint}
+</code></pre>
+<h1 id="conclusions">Conclusions</h1>
+<p>In this guide, I tried to show some exmaples and give explanations for the ways that schema classes can be used to create doctables. The design is fairly efficent and flexible, and brings a more object-focused approach compared to raw sql queries without the overhead of ORM.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      
+    
+  </body>
+</html>

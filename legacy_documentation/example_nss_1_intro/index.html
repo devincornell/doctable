@@ -1,0 +1,1602 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../doctable_update/">
+      
+      
+        <link rel="next" href="../example_nss_2_parsing/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.10">
+    
+    
+      
+        <title>Vignette 1: Storing Document Metadata - doctable Package</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.fad675c6.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vignette-1-storing-document-metadata" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="doctable Package" class="md-header__button md-logo" aria-label="doctable Package" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            doctable Package
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Vignette 1: Storing Document Metadata
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/devincornell/doctable" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    devincornell/doctable
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="doctable Package" class="md-nav__button md-logo" aria-label="doctable Package" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    doctable Package
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/devincornell/doctable" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    devincornell/doctable
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation and Change Log
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Basics of doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_insert_delete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Insert and Delete Queries with doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_schemas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Table Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/ex_select/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Select Queries with doctable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentation/iris_example/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Iris example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Legacy documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Legacy documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataclass_example/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dataclass Schema Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataclass_vignette_advanced/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced dataclass schema vignette
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../depric_vignette_newsgroups/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NewsGroups Dataset Vignette
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distributed_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Distribute Parallel Processing Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_bootstrap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Document Bootstrapping Examples
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_concurrency/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Concurrent Database Connections
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_connectengine/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manage SQL Connections with DocTable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_file_column_types/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable File Column Types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_insert_delete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Insert and Delete
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_multitable/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example: Multiple Tables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_parsetreedoc_column/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ParseTreeDoc Column Types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_picklefile/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Example: Pickle and Text Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema_dataclass/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Example: Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_schema_legacy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Schemas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_select/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Select
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctable_update/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Examples: Update
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Vignette 1: Storing Document Metadata
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 1: Storing Document Metadata
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction-to-nss-corpus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introduction to NSS Corpus
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-database-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create database schemas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-political-party-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding political party data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performing-join-select-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performing "join" select queries
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_2_parsing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 2: Storing Document Text
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_3_parsetrees/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vignette 3: Storing Parsed Documents
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_nss_intro_dataclass/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 1: US National Security Strategy Document Corpus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../legacy_adv/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable (slightly more) Advanced Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../legacy_simple/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DocTable Simple Example
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parse_parsepipeline/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ParsePipeline Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parse_parsetrees/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Working with doctable Parsetrees
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction-to-nss-corpus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introduction to NSS Corpus
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-database-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create database schemas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-political-party-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding political party data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performing-join-select-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performing "join" select queries
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="vignette-1-storing-document-metadata">Vignette 1: Storing Document Metadata</h1>
+<p>In this example, I'll show how to create and manipulate two linked tables for storing document metadata using <a href="https://github.com/devincornell/nssdocs">US National Security Strategy document</a> metadata as an example. </p>
+<p>These are the vignettes I have created:</p>
+<ul>
+<li>
+<p><a href="example_nss_1_intro.html">1: Storing Document Metadata</a></p>
+</li>
+<li>
+<p><a href="example_nss_2_parsing.html">2: Storing Document Text</a></p>
+</li>
+<li>
+<p><a href="example_nss_3_parsetrees.html">3: Storing Parsed Documents</a></p>
+</li>
+</ul>
+<pre><code class="language-python">import sys
+sys.path.append('..')
+import doctable
+import spacy
+from tqdm import tqdm
+import pandas as pd
+import os
+from pprint import pprint
+import urllib.request # used for downloading nss docs
+
+# automatically clean up temp folder after python ends
+#tmpfolder = doctable.TempFolder('tmp')
+import tempfile
+tempdir = tempfile.TemporaryDirectory()
+tmpfolder = tempdir.name
+tmpfolder
+</code></pre>
+<pre><code>'/tmp/tmplxxguo16'
+</code></pre>
+<h2 id="introduction-to-nss-corpus">Introduction to NSS Corpus</h2>
+<p>This dataset is the plain text version of the US National Security Strategy documents. I compiled the metadata you see below from <a href="https://history.defense.gov/Historical-Sources/National-Security-Strategy/">a page hosted by the historical dept of the secretary's office</a>. In short, each US President must release at least one NSS per term, up to one per-year. This is the metadata we will be inserting into the table:</p>
+<pre><code class="language-python"># information about each NSS document
+document_metadata = [
+    {'year': 2000, 'party': 'D', 'president': 'Clinton'},
+    {'year': 2002, 'party': 'R', 'president': 'W. Bush'}, 
+    {'year': 2006, 'party': 'R', 'president': 'W. Bush'}, 
+    {'year': 2010, 'party': 'D', 'president': 'Obama'}, 
+    {'year': 2015, 'party': 'D', 'president': 'Obama'}, 
+    {'year': 2017, 'party': 'R', 'president': 'Trump'}, 
+]
+</code></pre>
+<h2 id="create-database-schemas">Create database schemas</h2>
+<p>The first step will be to define a database schema that is appropriate for the data in <code>document_metadata</code>. We define an <code>NSSDoc</code> class to represent a single document. The <code>doctable.schema</code> decorator will convert the row objects into <a href="https://realpython.com/python-data-classes/"><code>dataclasses</code></a> with <a href="https://docs.python.org/3/reference/datamodel.html#slots">slots</a> enabled, and inherit from doctable.DocTableRow to add some additional functionality. The type hints associated with each variable will be used in the schema definition for the new tables, and arguments to <code>doctable.Col</code> will mostly be passed to <code>dataclasses.field</code> (see <a href="https://doctable.org/ref/doctable/schemas/field_columns.html#Col">docs</a> for more detail), so all dataclass functionality is maintained.</p>
+<p>Also note that a method called <code>.is_old()</code> was defined. This method will not be included in a database schema, but I'll show later how it can be useful.</p>
+<pre><code class="language-python"># to be used as a database row representing a single NSS document
+@doctable.schema
+class NSSDoc:
+    __slots__ = [] # include so that doctable.schema can create a slot class
+
+    id: int = doctable.Col(primary_key=True, autoincrement=True) # can also use doctable.IDCol() as a shortcut
+    year: int =  None
+    party: str = None
+    president: str = None
+
+    def is_old(self):
+        '''Return whether the document is old or not.'''
+        return self.year &lt; 2010
+</code></pre>
+<p>We can see that these are regular dataclass methods because their constructors are defined. Note that the dataclass defaults the values to None, so take note of this when inserting or retrieving from a database.</p>
+<pre><code class="language-python">NSSDoc(year=1999)
+</code></pre>
+<pre><code>NSSDoc(year=1999, party=None, president=None)
+</code></pre>
+<p>And we will also likely want to create a class that inherits from <code>DocTable</code> to statically define the table name, schema object, and any indices or constraints that should be associated with our table. We set the table name and the schema definition class using the reserved member variables <code>_tabname_</code> and <code>_schema_</code>, respectively. Note that the <code>NSSDoc</code> class is provided as the schema.</p>
+<p>We also can use this definition to create indices and constraints using the <code>_indices_</code> and <code>_constraints_</code> member variables. The indices are provided as name-&gt;columns pairs, and the constraints are tuples of the form <code>(constraint_type, constraint_details)</code>. In this case, we limit the values for <code>check</code> to R or D.</p>
+<pre><code class="language-python">class NSSDocTable(doctable.DocTable):
+    _tabname_ = 'nss_documents'
+    _schema_ = NSSDoc
+    _indices_ = (
+        doctable.Index('party_index', 'party'),
+    )
+    _constraints_ = (
+        doctable.Constraint('check', 'party in (&quot;R&quot;, &quot;D&quot;)'), # party can only take on values R or D.
+    )
+</code></pre>
+<p>And then we create an instance of the <code>NSSDocTable</code> table using <code>DocTable</code>\'s default constructor. We set <code>target=f'{tmp}/nss_1.db'</code> to indicate we want to access an sqlite database at that path. We also use the <code>new_db=True</code> to indicate that the database does not exist, so we should create a new one.</p>
+<pre><code class="language-python">fname = f'{tmpfolder}/nss_1.db'
+
+# clean up any old databases
+try:
+    os.remove(fname)
+except:
+    pass
+
+docs_table = NSSDocTable(target=fname, new_db=True)
+docs_table
+</code></pre>
+<pre><code>&lt;__main__.NSSDocTable at 0x7f2a55b9b400&gt;
+</code></pre>
+<p>We can use <code>.schema_table()</code> to see information about the database schema. Note that doctable inferred column types based on the type hints.</p>
+<pre><code class="language-python">docs_table.schema_table()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default</th>
+      <th>autoincrement</th>
+      <th>primary_key</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>id</td>
+      <td>INTEGER</td>
+      <td>False</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>year</td>
+      <td>INTEGER</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>party</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>president</td>
+      <td>VARCHAR</td>
+      <td>True</td>
+      <td>None</td>
+      <td>auto</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>We are now ready to insert data into the new table. We simply add each document as a dictionary, and show the first <code>n</code> rows using <code>.head()</code>.</p>
+<pre><code class="language-python">docs_table.delete() # remove old entries if needed
+for doc in document_metadata:
+    print(doc)
+    docs_table.insert(doc)
+docs_table.head()
+</code></pre>
+<pre><code>{'year': 2000, 'party': 'D', 'president': 'Clinton'}
+{'year': 2002, 'party': 'R', 'president': 'W. Bush'}
+{'year': 2006, 'party': 'R', 'president': 'W. Bush'}
+{'year': 2010, 'party': 'D', 'president': 'Obama'}
+{'year': 2015, 'party': 'D', 'president': 'Obama'}
+{'year': 2017, 'party': 'R', 'president': 'Trump'}
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:494: UserWarning: Method .delete() is depricated. Please use .q.delete() instead.
+  warnings.warn('Method .delete() is depricated. Please use .q.delete() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:364: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:390: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:407: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn('Method .head() is depricated. Please use .q.select_head() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>year</th>
+      <th>party</th>
+      <th>president</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>2000</td>
+      <td>D</td>
+      <td>Clinton</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2002</td>
+      <td>R</td>
+      <td>W. Bush</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>2006</td>
+      <td>R</td>
+      <td>W. Bush</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>2010</td>
+      <td>D</td>
+      <td>Obama</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>2015</td>
+      <td>D</td>
+      <td>Obama</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>We can verify that the constraint was defined by attempting to insert a row with an unknown party code.</p>
+<pre><code class="language-python">import sqlalchemy
+try:
+    docs_table.insert({'party':'whateva'})
+except sqlalchemy.exc.IntegrityError as e:
+    print(e)
+</code></pre>
+<pre><code>/DataDrive/code/doctable/examples/../doctable/doctable.py:364: UserWarning: Method .insert() is depricated. Please use .q.insert_single(), .q.insert_single_raw(), .q.insert_multi(), or .q.insert_multi() instead.
+  warnings.warn('Method .insert() is depricated. Please use .q.insert_single(), '
+/DataDrive/code/doctable/examples/../doctable/doctable.py:390: UserWarning: .insert_single() is depricated: please use .q.insert_single() or .q.insert_single_raw()
+  warnings.warn(f'.insert_single() is depricated: please use .q.insert_single() or '
+</code></pre>
+<p>And we can use all the expected select (see <a href="doctable_select.html">select examples</a>) methods.</p>
+<pre><code class="language-python">democrats = docs_table.select(where=docs_table['party']=='D')
+democrats
+</code></pre>
+<pre><code>/DataDrive/code/doctable/examples/../doctable/doctable.py:443: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn('Method .select() is depricated. Please use .q.select() instead.')
+
+
+
+
+
+[NSSDoc(id=1, year=2000, party='D', president='Clinton'),
+ NSSDoc(id=4, year=2010, party='D', president='Obama'),
+ NSSDoc(id=5, year=2015, party='D', president='Obama')]
+</code></pre>
+<pre><code class="language-python">clinton_doc = docs_table.select_first(where=docs_table['president']=='Clinton')
+clinton_doc
+</code></pre>
+<pre><code>/DataDrive/code/doctable/examples/../doctable/doctable.py:426: UserWarning: Method .select_first() is depricated. Please use .q.select_first() instead.
+  warnings.warn('Method .select_first() is depricated. Please use .q.select_first() instead.')
+
+
+
+
+
+NSSDoc(id=1, year=2000, party='D', president='Clinton')
+</code></pre>
+<p>Along with the methods we defined on the schema objects.</p>
+<pre><code class="language-python">clinton_doc.is_old()
+</code></pre>
+<pre><code>True
+</code></pre>
+<h2 id="adding-political-party-data">Adding political party data</h2>
+<p>Of course, relational database schemas often involve the use of more than one linked table. Now we'll attempt to integrate the data in <code>party_metadata</code> into our schema.</p>
+<pre><code class="language-python"># full name of party (we will use later)
+party_metadata = [
+    {'code': 'R', 'name': 'Republican'},
+    {'code': 'D', 'name': 'Democrat'},
+]
+</code></pre>
+<p>First, we create the <code>Party</code> dataclass just as before.</p>
+<pre><code class="language-python"># to be used as a database row representing a single political party
+@doctable.schema
+class Party:
+    __slots__ = []
+
+    id: int = doctable.Col(primary_key=True, autoincrement=True) # can also use doctable.IDCol() as a shortcut    
+    code: str = None
+    name: str = None
+</code></pre>
+<p>And then define a <code>DocTable</code> with a 'foreignkey' constraint that indicates it\'s relationship to the document table. We can use the reference to the "party" column using <code>nss_documents.party</code>.</p>
+<pre><code class="language-python">class PartyTable(doctable.DocTable):
+    _tabname_ = 'political_parties'
+    _schema_ = Party
+    _indices_ = {
+        doctable.Index('code_index', 'code')
+    }
+    _constraints_ = (
+        doctable.Constraint('foreignkey', ('code',), ('nss_documents.party',)),
+    )
+
+party_table = PartyTable(target=fname)
+party_table
+</code></pre>
+<pre><code>&lt;__main__.PartyTable at 0x7f2a55afa310&gt;
+</code></pre>
+<pre><code class="language-python">party_table.delete() # remove old entries if needed
+for party in party_metadata:
+    print(party)
+    party_table.insert(party)
+party_table.head()
+</code></pre>
+<pre><code>{'code': 'R', 'name': 'Republican'}
+{'code': 'D', 'name': 'Democrat'}
+
+
+/DataDrive/code/doctable/examples/../doctable/doctable.py:494: UserWarning: Method .delete() is depricated. Please use .q.delete() instead.
+  warnings.warn('Method .delete() is depricated. Please use .q.delete() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:407: UserWarning: Method .head() is depricated. Please use .q.select_head() instead.
+  warnings.warn('Method .head() is depricated. Please use .q.select_head() instead.')
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>code</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>R</td>
+      <td>Republican</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>D</td>
+      <td>Democrat</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="performing-join-select-queries">Performing "join" select queries</h2>
+<p>In contrast to sql, the type of join is inferred from the way the select query is used. Using a <code>select</code> method with columns for both tables will issue an outer join in lieu of other parameters. Also note that we must use <code>as_dataclass</code> to indicate the data should not use a dataclass for the results, since joined results includes fields from both </p>
+<pre><code class="language-python">party_table.select(['name', docs_table['president']], as_dataclass=False)
+</code></pre>
+<pre><code>/DataDrive/code/doctable/examples/../doctable/doctable.py:443: UserWarning: Method .select() is depricated. Please use .q.select() instead.
+  warnings.warn('Method .select() is depricated. Please use .q.select() instead.')
+/DataDrive/code/doctable/examples/../doctable/doctable.py:445: UserWarning: The "as_dataclass" parameter has been depricated: please set get_raw=True or select_raw to specify that you would like to retrieve a raw RowProxy pobject.
+  warnings.warn(f'The "as_dataclass" parameter has been depricated: please set get_raw=True or '
+/DataDrive/code/doctable/examples/../doctable/connectengine.py:69: SAWarning: SELECT statement has a cartesian product between FROM element(s) "nss_documents" and FROM element "political_parties".  Apply join condition(s) between each element to resolve.
+  return self._engine.execute(query, *args, **kwargs)
+/DataDrive/code/doctable/examples/../doctable/doctable.py:453: UserWarning: Conversion from row to object failed according to the following error. Please use .q.select_raw() next time in the future to avoid this issue. e=RowDataConversionFailed("Conversion from &lt;class 'sqlalchemy.engine.row.LegacyRow'&gt; to &lt;class '__main__.Party'&gt; failed.")
+  warnings.warn(f'Conversion from row to object failed according to the following '
+
+
+
+
+
+[('Republican', 'Clinton'),
+ ('Republican', 'W. Bush'),
+ ('Republican', 'W. Bush'),
+ ('Republican', 'Obama'),
+ ('Republican', 'Obama'),
+ ('Republican', 'Trump'),
+ ('Republican', None),
+ ('Democrat', 'Clinton'),
+ ('Democrat', 'W. Bush'),
+ ('Democrat', 'W. Bush'),
+ ('Democrat', 'Obama'),
+ ('Democrat', 'Obama'),
+ ('Democrat', 'Trump'),
+ ('Democrat', None)]
+</code></pre>
+<p>To perform an inner join, use a where conditional indicating the columns to be matched.</p>
+<pre><code class="language-python">docs_table.select(['year', 'president', party_table['name']], as_dataclass=False, where=docs_table['party']==party_table['code'])
+</code></pre>
+<pre><code>/DataDrive/code/doctable/examples/../doctable/doctable.py:453: UserWarning: Conversion from row to object failed according to the following error. Please use .q.select_raw() next time in the future to avoid this issue. e=RowDataConversionFailed("Conversion from &lt;class 'sqlalchemy.engine.row.LegacyRow'&gt; to &lt;class '__main__.NSSDoc'&gt; failed.")
+  warnings.warn(f'Conversion from row to object failed according to the following '
+
+
+
+
+
+[(2000, 'Clinton', 'Democrat'),
+ (2002, 'W. Bush', 'Republican'),
+ (2006, 'W. Bush', 'Republican'),
+ (2010, 'Obama', 'Democrat'),
+ (2015, 'Obama', 'Democrat'),
+ (2017, 'Trump', 'Republican')]
+</code></pre>
+<p>And this works approximately the same when we switch the tables being selected.</p>
+<pre><code class="language-python">party_table.select(['code', 'name', docs_table['president']], as_dataclass=False, where=docs_table['party']==party_table['code'])
+</code></pre>
+<pre><code>[('R', 'Republican', 'Trump'),
+ ('R', 'Republican', 'W. Bush'),
+ ('R', 'Republican', 'W. Bush'),
+ ('D', 'Democrat', 'Clinton'),
+ ('D', 'Democrat', 'Obama'),
+ ('D', 'Democrat', 'Obama')]
+</code></pre>
+<p>And that is all for this vignette! See the list of vignettes at the top of this page for more examples.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      
+    
+  </body>
+</html>
