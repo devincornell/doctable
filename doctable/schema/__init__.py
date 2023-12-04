@@ -1,7 +1,7 @@
 from .tableschema import *
 from .missing import *
 from .column import *
-from .templates import IDColTemplate, IDAddedTemplate, IDAddedUpdatedTemplate
+from .templates import IDColTemplate, AddedColTemplate, UpdatedColTemplate
 
 #from .tableschema_decorator import *
 #from .general import *

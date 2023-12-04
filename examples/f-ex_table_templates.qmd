@@ -1,0 +1,27 @@
+---
+title: "Table Templates"
+author: Devin J. Cornell
+---
+
+
+In this example, I show how to use a table template to create your schemas. This is as simple as creating a table schema that inherits from one of the built-in template classes. 
+
+
+```{python}
+
+import sys
+sys.path.append('..')
+import doctable
+import glob
+```
+
+
+
+```{python}
+@doctable.table_schema
+class MyTab(doctable.IDColTemplate, doctable.AddedColTemplate, doctable.UpdatedColTemplate):
+    a: int = doctable.Column()
+    s: str = doctable.Column()
+
+doctable.inspect_schema(MyTab).column_info_df()
+```

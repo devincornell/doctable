@@ -6,6 +6,14 @@ import datetime
 from .column import Column, ColumnArgs, FieldArgs
 
 
+def column_templates() -> typing.List[typing.Type]:
+    return [
+        IDColTemplate,
+        AddedColTemplate,
+        UpdatedColTemplate,
+    ]
+
+
 @dataclasses.dataclass
 class IDColTemplate:
     '''Template that includes the standard id field.'''
@@ -19,7 +27,7 @@ class IDColTemplate:
     )
 
 @dataclasses.dataclass
-class IDAddedTemplate(IDColTemplate):
+class AddedColTemplate:
     '''Template that includes the standard id field.'''
     added: datetime.datetime = Column(
         column_args=ColumnArgs(
@@ -30,7 +38,7 @@ class IDAddedTemplate(IDColTemplate):
     )
 
 @dataclasses.dataclass
-class IDAddedUpdatedTemplate(IDAddedTemplate):
+class UpdatedColTemplate:
     '''Template that includes the standard id field.'''    
     updated: datetime.datetime = Column(
         column_args=ColumnArgs(
